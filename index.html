@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>한국어 단어 테스트 - 韓国語単語テスト</title>
+<style>
+:root{
+  --bg:#0f1115; --panel:#1a1d24; --panel2:#22262f; --line:#2c313b;
+  --text:#f5f6fa; --mute:#8a93a6; --orange:#ff9600; --orange-d:#cc7700;
+  --green:#58cc02; --green-d:#46a302; --red:#ff4b4b; --blue:#1cb0f6;
+  --purple:#a560e8; --gold:#ffc800;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+  font-family:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans CJK JP","Noto Sans KR",system-ui,sans-serif;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;display:flex;justify-content:center;
+  background:radial-gradient(1200px 800px at 50% -10%,#1c2030 0%,#0f1115 60%)}
+.app{width:100%;max-width:520px;min-height:100vh;display:flex;flex-direction:column;position:relative;padding:0 0 40px}
+
+/* ===== top bar ===== */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(15,17,21,.95);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.brand{font-weight:900;font-size:17px;letter-spacing:.5px;
+  background:linear-gradient(135deg,var(--orange),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.qcount{margin-left:auto;font-weight:800;font-size:14px;color:var(--mute)}
+
+/* ===== timer ===== */
+.timerwrap{padding:10px 16px 0}
+.timerbar{height:14px;border-radius:8px;background:var(--panel2);overflow:hidden;border:1px solid var(--line)}
+.timerfill{height:100%;width:100%;background:linear-gradient(90deg,var(--green),var(--green-d));transition:width .1s linear}
+.timerfill.warn{background:linear-gradient(90deg,var(--orange),var(--orange-d))}
+.timerfill.danger{background:linear-gradient(90deg,var(--red),#c83232)}
+.timertext{margin-top:6px;font-size:13px;font-weight:800;color:var(--mute);text-align:right}
+
+/* ===== screens ===== */
+.screen{flex:1;padding:18px 16px;display:none;flex-direction:column}
+.screen.on{display:flex}
+
+h1.title{font-size:24px;font-weight:900;margin:8px 0 4px}
+.lead{color:var(--mute);font-size:14px;line-height:1.7;margin:0 0 18px}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}
+.qtype{display:inline-block;font-size:12px;font-weight:900;letter-spacing:.5px;padding:5px 12px;border-radius:20px;margin-bottom:14px}
+.qtype.jk{background:rgba(28,176,246,.15);color:var(--blue)}
+.qtype.kj{background:rgba(165,96,232,.15);color:var(--purple)}
+.qtype.w{background:rgba(255,150,0,.15);color:var(--orange)}
+.qprompt{font-size:15px;color:var(--mute);line-height:1.7}
+.qword{font-size:30px;font-weight:900;margin:6px 0 2px;word-break:break-all}
+.qword.ko{letter-spacing:.5px}
+
+/* choices */
+.choices{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.choice{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:16px 18px;
+  font-size:19px;font-weight:800;text-align:left;cursor:pointer;transition:transform .1s,border-color .1s,background .1s;
+  display:flex;align-items:center;gap:12px;color:var(--text)}
+.choice:active{transform:scale(.98)}
+.choice:hover{border-color:var(--mute)}
+.choice .mark{width:24px;height:24px;border-radius:50%;border:2px solid var(--mute);flex:0 0 auto}
+.choice.correct{border-color:var(--green);background:rgba(88,204,2,.12)}
+.choice.wrong{border-color:var(--red);background:rgba(255,75,75,.12)}
+.choice[disabled]{cursor:default;opacity:.85}
+
+/* writing input */
+.winput{width:100%;font-size:24px;font-weight:800;text-align:center;padding:16px;border-radius:14px;
+  background:var(--panel2);border:2px solid var(--line);color:var(--text);margin:4px 0 14px}
+.winput:focus{outline:none;border-color:var(--orange)}
+
+/* buttons */
+.btn{display:block;width:100%;border:none;border-radius:16px;padding:16px;font-size:17px;font-weight:900;cursor:pointer;
+  letter-spacing:.5px;transition:transform .1s,filter .1s;margin-top:auto}
+.btn:active{transform:translateY(2px)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.btn.primary{background:var(--green);color:#08230a;box-shadow:0 5px 0 var(--green-d)}
+.btn.orange{background:var(--orange);color:#2a1700;box-shadow:0 5px 0 var(--orange-d)}
+.btn.ghost{background:var(--panel);color:var(--text);border:1px solid var(--line);box-shadow:none}
+.btn.sm{margin-top:10px;padding:13px;font-size:15px}
+
+/* feedback */
+.fb-banner{border-radius:18px;padding:20px;text-align:center;margin-bottom:16px}
+.fb-banner.ok{background:rgba(88,204,2,.13);border:1px solid var(--green)}
+.fb-banner.ng{background:rgba(255,75,75,.13);border:1px solid var(--red)}
+.fb-banner.to{background:rgba(255,200,0,.12);border:1px solid var(--gold)}
+.fb-title{font-size:26px;font-weight:900}
+.fb-banner.ok .fb-title{color:var(--green)}
+.fb-banner.ng .fb-title{color:var(--red)}
+.fb-banner.to .fb-title{color:var(--gold)}
+.fb-row{display:flex;justify-content:space-between;padding:10px 4px;border-bottom:1px solid var(--line);font-size:15px;gap:14px}
+.fb-row:last-child{border-bottom:none}
+.fb-row .k{color:var(--mute);flex:0 0 auto}
+.fb-row .v{font-weight:800;text-align:right}
+.fb-row .v.ko{font-size:20px}
+.note{margin-top:12px;background:rgba(255,150,0,.1);border:1px solid var(--orange-d);border-radius:12px;
+  padding:12px 14px;font-size:13px;line-height:1.6;color:#ffce8a}
+.note b{color:var(--orange)}
+
+/* result */
+.rank-hero{text-align:center;padding:14px 0 6px}
+.rank-letter{font-size:96px;font-weight:900;line-height:1;letter-spacing:2px}
+.rank-S{color:var(--gold);text-shadow:0 0 30px rgba(255,200,0,.6)}
+.rank-A{color:var(--green)}
+.rank-B{color:var(--blue)}
+.rank-C{color:var(--purple)}
+.rank-D{color:var(--mute)}
+.bigscore{font-size:34px;font-weight:900;margin-top:6px}
+.subscore{color:var(--mute);font-weight:800;margin-top:2px}
+.perfect{color:var(--gold);font-weight:900;letter-spacing:3px;margin-top:8px;font-size:18px}
+.specialmsg{margin-top:6px;color:var(--mute);font-size:14px}
+.divider{height:1px;background:var(--line);margin:16px 0}
+.stat-row{display:flex;justify-content:space-between;padding:8px 4px;font-size:15px}
+.stat-row .k{color:var(--mute)}
+.stat-row .v{font-weight:800}
+
+/* table */
+.qtable{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+.qtable th,.qtable td{padding:8px 5px;border-bottom:1px solid var(--line);text-align:center}
+.qtable th{color:var(--mute);font-size:11px;font-weight:800}
+.qtable td.w{font-weight:800;letter-spacing:.3px}
+.qtable .ok{color:var(--green)}
+.qtable .ng{color:var(--red)}
+.qtable .to{color:var(--gold)}
+
+/* review */
+.rv-item{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.rv-ko{font-size:24px;font-weight:900}
+.rv-ja{font-size:15px;color:var(--text);margin-top:2px}
+.rv-ans{font-size:13px;color:var(--red);margin-top:6px}
+.rv-cor{font-size:13px;color:var(--green);margin-top:2px}
+
+.section-title{font-size:13px;color:var(--mute);font-weight:900;text-transform:uppercase;letter-spacing:1.2px;margin:20px 4px 10px}
+
+/* confetti */
+.confetti{position:fixed;top:-10px;width:10px;height:14px;z-index:999;pointer-events:none;border-radius:2px}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.2}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+.pop{animation:pop .5s ease both}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">한국어 단어 테스트</div>
+    <div class="qcount" id="qcount"></div>
+  </div>
+
+  <div class="timerwrap" id="timerwrap" style="display:none">
+    <div class="timerbar"><div class="timerfill" id="timerfill"></div></div>
+    <div class="timertext" id="timertext">残り時間：10.0秒</div>
+  </div>
+
+  <!-- T-01 start -->
+  <div class="screen on" id="s-start">
+    <h1 class="title">韓国語単語テスト</h1>
+    <p class="lead">
+      登録された韓国語<b>100語</b>から<b>12問</b>を出題します。<br>
+      Q1〜5：日→韓 四択 ／ Q6〜10：韓→日 四択 ／ Q11〜12：日→韓 書き取り<br>
+      各問の制限時間は<b>10秒</b>。早く正解するほど高得点。満点100点です。
+    </p>
+    <div class="card">
+      <div class="stat-row"><span class="k">配点 四択</span><span class="v">最大8点 ×10問</span></div>
+      <div class="stat-row"><span class="k">配点 書き取り</span><span class="v">最大10点 ×2問</span></div>
+      <div class="stat-row"><span class="k">ランク</span><span class="v">S / A / B / C / D</span></div>
+    </div>
+    <button class="btn primary" onclick="startTest()">テストを始める</button>
+  </div>
+
+  <div class="screen" id="s-quiz"></div>
+  <div class="screen" id="s-fb"></div>
+  <div class="screen" id="s-result"></div>
+  <div class="screen" id="s-review"></div>
+</div>
+
+<script>
+/* ============================================================
+   単語データ 100語
+   id, ko(韓), ja(正しい意味), d(韓→日 ダミー選択肢3つ), n(注意事項/任意)
+   ============================================================ */
+const WORDS=[
+ {id:1,ko:"가루비누",ja:"粉石鹸",d:["洗濯物","洗剤の泡","柔軟剤"]},
+ {id:2,ko:"강우량",ja:"降雨量",d:["降水確率","河川の水位","湿度"]},
+ {id:3,ko:"갸름하다",ja:"顔などが細長い",d:["丸みがある","小柄である","痩せすぎている"]},
+ {id:4,ko:"개구쟁이",ja:"いたずらっ子",d:["泣き虫","甘えん坊","優等生"]},
+ {id:5,ko:"건더기",ja:"汁物などの具",d:["調味料","だし汁","食べ残し"]},
+ {id:6,ko:"건망증",ja:"物忘れ、健忘症",d:["不眠症","集中力不足","記憶力"]},
+ {id:7,ko:"걸레질",ja:"雑巾がけ",d:["洗濯","アイロンがけ","皿洗い"]},
+ {id:8,ko:"고무신",ja:"ゴム靴",d:["長靴","革靴","運動靴"]},
+ {id:9,ko:"고아원",ja:"孤児院",d:["養老院","保育園","病院"]},
+ {id:10,ko:"고지서",ja:"請求書、通知書",d:["契約書","領収書","申込書"]},
+ {id:11,ko:"구두쇠",ja:"けちな人",d:["頑固な人","怠け者","お金持ち"]},
+ {id:12,ko:"국그릇",ja:"汁物を入れる椀",d:["ご飯茶碗","小皿","鍋"]},
+ {id:13,ko:"국문학",ja:"韓国文学",d:["国際文学","古典文学","外国文学"]},
+ {id:14,ko:"국악",ja:"韓国の伝統音楽",d:["民俗遊び","西洋音楽","国歌"]},
+ {id:15,ko:"기행문",ja:"紀行文、旅行記",d:["感想文","説明文","日記"]},
+ {id:16,ko:"기혼",ja:"既婚",d:["未婚","離婚","婚約中"]},
+ {id:17,ko:"깨소금",ja:"ごま塩",d:["唐辛子粉","砂糖","きな粉"]},
+ {id:18,ko:"꼬박꼬박",ja:"欠かさず、きちんと",d:["少しずつ","慌てて","たまに"]},
+ {id:19,ko:"꼴찌",ja:"最下位、びり",d:["優勝者","補欠","引き分け"]},
+ {id:20,ko:"냇가",ja:"小川のほとり",d:["海岸","湖畔","山頂"]},
+ {id:21,ko:"냉방병",ja:"冷房による体調不良",d:["熱中症","冷え性","風邪"]},
+ {id:22,ko:"네모나다",ja:"四角い",d:["丸い","平らだ","細長い"]},
+ {id:23,ko:"노약자",ja:"高齢者や体の弱い人",d:["未成年者","障害者のみ","入院患者"]},
+ {id:24,ko:"노처녀",ja:"年齢を重ねた未婚女性",d:["離婚した女性","若い既婚女性","一人暮らしの女性"],n:"相手に直接使うと失礼になりやすい"},
+ {id:25,ko:"노총각",ja:"年齢を重ねた未婚男性",d:["離婚した男性","長男","一人暮らしの男性"],n:"相手に直接使うと失礼になりやすい"},
+ {id:26,ko:"다림질",ja:"アイロンがけ",d:["裁縫","雑巾がけ","乾燥"]},
+ {id:27,ko:"단발머리",ja:"ボブヘア、おかっぱ",d:["長髪","くせ毛","ストレートヘア"]},
+ {id:28,ko:"달밤",ja:"月夜",d:["夜明け","満月","星空"]},
+ {id:29,ko:"담뱃불",ja:"たばこの火",d:["花火","炎","街灯"]},
+ {id:30,ko:"대중목욕탕",ja:"公衆浴場、銭湯",d:["温泉旅館","サウナ","プール"]},
+ {id:31,ko:"돌잔치",ja:"1歳の誕生日祝い",d:["結婚式","還暦祝い","成人式"]},
+ {id:32,ko:"독방",ja:"独房、一人用の部屋",d:["寝室","病室","寮の部屋"]},
+ {id:33,ko:"독신자",ja:"独身者",d:["婚約者","配偶者","一人っ子"]},
+ {id:34,ko:"동양화",ja:"東洋画",d:["油絵","水彩画","風景写真"]},
+ {id:35,ko:"뒷이야기",ja:"裏話、後日談",d:["前置き","要約","うわさ話"]},
+ {id:36,ko:"등불",ja:"灯火、明かり",d:["懐中電灯","日差し","信号"]},
+ {id:37,ko:"레포츠",ja:"レジャースポーツ",d:["団体競技","筋力トレーニング","体育の授業"]},
+ {id:38,ko:"마네킹",ja:"マネキン",d:["人形劇","洋服店","モデル"]},
+ {id:39,ko:"마디",ja:"節、区切り",d:["根","枝","葉"]},
+ {id:40,ko:"맏딸",ja:"長女",d:["末っ子の娘","一人娘","長男の妻"]},
+ {id:41,ko:"맏아들",ja:"長男",d:["次男","一人息子","末っ子"]},
+ {id:42,ko:"매연",ja:"煤煙、排気ガス",d:["ほこり","蒸気","煙草の煙"]},
+ {id:43,ko:"매운탕",ja:"魚介類の辛い鍋",d:["焼き魚","冷麺","サムギョプサル"]},
+ {id:44,ko:"맹인",ja:"目が見えない人",d:["耳が聞こえない人","高齢者","病人"],n:"現在は「시각장애인」が一般的"},
+ {id:45,ko:"먹을거리",ja:"食べ物",d:["飲み物","調味料","食器"]},
+ {id:46,ko:"멀티미디어실",ja:"マルチメディア室",d:["図書室","放送室","会議室"]},
+ {id:47,ko:"명랑",ja:"明朗、朗らかさ",d:["真面目さ","静けさ","慎重さ"]},
+ {id:48,ko:"모험심",ja:"冒険心",d:["好奇心","責任感","警戒心"]},
+ {id:49,ko:"목사",ja:"牧師",d:["医師","教師","僧侶"]},
+ {id:50,ko:"무통장 입금",ja:"通帳を使わない口座振込",d:["現金払い","クレジットカード払い","自動引き落とし"]},
+ {id:51,ko:"민속놀이",ja:"民俗遊び",d:["伝統音楽","民話","スポーツ大会"]},
+ {id:52,ko:"민요",ja:"民謡",d:["国歌","童謡","応援歌"]},
+ {id:53,ko:"바느질",ja:"針仕事、裁縫",d:["編み物","アイロンがけ","洗濯"]},
+ {id:54,ko:"바둑",ja:"囲碁",d:["将棋","トランプ","双六"]},
+ {id:55,ko:"방청객",ja:"傍聴人、番組観覧者",d:["出演者","司会者","記者"]},
+ {id:56,ko:"벼룩시장",ja:"フリーマーケット",d:["百貨店","青果市場","競売"]},
+ {id:57,ko:"벽걸이",ja:"壁掛け",d:["卓上用","携帯用","天井照明"]},
+ {id:58,ko:"보름",ja:"陰暦の十五日",d:["月初め","月末","新月の日"]},
+ {id:59,ko:"보름달",ja:"満月",d:["三日月","半月","日の出"]},
+ {id:60,ko:"보약",ja:"滋養のために飲む薬",d:["睡眠薬","頭痛薬","消毒薬"]},
+ {id:61,ko:"복날",ja:"夏に滋養食を食べる日",d:["秋夕","旧正月","成人の日"]},
+ {id:62,ko:"부잣집",ja:"金持ちの家",d:["大家族","古い家","別荘"]},
+ {id:63,ko:"비빔냉면",ja:"汁の少ない混ぜ冷麺",d:["水冷麺","温麺","ビビンバ"]},
+ {id:64,ko:"사은품",ja:"購入特典、おまけ",d:["返品商品","贈答品","高級品"]},
+ {id:65,ko:"사진첩",ja:"写真アルバム",d:["写真館","額縁","撮影室"]},
+ {id:66,ko:"삼일절",ja:"三・一独立運動を記念する祝日",d:["光復節","開天節","ハングルの日"]},
+ {id:67,ko:"산더미",ja:"山積み、山盛り",d:["山頂","山道","山脈"]},
+ {id:68,ko:"생강차",ja:"生姜茶",d:["緑茶","柚子茶","麦茶"]},
+ {id:69,ko:"생머리",ja:"くせのないストレートヘア",d:["ボブヘア","くせ毛","短髪"]},
+ {id:70,ko:"성인병",ja:"生活習慣病、成人病",d:["感染症","眼病","冷房病"]},
+ {id:71,ko:"세배",ja:"旧正月に行う挨拶のお辞儀",d:["成人式","先祖供養","結婚式の礼"]},
+ {id:72,ko:"세뱃돈",ja:"旧正月にもらうお年玉",d:["結婚祝い","賞金","給料"]},
+ {id:73,ko:"소극장",ja:"小劇場",d:["映画館","体育館","美術館"]},
+ {id:74,ko:"소매치기",ja:"すり",d:["泥棒","詐欺師","強盗"]},
+ {id:75,ko:"수료식",ja:"修了式",d:["入学式","卒業式","始業式"]},
+ {id:76,ko:"수선",ja:"修繕、衣服などの直し",d:["洗濯","交換","裁縫教室"]},
+ {id:77,ko:"아랫사람",ja:"目下の人",d:["年上の人","親しい友人","他人"]},
+ {id:78,ko:"애완견",ja:"ペットとして飼う犬",d:["野良犬","番犬","盲導犬"],n:"現在は「반려견」が広く使われる"},
+ {id:79,ko:"양로원",ja:"高齢者のための施設",d:["幼稚園","病院","孤児院"]},
+ {id:80,ko:"연속극",ja:"連続ドラマ",d:["映画","ニュース番組","ドキュメンタリー"]},
+ {id:81,ko:"연애결혼",ja:"恋愛結婚",d:["見合い結婚","国際結婚","再婚"]},
+ {id:82,ko:"열람실",ja:"閲覧室、自習室",d:["会議室","実験室","職員室"]},
+ {id:83,ko:"옛말",ja:"昔の言葉、古い表現",d:["方言","外来語","敬語"]},
+ {id:84,ko:"온돌방",ja:"床暖房のある部屋",d:["洋室","屋根裏部屋","客室"]},
+ {id:85,ko:"온천욕",ja:"温泉に入ること",d:["海水浴","足湯","サウナ"]},
+ {id:86,ko:"외동딸",ja:"一人娘",d:["長女","末娘","義理の娘"]},
+ {id:87,ko:"외동아들",ja:"一人息子",d:["長男","末息子","義理の息子"]},
+ {id:88,ko:"우등상",ja:"優秀な成績に対する賞",d:["参加賞","奨学金","優勝カップ"]},
+ {id:89,ko:"우물",ja:"井戸",d:["池","水道","泉"]},
+ {id:90,ko:"웃어른",ja:"目上の人",d:["年下の人","同級生","部下"]},
+ {id:91,ko:"윷놀이",ja:"韓国の伝統的な盤遊び",d:["囲碁","将棋","鬼ごっこ"]},
+ {id:92,ko:"의식주",ja:"衣食住",d:["喜怒哀楽","春夏秋冬","食事と睡眠"]},
+ {id:93,ko:"이비인후과",ja:"耳鼻咽喉科",d:["眼科","皮膚科","内科"]},
+ {id:94,ko:"인출기",ja:"現金引出機、ATM",d:["コピー機","自動販売機","券売機"]},
+ {id:95,ko:"장가",ja:"男性が結婚すること",d:["女性が嫁ぐこと","婚約","離婚"]},
+ {id:96,ko:"장남",ja:"長男",d:["次男","一人息子","義理の息子"]},
+ {id:97,ko:"장녀",ja:"長女",d:["次女","一人娘","義理の娘"]},
+ {id:98,ko:"장례식장",ja:"葬儀場",d:["結婚式場","会議場","火葬場"]},
+ {id:99,ko:"전산실",ja:"電算室、情報処理室",d:["放送室","実験室","資料室"]},
+ {id:100,ko:"현모양처",ja:"良妻賢母",d:["専業主婦","働く母親","厳格な母親"],n:"歴史的・伝統的な価値観を説明する場面で使われやすい"},
+];
+
+/* ============================================================ */
+const TIME_LIMIT=10;
+const PLAN=[
+  ...Array(5).fill("jk"),     // Q1-5  日→韓 四択
+  ...Array(5).fill("kj"),     // Q6-10 韓→日 四択
+  ...Array(2).fill("w"),      // Q11-12 日→韓 書き取り
+];
+const TYPE_LABEL={jk:"日→韓 四択",kj:"韓→日 四択",w:"日→韓 書き取り"};
+
+let state=null;
+
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function sample(a,n){return shuffle(a).slice(0,n)}
+
+/* 100語から12語をランダム抽出（重複なし）して問題を組み立てる */
+function buildQuestions(){
+  const picked=sample(WORDS,12);
+  return picked.map((w,i)=>{
+    const type=PLAN[i];
+    let choices=null,correct;
+    if(type==="kj"){
+      // 韓→日 四択：正解＝登録された日本語訳、誤答＝登録ダミー3つ
+      correct=w.ja;
+      choices=shuffle([w.ja,...w.d.slice(0,3)]);
+    }else if(type==="jk"){
+      // 日→韓 四択：正解＝韓国語、誤答＝他の99語からランダム3語
+      correct=w.ko;
+      const dist=sample(WORDS.filter(x=>x.id!==w.id),3).map(x=>x.ko);
+      choices=shuffle([w.ko,...dist]);
+    }else{
+      // 日→韓 書き取り：正解＝韓国語（分かち書き込み完全一致）
+      correct=w.ko;
+    }
+    return {word:w,type,choices,correct};
+  });
+}
+
+/* ===== 採点 ===== */
+function calculateQuestionScore(type,isCorrect,t){
+  if(!isCorrect||t>10)return 0;
+  const fast=t<5;
+  if(type==="w")return fast?10:9;
+  return fast?8:7;
+}
+function calculateRank(s){
+  if(s===100)return"S";
+  if(s<=50)return"D";
+  if(s<=70)return"C";
+  if(s<=80)return"B";
+  return"A";
+}
+
+function show(id){document.querySelectorAll(".screen").forEach(e=>e.classList.remove("on"));document.getElementById(id).classList.add("on");window.scrollTo(0,0)}
+
+function startTest(){
+  state={questions:buildQuestions(),idx:0,results:[]};
+  document.getElementById("timerwrap").style.display="block";
+  renderQuestion();
+}
+
+/* ===== タイマー ===== */
+let timer=null,qStart=0,answered=false;
+function startTimer(){
+  qStart=performance.now();answered=false;
+  const fill=document.getElementById("timerfill");
+  const txt=document.getElementById("timertext");
+  clearInterval(timer);
+  function tick(){
+    const elapsed=(performance.now()-qStart)/1000;
+    const remain=Math.max(0,TIME_LIMIT-elapsed);
+    const pct=remain/TIME_LIMIT*100;
+    fill.style.width=pct+"%";
+    fill.className="timerfill"+(remain<=3?" danger":remain<=5?" warn":"");
+    txt.textContent="残り時間："+remain.toFixed(1)+"秒";
+    if(remain<=0){clearInterval(timer);if(!answered)handleAnswer(null,true)}
+  }
+  tick();
+  timer=setInterval(tick,100);
+}
+function elapsedNow(){return Math.min(TIME_LIMIT,(performance.now()-qStart)/1000)}
+
+/* ===== 問題表示 ===== */
+function renderQuestion(){
+  const q=state.questions[state.idx];
+  document.getElementById("qcount").textContent="Q"+(state.idx+1)+" / 12";
+  const el=document.getElementById("s-quiz");
+  let html="";
+  if(q.type==="kj"){
+    html+=`<span class="qtype kj">${TYPE_LABEL.kj}</span>`;
+    html+=`<div class="card"><div class="qprompt">次の韓国語の意味を選んでください。</div>
+      <div class="qword ko">${q.word.ko}</div></div>`;
+    html+=`<div class="choices">`+q.choices.map(c=>
+      `<button class="choice" onclick="handleAnswer(this.dataset.v)" data-v="${esc(c)}">
+        <span class="mark"></span><span>${c}</span></button>`).join("")+`</div>`;
+  }else if(q.type==="jk"){
+    html+=`<span class="qtype jk">${TYPE_LABEL.jk}</span>`;
+    html+=`<div class="card"><div class="qprompt">「${q.word.ja}」に当たる韓国語を選んでください。</div></div>`;
+    html+=`<div class="choices">`+q.choices.map(c=>
+      `<button class="choice" onclick="handleAnswer(this.dataset.v)" data-v="${esc(c)}">
+        <span class="mark"></span><span class="ko">${c}</span></button>`).join("")+`</div>`;
+  }else{
+    html+=`<span class="qtype w">${TYPE_LABEL.w}</span>`;
+    html+=`<div class="card"><div class="qprompt">「${q.word.ja}」を韓国語で入力してください。</div></div>`;
+    html+=`<input class="winput" id="winput" autocomplete="off" autocapitalize="off"
+        placeholder="ここに入力" oninput="document.getElementById('wbtn').disabled=!this.value.trim()"
+        onkeydown="if(event.key==='Enter'&&this.value.trim())submitWriting()">`;
+    html+=`<button class="btn primary" id="wbtn" disabled onclick="submitWriting()">回答する</button>`;
+  }
+  el.innerHTML=html;
+  show("s-quiz");
+  startTimer();
+  if(q.type==="w")setTimeout(()=>{const w=document.getElementById("winput");if(w)w.focus()},50);
+}
+function esc(s){return String(s).replace(/"/g,"&quot;")}
+
+function submitWriting(){
+  const el=document.getElementById("winput");
+  if(!el)return;
+  handleAnswer(el.value);
+}
+
+/* ===== 回答処理 ===== */
+function handleAnswer(rawAnswer,timeout=false){
+  if(answered)return;answered=true;clearInterval(timer);
+  const q=state.questions[state.idx];
+  const t=elapsedNow();
+  const timedOut=timeout||t>=TIME_LIMIT;
+  let userAns,isCorrect;
+  if(q.type==="w"){
+    userAns=(rawAnswer==null?"":String(rawAnswer)).trim();   // 前後の空白除去
+    isCorrect=!timedOut&&userAns===q.correct;                // 分かち書き込み完全一致
+  }else{
+    userAns=rawAnswer==null?"":rawAnswer;
+    isCorrect=!timedOut&&userAns===q.correct;
+    document.querySelectorAll("#s-quiz .choice").forEach(b=>{
+      b.disabled=true;
+      if(b.dataset.v===q.correct)b.classList.add("correct");
+      else if(b.dataset.v===userAns)b.classList.add("wrong");
+    });
+  }
+  const tShown=timedOut?TIME_LIMIT:t;
+  const score=calculateQuestionScore(q.type,isCorrect,timedOut?99:t);
+  const verdict=timedOut?"timeout":(isCorrect?"correct":"wrong");
+  state.results.push({
+    n:state.idx+1,type:q.type,word:q.word,
+    userAns:timedOut?"（無回答）":(userAns||"（無回答）"),
+    correctText:q.type==="kj"?q.word.ja:q.word.ko,
+    verdict,time:tShown,score,review:!isCorrect
+  });
+  setTimeout(()=>renderFeedback(),q.type==="w"?0:350);
+}
+
+/* ===== 正誤表示 ===== */
+function renderFeedback(){
+  const r=state.results[state.results.length-1];
+  const w=r.word;
+  const el=document.getElementById("s-fb");
+  document.getElementById("timerwrap").style.display="none";
+  let banner,title;
+  if(r.verdict==="correct"){banner="ok";title="正解！";}
+  else if(r.verdict==="timeout"){banner="to";title="時間切れ";}
+  else{banner="ng";title="不正解";}
+
+  let rows="";
+  if(r.verdict==="correct"){
+    rows+=`<div class="fb-row"><span class="k">韓国語</span><span class="v ko">${w.ko}</span></div>`;
+    rows+=`<div class="fb-row"><span class="k">意味</span><span class="v">${w.ja}</span></div>`;
+    rows+=`<div class="fb-row"><span class="k">回答時間</span><span class="v">${r.time.toFixed(1)}秒</span></div>`;
+  }else if(r.verdict==="timeout"){
+    rows+=`<div class="fb-row"><span class="k">正解</span><span class="v ko">${w.ko}</span></div>`;
+    rows+=`<div class="fb-row"><span class="k">意味</span><span class="v">${w.ja}</span></div>`;
+  }else{
+    rows+=`<div class="fb-row"><span class="k">あなたの回答</span><span class="v">${r.userAns}</span></div>`;
+    rows+=`<div class="fb-row"><span class="k">正解</span><span class="v ko">${w.ko}</span></div>`;
+    rows+=`<div class="fb-row"><span class="k">意味</span><span class="v">${w.ja}</span></div>`;
+  }
+  rows+=`<div class="fb-row"><span class="k">獲得点数</span><span class="v">${r.score}点</span></div>`;
+
+  let noteHtml=w.n?`<div class="note">⚠️ <b>注意</b>：${w.n}</div>`:"";
+  const last=state.idx===11;
+  el.innerHTML=`
+    <div class="fb-banner ${banner}"><div class="fb-title">${title}</div></div>
+    <div class="card">${rows}</div>
+    ${noteHtml}
+    <button class="btn primary" onclick="nextQuestion()">${last?"結果を見る":"次へ"}</button>`;
+  show("s-fb");
+}
+
+function nextQuestion(){
+  if(state.idx===11){renderResult();return;}
+  state.idx++;
+  document.getElementById("timerwrap").style.display="block";
+  renderQuestion();
+}
+
+/* ===== 結果画面 ===== */
+function renderResult(){
+  document.getElementById("qcount").textContent="";
+  document.getElementById("timerwrap").style.display="none";
+  const R=state.results;
+  const total=R.reduce((a,r)=>a+r.score,0);
+  const rank=calculateRank(total);
+  const nCorrect=R.filter(r=>r.verdict==="correct").length;
+  const nWrong=R.filter(r=>r.verdict==="wrong").length;
+  const nTimeout=R.filter(r=>r.verdict==="timeout").length;
+  const jk=R.filter(r=>r.type==="jk").reduce((a,r)=>a+r.score,0);
+  const kj=R.filter(r=>r.type==="kj").reduce((a,r)=>a+r.score,0);
+  const wr=R.filter(r=>r.type==="w").reduce((a,r)=>a+r.score,0);
+  const times=R.map(r=>r.time);
+  const avg=times.reduce((a,b)=>a+b,0)/times.length;
+  const corrTimes=R.filter(r=>r.verdict==="correct").map(r=>r.time);
+  const fastestText=corrTimes.length?Math.min(...corrTimes).toFixed(1)+"秒":"—";
+
+  const rankMsg={
+    S:"PERFECT SCORE! 完璧です！",
+    A:"お見事！あと少しで満点です。",
+    B:"good！着実に身についています。",
+    C:"次回の目標はBランク（71点〜）！",
+    D:"間違えた単語を復習して再挑戦しよう。",
+  }[rank];
+  const perfect=rank==="S"?`<div class="perfect pop">★ PERFECT SCORE ★</div>`:"";
+
+  let table=`<table class="qtable"><thead><tr>
+    <th>問</th><th>形式</th><th>単語</th><th>正誤</th><th>時間</th><th>得点</th></tr></thead><tbody>`;
+  R.forEach(r=>{
+    const vc=r.verdict==="correct"?"ok":r.verdict==="wrong"?"ng":"to";
+    const vt=r.verdict==="correct"?"正解":r.verdict==="wrong"?"不正解":"時間切れ";
+    const tl={jk:"日→韓",kj:"韓→日",w:"書取"}[r.type];
+    table+=`<tr><td>Q${r.n}</td><td>${tl}</td><td class="w">${r.word.ko}</td>
+      <td class="${vc}">${vt}</td><td>${r.time.toFixed(1)}秒</td><td>${r.score}点</td></tr>`;
+  });
+  table+=`</tbody></table>`;
+
+  const el=document.getElementById("s-result");
+  el.innerHTML=`
+    <div class="rank-hero">
+      <div class="rank-letter rank-${rank} pop">${rank}</div>
+      <div class="bigscore">${total} / 100点</div>
+      <div class="subscore">${nCorrect} / 12問 正解</div>
+      ${perfect}
+      <div class="specialmsg">${rankMsg}</div>
+    </div>
+    <div class="divider"></div>
+    <div class="card">
+      <div class="stat-row"><span class="k">日→韓 四択</span><span class="v">${jk} / 40点</span></div>
+      <div class="stat-row"><span class="k">韓→日 四択</span><span class="v">${kj} / 40点</span></div>
+      <div class="stat-row"><span class="k">日→韓 書き取り</span><span class="v">${wr} / 20点</span></div>
+    </div>
+    <div class="card">
+      <div class="stat-row"><span class="k">正解数</span><span class="v">${nCorrect}問</span></div>
+      <div class="stat-row"><span class="k">不正解数</span><span class="v">${nWrong}問</span></div>
+      <div class="stat-row"><span class="k">時間切れ</span><span class="v">${nTimeout}問</span></div>
+      <div class="stat-row"><span class="k">平均回答時間</span><span class="v">${avg.toFixed(1)}秒</span></div>
+      <div class="stat-row"><span class="k">最速回答</span><span class="v">${fastestText}</span></div>
+    </div>
+    <div class="section-title">問題別結果</div>
+    <div class="card">${table}</div>
+    <button class="btn orange" onclick="renderReview()">間違えた単語を復習する</button>
+    <button class="btn primary sm" onclick="startTest()">もう一度挑戦する</button>
+    <button class="btn ghost sm" onclick="goHome()">ホームに戻る</button>`;
+  show("s-result");
+  if(rank==="S"||rank==="A")launchConfetti(rank==="S"?120:50);
+}
+
+function goHome(){
+  document.getElementById("timerwrap").style.display="none";
+  document.getElementById("qcount").textContent="";
+  show("s-start");
+}
+
+/* ===== 復習画面 ===== */
+function renderReview(){
+  const wrongs=state.results.filter(r=>r.review);
+  const el=document.getElementById("s-review");
+  let items;
+  if(wrongs.length===0){
+    items=`<div class="card" style="text-align:center">
+      <div style="font-size:40px">🎉</div>
+      <div style="font-weight:900;font-size:18px;margin-top:8px">全問正解！</div>
+      <div style="color:var(--mute);margin-top:6px">復習する単語はありません。</div></div>`;
+  }else{
+    items=wrongs.map(r=>{
+      const w=r.word;
+      const note=w.n?`<div class="note">⚠️ <b>注意</b>：${w.n}</div>`:"";
+      return `<div class="rv-item">
+        <div class="rv-ko">${w.ko}</div>
+        <div class="rv-ja">${w.ja}</div>
+        <div class="rv-ans">あなたの回答：${r.userAns}</div>
+        <div class="rv-cor">正解：${r.correctText}</div>
+        ${note}</div>`;
+    }).join("");
+  }
+  el.innerHTML=`
+    <h1 class="title">間違えた単語</h1>
+    <p class="lead">${wrongs.length}語の復習対象があります。</p>
+    ${items}
+    <button class="btn primary" onclick="startTest()">もう一度テストする</button>
+    <button class="btn ghost sm" onclick="renderResult()">結果画面に戻る</button>`;
+  show("s-review");
+}
+
+/* ===== 紙吹雪 ===== */
+function launchConfetti(n){
+  const colors=["#ffc800","#58cc02","#1cb0f6","#ff9600","#a560e8","#ff4b4b"];
+  for(let i=0;i<n;i++){
+    const c=document.createElement("div");
+    c.className="confetti";
+    c.style.left=Math.random()*100+"vw";
+    c.style.background=colors[i%colors.length];
+    c.style.animation=`fall ${1.6+Math.random()*1.6}s linear ${Math.random()*0.5}s forwards`;
+    c.style.transform=`rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),4000);
+  }
+}
+</script>
+</body>
+</html>
