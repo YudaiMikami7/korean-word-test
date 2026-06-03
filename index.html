@@ -55,8 +55,8 @@ button{font-family:inherit}
 .ovsym{font-size:60vw;line-height:1;font-weight:600;opacity:.6;transform:translateY(-20vh)}
 .ovsym.o{color:var(--red);-webkit-text-stroke:1.4vw var(--red);text-stroke:1.4vw var(--red)}
 .ovsym.x{color:var(--blue);font-weight:400;-webkit-text-stroke:1.2vw var(--blue);text-stroke:1.2vw var(--blue)}
-/* 不正解/わからない/時間切れ時に正解の単語を表示（×記号は画面上寄りのため下部に配置） */
-.ovans{position:absolute;left:0;right:0;bottom:14%;text-align:center;padding:0 18px;pointer-events:none}
+/* 不正解/わからない/時間切れ時に正解の単語を表示。問題と選択肢の間（画面中央）に配置 */
+.ovans{position:absolute;left:0;right:0;top:52%;transform:translateY(-50%);text-align:center;padding:0 18px;pointer-events:none}
 .ovans .oa-label{color:var(--mute);font-size:12px;font-weight:800;letter-spacing:3px;margin-bottom:8px}
 .ovans .oa-ko{color:var(--text);font-size:clamp(30px,8vw,40px);font-weight:800;line-height:1.25;word-break:break-all}
 .ovans .oa-ja{color:var(--mute);font-size:15px;font-weight:600;margin-top:6px}
@@ -79,9 +79,9 @@ button{font-family:inherit}
 .krow.ctrl .key{font-size:13px;font-weight:700;padding:13px 0}
 .key.send{background:var(--gray);color:var(--text);border:1px solid var(--line)}
 .key.dontknow{background:var(--gray);border:1px solid var(--line);color:var(--text)}
-/* 合成母音の専用行：中央寄せ・キー幅を固定して詰めすぎないようにする */
-.krow.vowels{justify-content:center}
-.krow.vowels .key.vowel{flex:0 1 48px;max-width:56px;background:var(--panel2);color:var(--text)}
+/* 濃音・合成母音の専用行：中央寄せ・キー幅を固定して詰めすぎないようにする */
+.krow.extra{justify-content:center}
+.krow.extra .key.ex{flex:0 1 48px;max-width:56px;background:var(--panel2);color:var(--text)}
 
 /* ===== home ===== */
 .home{padding:0 22px;flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px}
@@ -489,13 +489,20 @@ function submit(status,userAnswer){
   };
   state.results.push(rec);saveAnswer(rec);
   if(isCorrect)speakKorean(q.word); // 正解時のみ韓国語音声を再生（不正解/わからない/時間切れは再生しない）
-  showOverlay(isCorrect,q.word);
+  showOverlay(isCorrect,q);
 }
 
 /* ○×オーバーレイ（不正解時は正解の単語も表示） */
-function showOverlay(isCorrect,word){
+function showOverlay(isCorrect,q){
   const ov=document.createElement("div");ov.className="overlay";
-  const ans=isCorrect?"":`<div class="ovans"><div class="oa-label">正解</div><div class="oa-ko">${esc(word.ko)}</div><div class="oa-ja">${esc(word.ja)}</div></div>`;
+  let ans="";
+  if(!isCorrect){
+    const w=q.word;
+    // 韓→日(kj)は日本語が正解表示／日→韓(jk)・書き取り(w)は韓国語が正解表示
+    const main=q.type==="kj"?w.ja:w.ko;
+    const sub =q.type==="kj"?w.ko:w.ja;
+    ans=`<div class="ovans"><div class="oa-label">正解</div><div class="oa-ko">${esc(main)}</div><div class="oa-ja">${esc(sub)}</div></div>`;
+  }
   ov.innerHTML=`<div class="ovsym ${isCorrect?"o":"x"}">${isCorrect?"○":"×"}</div>${ans}`;
   document.body.appendChild(ov);
   setTimeout(()=>{ov.remove();afterAnswer();},isCorrect?1000:2000);
@@ -507,9 +514,13 @@ function afterAnswer(){
 
 /* ============================================================ キーボード ============================================================ */
 const KB_ROWS=[["ㅂ","ㅈ","ㄷ","ㄱ","ㅅ","ㅛ","ㅕ","ㅑ","ㅐ","ㅔ"],["ㅁ","ㄴ","ㅇ","ㄹ","ㅎ","ㅗ","ㅓ","ㅏ","ㅣ"],["ㅋ","ㅌ","ㅊ","ㅍ","ㅠ","ㅜ","ㅡ"]];
-/* 合成母音をShiftなしで直接入力できる専用行（4列目=旧Shift母音 / 5列目=その他の合成母音） */
-const KB_VOWEL_ROWS=[["ㅒ","ㅖ"],["ㅘ","ㅙ","ㅚ","ㅝ","ㅞ","ㅟ","ㅢ"]];
-/* Shiftは濃音（ㅃ等）専用に。母音の合成は専用キーで賄うため母音はSHIFT_MAPから除外 */
+/* Shiftなしで直接入力できる専用行：濃音 → 合成母音(旧Shift) → その他の合成母音 */
+const KB_EXTRA_ROWS=[
+  ["ㄲ","ㄸ","ㅃ","ㅆ","ㅉ"],                 // 濃音
+  ["ㅒ","ㅖ"],                                // 合成母音（旧Shift）
+  ["ㅘ","ㅙ","ㅚ","ㅝ","ㅞ","ㅟ","ㅢ"]        // その他の合成母音
+];
+/* Shiftキー併用も可（濃音）。専用キーがあるのでShiftは無くても全字入力できる */
 const SHIFT_MAP={"ㅂ":"ㅃ","ㅈ":"ㅉ","ㄷ":"ㄸ","ㄱ":"ㄲ","ㅅ":"ㅆ"};
 let shiftOn=false;
 function keyboardHTML(){
@@ -521,9 +532,9 @@ function keyboardHTML(){
     if(ri===2)h+=`<button class="key fn wide" onclick="kbBack()">⌫</button>`;
     h+='</div>';
   });
-  KB_VOWEL_ROWS.forEach(row=>{
-    h+='<div class="krow vowels">';
-    row.forEach(k=>h+=`<button class="key vowel" data-k="${k}" onclick="kbKey('${k}')">${k}</button>`);
+  KB_EXTRA_ROWS.forEach(row=>{
+    h+='<div class="krow extra">';
+    row.forEach(k=>h+=`<button class="key ex" data-k="${k}" onclick="kbKey('${k}')">${k}</button>`);
     h+='</div>';
   });
   h+=`<div class="krow ctrl">
