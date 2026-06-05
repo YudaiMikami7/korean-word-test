@@ -104,6 +104,35 @@ button{font-family:inherit}
 .home h1{font-size:30px;font-weight:800;margin:0;text-align:center}
 .home .sub{color:var(--mute);font-size:14px;text-align:center;line-height:1.7;margin:-4px 0 18px}
 .home .ver{color:var(--faint);font-size:11px;font-weight:700;text-align:center;letter-spacing:1px;margin-top:14px}
+
+/* ===== タイプ診断（V2: ホーム統合・引き算のデザイン） ===== */
+.typebox{text-align:center;cursor:pointer;padding:2px 0}
+.t-label{color:var(--mute);font-size:11px;letter-spacing:3px;font-weight:800}
+.t-code{font-size:34px;font-weight:900;letter-spacing:6px;margin-top:4px}
+.t-name{font-size:14px;font-weight:800;margin-top:2px}
+.t-desc{color:var(--mute);font-size:12px;line-height:1.7;margin-top:6px;font-weight:600}
+.t-char{display:block;margin:10px auto 0;width:104px;height:104px}
+.homestat{background:var(--panel);border:1px solid var(--line);padding:10px 12px;text-align:center;color:var(--mute);font-size:12.5px;font-weight:700;line-height:1.6}
+.homestat b{color:var(--text)}
+/* 4軸タイプカラー外枠：細く・コンテンツを狭めない・四隅45°・色はフェードで変化 */
+.tframe{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;height:100dvh;pointer-events:none;z-index:250}
+.tf{position:absolute;background:#26282d;transition:background-color .6s ease}
+.tf-top{top:0;left:0;right:0;height:3px;clip-path:polygon(0 0,100% 0,calc(100% - 3px) 100%,3px 100%)}
+.tf-bottom{bottom:0;left:0;right:0;height:3px;clip-path:polygon(3px 0,calc(100% - 3px) 0,100% 100%,0 100%)}
+.tf-left{top:0;bottom:0;left:0;width:3px;clip-path:polygon(0 0,100% 3px,100% calc(100% - 3px),0 100%)}
+.tf-right{top:0;bottom:0;right:0;width:3px;clip-path:polygon(0 3px,100% 0,100% 100%,0 calc(100% - 3px))}
+/* タイプ詳細 */
+.axrow{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:11px;font-weight:700;color:var(--mute)}
+.axrow .axl,.axrow .axr{flex:0 0 84px}
+.axrow .axr{text-align:right}
+.axbar{flex:1;height:8px;background:var(--gray);overflow:hidden}
+.axfill{height:100%;transition:width .6s ease}
+.tdetail-sec{margin:16px 0}
+.tdetail-sec .h{color:var(--mute);font-size:11px;font-weight:800;letter-spacing:2px;margin-bottom:6px}
+.tdetail-sec .item{font-size:13px;line-height:1.9}
+.type-upd{margin-top:10px;text-align:center;color:var(--mute);font-size:11px;font-weight:700;letter-spacing:1px}
+.type-upd b{color:var(--text)}
+.type-upd .btn{display:inline-block;width:auto;padding:5px 10px;font-size:11px;margin-left:8px}
 /* Section選択リスト */
 .seclist{display:flex;flex-direction:column;gap:8px}
 .secrow{display:flex;align-items:center;background:var(--gray);border:none;color:var(--text);font-size:15px;font-weight:700;padding:14px 16px;cursor:pointer;text-align:left}
@@ -187,11 +216,18 @@ button{font-family:inherit}
   <!-- HOME -->
   <div class="screen on" id="s-home">
     <div class="home">
-      <h1>한국어 단어 테스트</h1>
-      <div class="sub">新出9＋復習3の全12問<br>四択10秒 / 書き取り20秒・満点100点</div>
+      <div class="typebox" onclick="renderTypeDetail()">
+        <div class="t-label">YOUR WORD TYPE</div>
+        <div class="t-code" id="t-code">分析中</div>
+        <div class="t-name" id="t-name"></div>
+        <div class="t-desc" id="t-desc">問題を解くと、<br>あなたの学習傾向が見えてきます</div>
+        <img class="t-char" id="t-char" src="characters/analyzing.svg" alt="">
+      </div>
       <button class="btn primary" onclick="show('s-level')">テストを始める</button>
-      <button class="btn ghost" onclick="renderHistory()">学習履歴を見る</button>
+      <div class="homestat" id="homeprog2"></div>
+      <div class="homestat" id="homecond"></div>
       <button class="btn ghost" onclick="renderCurve()">忘却曲線を見る</button>
+      <button class="btn ghost" onclick="renderHistory()">学習履歴を見る</button>
       <div class="ver" id="appver"></div>
     </div>
   </div>
@@ -225,6 +261,16 @@ button{font-family:inherit}
   <div class="screen" id="s-wdetail"></div>
   <!-- CURVE -->
   <div class="screen" id="s-curve"></div>
+  <!-- TYPE DETAIL -->
+  <div class="screen" id="s-type"></div>
+</div>
+
+<!-- 4軸タイプカラー外枠（上=軸1/右=軸2/下=軸3/左=軸4、四隅は45°接続） -->
+<div class="tframe" aria-hidden="true">
+  <div class="tf tf-top" id="tf-top"></div>
+  <div class="tf tf-right" id="tf-right"></div>
+  <div class="tf tf-bottom" id="tf-bottom"></div>
+  <div class="tf tf-left" id="tf-left"></div>
 </div>
 
 <script src="words-middle.js"></script>
@@ -393,6 +439,259 @@ function updateSectionRank(n,rank){
   if(!rec.bestRank||RANK_VAL[rank]>RANK_VAL[rec.bestRank]){ // 過去最高を上回った場合のみ更新
     rec.bestRank=rank;rec.updatedAt=new Date().toISOString();all[id]=rec;saveSections(all);
   }
+}
+
+/* ============================================================ 韓国語単語タイプ診断（4軸16タイプ） ============================================================ */
+/* 軸カラー設定（変更可能） 上辺=軸1 F/U, 右辺=軸2 M/C, 下辺=軸3 P/S, 左辺=軸4 Q/D */
+const AXIS_COLORS={F:"#B54A4A",U:"#C9854D",M:"#8D62B5",C:"#4D78B5",P:"#4D9B72",S:"#B49A45",Q:"#B55F83",D:"#5B96A8"};
+const AXES=[
+ {no:1,side:"top",L:"F",R:"U",ln:"固定混同",rn:"散漫未定着"},
+ {no:2,side:"right",L:"M",R:"C",ln:"意味類似",rn:"場面連想"},
+ {no:3,side:"bottom",L:"P",R:"S",ln:"音写",rn:"意味置換"},
+ {no:4,side:"left",L:"Q",R:"D",ln:"瞬発誤答",rn:"熟考正答"}
+];
+const TYPE_INFO={
+ FMPQ:["語感フライング型","似た意味を思い込み、音に寄せて素早く回答するタイプ"],
+ FMPD:["慎重な音写型","意味の近い語で迷い、書くと表記で崩れやすいタイプ"],
+ FMSQ:["ニュアンス置換型","似た意味の別単語へ素早く飛びつくタイプ"],
+ FMSD:["定義こだわり型","細かな意味差を考え込み、別単語へ置換しやすいタイプ"],
+ FCPQ:["シーン連鎖型","場面から連想し、音に近い表記で回答しやすいタイプ"],
+ FCPD:["場面照合型","関連場面を比較しながら、表記で迷いやすいタイプ"],
+ FCSQ:["イメージ先行型","場面のイメージから、関連語へ素早く連想するタイプ"],
+ FCSD:["文脈深読み型","場面を考えすぎて、関連語と混同しやすいタイプ"],
+ UMPQ:["語感ランダム型","意味が曖昧で、音の印象から回答が揺れるタイプ"],
+ UMPD:["表記探索型","似た意味と表記の間で迷い、回答が安定しないタイプ"],
+ UMSQ:["意味ぼんやり型","日本語の意味から、近い韓国語へ飛びやすいタイプ"],
+ UMSD:["概念探索型","似た意味の候補を考えるが、まだ定着していないタイプ"],
+ UCPQ:["連想ジャンプ型","場面の雰囲気から、別の語へ素早く移るタイプ"],
+ UCPD:["シーン迷子型","同じ場面の語を比較し、表記でも迷いやすいタイプ"],
+ UCSQ:["雰囲気回答型","場面の印象で回答が揺れ、別単語へ飛びやすいタイプ"],
+ UCSD:["文脈迷路型","関連語が多い場面で整理がつかず、迷いやすいタイプ"]
+};
+const RECOMMEND={
+ F:"正解と頻出誤答を2語セットで比較する",U:"単語そのものを再確認し、例文と一緒に覚える",
+ M:"類義語の違いを並べて確認する",C:"同じ場面で使う語をカテゴリ別に整理する",
+ P:"音声を聞き、パッチム・母音・子音を意識して書く",S:"似た意味の韓国語を例文で比較する",
+ Q:"回答前に1秒待ち、意味を言葉にしてから選ぶ",D:"比較はできているため、反復で回答速度を上げる"
+};
+const DTAG_JA={semantic_close:"意味類似",same_scene:"場面連想",context_related:"周辺概念",form_similar:"表記類似",category_neighbor:"同カテゴリ",broader_narrower:"上位・下位概念",cultural_confusion:"文化混同",role_confusion:"人物関係の混同"};
+const WERR_JA={phonetic_spelling:"音写ミス",semantic_substitution:"意味置換",unclassified:"未分類"};
+const WDET_JA={final_consonant_confusion:"パッチム混同",initial_consonant_confusion:"初声子音の混同",vowel_confusion:"母音の混同",tense_aspirated_confusion:"平音・激音・濃音の混同",compound_vowel_confusion:"合成母音の混同",spacing_error:"分かち書きの誤り"};
+const CONF_JA={analyzing:"分析中",provisional:"仮タイプ",current:"現在のタイプ",detailed:"詳細タイプ"};
+
+/* --- 書き取り誤答の分類（初声・中声・終声に分解して差分判定） --- */
+const KO_INDEX={};Object.values(WORD_BY_ID).forEach(w=>{KO_INDEX[w.ko.replace(/[\s~〜・･]/g,"")]=w;});
+const TENSE_GROUPS=[["ㄱ","ㅋ","ㄲ"],["ㄷ","ㅌ","ㄸ"],["ㅂ","ㅍ","ㅃ"],["ㅈ","ㅊ","ㅉ"],["ㅅ","ㅆ"]];
+const COMPOUND_V=new Set(["ㅘ","ㅙ","ㅚ","ㅝ","ㅞ","ㅟ","ㅢ"]);
+function _decompSyl(ch){const c=ch.codePointAt(0);if(c<0xAC00||c>0xD7A3)return null;const s=c-0xAC00;return{cho:CHO[Math.floor(s/588)],jung:JUNG[Math.floor((s%588)/28)],jong:JONG[s%28]||""};}
+function _sameTense(a,b){return TENSE_GROUPS.some(g=>g.includes(a)&&g.includes(b));}
+function _lev(a,b){const m=a.length,n=b.length,D=Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);
+ for(let j=0;j<=n;j++)D[0][j]=j;
+ for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)D[i][j]=Math.min(D[i-1][j]+1,D[i][j-1]+1,D[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+ return D[m][n];}
+function phoneticDetail(inp,cor){
+  const A=[...inp],B=[...cor],L=Math.min(A.length,B.length),found=[];
+  for(let i=0;i<L;i++){
+    if(A[i]===B[i])continue;
+    const a=_decompSyl(A[i]),b=_decompSyl(B[i]);if(!a||!b)continue;
+    const dc=a.cho!==b.cho,dv=a.jung!==b.jung,dj=a.jong!==b.jong;
+    if(dc&&!dv&&!dj)found.push(_sameTense(a.cho,b.cho)?"tense_aspirated_confusion":"initial_consonant_confusion");
+    else if(dv&&!dc&&!dj)found.push((COMPOUND_V.has(a.jung)||COMPOUND_V.has(b.jung))?"compound_vowel_confusion":"vowel_confusion");
+    else if(dj&&!dc&&!dv)found.push("final_consonant_confusion");
+  }
+  const pri=["tense_aspirated_confusion","compound_vowel_confusion","final_consonant_confusion","vowel_confusion","initial_consonant_confusion"];
+  return pri.find(p=>found.includes(p))||null;
+}
+function classifyWritingError(input,w){
+  const norm=s=>String(s||"").replace(/[\s~〜・･]/g,"");
+  const inp=norm(input),cor=norm(w.ko);
+  if(!inp)return{type:"unclassified",detail:null,wrongWordId:null};
+  const other=KO_INDEX[inp];
+  if(other&&other.id!==w.id){ // 優先1: 意味置換（登録済み単語＋カテゴリ/意味/関連語）
+    const rel=(other.cat&&w.cat&&other.cat===w.cat)||sharedKanji(other.ja,w.ja)||cor.includes(inp)||inp.includes(cor)||jaHead(other)===jaHead(w);
+    if(rel)return{type:"semantic_substitution",detail:null,wrongWordId:other.id};
+  }
+  const dist=_lev([...inp],[...cor]); // 優先2: 音写（編集距離2以内 または 類似率65%以上）
+  const sim=1-dist/Math.max([...inp].length,[...cor].length);
+  if(dist<=2||sim>=0.65)return{type:"phonetic_spelling",detail:phoneticDetail(inp,cor),wrongWordId:null};
+  if(other&&other.id!==w.id)return{type:"semantic_substitution",detail:null,wrongWordId:other.id};
+  return{type:"unclassified",detail:null,wrongWordId:null}; // 優先3: 未分類
+}
+
+/* --- 判定対象履歴: 直近90日かつ直近300回答。recency重み exp(-days/45) --- */
+function diagWindow(){
+  const now=Date.now();
+  return loadHistory()
+    .filter(r=>(now-new Date(r.answeredAt).getTime())/86400000<=90)
+    .slice(-300)
+    .map(r=>({r,w:Math.exp(-((now-new Date(r.answeredAt).getTime())/86400000)/45)}));
+}
+function computeDiagnosis(){
+  const win=diagWindow();
+  const CTX=["same_scene","context_related","category_neighbor","broader_narrower","cultural_confusion","role_confusion"];
+  // 軸1: 誤答固定率（同一単語2回以上誤答の加重平均、3語未満は分析中）
+  const wrongs=win.filter(x=>x.r.answerType==="choice"&&x.r.answerStatus==="incorrect"&&x.r.userAnswer);
+  const byWord={};wrongs.forEach(x=>{(byWord[x.r.wordId]=byWord[x.r.wordId]||[]).push(x);});
+  let n1=0,num=0,den=0;
+  Object.values(byWord).forEach(arr=>{
+    if(arr.length<2)return;n1++;
+    const cnt={};let ws=0;arr.forEach(x=>{cnt[x.r.userAnswer]=(cnt[x.r.userAnswer]||0)+1;ws+=x.w;});
+    num+=(Math.max(...Object.values(cnt))/arr.length)*ws;den+=ws;
+  });
+  const s1=den?num/den*100:null;
+  const axis1={no:1,score:s1,code:(n1>=3&&s1!=null)?(s1>=60?"F":"U"):null,n:n1,need:Math.max(0,3-n1),provisional:false};
+  // 軸2: 意味類似誤答率（10件未満は仮判定）
+  let sem=0,ctx=0,n2=0;
+  wrongs.forEach(x=>{const t=x.r.distractorType;if(!t)return;
+    if(t==="semantic_close"){sem+=x.w;n2++;}else if(CTX.includes(t)){ctx+=x.w;n2++;}});
+  const s2=(sem+ctx)>0?sem/(sem+ctx)*100:null;
+  const axis2={no:2,score:s2,code:s2!=null?(s2>=55?"M":"C"):null,n:n2,need:Math.max(0,10-n2),provisional:n2<10};
+  // 軸3: 音写率（分類可能誤答5件未満は分析中）
+  let ph=0,ss=0,n3=0;
+  win.forEach(x=>{const t=x.r.writingErrorType;
+    if(t==="phonetic_spelling"){ph+=x.w;n3++;}else if(t==="semantic_substitution"){ss+=x.w;n3++;}});
+  const s3=(ph+ss)>0?ph/(ph+ss)*100:null;
+  const axis3={no:3,score:s3,code:(n3>=5&&s3!=null)?(s3>=55?"P":"S"):null,n:n3,need:Math.max(0,5-n3),provisional:false};
+  // 軸4: 瞬発誤答 vs 熟考正答（四択のみ、わからない/時間切れ除外、20件未満は仮判定）
+  const elig=win.filter(x=>x.r.answerType==="choice"&&(x.r.answerStatus==="correct"||x.r.answerStatus==="incorrect"));
+  let qw=0,dc=0,tw=0;
+  elig.forEach(x=>{tw+=x.w;
+    if(!x.r.isCorrect&&x.r.responseTimeMs<3000)qw+=x.w;
+    else if(x.r.isCorrect&&x.r.responseTimeMs>=3000)dc+=x.w;});
+  const s4=(qw+dc)>0?qw/(qw+dc)*100:null;
+  const axis4={no:4,score:s4,code:elig.length?((tw?qw/tw:0)>(tw?dc/tw:0)?"Q":"D"):null,n:elig.length,need:Math.max(0,20-elig.length),provisional:elig.length<20};
+  const n=win.length;
+  const confidence=n<30?"analyzing":n<100?"provisional":n<300?"current":"detailed";
+  const axes=[axis1,axis2,axis3,axis4];
+  return{axes,n,confidence,code:axes.map(a=>a.code||"?").join(""),complete:axes.every(a=>a.code)};
+}
+
+/* --- 外枠カラー（スコアで左右色を滑らかに補間。未確定軸は中間色） --- */
+function lerpHex(h1,h2,t){
+  const a=parseInt(h1.slice(1),16),b=parseInt(h2.slice(1),16);
+  const f=(sa,sb)=>Math.round(sa+(sb-sa)*t);
+  return"#"+((1<<24)|(f(a>>16,b>>16)<<16)|(f((a>>8)&255,(b>>8)&255)<<8)|f(a&255,b&255)).toString(16).slice(1);
+}
+function axisColor(ax,axis){return lerpHex(AXIS_COLORS[ax.R],AXIS_COLORS[ax.L],(axis.score==null?50:axis.score)/100);}
+function frameColors(d){const o={};AXES.forEach((ax,i)=>o[ax.side]=axisColor(ax,d.axes[i]));return o;}
+function applyFrameColors(d){
+  const fc=frameColors(d);
+  ["top","right","bottom","left"].forEach(s=>{const el=document.getElementById("tf-"+s);if(el)el.style.backgroundColor=fc[s];});
+}
+
+/* --- 診断結果の保存（上書きせず履歴として追記） --- */
+const LS_DIAG="kwt_diag_v1";
+function loadDiag(){try{return JSON.parse(localStorage.getItem(LS_DIAG)||"[]");}catch(e){return[];}}
+function charPathFor(d){return d.complete?`characters/${d.code.toLowerCase()}.svg`:"characters/analyzing.svg";}
+function updateDiagnosis(){
+  const d=computeDiagnosis();
+  const hist=loadDiag(),last=hist[hist.length-1]||null;
+  const changed=!last||last.diagnosisCode!==d.code||last.confidenceLevel!==d.confidence;
+  if(changed){
+    const fc=frameColors(d),rd=v=>v==null?null:Math.round(v);
+    hist.push({userId:getUserId(),diagnosisCode:d.code,
+      axis1Code:d.axes[0].code,axis1Score:rd(d.axes[0].score),
+      axis2Code:d.axes[1].code,axis2Score:rd(d.axes[1].score),
+      axis3Code:d.axes[2].code,axis3Score:rd(d.axes[2].score),
+      axis4Code:d.axes[3].code,axis4Score:rd(d.axes[3].score),
+      confidenceLevel:d.confidence,frameColors:fc,characterImagePath:charPathFor(d),
+      calculatedAt:new Date().toISOString()});
+    if(hist.length>200)hist.splice(0,hist.length-200);
+    localStorage.setItem(LS_DIAG,JSON.stringify(hist));
+  }
+  applyFrameColors(d);refreshHomeType(d);
+  return{diag:d,changed,prevCode:last?last.diagnosisCode:null};
+}
+
+/* --- ホーム上部のタイプ表示 --- */
+function nextHint(d){
+  if(d.n<30)return`あと${30-d.n}問で、仮タイプが表示されます`;
+  const miss=d.axes.filter(a=>!a.code);
+  if(miss.length){
+    const m=miss[0];
+    if(m.no===1)return"同じ単語での誤答が増えると、軸1が判定されます";
+    if(m.no===3)return`書き取りの誤答があと${m.need}件で、軸3が判定されます`;
+    return"履歴が増えると、残りの軸が判定されます";
+  }
+  if(d.n<100)return`あと${100-d.n}問で「現在のタイプ」になります`;
+  if(d.n<300)return`あと${300-d.n}問で「詳細タイプ」になります`;
+  return"";
+}
+function refreshHomeType(d){
+  d=d||computeDiagnosis();
+  const c=document.getElementById("t-code"),nm=document.getElementById("t-name"),ds=document.getElementById("t-desc"),img=document.getElementById("t-char");
+  if(!c)return;
+  if(d.complete){
+    const ti=TYPE_INFO[d.code]||["",""];
+    c.textContent=d.code;nm.textContent=ti[0];
+    ds.innerHTML=esc(ti[1])+`<br><span style="color:var(--faint)">${CONF_JA[d.confidence]}</span>`;
+  }else if(d.n<30){
+    c.textContent="分析中";nm.textContent="";
+    ds.innerHTML="問題を解くと、<br>あなたの学習傾向が見えてきます";
+  }else{
+    c.textContent=d.code.split("").join(" ");nm.textContent="";
+    ds.textContent=nextHint(d);
+  }
+  if(img)img.src=charPathFor(d);
+}
+function refreshHomeStats(){
+  const p=loadProgress(),pool=sectionIds(),served=(p.served||[]).length;
+  const pr=document.getElementById("homeprog2");
+  if(pr)pr.innerHTML=`現在の周回 <b>${p.cycleNumber||1}</b>　出題済み：<b>${served}</b> / ${pool.length}語　残り：<b>${pool.length-served}</b>語`;
+  const cd=document.getElementById("homecond");
+  if(cd)cd.innerHTML=`記憶コンディション <b>${Math.round(overallCondition(Date.now()))}</b> / 100`;
+}
+
+/* --- タイプ詳細画面 --- */
+function renderTypeDetail(){
+  const d=computeDiagnosis(),win=diagWindow();
+  const ti=d.complete?(TYPE_INFO[d.code]||["",""]):null;
+  const bars=AXES.map((ax,i)=>{
+    const a=d.axes[i],t=Math.round(a.score==null?50:a.score),col=axisColor(ax,a);
+    return `<div class="axrow"><span class="axl">${ax.ln} ${ax.L}</span>
+      <div class="axbar"><div class="axfill" style="width:${t}%;background:${col}"></div></div>
+      <span class="axr">${ax.R} ${ax.rn}${a.code?"":"<br>（分析中）"}</span></div>`;
+  }).join("");
+  const mist=win.filter(x=>x.r.answerStatus==="incorrect"&&x.r.userAnswer).slice(-3).reverse()
+    .map(x=>`<div class="item">${esc(x.r.korean)}（${esc(x.r.japanese)}）→ <span class="ms-urgent">${esc(x.r.userAnswer)}</span></div>`).join("")
+    ||'<div class="item" style="color:var(--mute)">まだ誤答履歴がありません</div>';
+  const tagCnt={};
+  win.forEach(x=>{
+    if(!x.r.isCorrect&&x.r.distractorType)tagCnt[DTAG_JA[x.r.distractorType]||x.r.distractorType]=(tagCnt[DTAG_JA[x.r.distractorType]||x.r.distractorType]||0)+1;
+    if(x.r.writingErrorType&&x.r.writingErrorType!=="unclassified"){const k=WERR_JA[x.r.writingErrorType];tagCnt[k]=(tagCnt[k]||0)+1;}
+    if(x.r.writingErrorDetail){const k=WDET_JA[x.r.writingErrorDetail];tagCnt[k]=(tagCnt[k]||0)+1;}
+  });
+  const weak=Object.entries(tagCnt).sort((a,b)=>b[1]-a[1]).slice(0,3)
+    .map(([k,v])=>`<div class="item">${esc(k)}　<span style="color:var(--mute)">${v}件</span></div>`).join("")
+    ||'<div class="item" style="color:var(--mute)">まだ十分な履歴がありません</div>';
+  const recs=d.axes.filter(a=>a.code).map(a=>`<div class="item">・${esc(RECOMMEND[a.code])}</div>`).join("")
+    ||'<div class="item" style="color:var(--mute)">軸が判定されると表示されます</div>';
+  const histRows=loadDiag().slice(-5).reverse()
+    .map(h=>`<div class="item">${esc(h.diagnosisCode)}　<span style="color:var(--mute)">${esc((h.calculatedAt||"").slice(0,10))}・${CONF_JA[h.confidenceLevel]||""}</span></div>`).join("")
+    ||'<div class="item" style="color:var(--mute)">履歴なし</div>';
+  const raw=d.axes.map((a,i)=>`<div class="item">軸${i+1}：score=${a.score==null?"—":Math.round(a.score)}　対象=${a.n}件${a.provisional?"（仮判定）":""}</div>`).join("");
+  document.getElementById("s-type").innerHTML=`
+   <div class="page">
+    <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>タイプ詳細</h2></div>
+    <div class="page-body">
+      <div class="typebox" style="cursor:default">
+        <div class="t-label">YOUR WORD TYPE</div>
+        <div class="t-code">${d.complete?d.code:(d.n<30?"分析中":d.code.split("").join(" "))}</div>
+        <div class="t-name">${ti?esc(ti[0]):""}</div>
+        <img class="t-char" src="${charPathFor(d)}" alt="">
+        <div class="t-desc">${ti?esc(ti[1]):esc(nextHint(d)||"問題を解くと、あなたの学習傾向が見えてきます")}<br><span style="color:var(--faint)">${CONF_JA[d.confidence]}・有効履歴 ${d.n}件</span></div>
+      </div>
+      <div class="tdetail-sec"><div class="h">4つの軸</div>${bars}</div>
+      <div class="tdetail-sec"><div class="h">よくある間違い</div>${mist}</div>
+      <div class="tdetail-sec"><div class="h">苦手傾向</div>${weak}</div>
+      <div class="tdetail-sec"><div class="h">おすすめ学習</div>${recs}</div>
+      <div class="tdetail-sec"><div class="h">タイプ履歴</div>${histRows}</div>
+      <div class="tdetail-sec"><div class="h">次の分析更新</div><div class="item">${esc(nextHint(d)||"分析は最新の状態です")}</div></div>
+      <button class="btn line" onclick="const e=document.getElementById('t-raw');e.classList.toggle('hidden')">詳細を見る</button>
+      <div id="t-raw" class="tdetail-sec hidden"><div class="h">計算値</div>${raw}</div>
+    </div>
+   </div>`;
+  show("s-type");
 }
 
 /* ============================================================ ハングルIME（2ボル式 文字合成） ============================================================ */
@@ -575,39 +874,59 @@ function simJa(a,b){
 }
 /* 第一義（最初の訳語）。同義語を誤答に混ぜない判定に使う */
 function jaHead(w){return (w.ja||"").split(/[、,（(]/)[0].trim();}
-/* 品詞を合わせつつ類似度上位から3つ選ぶ（足りない時のみ段階的に緩和） */
-function pickDistractors(w,pool,key){
+function sharedKanji(a,b){const A=new Set([...String(a)].filter(c=>/[一-龯々]/.test(c)));return [...String(b)].some(c=>A.has(c));}
+/* 誤答タグ：2語の実際の関係から決定（タイプ診断 軸2用） */
+function relationTag(w,x,key){
+  if(sharedKanji(w.ja,x.ja))return"semantic_close";          // 意味類似（訳の漢字共有）
+  if(w.cat&&x.cat&&w.cat===x.cat){
+    if(w.cat==="家族・人物")return"role_confusion";          // 人物・家族関係の混同
+    if(w.cat==="韓国文化")return"cultural_confusion";        // 韓国文化上の混同
+    return"same_scene";                                      // 同じ場面
+  }
+  if(key==="ko"&&simKo(w,x)>=4)return"form_similar";         // 音・表記類似
+  return"context_related";                                   // 周辺概念
+}
+/* 品詞を合わせつつ「意味類似＋場面連想＋周辺/表記類似」の構成で3つ選ぶ */
+function pickTaggedDistractors(w,pool,key){
   const pos=posOf(w);
-  // 同義語（第一義が同じ）を除外：日→韓で正解が2つにならないように
   const base=pool.filter(x=>x.id!==w.id&&x[key]!==w[key]&&x.ko!==w.ko&&jaHead(x)!==jaHead(w));
   let cands=base.filter(x=>posOf(x)===pos);
-  if(cands.length<3)cands=base.filter(x=>(pos==="adj"||pos==="verb")?(posOf(x)==="adj"||posOf(x)==="verb"):(posOf(x)==="noun"||posOf(x)==="adv")); // 用言同士/体言同士
-  if(cands.length<3)cands=base;
-  const sim=key==="ko"?simKo:simJa;
-  const scored=shuffle(cands).map(x=>({x,s:sim(w,x)})).sort((a,b)=>b.s-a.s);
-  const picked=[],used=new Set([w[key]]);
-  for(const t of shuffle(scored.slice(0,8))){ if(picked.length>=3)break; if(!used.has(t.x[key])){picked.push(t.x[key]);used.add(t.x[key]);} } // 類似上位8からランダムに
-  for(const t of scored){ if(picked.length>=3)break; if(!used.has(t.x[key])){picked.push(t.x[key]);used.add(t.x[key]);} }
-  return picked;
+  if(cands.length<6)cands=base.filter(x=>(pos==="adj"||pos==="verb")?(posOf(x)==="adj"||posOf(x)==="verb"):(posOf(x)==="noun"||posOf(x)==="adv"));
+  if(cands.length<6)cands=base;
+  const used=new Set([w[key]]),out=[];
+  const take=arr=>{for(const x of arr){if(!used.has(x[key])){used.add(x[key]);out.push({text:x[key],type:relationTag(w,x,key),wordId:x.id});return;}}};
+  const bySem=shuffle(cands).sort((a,b)=>simJa(w,b)-simJa(w,a));   // 意味類似（漢字共有）優先
+  const byScene=shuffle(cands).sort((a,b)=>((b.cat&&b.cat===w.cat)?1:0)-((a.cat&&a.cat===w.cat)?1:0)||simJa(w,b)-simJa(w,a));
+  const byForm=shuffle(cands).sort((a,b)=>simKo(w,b)-simKo(w,a));  // 表記類似（韓国語の見た目）
+  take(bySem.slice(0,6));
+  take(byScene);
+  take(key==="ko"?byForm.slice(0,6):byScene);
+  for(const x of bySem){if(out.length>=3)break;if(!used.has(x[key])){used.add(x[key]);out.push({text:x[key],type:relationTag(w,x,key),wordId:x.id});}}
+  return out.slice(0,3);
+}
+/* 選択肢セット（タグ付きメタ込み）。Section01の手作り誤答(d)は漢字共有で意味類似/場面連想に自動タグ付け */
+function buildChoiceSet(w,pool,key){
+  const meta={};meta[w[key]]={distractorType:null,wordId:w.id};
+  const ds=(key==="ja"&&w.d)
+    ?w.d.slice(0,3).map(t=>({text:t,type:sharedKanji(w.ja,t)?"semantic_close":"same_scene",wordId:null}))
+    :pickTaggedDistractors(w,pool,key);
+  ds.forEach(d=>{meta[d.text]={distractorType:d.type,wordId:d.wordId};});
+  return{choices:shuffle([w[key],...ds.map(d=>d.text)]),meta};
 }
 
 /* 誤答候補は同レベルの全語彙から（強雨量/降水量のような紛らわしいペアを拾えるように） */
 function levelAllWords(){return curLevel==="beginner"?BEGINNER_WORDS:WORDS.concat(MIDDLE_WORDS);}
 
-/* idリスト(+source)からPLANに沿って12問を生成。誤答は品詞を合わせ同レベル全体から紛らわしい語を選ぶ */
+/* idリスト(+source)からPLANに沿って12問を生成。誤答はタグ付き（品詞一致＋意味類似/場面連想/周辺概念の構成） */
 function makeQuestionsFromIds(list){
   const pool=levelAllWords();
   return list.slice(0,12).map((c,i)=>{
     const w=WORD_BY_ID[c.id],type=PLAN[i];
-    let choices=null,correct;
-    if(type==="kj"){
-      correct=w.ja;
-      const ds=w.d?w.d.slice(0,3):pickDistractors(w,pool,"ja"); // 手作り誤答(d)があれば優先
-      choices=shuffle([w.ja,...ds]);
-    }
-    else if(type==="jk"){correct=w.ko;choices=shuffle([w.ko,...pickDistractors(w,pool,"ko")]);}
+    let choices=null,correct,cmeta=null;
+    if(type==="kj"){const cs=buildChoiceSet(w,pool,"ja");correct=w.ja;choices=cs.choices;cmeta=cs.meta;}
+    else if(type==="jk"){const cs=buildChoiceSet(w,pool,"ko");correct=w.ko;choices=cs.choices;cmeta=cs.meta;}
     else{correct=w.ko;}
-    return {word:w,type,choices,correct,source:c.source};
+    return {word:w,type,choices,correct,source:c.source,cmeta};
   });
 }
 
@@ -674,7 +993,7 @@ function scoreFor(type,isCorrect,t,isHint){
 function rankFor(s){if(s===100)return"S";if(s<=50)return"D";if(s<=70)return"C";if(s<=80)return"B";return"A";}
 
 /* ============================================================ 画面遷移 ============================================================ */
-function show(id){document.querySelectorAll(".screen").forEach(e=>e.classList.remove("on"));document.getElementById(id).classList.add("on");window.scrollTo(0,0);}
+function show(id){document.querySelectorAll(".screen").forEach(e=>e.classList.remove("on"));document.getElementById(id).classList.add("on");window.scrollTo(0,0);if(id==="s-home"){refreshHomeType();refreshHomeStats();}}
 
 /* ============================================================ テスト進行 ============================================================ */
 let state=null,timer=null,qStart=0,answered=false;
@@ -749,6 +1068,17 @@ function submit(status,userAnswer){
   const isCorrect=status==="correct";
   const isHint=!!q.isHintProvided;
   const score=scoreFor(q.type,isCorrect,elapsed,isHint);
+  // ---- タイプ診断用の誤答メタ ----
+  let distractorType=null,selectedWrongWordId=null,writingErrorType=null,writingErrorDetail=null;
+  if(q.type!=="w"){
+    if(status==="incorrect"&&q.cmeta&&q.cmeta[userAnswer]){
+      distractorType=q.cmeta[userAnswer].distractorType;
+      selectedWrongWordId=q.cmeta[userAnswer].wordId;
+    }
+  }else if(status==="incorrect"){
+    const cw=classifyWritingError(userAnswer,q.word);
+    writingErrorType=cw.type;writingErrorDetail=cw.detail;selectedWrongWordId=cw.wrongWordId;
+  }
   // ---- 記憶スコア更新 ----
   const stats=loadStats(),st=getStat(q.word.id,stats),before=st.memoryScore;
   let delta;
@@ -759,6 +1089,7 @@ function submit(status,userAnswer){
     userId:state.userId,wordId:q.word.id,testId:state.testId,questionNumber:state.idx+1,
     korean:q.word.ko,japanese:q.word.ja,answerType:ANS_TYPE[q.type],direction:DIRECTION[q.type],
     userAnswer:userAnswer||"",correctAnswer:q.correct,answerStatus:status,isCorrect,
+    selectedWrongWordId,distractorType,writingErrorType,writingErrorDetail,
     isHintProvided:isHint,hintText:q.hintText||null,
     cycleNumber:state.cycleNumber,questionSource:q.source||"new",
     responseTimeMs:Math.round(elapsed*1000),score,answeredAt:new Date().toISOString()
@@ -867,6 +1198,10 @@ function finishTest(){
   saveSession({at:new Date().toISOString(),before:state.conditionBefore,after:Math.round(overallCondition(nowMs)),
     reviewBefore:state.reviewBefore,reviewAfter:reviewNeedCount(nowMs),
     improved:changes.filter(c=>c.after>c.before).length,changes});
+  // タイプ診断を再計算し外枠色を更新（テスト終了時のみ。回答中は更新しない）
+  const dg=updateDiagnosis();
+  const typeUpd=(dg.changed&&dg.prevCode&&dg.prevCode!==dg.diag.code)
+    ?`<div class="type-upd">WORD TYPE UPDATED　<b>${esc(dg.prevCode)} → ${esc(dg.diag.code)}</b><button class="btn line" onclick="show('s-home')">ホームで確認する</button></div>`:"";
   const rows=R.map(r=>{
     const m={correct:["正解","r-ok"],incorrect:["不正解","r-ng"],unknown:["わからない","r-un"],timeout:["時間切れ","r-to"]}[r.answerStatus];
     const hb=r.isHintProvided?'<span class="hint-badge">ヒント</span>':'';
@@ -890,6 +1225,7 @@ function finishTest(){
       <button class="btn ghost" onclick="renderCurve()">忘却曲線を見る</button>
       <button class="btn line full" onclick="show('s-home')">ホームに戻る</button>
     </div>
+    ${typeUpd}
    </div>`;
   show("s-result");
 }
@@ -1083,9 +1419,11 @@ function startSectionTest(n){curSection=n;startTest();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v1.11.0 (2026-06-06)";
+const APP_VERSION="v2.0.0 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
+updateDiagnosis();   // 起動時に診断・外枠色・ホーム表示を初期化
+refreshHomeStats();
 </script>
 </body>
 </html>
