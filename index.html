@@ -611,7 +611,14 @@ function enterListMode(){
 }
 function exitListMode(){
   setLift(0);
-  setTimeout(()=>{_listMode=false;buildRoomSlides();},360);
+  setTimeout(()=>{
+    _listMode=false;buildRoomSlides();
+    // 写真はフェードインで再表示
+    const ph=document.querySelectorAll(".slide-img,.room-ph");
+    ph.forEach(e=>e.style.opacity="0");
+    void document.body.offsetHeight;
+    ph.forEach(e=>e.style.opacity="");
+  },360);
 }
 function roomMenuTap(n){_listMode?exitListMode():enterListMode();} // 押下=上スワイプと同じ
 /* 一覧モード: ROOMメニュー下・単語表上の帯（左40%=PWRメータボタン / 右60%=テスト履歴3件） */
@@ -640,12 +647,12 @@ function roomListHTML(n){
     const w=WORD_BY_ID[id],x=st[id],no=String(i+1).padStart(3,"0");
     if(x&&x.reviewCount>0){
       const rate=Math.round(displayScore(getStat(id,st),now)),ms=memState(rate);
-      return `<div class="wl-row" onclick="renderWordDetail(${id},'room')"><span class="wl-no">${no}</span><span class="wl-ko">${esc(w.ko)}</span><span class="wl-ja">${esc(w.ja)}</span><span class="wl-cnt">${x.reviewCount}</span><span class="wl-rate ${ms.cls}">${rate}%</span></div>`;
+      return `<div class="wl-row" onclick="renderWordDetail(${id},'room')"><span class="wl-no">${no}</span><span class="wl-ko">${esc(w.ko)}</span><span class="wl-ja">${esc(w.ja)}</span><span class="wl-rate ${ms.cls}">${rate}</span></div>`;
     }
-    return `<div class="wl-row wl-un"><span class="wl-no">${no}</span><span class="wl-ko">${esc(w.ko)}</span><span class="wl-ja">${esc(w.ja)}</span><span class="wl-cnt">—</span><span class="wl-rate">未</span></div>`;
+    return `<div class="wl-row wl-un"><span class="wl-no">${no}</span><span class="wl-ko">${esc(w.ko)}</span><span class="wl-ja">${esc(w.ja)}</span><span class="wl-rate">未</span></div>`;
   }).join("");
   return `<div class="slide-list">
-    <div class="wl-head"><span class="wl-no">No.</span><span class="wl-ko">韓国語</span><span class="wl-ja">日本語</span><span class="wl-cnt">回数</span><span class="wl-rate">記憶率</span></div>
+    <div class="wl-head"><span class="wl-no">No.</span><span class="wl-ko">韓国語</span><span class="wl-ja">日本語</span><span class="wl-rate">記憶率(%)</span></div>
     ${rows}</div>`;
 }
 function roomInfoFor(n){
@@ -724,7 +731,7 @@ function buildRoomSlides(){
         const w=document.getElementById("homewrap");w.classList.remove("dragging");
         const cur=parseFloat(w.style.getPropertyValue("--lift"))||0;
         if(_dragDown){
-          if(cur>=-LIFT_MAX+80){setLift(0);setTimeout(()=>{_listMode=false;buildRoomSlides();},360);} // 下スワイプで元に戻る
+          if(cur>=-LIFT_MAX+80){exitListMode();} // 下スワイプで元に戻る（写真はフェードイン）
           else setLift(-LIFT_MAX);
         }else{
           if(cur<=-80)enterListMode();else setLift(0);
@@ -1619,7 +1626,7 @@ function renderWordDetail(wordId,back){
     // EmojiOneのSVG（Windowsでも国旗が表示される）
     const IC=c=>`<img class="dicon" src="emoji/${c}.svg" alt="">`;
     const dir=(r.answerType==="writing"?IC("270d"):(r.direction==="kr_to_jp"?IC("1f1f0-1f1f7"):IC("1f1ef-1f1f5")))+(r.isHintProvided?IC("1f4a1"):"");
-    const mem=(r.displayMemoryScoreAfterDecay!=null)?r.displayMemoryScoreAfterDecay+"%":"—";
+    const mem=(r.displayMemoryScoreAfterDecay!=null)?r.displayMemoryScoreAfterDecay:"—";
     const sy=SYM[r.answerStatus]||["－",""];
     return `<tr><td>${fmtDate(r.answeredAt)}</td><td>${dir}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}</td><td class="num">${(r.responseTimeMs/1000).toFixed(1)}</td><td class="num">${r.score}</td><td class="num">${mem}</td></tr>`;
   }).join("");
@@ -1629,10 +1636,10 @@ function renderWordDetail(wordId,back){
    <div class="page">
     <div class="page-head"><button class="back" onclick="${back==='room'?"show('s-home')":"renderCurve()"}">‹</button><h2>単語詳細</h2></div>
     <div class="wdetail-head"><div class="wd-line"><div class="ko">${esc(w.ko)}</div><div class="ja">${esc(w.ja)}</div></div>
-      <div style="margin-top:6px;font-size:13px;font-weight:800;display:flex;gap:16px;align-items:center;flex-wrap:wrap">推定記憶率 <span class="${ms.cls}">${rate}%・${ms.label}</span><span>${esc(w.cat)}</span></div></div>
+      <div style="margin-top:6px;font-size:13px;font-weight:800;display:flex;gap:16px;align-items:center;flex-wrap:wrap"><span>回数 ${getStat(wordId).reviewCount||0}</span><span>推定記憶率 <span class="${ms.cls}">${rate}%・${ms.label}</span></span><span>${esc(w.cat)}</span></div></div>
     ${note}
     <div class="page-body">
-      <table class="htab"><thead><tr><th>日時</th><th>方向</th><th>結果</th><th class="num">時間</th><th class="num">得点</th><th class="num">記憶率</th></tr></thead>
+      <table class="htab"><thead><tr><th>日時</th><th>方向</th><th>結果</th><th class="num">時間</th><th class="num">得点</th><th class="num">記憶率(%)</th></tr></thead>
       <tbody>${rows||'<tr><td colspan="6" style="color:var(--mute);text-align:center;padding:20px">履歴なし</td></tr>'}</tbody></table>
     </div>
    </div>`;
@@ -1777,7 +1784,7 @@ function renderRoomCurve(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.19.0 (2026-06-07)";
+const APP_VERSION="v2.19.2 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
