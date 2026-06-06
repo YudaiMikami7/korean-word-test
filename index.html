@@ -196,18 +196,18 @@ button{font-family:inherit}
 .axdot{position:absolute;top:50%;transform:translateY(-50%);width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-sizing:border-box;transition:left .5s ease}
 .room-panel{position:absolute;left:24px;top:192px;width:554px;height:486px;display:flex;gap:14px;z-index:3;background:rgba(0,0,0,.8);box-sizing:border-box} /* 黒80の下地が画像に被り、その上に3領域 */
 .rp-left{flex:1;background:transparent;padding:0;margin:0;display:flex;flex-direction:column;gap:2px;overflow:hidden}
-.th-row{flex:0 0 59px;box-sizing:border-box;display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.55);padding:0 10px;margin:0;font-size:28px;font-weight:900;cursor:pointer}
+.th-row{flex:0 0 59px;box-sizing:border-box;display:flex;align-items:center;gap:12px;background:transparent;padding:0 10px;margin:0;font-size:28px;font-weight:900;cursor:pointer}
 .th-rank{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;flex:0 0 auto}
 .th-score{width:76px;text-align:right}
 .rp-right{flex:1;display:flex;flex-direction:column;gap:14px}
-.rp-preview{flex:1;background:rgba(0,0,0,.8);border:none;border-radius:0;color:#fff;font-family:inherit;cursor:pointer;padding:12px 14px;display:flex;flex-direction:column;text-align:left;overflow:hidden}
-.rp-preview:active{background:rgba(0,0,0,.65)}
+.rp-preview{flex:1;background:transparent;border:none;border-radius:0;color:#fff;font-family:inherit;cursor:pointer;padding:12px 14px;display:flex;flex-direction:column;text-align:left;overflow:hidden}
+.rp-preview:active{background:rgba(255,255,255,.08)}
 .pv-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:21px;font-weight:800;border-bottom:1px solid rgba(255,255,255,.15);padding:5px 0}
 .pv-ko{flex:0 0 auto}
 .pv-ja{color:rgba(255,255,255,.78);font-size:15px;flex:1;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pv-more{margin-top:auto;text-align:right;font-size:22px;font-weight:900;padding-top:8px}
-.rp-btn{flex:0 0 58px;background:rgba(0,0,0,.8);color:#fff;border:none;border-radius:0;font-size:21px;font-weight:900;cursor:pointer;font-family:inherit}
-.rp-btn:active{background:rgba(0,0,0,.65)}
+.rp-btn{flex:0 0 58px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:0;font-size:21px;font-weight:900;cursor:pointer;font-family:inherit}
+.rp-btn:active{background:rgba(255,255,255,.28)}
 .rm-scale{transform-origin:top left;width:602px}
 .rm-inner{position:relative;width:602px;height:176px;margin-top:14px}
 .tdetail-sec{margin:16px 0}
@@ -1716,7 +1716,7 @@ function renderRoomCurve(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.16.12 (2026-06-06)";
+const APP_VERSION="v2.16.13 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
