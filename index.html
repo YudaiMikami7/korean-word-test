@@ -255,7 +255,7 @@ button{font-family:inherit}
 .btn.dark{background:rgba(0,0,0,.8);color:#fff}
 .btn.dark:active{background:rgba(0,0,0,.65)}
 .res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;margin:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-left:none;border-right:none;border-radius:0;-webkit-overflow-scrolling:touch}
-.rtab{width:100%;border-collapse:collapse;font-size:15px;background:rgba(0,0,0,.1)}
+.rtab{width:100%;border-collapse:collapse;font-size:15px;background:rgba(0,0,0,.5)}
 .rtab th,.rtab td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
 .rtab th{position:sticky;top:0;background:rgba(0,0,0,.8);color:#fff;font-size:12px;font-weight:800;z-index:1;white-space:nowrap}
 .rtab td:nth-child(3){font-size:16px;font-weight:700}
@@ -1716,7 +1716,7 @@ function renderRoomCurve(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.16.9 (2026-06-06)";
+const APP_VERSION="v2.16.10 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
