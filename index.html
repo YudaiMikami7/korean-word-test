@@ -255,7 +255,7 @@ button{font-family:inherit}
 .btn.dark{background:rgba(0,0,0,.8);color:#fff}
 .btn.dark:active{background:rgba(0,0,0,.65)}
 .res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;margin:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-left:none;border-right:none;border-radius:0;-webkit-overflow-scrolling:touch}
-.rtab{width:100%;border-collapse:collapse;font-size:15px;background:rgba(0,0,0,.5)}
+.rtab{width:100%;border-collapse:collapse;font-size:15px;background:rgba(0,0,0,.65)}
 .rtab th,.rtab td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
 .rtab th{position:sticky;top:0;background:rgba(0,0,0,.8);color:#fff;font-size:12px;font-weight:800;z-index:1;white-space:nowrap}
 .rtab td:nth-child(3){font-size:16px;font-weight:700}
@@ -274,7 +274,7 @@ button{font-family:inherit}
 .back{background:rgba(0,0,0,.8);border:none;color:#fff;width:38px;height:38px;border-radius:0;font-size:18px;cursor:pointer;flex:0 0 auto}
 .back:active{background:rgba(0,0,0,.65)}
 .page-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.htab{width:100%;border-collapse:collapse;font-size:15px;background:rgba(0,0,0,.1)}
+.htab{width:100%;border-collapse:collapse;font-size:15px;background:rgba(0,0,0,.35)}
 .htab th,.htab td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
 .htab th{position:sticky;top:0;background:rgba(0,0,0,.8);color:#fff;font-size:12px;font-weight:800;white-space:nowrap}
 .htab td.ko{font-size:18px}
@@ -1266,13 +1266,13 @@ function rankFor(s){if(s===100)return"S";if(s<=50)return"D";if(s<=70)return"C";i
 function show(id){
   document.querySelectorAll(".screen").forEach(e=>e.classList.remove("on"));
   document.getElementById(id).classList.add("on");window.scrollTo(0,0);
-  // 背景色: PWRメータ/タイプ詳細はLEVEL選択と同じグレーで固定、他は現在ROOMの色
-  applyBgAll((id==="s-curve"||id==="s-type")?LEVEL_SLIDE_BG:roomBg(curSection));
+  // 背景色: 全体PWRメータ/タイプ詳細はグレー固定、ROOM別PWRはそのROOMの色、他は現在ROOMの色
+  applyBgAll(((id==="s-curve"&&!_roomCurveMode)||id==="s-type")?LEVEL_SLIDE_BG:roomBg(curSection));
   if(id==="s-home")renderHome();
 }
 
 /* ============================================================ テスト進行 ============================================================ */
-let state=null,timer=null,qStart=0,answered=false,ovTimer=null;
+let state=null,timer=null,qStart=0,answered=false,ovTimer=null,_roomCurveMode=false;
 
 /* 出題中にホームへ戻る（タイマー・音声・○×表示を止めて中断） */
 function quitTest(){
@@ -1590,6 +1590,7 @@ function memChart(pts){
 }
 
 function renderCurve(){
+  _roomCurveMode=false; // 全体PWR=グレー背景
   const now=Date.now(),s=loadStats();
   // 全体=学習済み全単語（ホームのPWRと同一の母集団・同一値）
   const learned=Object.keys(s).map(id=>WORD_BY_ID[id]).filter(Boolean);
@@ -1627,7 +1628,7 @@ function renderCurve(){
 }
 function curveOverall(now,words){
   return `<div class="chartbox">${memChart(projectionPoints(now,words))}</div>
-    <div style="color:var(--faint);font-size:11px;line-height:1.7;margin-top:8px">※ 横軸＝学習からの経過時間，縦軸＝推定記憶率（100語平均）。黄色の点線=70%ライン。テストのたびに即時更新されます。</div>`;
+    <div style="background:rgba(255,255,255,.92);color:#1a1a1a;font-weight:700;font-size:11.5px;line-height:1.7;margin-top:8px;padding:9px 11px">※ 横軸＝学習からの経過時間，縦軸＝推定記憶率。黄色の点線=70%ライン。テストのたびに即時更新されます。</div>`;
 }
 function curveWords(now,words){
   const s=loadStats();
@@ -1697,6 +1698,7 @@ function renderRoomMenu(){
 
 /* ============================================================ ROOM限定のPWRメータページ ============================================================ */
 function renderRoomCurve(){
+  _roomCurveMode=true; // ROOM別PWR=そのROOMの色背景
   const now=Date.now(),nn=String(curSection).padStart(2,"0");
   const words=sectionIds().map(id=>WORD_BY_ID[id]);
   const st=loadStats();let t=0;words.forEach(w=>t+=displayScore(getStat(w.id,st),now));
@@ -1716,7 +1718,7 @@ function renderRoomCurve(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.16.16 (2026-06-06)";
+const APP_VERSION="v2.16.17 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
