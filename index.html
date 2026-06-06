@@ -173,15 +173,20 @@ button{font-family:inherit}
 .lvbtn.on{box-shadow:0 0 0 4px #fff inset}
 .lv-pick .lv-cap{text-align:center;font-size:22px;color:rgba(255,255,255,.85);letter-spacing:2px}
 .slide-img{position:absolute;left:24px;top:178px;width:554px;height:507px;object-fit:contain}
-/* 単語一覧モード：ROOMメニューが上へスライドし、下に一覧 */
-.room-scroll .slide-inner{transition:transform .35s ease}
-.room-scroll.listmode .slide-inner{transform:translateY(-62px)}
+/* 単語一覧モード：スワイプ連動（--lift/--pはhome-wrapに設定） */
+.home-wrap .slide-inner{transform:translateY(var(--lift,0px));transition:transform .35s ease}
+.home-head{position:absolute;inset:0;pointer-events:none;z-index:2;
+  transform:translateY(calc(var(--p,0)*-190px));transition:transform .35s ease} /* ヘッダーも同時に上へ */
+.home-head>*{pointer-events:auto}
+.slide-img,.room-ph{opacity:calc(1 - var(--p,0));transition:opacity .35s ease,transform .35s ease} /* 写真はフェードアウト */
+.home-wrap.dragging .slide-inner,.home-wrap.dragging .home-head,.home-wrap.dragging .slide-img,.home-wrap.dragging .room-ph{transition:none}
 .slide-list{position:absolute;left:24px;top:178px;width:554px;height:566px;overflow-y:auto;background:rgba(0,0,0,.55);scrollbar-width:none}
 .slide-list::-webkit-scrollbar{display:none}
-.wl-row{display:flex;align-items:baseline;gap:10px;padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.12);cursor:pointer}
-.wl-ko{font-size:19px;font-weight:800;flex:0 0 auto}
-.wl-ja{flex:1;font-size:14px;font-weight:700;color:rgba(255,255,255,.85);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wl-rate{flex:0 0 52px;text-align:right;font-size:15px;font-weight:900}
+.wl-row{display:flex;align-items:baseline;gap:10px;padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.12);cursor:pointer}
+.wl-ko{font-size:24px;font-weight:800;flex:0 0 auto}
+.wl-ja{flex:1;font-size:18px;font-weight:700;color:rgba(255,255,255,.88);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wl-cnt{flex:0 0 36px;text-align:right;font-size:15px;font-weight:800;color:rgba(255,255,255,.8)}
+.wl-rate{flex:0 0 56px;text-align:right;font-size:17px;font-weight:900}
 .room-ph{position:absolute;left:24px;top:178px;width:554px;height:507px;display:flex;align-items:center;justify-content:center;font-size:130px;color:rgba(255,255,255,.32);font-weight:800}
 .start-button{position:absolute;left:50%;transform:translateX(-50%);top:1004px;width:540px;height:123px;border:4px solid #FFC400;border-radius:62px;
   background:rgba(0,0,0,.8);color:#FFFFFF;font-size:62px;font-weight:900;cursor:pointer;font-family:inherit;z-index:2;
@@ -338,6 +343,7 @@ button{font-family:inherit}
   <!-- HOME（602×1178基準の絶対配置・比例スケール） -->
   <div class="screen on" id="s-home">
     <div class="home-wrap" id="homewrap">
+      <div class="home-head">
       <div class="avatar-circle" onclick="renderTypeDetail()"><img class="avatar-image" id="hv-char" src="characters/analyzing.svg" alt=""></div>
       <div class="hv-level" id="hv-level">Lv.<span>1</span></div>
       <div class="hv-code" id="hv-code" onclick="renderTypeDetail()">----</div>
@@ -348,6 +354,7 @@ button{font-family:inherit}
       <div class="hv-lab hv-pwrlabel">PWR</div>
       <div class="gauge hv-pwrg"><div class="gfill" id="hv-pwrfill" style="background:#00FF37"></div></div>
       <div class="hv-lab hv-pwrval" id="hv-pwrval">0%</div>
+      </div>
       <div class="room-scroll" id="hv-rooms"></div>
       <button class="start-button" onclick="startTest()">スタート</button>
       <div class="hv-ver" id="appver"></div>
@@ -582,12 +589,19 @@ function applyHomeBg(){applyBgAll(roomBg(curSection));}
 let _roomScrollT=null,_panelFor=null,_listMode=false;
 function toggleRoomPanel(n){_panelFor=_panelFor===n?null:n;buildRoomSlides();}
 /* 単語一覧モード：ROOMメニューが上へスライドし、下に単語一覧。横スワイプで隣のROOMの一覧へ */
+function setLift(px){ // ピル上昇量(px)とヘッダー/写真用の進捗(--p)を同時に設定
+  const w=document.getElementById("homewrap");if(!w)return;
+  w.style.setProperty("--lift",px+"px");
+  w.style.setProperty("--p",String(Math.min(1,Math.max(0,px/-62))));
+}
 function enterListMode(){
-  _listMode=true;_panelFor=null;buildRoomSlides();
-  requestAnimationFrame(()=>{const el=document.getElementById("hv-rooms");if(el)el.classList.add("listmode");});
+  if(_listMode)return;
+  _panelFor=null;
+  setLift(-62); // ROOMメニュー上昇・ヘッダー退場・写真フェード
+  setTimeout(()=>{_listMode=true;buildRoomSlides();},360); // 移動終了と同時に一覧を表示
 }
 function exitListMode(){
-  const el=document.getElementById("hv-rooms");if(el)el.classList.remove("listmode");
+  setLift(0);
   setTimeout(()=>{_listMode=false;buildRoomSlides();},360);
 }
 function roomMenuTap(n){if(_listMode)exitListMode();else toggleRoomPanel(n);}
@@ -598,9 +612,9 @@ function roomListHTML(n){
     const w=WORD_BY_ID[id],x=st[id];
     if(x&&x.reviewCount>0){
       const rate=Math.round(displayScore(getStat(id,st),now)),ms=memState(rate);
-      return `<div class="wl-row" onclick="renderWordDetail(${id},'room')"><span class="wl-ko">${esc(w.ko)}</span><span class="wl-ja">${esc(w.ja)}</span><span class="wl-rate ${ms.cls}">${rate}%</span></div>`;
+      return `<div class="wl-row" onclick="renderWordDetail(${id},'room')"><span class="wl-ko">${esc(w.ko)}</span><span class="wl-ja">${esc(w.ja)}</span><span class="wl-cnt">${x.reviewCount}</span><span class="wl-rate ${ms.cls}">${rate}%</span></div>`;
     }
-    return `<div class="wl-row" style="opacity:.5"><span class="wl-ko">${esc(w.ko)}</span><span class="wl-ja">${esc(w.ja)}</span><span class="wl-rate">未</span></div>`;
+    return `<div class="wl-row" style="opacity:.5"><span class="wl-ko">${esc(w.ko)}</span><span class="wl-ja">${esc(w.ja)}</span><span class="wl-cnt">—</span><span class="wl-rate">未</span></div>`;
   }).join("");
   return `<div class="slide-list">${rows}</div>`;
 }
@@ -678,10 +692,29 @@ function buildRoomSlides(){
       </div>
     </div>`;
   }).join("");
-  el.classList.toggle("listmode",_listMode&&el.classList.contains("listmode"));
-  if(_listMode&&!el.classList.contains("listmode")&&el.dataset.bound)el.classList.add("listmode");
   if(!el.dataset.bound){
     el.dataset.bound="1";
+    // 上スワイプ: ROOMメニューがスワイプに連動して上部へ移動し、到達で単語一覧を表示
+    let _ty=null,_tx=null,_vdrag=false;
+    el.addEventListener("touchstart",e=>{_ty=e.touches[0].clientY;_tx=e.touches[0].clientX;_vdrag=false;},{passive:true});
+    el.addEventListener("touchmove",e=>{
+      if(_ty==null||_listMode)return;
+      const dy=e.touches[0].clientY-_ty,dx=e.touches[0].clientX-_tx;
+      if(!_vdrag){
+        if(dy<-12&&Math.abs(dy)>Math.abs(dx)*1.2){_vdrag=true;document.getElementById("homewrap").classList.add("dragging");}
+        else return;
+      }
+      e.preventDefault();
+      setLift(Math.max(-62,Math.min(0,dy)));
+    },{passive:false});
+    el.addEventListener("touchend",()=>{
+      if(_vdrag){
+        const w=document.getElementById("homewrap");w.classList.remove("dragging");
+        const cur=parseFloat(w.style.getPropertyValue("--lift"))||0;
+        if(cur<=-31)enterListMode();else setLift(0);
+      }
+      _ty=null;_vdrag=false;
+    });
     el.addEventListener("scroll",()=>{
       // スワイプ中も上下端の色を支配的なスライドへ即時追従（index0=難易度切替スライド）
       const idx=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count);
@@ -1727,7 +1760,7 @@ function renderRoomCurve(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.17.0 (2026-06-06)";
+const APP_VERSION="v2.17.2 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
