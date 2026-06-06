@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>한국어 단어 테스트</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700;900&family=Noto+Sans+KR:wght@700&display=swap" rel="stylesheet">
 <style>
+/* LINE Seed JP（公式配布woff2を同梱） */
+@font-face{font-family:"LINESeedJP";src:url("fonts/LINESeedJP-Rg.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"LINESeedJP";src:url("fonts/LINESeedJP-Bd.woff2") format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"LINESeedJP";src:url("fonts/LINESeedJP-Eb.woff2") format("woff2");font-weight:800;font-display:swap}
 :root{
   --bg:#000; --panel:#16181c; --panel2:#1f2125; --gray:#26282d; --gray-h:#33363c;
   --line:#2a2d33; --text:#f2f3f5; --mute:#8b909a; --faint:#5c616b;
@@ -15,7 +16,7 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
-  font-family:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans CJK JP","Noto Sans KR",system-ui,sans-serif;
+  font-family:"LINESeedJP","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans CJK JP","Noto Sans KR",system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;overscroll-behavior:none}
 body{display:flex;justify-content:center}
 .app{width:100%;max-width:602px;min-height:100dvh;display:flex;flex-direction:column;position:relative;background:var(--bg)}
@@ -115,36 +116,44 @@ button{font-family:inherit}
 #s-home{background:#E3A38D;flex-direction:row;justify-content:center;align-items:flex-start;overflow:hidden}
 .home-wrap{position:relative;flex:0 0 auto;width:602px;height:1178px;background:#E3A38D;
   transform-origin:top center;color:#FFFFFF;font-weight:700;
-  font-family:"Noto Sans JP","Noto Sans KR","Hiragino Kaku Gothic ProN","Yu Gothic UI",sans-serif}
-.home-wrap .gauge{position:absolute;background:#333333;border-radius:11px;overflow:hidden;z-index:2}
-.home-wrap .gfill{height:100%;border-radius:inherit;transition:width .5s ease;width:0}
+  font-family:"LINESeedJP","Noto Sans KR","Hiragino Kaku Gothic ProN",sans-serif}
+/* バー：暗いトラック＋内側に角丸フィル（見本準拠） */
+.home-wrap .gauge{position:absolute;background:#333333;border-radius:999px;padding:3px;box-sizing:border-box;z-index:2}
+.home-wrap .gfill{height:100%;border-radius:999px;transition:width .5s ease;width:0}
 .avatar-circle{position:absolute;left:32px;top:35px;width:120px;height:120px;border-radius:50%;background:#5D433A;overflow:hidden;cursor:pointer;z-index:2}
 .avatar-image{width:100%;height:100%;object-fit:contain}
-.hv-level{position:absolute;left:174px;top:43px;font-size:24px;line-height:1.2;z-index:2}
-.hv-level span{font-size:34px}
-.type-dots{position:absolute;left:322px;top:46px;display:flex;gap:3px;z-index:2}
-.type-dot{width:27px;height:27px;border:2px solid #FFFFFF;border-radius:50%;box-sizing:border-box}
-.hv-code{position:absolute;left:452px;top:38px;font-size:42px;letter-spacing:1px;line-height:1;cursor:pointer;z-index:2}
+.hv-level{position:absolute;left:172px;top:34px;display:flex;align-items:baseline;gap:2px;line-height:1;z-index:2;font-size:24px}
+.hv-level span{font-size:46px}
+.type-dots{position:absolute;right:168px;top:46px;display:flex;gap:8px;z-index:2}
+.type-dot{width:32px;height:32px;border-radius:50%}
+.hv-code{position:absolute;right:16px;top:30px;font-size:50px;letter-spacing:1px;line-height:1;cursor:pointer;z-index:2}
 .status-panel{position:absolute;left:163px;top:80px;width:423px;height:100px;border-radius:50px;background:#5D433A;z-index:1}
 .hv-lab{position:absolute;font-size:22px;line-height:1.2;z-index:2}
-.hv-xplabel{left:231px;top:88px}
-.hv-xpg{left:269px;top:91px;width:183px;height:21px}
-.hv-xpval{left:456px;top:89px}
-.hv-pwrlabel{left:205px;top:118px}
-.hv-pwrg{left:269px;top:121px;width:183px;height:21px}
-.hv-pwrval{left:456px;top:119px}
-.hv-roomlabel{position:absolute;left:78px;top:240px;font-size:36px;line-height:1;cursor:pointer}
+.hv-xplabel{left:180px;top:90px;width:78px;text-align:right}
+.hv-xpg{left:269px;top:91px;width:183px;height:22px}
+.hv-xpval{left:460px;top:90px}
+.hv-pwrlabel{left:180px;top:122px;width:78px;text-align:right}
+.hv-pwrg{left:269px;top:123px;width:183px;height:22px}
+.hv-pwrval{left:460px;top:122px}
+.hv-roomlabel{position:absolute;left:78px;top:240px;font-size:36px;letter-spacing:2px;line-height:1;cursor:pointer}
 .hv-roomno{position:absolute;left:78px;top:272px;font-size:108px;line-height:1;cursor:pointer}
-.hv-learned{position:absolute;left:251px;top:250px;font-size:43px;line-height:1}
-.hv-divider{position:absolute;left:237px;top:299px;width:100px;height:1px;background:rgba(255,255,255,.75)}
-.hv-roompwr{position:absolute;left:251px;top:306px;font-size:44px;line-height:1}
-.hv-roomg{left:241px;top:348px;width:93px;height:11px;border-radius:6px}
+.hv-learned{position:absolute;left:237px;top:248px;font-size:43px;line-height:1}
+.hv-roompwr{position:absolute;left:237px;top:324px;font-size:44px;line-height:1}
+.hv-learned .unit,.hv-roompwr .unit{font-size:26px;margin-left:4px}
+.hv-wordsg{left:237px;top:300px;width:100px;height:14px}
+.hv-roomg{left:237px;top:378px;width:100px;height:14px}
 .rank-s{position:absolute;left:369px;top:322px;width:38px;height:38px;border-radius:50%;background:#555;
   display:flex;align-items:center;justify-content:center;font-size:25px;line-height:1;z-index:1}
 .rank-s1{left:405px}
 .rank-b{position:absolute;left:432px;top:292px;width:103px;height:103px;border-radius:50%;background:#555;
   display:flex;align-items:center;justify-content:center;font-size:85px;line-height:1;z-index:2}
-.room-diorama{position:absolute;left:24px;top:418px;width:554px;height:507px;object-fit:contain;cursor:pointer}
+/* ROOM選択：ジオラマ帯を左右スワイプ（スクロールスナップ） */
+.room-scroll{position:absolute;left:24px;top:418px;width:554px;height:507px;display:flex;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.room-scroll::-webkit-scrollbar{display:none}
+.room-slide{position:relative;flex:0 0 554px;width:554px;height:507px;scroll-snap-align:center}
+.room-slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.room-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:130px;color:rgba(255,255,255,.32);font-weight:800}
 .start-button{position:absolute;left:45px;top:1004px;width:540px;height:123px;border:none;border-radius:62px;
   background:#5D433A;color:#FFFFFF;font-size:62px;font-weight:700;cursor:pointer;font-family:inherit}
 .start-button:active{background:#4a352e}
@@ -261,14 +270,14 @@ button{font-family:inherit}
       <div class="hv-lab hv-pwrval" id="hv-pwrval">0%</div>
       <div class="hv-roomlabel" onclick="renderSectionSelect(curLevel)">ROOM</div>
       <div class="hv-roomno" id="hv-roomno" onclick="renderSectionSelect(curLevel)">01</div>
-      <div class="hv-learned" id="hv-learned">0語</div>
-      <div class="hv-divider"></div>
-      <div class="hv-roompwr" id="hv-roompwr">0%</div>
+      <div class="hv-learned" id="hv-learned">0<span class="unit">語</span></div>
+      <div class="gauge hv-wordsg"><div class="gfill" id="hv-wordsfill" style="background:#00FFFF"></div></div>
+      <div class="hv-roompwr" id="hv-roompwr">0<span class="unit">%</span></div>
       <div class="gauge hv-roomg"><div class="gfill" id="hv-roomfill" style="background:#00FF37"></div></div>
       <div class="rank-s" id="hv-rank2">-</div>
       <div class="rank-s rank-s1" id="hv-rank1">-</div>
       <div class="rank-b" id="hv-rankbest">-</div>
-      <img class="room-diorama" id="hv-diorama" src="rooms/middle-01.webp" alt="" onclick="renderSectionSelect(curLevel)" onerror="this.style.visibility='hidden'">
+      <div class="room-scroll" id="hv-rooms"></div>
       <button class="start-button" onclick="startTest()">スタート</button>
       <div class="hv-ver" id="appver"></div>
     </div>
@@ -500,7 +509,36 @@ function roomInfo(){
     pwr:learned.length?Math.round(pw/learned.length):0,
     recent:(rec.recentRanks||[]).slice(-2),best:rec.bestRank};
 }
-function dioramaPath(){return `rooms/${curLevel}-${String(curSection).padStart(2,"0")}.webp`;}
+/* ROOM選択：ジオラマ帯の左右スワイプ（スナップ）でcurSectionを切替 */
+let _roomsBuiltFor=null,_roomScrollT=null;
+function buildRoomSlides(){
+  const el=document.getElementById("hv-rooms");if(!el)return;
+  if(_roomsBuiltFor!==curLevel){
+    const count=LEVEL_INFO[curLevel].count;
+    el.innerHTML=Array.from({length:count},(_,i)=>{
+      const n=String(i+1).padStart(2,"0");
+      return `<div class="room-slide" data-n="${i+1}">
+        <div class="room-ph">${n}</div>
+        <img src="rooms/${curLevel}-${n}.webp" alt="" loading="lazy"
+          onload="this.previousElementSibling.style.display='none'"
+          onerror="this.style.display='none'">
+      </div>`;
+    }).join("");
+    _roomsBuiltFor=curLevel;
+    if(!el.dataset.bound){
+      el.dataset.bound="1";
+      el.addEventListener("scroll",()=>{
+        clearTimeout(_roomScrollT);
+        _roomScrollT=setTimeout(()=>{
+          const n=Math.round(el.scrollLeft/554)+1;
+          if(n!==curSection&&n>=1&&n<=LEVEL_INFO[curLevel].count){curSection=n;renderHomeInfo();}
+        },120);
+      });
+    }
+  }
+  const want=(curSection-1)*554;
+  if(Math.abs(el.scrollLeft-want)>8)el.scrollLeft=want;
+}
 /* 602px基準で比例スケール（PCは等倍上限・中央寄せ） */
 function scaleHome(){
   const el=document.getElementById("homewrap");if(!el)return;
@@ -509,6 +547,23 @@ function scaleHome(){
   el.style.marginBottom=`-${Math.round(1178*(1-s))}px`; // transformはレイアウト高を変えないため余白を回収
 }
 window.addEventListener("resize",scaleHome);
+/* ROOM依存の表示のみ更新（スワイプ時にも呼ぶ） */
+function renderHomeInfo(){
+  const ri=roomInfo();
+  document.getElementById("hv-roomno").textContent=String(curSection).padStart(2,"0");
+  document.getElementById("hv-learned").innerHTML=`${ri.learned}<span class="unit">語</span>`;
+  document.getElementById("hv-roompwr").innerHTML=`${ri.pwr}<span class="unit">%</span>`;
+  document.getElementById("hv-wordsfill").style.width=Math.round(ri.learned/Math.max(1,ri.total)*100)+"%";
+  document.getElementById("hv-roomfill").style.width=ri.pwr+"%";
+  const setRank=(el,rank,dim)=>{
+    if(rank){el.textContent=rank;el.style.background=RANK_COLORS[rank]||"#555";el.style.visibility="visible";}
+    else if(dim){el.textContent="-";el.style.background="rgba(0,0,0,.22)";el.style.visibility="visible";}
+    else el.style.visibility="hidden";
+  };
+  setRank(document.getElementById("hv-rank2"),ri.recent.length===2?ri.recent[0]:null,false);
+  setRank(document.getElementById("hv-rank1"),ri.recent.length>=1?ri.recent[ri.recent.length-1]:null,false);
+  setRank(document.getElementById("hv-rankbest"),ri.best,true);
+}
 function renderHome(){
   const d=computeDiagnosis();
   document.getElementById("hv-code").textContent=(d.n<30&&!d.complete)?"----":d.code;
@@ -521,22 +576,8 @@ function renderHome(){
   const pw=pwrOverall();
   document.getElementById("hv-pwrval").textContent=pw+"%";
   document.getElementById("hv-pwrfill").style.width=pw+"%";
-  const ri=roomInfo();
-  document.getElementById("hv-roomno").textContent=String(curSection).padStart(2,"0");
-  document.getElementById("hv-learned").textContent=ri.learned+"語";
-  document.getElementById("hv-roompwr").textContent=ri.pwr+"%";
-  document.getElementById("hv-roomfill").style.width=Math.round(ri.learned/Math.max(1,ri.total)*100)+"%";
-  const setRank=(el,rank,dim)=>{
-    if(rank){el.textContent=rank;el.style.background=RANK_COLORS[rank]||"#555";el.style.visibility="visible";}
-    else if(dim){el.textContent="-";el.style.background="rgba(0,0,0,.22)";el.style.visibility="visible";}
-    else el.style.visibility="hidden";
-  };
-  setRank(document.getElementById("hv-rank2"),ri.recent.length===2?ri.recent[0]:null,false);
-  setRank(document.getElementById("hv-rank1"),ri.recent.length>=1?ri.recent[ri.recent.length-1]:null,false);
-  setRank(document.getElementById("hv-rankbest"),ri.best,true);
-  const di=document.getElementById("hv-diorama");
-  di.style.visibility="visible";
-  const p=dioramaPath();if(!di.src.endsWith(p))di.src=p;
+  renderHomeInfo();
+  buildRoomSlides();
   scaleHome();
 }
 
@@ -1494,7 +1535,7 @@ function startSectionTest(n){curSection=n;show("s-home");} // ROOM切替：ホ�
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.3.0 (2026-06-06)";
+const APP_VERSION="v2.4.0 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
