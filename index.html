@@ -195,9 +195,8 @@ button{font-family:inherit}
 .axbar{flex:1;height:4px;background:rgba(0,0,0,.35);position:relative;border-radius:2px}
 .axdot{position:absolute;top:50%;transform:translateY(-50%);width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-sizing:border-box;transition:left .5s ease}
 .room-panel{position:absolute;left:24px;top:192px;width:554px;height:486px;display:flex;gap:14px;z-index:3} /* 画像の上に重ねる */
-.rp-left{flex:1;background:transparent;padding:0;margin:0;overflow-y:auto;scrollbar-width:none}
-.rp-left::-webkit-scrollbar{display:none}
-.th-row{display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.55);padding:5px 10px;margin-bottom:8px;font-size:28px;font-weight:900;cursor:pointer}
+.rp-left{flex:1;background:transparent;padding:0;margin:0;display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.th-row{flex:0 0 59px;box-sizing:border-box;display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.55);padding:0 10px;margin:0;font-size:28px;font-weight:900;cursor:pointer}
 .th-rank{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;flex:0 0 auto}
 .th-score{width:76px;text-align:right}
 .rp-right{flex:1;display:flex;flex-direction:column;gap:14px}
@@ -314,6 +313,8 @@ button{font-family:inherit}
 #s-wdetail .htab td:first-child{font-size:11px;color:var(--faint)}
 .dicon{width:20px;height:20px;vertical-align:-4px;margin-right:2px}
 .wdetail-head{margin-bottom:6px}
+.wd-line{display:flex;justify-content:space-between;align-items:baseline;gap:12px} /* 韓国語=左端 / 日本語=右端 */
+.wd-line .ja{text-align:right}
 .wdetail-head .ko{font-size:26px;font-weight:800}
 .wdetail-head .ja{color:#FFFFFF;font-size:26px;font-weight:800;margin-top:2px}
 </style>
@@ -575,7 +576,7 @@ function roomPanelHTML(n){
   const idsArr=LEVEL_SECTIONS[curLevel][n]||[],ids=new Set(idsArr),byTest={};
   loadHistory().forEach(r=>{if(r.testId&&ids.has(r.wordId))(byTest[r.testId]=byTest[r.testId]||[]).push(r);});
   const tests=Object.entries(byTest).map(([tid,a])=>({tid,at:a[a.length-1].answeredAt,total:a.reduce((x,r)=>x+(r.score||0),0),n:a.length,ok:a.filter(r=>r.isCorrect).length}))
-    .sort((a,b)=>b.at.localeCompare(a.at)).slice(0,7);
+    .sort((a,b)=>b.at.localeCompare(a.at)).slice(0,8); // 8件で486pxにぴったり収まる
   const rowsH=tests.length?tests.map(t=>{
     const full=t.n>=12,tt=Math.ceil(t.total),rk=full?rankFor(tt):null,disp=tt;
     return `<div class="th-row" onclick="renderPastResult('${t.tid}')">
@@ -1541,7 +1542,7 @@ function renderWordDetail(wordId,back){
   document.getElementById("s-wdetail").innerHTML=`
    <div class="page">
     <div class="page-head"><button class="back" onclick="${back==='room'?"renderRoomMenu()":"renderCurve()"}">‹</button><h2>単語詳細</h2></div>
-    <div class="wdetail-head"><div class="ko">${esc(w.ko)}</div><div class="ja">${esc(w.ja)}</div>
+    <div class="wdetail-head"><div class="wd-line"><div class="ko">${esc(w.ko)}</div><div class="ja">${esc(w.ja)}</div></div>
       <div style="margin-top:6px;font-size:13px;font-weight:800;display:flex;gap:16px;align-items:center;flex-wrap:wrap">推定記憶率 <span class="${ms.cls}">${rate}%・${ms.label}</span><span>${esc(w.cat)}</span></div></div>
     ${note}
     <div class="page-body">
@@ -1709,7 +1710,7 @@ function renderRoomCurve(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.16.5 (2026-06-06)";
+const APP_VERSION="v2.16.6 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
