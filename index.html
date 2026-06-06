@@ -471,7 +471,7 @@ const WORDS=[
  {id:100,ko:"현모양처",ja:"良妻賢母",d:["専業主婦","働く母親","厳格な母親"],n:"歴史的・伝統的な価値観を説明する場面で使われやすい"},
 ];
 const WORD_BY_ID={};WORDS.forEach(w=>WORD_BY_ID[w.id]=w);
-/* 単語群（カテゴリ）。忘却曲線の単語群別表示などに使用 */
+/* 単語群（カテゴリ）。PWRメータの単語カテゴリ別表示などに使用 */
 const CATS={
  "家族・人物":[4,11,16,23,24,25,33,40,41,44,49,55,62,74,77,81,86,87,90,95,96,97,100],
  "生活・家事":[1,7,8,10,12,26,29,36,38,50,53,57,64,65,76,78,92],
@@ -575,7 +575,7 @@ function applyHomeBg(){applyBgAll(roomBg(curSection));}
 let _roomScrollT=null,_panelFor=null;
 function toggleRoomPanel(n){_panelFor=_panelFor===n?null:n;buildRoomSlides();}
 /* ROOMボード：ROOMメニュータップでジオラマと入れ替わる領域。
-   左=テスト履歴(大きめ表示・最大8件) / 右=単語帳プレビュー(タップで一覧へ)・ROOM忘却曲線 */
+   左=テスト履歴(大きめ表示・最大8件) / 右=単語帳プレビュー(タップで一覧へ)・ROOM PWRメータ */
 function roomPanelHTML(n){
   const idsArr=LEVEL_SECTIONS[curLevel][n]||[],ids=new Set(idsArr),byTest={};
   loadHistory().forEach(r=>{if(r.testId&&ids.has(r.wordId))(byTest[r.testId]=byTest[r.testId]||[]).push(r);});
@@ -594,7 +594,7 @@ function roomPanelHTML(n){
     <div class="rp-left">${rowsH}</div>
     <div class="rp-right">
       <button class="rp-preview" onclick="renderRoomMenu()">${pv}<div class="pv-more">単語一覧 ›</div></button>
-      <button class="rp-btn" onclick="renderRoomCurve()">PWRメーター</button>
+      <button class="rp-btn" onclick="renderRoomCurve()">PWRメータ</button>
     </div>
   </div>`;
 }
@@ -1266,8 +1266,8 @@ function rankFor(s){if(s===100)return"S";if(s<=50)return"D";if(s<=70)return"C";i
 function show(id){
   document.querySelectorAll(".screen").forEach(e=>e.classList.remove("on"));
   document.getElementById(id).classList.add("on");window.scrollTo(0,0);
-  // 全画面とも背景・上下端の色を現在ROOMの色に統一（トンマナ共通化）
-  applyBgAll(roomBg(curSection));
+  // 背景色: PWRメータ/タイプ詳細はLEVEL選択と同じグレーで固定、他は現在ROOMの色
+  applyBgAll((id==="s-curve"||id==="s-type")?LEVEL_SLIDE_BG:roomBg(curSection));
   if(id==="s-home")renderHome();
 }
 
@@ -1557,7 +1557,7 @@ function renderWordDetail(wordId,back){
   show("s-wdetail");
 }
 
-/* ============================================================ 忘却曲線（記憶コンディション・複数ビュー） ============================================================ */
+/* ============================================================ PWRメータ（記憶状態の可視化） ============================================================ */
 function memState(rate){ // 状態ラベル
   if(rate>=80)return{label:"安定",cls:"ms-stable"};
   if(rate>=50)return{label:"復習推奨",cls:"ms-review"};
@@ -1614,7 +1614,7 @@ function renderCurve(){
   const btn=urgent.length?`<button class="btn dark" style="margin-top:14px" onclick='startReviewTest(${JSON.stringify(urgent)})'>この${urgent.length}語で復習</button>`:"";
   document.getElementById("s-curve").innerHTML=`
    <div class="page">
-    <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>忘却曲線</h2></div>
+    <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>PWRメータ</h2></div>
     <div class="cond pwrline"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${cond}%"></div></div><span class="pwr-val">${cond}%</span></div>
     <div class="page-body">
       ${curveOverall(now,base)}
@@ -1695,7 +1695,7 @@ function renderRoomMenu(){
   show("s-roommenu");
 }
 
-/* ============================================================ ROOM限定の忘却曲線ページ ============================================================ */
+/* ============================================================ ROOM限定のPWRメータページ ============================================================ */
 function renderRoomCurve(){
   const now=Date.now(),nn=String(curSection).padStart(2,"0");
   const words=sectionIds().map(id=>WORD_BY_ID[id]);
@@ -1703,7 +1703,7 @@ function renderRoomCurve(){
   const cond=Math.round(t/Math.max(1,words.length));
   document.getElementById("s-curve").innerHTML=`
    <div class="page">
-    <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>ROOM ${nn} 忘却曲線</h2></div>
+    <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>ROOM ${nn} PWRメータ</h2></div>
     <div class="cond pwrline"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${cond}%"></div></div><span class="pwr-val">${cond}%</span></div>
     <div class="page-body">
       ${curveOverall(now,words)}
@@ -1716,7 +1716,7 @@ function renderRoomCurve(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.16.13 (2026-06-06)";
+const APP_VERSION="v2.16.14 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
