@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>한국어 단어 테스트</title>
 <style>
 :root{
@@ -112,10 +112,16 @@ button{font-family:inherit}
 .typebox{text-align:center;cursor:pointer;padding:2px 0}
 .t-code{font-size:42px;font-weight:900;letter-spacing:9px;text-indent:9px}
 .t-char{display:block;margin:14px auto 0;width:116px;height:116px}
-/* 4軸タイプカラー外枠：9px（従来の3倍）・border方式で四隅45°接続・角丸でスマホの縁を象る・フェードで変化 */
-.tframe{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;height:100dvh;
+/* 4軸タイプカラー外枠：9px・四隅45°接続・角丸でスマホの縁を象る。
+   端末の丸角/ノッチ/ホームバーで見切れないよう全辺5px＋セーフエリア分を内側に確保（top/bottom指定でdvh非依存） */
+.tframe{position:fixed;
+  top:calc(5px + env(safe-area-inset-top,0px));
+  bottom:calc(5px + env(safe-area-inset-bottom,0px));
+  left:calc(5px + env(safe-area-inset-left,0px));
+  right:calc(5px + env(safe-area-inset-right,0px));
+  max-width:510px;margin:0 auto;
   pointer-events:none;z-index:250;box-sizing:border-box;
-  border:9px solid #26282d;border-radius:30px;
+  border:9px solid #26282d;border-radius:26px;
   transition:border-top-color .6s ease,border-right-color .6s ease,border-bottom-color .6s ease,border-left-color .6s ease}
 /* タイプ詳細 */
 .axrow{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:11px;font-weight:700;color:var(--mute)}
@@ -430,7 +436,7 @@ function updateSectionRank(n,rank){
 
 /* ============================================================ 韓国語単語タイプ診断（4軸16タイプ） ============================================================ */
 /* 軸カラー設定（変更可能） 上辺=軸1 F/U, 右辺=軸2 M/C, 下辺=軸3 P/S, 左辺=軸4 Q/D */
-const AXIS_COLORS={F:"#B54A4A",U:"#C9854D",M:"#8D62B5",C:"#4D78B5",P:"#4D9B72",S:"#B49A45",Q:"#B55F83",D:"#5B96A8"};
+const AXIS_COLORS={F:"#D32F2F",U:"#E6831A",M:"#9C3FE0",C:"#2F6FE0",P:"#1FAD62",S:"#DFB10F",Q:"#E04488",D:"#2FB3D9"};
 const AXES=[
  {no:1,side:"top",L:"F",R:"U",ln:"固定混同",rn:"散漫未定着"},
  {no:2,side:"right",L:"M",R:"C",ln:"意味類似",rn:"場面連想"},
@@ -1374,7 +1380,7 @@ function startSectionTest(n){curSection=n;startTest();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.1.0 (2026-06-06)";
+const APP_VERSION="v2.1.1 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断・外枠色・ホーム表示を初期化
