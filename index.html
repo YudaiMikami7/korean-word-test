@@ -175,12 +175,13 @@ button{font-family:inherit}
 .slide-img{position:absolute;left:24px;top:178px;width:554px;height:507px;object-fit:contain}
 .room-ph{position:absolute;left:24px;top:178px;width:554px;height:507px;display:flex;align-items:center;justify-content:center;font-size:130px;color:rgba(255,255,255,.32);font-weight:800}
 .start-button{position:absolute;left:50%;transform:translateX(-50%);top:1004px;width:540px;height:123px;border:none;border-radius:62px;
-  background:rgba(0,0,0,.8);color:#FFFFFF;font-size:62px;font-weight:700;cursor:pointer;font-family:inherit;z-index:2}
+  background:rgba(0,0,0,.8);color:#FFFFFF;font-size:62px;font-weight:900;cursor:pointer;font-family:inherit;z-index:2}
 .start-button:active{background:rgba(0,0,0,.65)}
 .hv-ver{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:11px;color:rgba(255,255,255,.5);z-index:2}
 .typebox{text-align:center;cursor:pointer;padding:2px 0}
 .t-code{font-size:42px;font-weight:900;letter-spacing:9px;text-indent:9px}
 .t-char{display:block;margin:14px auto 0;width:116px;height:116px}
+.t-job{font-size:17px;font-weight:800;margin-top:4px}
 /* 外枠は廃止（タイプカラーは4軸バー等で使用。applyFrameColorsは要素なしのため何もしない） */
 /* タイプ詳細 */
 .axrow{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:11px;font-weight:700;color:var(--mute);cursor:pointer}
@@ -188,6 +189,12 @@ button{font-family:inherit}
 .axrow .axr{text-align:right}
 .axbar{flex:1;height:4px;background:rgba(0,0,0,.35);position:relative;border-radius:2px}
 .axdot{position:absolute;top:50%;transform:translateY(-50%);width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-sizing:border-box;transition:left .5s ease}
+.rm-scale{transform-origin:top left;width:602px}
+.rm-inner{position:relative;width:602px;height:176px;margin-top:14px}
+.th-row{display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.55);padding:8px 12px;margin-bottom:6px;font-size:14px;font-weight:800}
+.th-date{font-size:11px;color:var(--faint);width:118px}
+.th-rank{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:900}
+.th-score{width:48px;text-align:right}
 .tdetail-sec{margin:16px 0}
 .tdetail-sec .h{color:var(--mute);font-size:11px;font-weight:800;letter-spacing:2px;margin-bottom:6px}
 .tdetail-sec .item{font-size:13px;line-height:1.9}
@@ -224,6 +231,8 @@ button{font-family:inherit}
 .rp-g{width:120px;height:15px;background:#333;border-radius:999px;padding:3px;box-sizing:border-box}
 .rp-g div{height:100%;border-radius:999px}
 .res-counts{display:flex;justify-content:center;gap:24px;margin-top:9px;font-size:18px;font-weight:900}
+.res-sess{margin-top:8px;font-size:12.5px;color:var(--faint);font-weight:700}
+.res-sess b{color:var(--text)}
 .btn.dark{background:rgba(0,0,0,.8);color:#fff}
 .btn.dark:active{background:rgba(0,0,0,.65)}
 .res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;margin:14px 0;border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch}
@@ -886,6 +895,7 @@ function renderTypeDetail(){
     <div class="page-body">
       <div class="typebox" style="cursor:default">
         <div class="t-code">${any?d.code:"分析中"}</div>
+        <div class="t-job">${any?esc((TYPE_INFO[fullCode]||[""])[0]):""}</div>
         <img class="t-char" src="${charPathFor(d)}" alt="">
       </div>
       <div class="tdetail-sec" style="margin-top:24px">${bars}</div>
@@ -1414,15 +1424,17 @@ function finishTest(){
   saveSession({at:new Date().toISOString(),before:state.conditionBefore,after:Math.round(overallCondition(nowMs)),
     reviewBefore:state.reviewBefore,reviewAfter:reviewNeedCount(nowMs),
     improved:changes.filter(c=>c.after>c.before).length,changes});
+  const condAfter=Math.round(overallCondition(nowMs)),revAfter=reviewNeedCount(nowMs);
   // タイプ診断を再計算し外枠色を更新（テスト終了時のみ。回答中は更新しない）
   const dg=updateDiagnosis();
   const typeUpd=(dg.changed&&dg.prevCode&&dg.prevCode!==dg.diag.code)
     ?`<div class="type-upd">WORD TYPE UPDATED　<b>${esc(dg.prevCode)} → ${esc(dg.diag.code)}</b><button class="btn line" onclick="show('s-home')">ホームで確認する</button></div>`:"";
   const SYM={correct:["○","#FF3B3B"],incorrect:["×","#2F6FE0"],unknown:["－","rgba(255,255,255,.75)"],timeout:["△","#DFB10F"]};
   const rows=R.map(r=>{
-    const sy=SYM[r.answerStatus]||["－",""];
-    const hb=r.isHintProvided?'<span class="hint-badge">ヒント</span>':'';
-    return `<tr><td class="no">${r.questionNumber}</td><td class="ko">${esc(r.korean)}</td><td>${esc(r.japanese)}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}${hb}</td></tr>`;
+    const sy=SYM[r.answerStatus]||["−",""];
+    const hb=r.isHintProvided?'<span class="hint-badge">ヒント</span>':"";
+    const dlt=Math.round((r.memoryScoreAfter||0)-(r.memoryScoreBefore||0));
+    return `<tr><td class="no">${r.questionNumber}</td><td class="ko">${esc(r.korean)}</td><td>${esc(r.japanese)}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}${hb}</td><td class="num" style="color:${dlt>=0?"#1FAD62":"#FF6B6B"};font-weight:800">${dlt>0?"+":""}${dlt}</td></tr>`;
   }).join("");
   const ri=roomInfoFor(curSection); // テスト反映後のROOMパラメータ
   document.getElementById("s-result").innerHTML=`
@@ -1437,9 +1449,10 @@ function finishTest(){
         <div class="rp"><span class="rp-num">${ri.pwr}<i>%</i></span><div class="rp-g"><div style="background:#00FF37;width:${ri.pwr}%"></div></div></div>
       </div>
       <div class="res-counts"><span style="color:#FF3B3B">○ ${nCorrect}</span><span style="color:#2F6FE0">× ${nWrong}</span></div>
+      <div class="res-sess">記憶コンディション ${state.conditionBefore} → <b>${condAfter}</b>　・　要復習 ${state.reviewBefore} → <b>${revAfter}</b>語</div>
     </div>
     <div class="res-listwrap">
-      <table class="rtab"><thead><tr><th class="no">No.</th><th>韓国語</th><th>日本語</th><th>結果</th></tr></thead>
+      <table class="rtab"><thead><tr><th class="no">No.</th><th>韓国語</th><th>日本語</th><th>結果</th><th class="num">変化</th></tr></thead>
       <tbody>${rows}</tbody></table>
     </div>
     <div class="res-btns">
@@ -1472,7 +1485,7 @@ function renderWordDetail(wordId,back){
   const rate=Math.round(displayScore(getStat(wordId),Date.now())),ms=memState(rate);
   document.getElementById("s-wdetail").innerHTML=`
    <div class="page">
-    <div class="page-head"><button class="back" onclick="${back==='room'?"renderRoomMenu()":"renderCurve(_curveTab)"}">‹</button><h2>単語詳細</h2></div>
+    <div class="page-head"><button class="back" onclick="${back==='room'?"renderRoomMenu()":"renderCurve()"}">‹</button><h2>単語詳細</h2></div>
     <div class="wdetail-head"><div class="ko">${esc(w.ko)}</div><div class="ja">${esc(w.ja)}（${esc(w.cat)}）</div>
       <div style="margin-top:6px;font-size:13px;font-weight:800">推定記憶率 <span class="${ms.cls}">${rate}%・${ms.label}</span></div></div>
     ${note}
@@ -1516,25 +1529,17 @@ function memChart(pts){
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block"><line x1="${padL}" y1="${y(70)}" x2="${W-padR}" y2="${y(70)}" stroke="#ffc83c" stroke-width="1" stroke-dasharray="3 3"/>${grid}<polyline class="grow" points="${poly}" fill="none" stroke="#4cd964" stroke-width="2"/>${dots}${lbl}</svg>`;
 }
 
-let _curveTab="overall";
-const CURVE_TABS=[["overall","全体"],["word","単語別"],["group","単語群別"],["change","今回の変化"],["forecast","復習予報"]];
-function renderCurve(tab){
-  _curveTab=tab||_curveTab||"overall";
-  const now=Date.now(),cond=Math.round(overallCondition(now)),sess=loadSession();
-  const sessLine=sess?`<div class="cond-sub">前回テスト：${sess.before} → <b>${sess.after}</b>　要復習 ${sess.reviewBefore}→${sess.reviewAfter}語</div>`:"";
-  const tabsHTML=CURVE_TABS.map(([k,l])=>`<button class="tab${k===_curveTab?" on":""}" onclick="renderCurve('${k}')">${l}</button>`).join("");
-  let body="";
-  if(_curveTab==="overall")body=curveOverall(now);
-  else if(_curveTab==="word")body=curveWords(now);
-  else if(_curveTab==="group")body=curveGroups(now);
-  else if(_curveTab==="change")body=curveChange(sess);
-  else body=curveForecast(now);
+function renderCurve(){
+  const now=Date.now(),cond=Math.round(overallCondition(now));
   document.getElementById("s-curve").innerHTML=`
    <div class="page">
     <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>忘却曲線</h2></div>
-    <div class="cond"><div class="cond-k">記憶コンディション</div><div class="cond-v">${cond} <span>/ 100</span></div>${sessLine}</div>
-    <div class="tabs">${tabsHTML}</div>
-    <div class="page-body">${body}</div>
+    <div class="cond"><div class="cond-k">記憶コンディション</div><div class="cond-v">${cond} <span>/ 100</span></div></div>
+    <div class="page-body">
+      ${curveOverall(now)}
+      <div class="tdetail-sec"><div class="h">復習予報</div>${curveForecast(now)}</div>
+      <div class="tdetail-sec"><div class="h">単語別</div>${curveWords(now)}</div>
+    </div>
    </div>`;
   show("s-curve");
 }
@@ -1547,22 +1552,6 @@ function curveWords(now){
   const list=WORDS.map(w=>({w,rate:Math.round(displayScore(getStat(w.id,s),now))})).sort((a,b)=>a.rate-b.rate);
   const rows=list.map(({w,rate})=>{const ms=memState(rate);return `<tr class="click" onclick="renderWordDetail(${w.id})"><td class="ko" style="font-weight:700">${esc(w.ko)}</td><td style="color:var(--mute)">${esc(w.ja)}</td><td class="num ${ms.cls}">${rate}%</td><td class="${ms.cls}">${ms.label}</td></tr>`;}).join("");
   return `<table class="htab"><thead><tr><th>韓国語</th><th>日本語</th><th class="num">記憶率</th><th>状態</th></tr></thead><tbody>${rows}</tbody></table>`;
-}
-function curveGroups(now){
-  const s=loadStats();
-  const rows=Object.entries(CATS).map(([cat,ids])=>{
-    let sum=0,need=0;ids.forEach(id=>{const r=displayScore(getStat(id,s),now);sum+=r;if(r<70)need++;});
-    const rate=Math.round(sum/ids.length),ms=memState(rate);
-    return `<tr><td>${esc(cat)}</td><td class="num ${ms.cls}">${rate}%</td><td><div class="catbar"><div class="catbar-f ${ms.cls}" style="width:${rate}%"></div></div></td><td class="num">${need}語</td></tr>`;
-  }).join("");
-  return `<table class="htab"><thead><tr><th>カテゴリ</th><th class="num">記憶率</th><th>状態</th><th class="num">要復習</th></tr></thead><tbody>${rows}</tbody></table>`;
-}
-function curveChange(sess){
-  if(!sess||!sess.changes||!sess.changes.length)return `<div class="empty">まだテスト結果がありません。<br>テストを行うと，今回の学習による変化が表示されます。</div>`;
-  const up=sess.changes.filter(c=>c.after>c.before),imp=sess.improved;
-  const rows=sess.changes.map(c=>{const d=c.after-c.before,cls=d>0?"ms-stable":d<0?"ms-urgent":"";return `<tr><td class="ko" style="font-weight:700">${esc(c.ko)}</td><td style="color:var(--mute)">${esc(c.ja)}</td><td class="num">${c.before}%</td><td class="num">${c.after}%</td><td class="num ${cls}">${d>0?"+":""}${d}</td></tr>`;}).join("");
-  return `<div class="bignote">今回の学習で<br>記憶コンディションが <b>${sess.before} → ${sess.after}</b> に${sess.after>=sess.before?"上昇":"変化"}しました<br><span class="improve">今日の改善 +${imp}語</span>　要復習 ${sess.reviewBefore}→${sess.reviewAfter}語</div>
-    <table class="htab"><thead><tr><th>韓国語</th><th>日本語</th><th class="num">学習前</th><th class="num">学習後</th><th class="num">変化</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 function curveForecast(now){
   const s=loadStats();
@@ -1582,33 +1571,70 @@ function curveForecast(now){
 }
 function startReviewTest(ids){curLevel="middle";curSection=1;startTest(ids);} // 復習予報は中級Section01(基本100語)ベース
 
-/* ============================================================ ROOMメニュー（単語一覧＋学習履歴） ============================================================ */
+/* ============================================================ ROOM詳細（ホーム同デザインのピル＋テスト履歴＋単語一覧） ============================================================ */
 function renderRoomMenu(){
-  const ids=sectionIds(),s=loadStats(),now=Date.now();
+  const ids=sectionIds(),st=loadStats(),now=Date.now(),nn=String(curSection).padStart(2,"0");
+  // 上部ピル（ホームのROOMメニューと同表記・同デザイン）
+  const ri=roomInfoFor(curSection);
+  const circ=(cls,rank)=>rank?`<div class="${cls}" style="background:${RANK_COLORS[rank]||"#555"}">${rank}</div>`:"";
+  const arr=ri.recent,rLast=arr[arr.length-1]||null,rPrev1=arr.length>=2?arr[arr.length-2]:null,rPrev2=arr.length>=3?arr[arr.length-3]:null;
+  const pill=`<div class="rm-scale" id="rm-scale"><div class="rm-inner">
+      <div class="rmenu-bg" style="cursor:default"></div>
+      <div class="hv-roomlabel" style="cursor:default">ROOM</div>
+      <div class="hv-roomno" style="cursor:default">${nn}</div>
+      <div class="hv-learned">${ri.learned}<span class="unit">語</span></div>
+      <div class="gauge hv-wordsg"><div class="gfill" style="background:#00FFFF;width:${Math.round(ri.learned/ri.total*100)}%"></div></div>
+      <div class="hv-roompwr">${ri.pwr}<span class="unit">%</span></div>
+      <div class="gauge hv-roomg"><div class="gfill" style="background:#00FF37;width:${ri.pwr}%"></div></div>
+      ${rPrev2?circ("rank-s",rPrev2):""}${rPrev1?circ("rank-s rank-s1",rPrev1):""}
+      ${rLast?circ("rank-b",rLast):`<div class="rank-b" style="background:rgba(0,0,0,.22)">-</div>`}
+  </div></div>`;
+  // テスト履歴（このROOMの単語を含むテストをtestId単位で集計）
+  const idSet=new Set(ids),byTest={};
+  loadHistory().forEach(r=>{if(r.testId&&idSet.has(r.wordId))(byTest[r.testId]=byTest[r.testId]||[]).push(r);});
+  const tests=Object.values(byTest).map(a=>({at:a[a.length-1].answeredAt,total:a.reduce((x,r)=>x+(r.score||0),0),n:a.length,ok:a.filter(r=>r.isCorrect).length}))
+    .sort((a,b)=>b.at.localeCompare(a.at)).slice(0,10);
+  const thist=tests.length?tests.map(t=>{
+    const full=t.n>=12,rk=full?rankFor(t.total):null,disp=t.total%1===0?t.total:t.total.toFixed(1);
+    return `<div class="th-row">
+      <span class="th-date">${fmtDate(t.at)}</span>
+      <span class="th-rank" style="background:${rk?(RANK_COLORS[rk]||"#555"):"rgba(0,0,0,.22)"}">${rk||"-"}</span>
+      <span class="th-score">${disp}</span>
+      <span style="color:#FF3B3B">○${t.ok}</span><span style="color:#2F6FE0">×${t.n-t.ok}</span></div>`;
+  }).join(""):'<div style="color:var(--faint);font-size:13px;font-weight:700">まだテスト履歴がありません</div>';
+  // 単語一覧
   const rows=ids.map(id=>{
-    const w=WORD_BY_ID[id],st=s[id];
-    if(st&&st.reviewCount>0){
-      const rate=Math.round(displayScore(getStat(id,s),now)),ms=memState(rate);
+    const w=WORD_BY_ID[id],x=st[id];
+    if(x&&x.reviewCount>0){
+      const rate=Math.round(displayScore(getStat(id,st),now)),ms=memState(rate);
       return `<tr class="click" onclick="renderWordDetail(${id},'room')">
         <td class="ko" style="font-weight:700">${esc(w.ko)}</td><td style="color:var(--mute)">${esc(w.ja)}</td>
-        <td class="num">${st.reviewCount}</td><td class="num ${ms.cls}">${rate}%</td></tr>`;
+        <td class="num">${x.reviewCount}</td><td class="num ${ms.cls}">${rate}%</td></tr>`;
     }
     return `<tr style="opacity:.5"><td class="ko" style="font-weight:700">${esc(w.ko)}</td><td style="color:var(--mute)">${esc(w.ja)}</td><td class="num">—</td><td class="num">未</td></tr>`;
   }).join("");
   document.getElementById("s-roommenu").innerHTML=`
    <div class="page">
-    <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>ROOM ${String(curSection).padStart(2,"0")} 単語一覧</h2></div>
+    <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>ROOM ${nn}</h2></div>
     <div class="page-body">
-      <table class="htab"><thead><tr><th>韓国語</th><th>日本語</th><th class="num">回数</th><th class="num">記憶率</th></tr></thead><tbody>${rows}</tbody></table>
+      ${pill}
+      <div class="tdetail-sec"><div class="h">テスト履歴</div>${thist}</div>
+      <div class="tdetail-sec"><div class="h">単語一覧</div>
+        <table class="htab"><thead><tr><th>韓国語</th><th>日本語</th><th class="num">回数</th><th class="num">記憶率</th></tr></thead><tbody>${rows}</tbody></table>
+      </div>
     </div>
    </div>`;
   show("s-roommenu");
+  // ピルを画面幅に比例縮小
+  const sc=Math.min((Math.min(window.innerWidth,602)-32)/602,1);
+  const el=document.getElementById("rm-scale");
+  if(el){el.style.transform=`scale(${sc})`;el.style.height=Math.round(192*sc)+"px";}
 }
 
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.13.2 (2026-06-06)";
+const APP_VERSION="v2.14.0 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
