@@ -186,6 +186,11 @@ button{font-family:inherit}
 .tdetail-sec{margin:16px 0}
 .tdetail-sec .h{color:var(--mute);font-size:11px;font-weight:800;letter-spacing:2px;margin-bottom:6px}
 .tdetail-sec .item{font-size:13px;line-height:1.9}
+/* 16タイプ一覧 */
+.tlist{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.trow{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(0,0,0,.55);font-size:12px;font-weight:700}
+.trow .tcode{font-weight:900;letter-spacing:1px;width:48px}
+.trow.cur{background:rgba(0,0,0,.85);box-shadow:0 0 0 2px #fff inset}
 .type-upd{margin-top:10px;text-align:center;color:var(--mute);font-size:11px;font-weight:700;letter-spacing:1px}
 .type-upd b{color:var(--text)}
 .type-upd .btn{display:inline-block;width:auto;padding:5px 10px;font-size:11px;margin-left:8px}
@@ -584,7 +589,8 @@ function scaleHome(){
 window.addEventListener("resize",scaleHome);
 function renderHome(){
   const d=computeDiagnosis();
-  document.getElementById("hv-code").textContent=(d.n<30&&!d.complete)?"----":d.code;
+  // 1軸でも判定できたら即コード表示（テストごとに更新される）
+  document.getElementById("hv-code").textContent=d.axes.some(a=>a.code)?d.code:"----";
   document.getElementById("hv-char").src=charPathFor(d);
   const xp=xpInfo();
   document.getElementById("hv-level").innerHTML=`Lv.<span>${xp.level}</span>`;
@@ -624,6 +630,25 @@ const TYPE_INFO={
  UCPD:["シーン迷子型","同じ場面の語を比較し、表記でも迷いやすいタイプ"],
  UCSQ:["雰囲気回答型","場面の印象で回答が揺れ、別単語へ飛びやすいタイプ"],
  UCSD:["文脈迷路型","関連語が多い場面で整理がつかず、迷いやすいタイプ"]
+};
+/* 各タイプの特徴文（タイプ詳細用） */
+const TYPE_LONG={
+ FMPQ:"似た意味の単語を思い込みで結びつけ、音の印象を頼りに素早く答えるタイプ。スピードは武器ですが、同じ誤答を繰り返しやすいので、正解とよく間違える語をセットで覚え直すと一気に伸びます。",
+ FMPD:"意味の近い語をじっくり比較して選べる一方、書き取りでは表記の細部（パッチムや母音）で崩れやすいタイプ。考える力は十分なので、音と表記を結びつける練習が効果的です。",
+ FMSQ:"似た意味の別単語へ素早く飛びつくタイプ。決断が速く学習テンポが良い反面、ニュアンス差の確認が後回しになりがち。類義語を並べて違いを一言で言えるようにすると安定します。",
+ FMSD:"細かな意味差まで考え込み、惜しい別単語に置き換えてしまうタイプ。理解は深いので、定義の「決め手になる一語」を意識すると正答が固定されます。",
+ FCPQ:"場面のイメージから連想して、音の近い表記で素早く書いてしまうタイプ。発想力が豊かなので、書く前に1拍おいて文字を思い浮かべる癖をつけると精度が上がります。",
+ FCPD:"関連する場面を丁寧に比較しながら答えるタイプ。考え方は安定していますが、表記の細部で迷いやすいので、書いて覚える反復が向いています。",
+ FCSQ:"場面のイメージから関連語へ直感的に連想するタイプ。ひらめきが速い分、同じ場面の別単語と入れ替わりやすい。カテゴリ内の語を区別するキーワードを持つと強くなります。",
+ FCSD:"場面や文脈を深く読み込んで考えるタイプ。読解力がある一方、関連語と混同して考えすぎることも。正解を選んだ理由を言語化すると記憶が固定されます。",
+ UMPQ:"意味の記憶がまだ揺れていて、音の印象で答えが変わりやすいタイプ。まずは単語と意味の1対1をしっかり固めると、伸びしろが大きい段階です。",
+ UMPD:"似た意味と表記の間で迷い、回答が安定しないタイプ。じっくり考える姿勢はあるので、例文ごと覚えて「使われ方」で記憶すると定着します。",
+ UMSQ:"日本語の意味から近い韓国語へ飛びやすいタイプ。反応の速さを活かしつつ、紛らわしいペアを見比べる練習を挟むと誤置換が減ります。",
+ UMSD:"似た意味の候補をいくつも考えられるタイプ。発想は豊かですが、まだ定着の途中。1語ずつ例文と一緒に確定させていくのが近道です。",
+ UCPQ:"場面の雰囲気から別の語へ素早く移ってしまうタイプ。連想力が高いので、場面ごとに「この場面ならこの1語」と決めておくと迷いが消えます。",
+ UCPD:"同じ場面の語を比較し、表記でも迷いやすいタイプ。丁寧に考える力があるので、音読しながら書く練習で音と表記を同時に固めましょう。",
+ UCSQ:"場面の印象で回答が揺れ、別単語へ飛びやすいタイプ。感覚的なつかみは速いので、意味の核を一言メモにすると安定します。",
+ UCSD:"関連語が多い場面で整理がつかず迷いやすいタイプ。情報量を絞り、1回の学習で覚える語をカテゴリ別に小分けにすると効果的です。"
 };
 const RECOMMEND={
  F:"正解と頻出誤答を2語セットで比較する",U:"単語そのものを再確認し、例文と一緒に覚える",
@@ -696,7 +721,7 @@ function computeDiagnosis(){
     num+=(Math.max(...Object.values(cnt))/arr.length)*ws;den+=ws;
   });
   const s1=den?num/den*100:null;
-  const axis1={no:1,score:s1,code:(n1>=3&&s1!=null)?(s1>=60?"F":"U"):null,n:n1,need:Math.max(0,3-n1),provisional:false};
+  const axis1={no:1,score:s1,code:s1!=null?(s1>=60?"F":"U"):null,n:n1,need:Math.max(0,3-n1),provisional:n1<3}; // 少データでも仮判定で更新
   // 軸2: 意味類似誤答率（10件未満は仮判定）
   let sem=0,ctx=0,n2=0;
   wrongs.forEach(x=>{const t=x.r.distractorType;if(!t)return;
@@ -708,7 +733,7 @@ function computeDiagnosis(){
   win.forEach(x=>{const t=x.r.writingErrorType;
     if(t==="phonetic_spelling"){ph+=x.w;n3++;}else if(t==="semantic_substitution"){ss+=x.w;n3++;}});
   const s3=(ph+ss)>0?ph/(ph+ss)*100:null;
-  const axis3={no:3,score:s3,code:(n3>=5&&s3!=null)?(s3>=55?"P":"S"):null,n:n3,need:Math.max(0,5-n3),provisional:false};
+  const axis3={no:3,score:s3,code:s3!=null?(s3>=55?"P":"S"):null,n:n3,need:Math.max(0,5-n3),provisional:n3<5}; // 少データでも仮判定で更新
   // 軸4: 瞬発誤答 vs 熟考正答（四択のみ、わからない/時間切れ除外、20件未満は仮判定）
   const elig=win.filter(x=>x.r.answerType==="choice"&&(x.r.answerStatus==="correct"||x.r.answerStatus==="incorrect"));
   let qw=0,dc=0,tw=0;
@@ -781,10 +806,9 @@ function refreshHomeType(d){
   d=d||computeDiagnosis();
   const c=document.getElementById("t-code"),img=document.getElementById("t-char");
   if(!c)return;
-  if(d.complete)c.textContent=d.code;
-  else if(d.n<30)c.textContent="分析中";
-  else c.textContent=d.code;
-  c.style.fontSize=d.complete||d.n>=30?"":"26px";
+  const any=d.axes.some(a=>a.code);
+  c.textContent=any?d.code:"分析中"; // 1軸でも判定できたら即コード表示（毎テスト更新）
+  c.style.fontSize=any?"":"26px";
   if(img)img.src=charPathFor(d);
 }
 function refreshHomeStats(){
@@ -792,28 +816,39 @@ function refreshHomeStats(){
   if(cd)cd.innerHTML=`記憶コンディション <b>${Math.round(overallCondition(Date.now()))}</b> / 100`;
 }
 
-/* --- タイプ詳細画面（コード＋キャラクター＋4軸＋よくある間違いのみ） --- */
+/* --- タイプ詳細画面（コード＋キャラクター＋4軸＋タイプの特徴＋16タイプ一覧） --- */
 function renderTypeDetail(){
-  const d=computeDiagnosis(),win=diagWindow();
+  const d=computeDiagnosis();
+  const any=d.axes.some(a=>a.code);
   const bars=AXES.map((ax,i)=>{
     const a=d.axes[i],t=Math.round(a.score==null?50:a.score),col=axisColor(ax,a);
     return `<div class="axrow"><span class="axl">${ax.ln} ${ax.L}</span>
       <div class="axbar"><div class="axfill" style="width:${t}%;background:${col}"></div></div>
       <span class="axr">${ax.R} ${ax.rn}</span></div>`;
   }).join("");
-  const mist=win.filter(x=>x.r.answerStatus==="incorrect"&&x.r.userAnswer).slice(-3).reverse()
-    .map(x=>`<div class="item">${esc(x.r.korean)}（${esc(x.r.japanese)}）→ <span class="ms-urgent">${esc(x.r.userAnswer)}</span></div>`).join("")
-    ||'<div class="item" style="color:var(--mute)">まだ誤答履歴がありません</div>';
+  // タイプの特徴文（未確定軸がある間は近いタイプとして表示）
+  const baseCode=d.code.replace(/\?/g,"");
+  const fullCode=d.complete?d.code:AXES.map((ax,i)=>d.axes[i].code||ax.L).join("");
+  const ti=TYPE_INFO[fullCode]||["",""];
+  const longTxt=d.complete?(TYPE_LONG[d.code]||ti[1])
+    :(any?`（仮判定）現時点では <b>${esc(fullCode)} ${esc(ti[0])}</b> に近い傾向です。<br>${esc(TYPE_LONG[fullCode]||"")}`
+         :"問題を解くと、あなたの学習傾向が分析されます。");
+  // 16タイプ一覧（現在のタイプを強調）
+  const list=Object.entries(TYPE_INFO).map(([code,[name]])=>{
+    const cur=d.complete&&code===d.code;
+    return `<div class="trow${cur?" cur":""}"><span class="tcode">${code}</span><span>${esc(name)}</span></div>`;
+  }).join("");
   document.getElementById("s-type").innerHTML=`
    <div class="page">
     <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>タイプ詳細</h2></div>
     <div class="page-body">
       <div class="typebox" style="cursor:default">
-        <div class="t-code">${d.complete?d.code:(d.n<30?"分析中":d.code)}</div>
+        <div class="t-code">${any?d.code:"分析中"}</div>
         <img class="t-char" src="${charPathFor(d)}" alt="">
       </div>
       <div class="tdetail-sec" style="margin-top:24px">${bars}</div>
-      <div class="tdetail-sec"><div class="h">よくある間違い</div>${mist}</div>
+      <div class="tdetail-sec"><div class="h">このタイプの特徴</div><div class="item">${longTxt}</div></div>
+      <div class="tdetail-sec"><div class="h">16タイプ一覧</div><div class="tlist">${list}</div></div>
     </div>
    </div>`;
   show("s-type");
@@ -1534,7 +1569,7 @@ function startReviewTest(ids){curLevel="middle";curSection=1;startTest(ids);} //
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.9.1 (2026-06-06)";
+const APP_VERSION="v2.10.0 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
