@@ -220,11 +220,12 @@ button{font-family:inherit}
 .res-stats{display:flex;justify-content:center;gap:18px;margin-top:8px;color:var(--mute);font-size:13px;font-weight:700;flex-wrap:wrap}
 .res-stats b{color:var(--text);font-weight:800}
 .res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;margin:14px 0;border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch}
-.rtab{width:100%;border-collapse:collapse;font-size:13px}
-.rtab th,.rtab td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left}
-.rtab th{position:sticky;top:0;background:var(--panel2);color:var(--mute);font-size:11px;font-weight:800;z-index:1}
+.rtab{width:100%;border-collapse:collapse;font-size:15px;background:rgba(0,0,0,.1)}
+.rtab th,.rtab td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
+.rtab th{position:sticky;top:0;background:rgba(0,0,0,.8);color:#fff;font-size:12px;font-weight:800;z-index:1;white-space:nowrap}
+.rtab td:nth-child(3){font-size:16px}
 .rtab td.no{color:var(--mute);text-align:right;width:34px}
-.rtab td.ko{font-weight:700}
+.rtab td.ko{font-weight:700;font-size:18px}
 .rtab .r-ok{color:var(--green)}.rtab .r-ng{color:var(--blue)}.rtab .r-un{color:var(--mute)}.rtab .r-to{color:var(--gold)}
 .hint-badge{display:inline-block;margin-left:6px;padding:1px 6px;border:1px solid var(--line);color:var(--gold);font-size:10px;font-weight:700;vertical-align:middle}
 .res-btns{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;gap:9px}
@@ -237,9 +238,11 @@ button{font-family:inherit}
 .page-head h2{font-size:20px;font-weight:800;margin:0}
 .back{background:var(--gray);border:none;color:var(--text);width:38px;height:38px;border-radius:0;font-size:18px;cursor:pointer;flex:0 0 auto}
 .page-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.htab{width:100%;border-collapse:collapse;font-size:13px}
-.htab th,.htab td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left}
-.htab th{position:sticky;top:0;background:var(--bg);color:var(--mute);font-size:11px;font-weight:800}
+.htab{width:100%;border-collapse:collapse;font-size:15px;background:rgba(0,0,0,.1)}
+.htab th,.htab td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
+.htab th{position:sticky;top:0;background:rgba(0,0,0,.8);color:#fff;font-size:12px;font-weight:800;white-space:nowrap}
+.htab td.ko{font-size:18px}
+.htab td:nth-child(2){font-size:16px}
 .htab td.num{text-align:right;font-variant-numeric:tabular-nums}
 .htab tr.click{cursor:pointer}
 .htab tr.click:active{background:var(--panel)}
@@ -1457,7 +1460,7 @@ function renderHistory(){
         <td class="num ${rateClass(rate)}">${Math.round(rate*100)}%</td>
         <td>${STATUS_JA[m.last.answerStatus]}</td></tr>`;
     }).join("");
-    body=`<table class="htab"><thead><tr><th>韓国語</th><th>日本語</th><th class="num">出題</th><th class="num">正答率</th><th>最終</th></tr></thead><tbody>${rows}</tbody></table>`;
+    body=`<table class="htab"><thead><tr><th>韓国語</th><th>日本語</th><th class="num">回数</th><th class="num">正答率</th><th>最終</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
   document.getElementById("s-history").innerHTML=`
    <div class="page">
@@ -1607,7 +1610,7 @@ function renderRoomMenu(){
    <div class="page">
     <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>ROOM ${String(curSection).padStart(2,"0")} 単語一覧</h2></div>
     <div class="page-body">
-      <table class="htab"><thead><tr><th>韓国語</th><th>日本語</th><th class="num">出題</th><th class="num">記憶率</th></tr></thead><tbody>${rows}</tbody></table>
+      <table class="htab"><thead><tr><th>韓国語</th><th>日本語</th><th class="num">回数</th><th class="num">記憶率</th></tr></thead><tbody>${rows}</tbody></table>
     </div>
    </div>`;
   show("s-roommenu");
@@ -1616,7 +1619,7 @@ function renderRoomMenu(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.12.2 (2026-06-06)";
+const APP_VERSION="v2.12.3 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
