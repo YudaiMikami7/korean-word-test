@@ -517,7 +517,7 @@ function roomInfoFor(n){
   let pw=0;learned.forEach(id=>pw+=displayScore(getStat(id,s),now));
   const rec=loadSections()[curLevel+"-"+String(n).padStart(2,"0")]||{};
   return{learned:learned.length,total:ids.length||1,pwr:learned.length?Math.round(pw/learned.length):0,
-    recent:(rec.recentRanks||[]).slice(-2),best:rec.bestRank||null};
+    recent:(rec.recentRanks||[]).slice(-3),best:rec.bestRank||null};
 }
 const LEVEL_SLIDE_BG="#9FA6AD";
 function switchLevel(l){curLevel=l;curSection=1;buildRoomSlides();applyHomeBg();}
@@ -535,7 +535,12 @@ function buildRoomSlides(){
   el.innerHTML=levelSlide+Array.from({length:count},(_,i)=>{
     const n=i+1,nn=String(n).padStart(2,"0"),ri=roomInfoFor(n);
     const circ=(cls,rank)=>rank?`<div class="${cls}" style="background:${RANK_COLORS[rank]||"#555"}">${rank}</div>`:"";
-    const best=ri.best?circ("rank-b",ri.best):`<div class="rank-b" style="background:rgba(0,0,0,.22)">-</div>`;
+    // 直近=右の大きい丸 / 1つ前=真ん中(小) / 2つ前=左(小)
+    const arr=ri.recent;
+    const rLast=arr.length>=1?arr[arr.length-1]:null;
+    const rPrev1=arr.length>=2?arr[arr.length-2]:null;
+    const rPrev2=arr.length>=3?arr[arr.length-3]:null;
+    const big=rLast?circ("rank-b",rLast):`<div class="rank-b" style="background:rgba(0,0,0,.22)">-</div>`;
     return `<div class="room-slide" data-n="${n}" style="background:${roomBg(n)}">
       <div class="slide-inner">
       <div class="hv-roomlabel">ROOM</div>
@@ -544,9 +549,9 @@ function buildRoomSlides(){
       <div class="gauge hv-wordsg"><div class="gfill" style="background:#00FFFF;width:${Math.round(ri.learned/ri.total*100)}%"></div></div>
       <div class="hv-roompwr">${ri.pwr}<span class="unit">%</span></div>
       <div class="gauge hv-roomg"><div class="gfill" style="background:#00FF37;width:${ri.pwr}%"></div></div>
-      ${ri.recent.length===2?circ("rank-s",ri.recent[0]):""}
-      ${ri.recent.length>=1?circ("rank-s rank-s1",ri.recent[ri.recent.length-1]):""}
-      ${best}
+      ${rPrev2?circ("rank-s",rPrev2):""}
+      ${rPrev1?circ("rank-s rank-s1",rPrev1):""}
+      ${big}
       <div class="room-ph">${nn}</div>
       <img class="slide-img" src="rooms/${curLevel}-${nn}.webp" alt="" loading="lazy"
         onload="this.previousElementSibling.style.display='none'"
@@ -1529,7 +1534,7 @@ function startReviewTest(ids){curLevel="middle";curSection=1;startTest(ids);} //
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.9.0 (2026-06-06)";
+const APP_VERSION="v2.9.1 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
