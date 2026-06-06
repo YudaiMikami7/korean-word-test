@@ -120,13 +120,13 @@ button{font-family:inherit}
 /* ===== タイプ診断（V2.1: コード＋キャラクターのみの引き算デザイン） ===== */
 /* ===== ホーム（602×1178基準・サーモンピンク背景・絶対配置） ===== */
 #s-home{background:#E3A38D;flex-direction:row;justify-content:center;align-items:flex-start;overflow:hidden;transition:background-color .5s ease}
-.home-wrap{transition:transform .4s ease;position:relative;flex:0 0 auto;width:602px;height:1178px;background:#E3A38D;
+.home-wrap{position:relative;flex:0 0 auto;width:602px;height:1178px;background:#E3A38D;
   transform-origin:top center;color:#FFFFFF;font-weight:800; /* 見本はExtraBold相当 */
   transition:background-color .5s ease;
   font-family:"LINESeedJP","LINESeedKR","Hiragino Kaku Gothic ProN",sans-serif}
 /* バー：暗いトラック＋内側に角丸フィル（見本準拠） */
-.home-wrap .gauge{position:absolute;background:#333333;border-radius:999px;padding:3px;box-sizing:border-box;z-index:2}
-.home-wrap .gfill{height:100%;border-radius:999px;transition:width .5s ease;width:0}
+.home-wrap .gauge,.dash-head .gauge{position:absolute;background:#333333;border-radius:999px;padding:3px;box-sizing:border-box;z-index:2}
+.home-wrap .gfill,.dash-head .gfill{height:100%;border-radius:999px;transition:width .5s ease;width:0}
 /* ヘッダー（さらに上へ。茶色領域は黒80%透過。4色ドットは廃止） */
 .avatar-circle{position:absolute;left:40px;top:44px;width:114px;height:114px;border-radius:50%;background:#9FA6AD;border:5px solid rgba(0,0,0,.8);box-sizing:border-box;overflow:hidden;cursor:pointer;z-index:2} /* 背景=タイプ/PWRページと同じグレー */
 .avatar-image{width:100%;height:100%;object-fit:contain;padding:12px;box-sizing:border-box}
@@ -145,7 +145,7 @@ button{font-family:inherit}
 /* ROOM選択：ROOM情報＋ジオラマを丸ごと左右スワイプ（番号やパラメータも一緒にスクロール）。
    コンテナは全幅＝画像は画面の端で見切れる */
 /* スライドは全画面高＋ROOM色の背景：スワイプで「色の区切れ目」が指と一緒に移動する */
-.room-scroll{position:absolute;left:0;top:0;width:602px;height:1178px;display:flex;overflow-x:auto;overflow-y:hidden;
+.room-scroll{transform:translateY(calc(var(--down,0px)*2.2));transition:transform .4s ease;position:absolute;left:0;top:0;width:602px;height:1178px;display:flex;overflow-x:auto;overflow-y:hidden;
   scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;z-index:0}
 .room-scroll::-webkit-scrollbar{display:none}
 .room-slide{position:relative;flex:0 0 602px;width:602px;height:1178px;scroll-snap-align:start}
@@ -176,11 +176,10 @@ button{font-family:inherit}
 /* 単語一覧モード：スワイプ連動（--lift/--pはhome-wrapに設定） */
 .home-wrap .slide-inner{transform:translateY(var(--lift,0px));transition:transform .35s ease}
 .home-head{position:absolute;inset:0;pointer-events:none;z-index:2;
-  transform:translateY(calc(var(--p,0)*-190px));transition:transform .35s ease} /* ヘッダーも同時に上へ */
+  transform:translateY(calc(var(--p,0)*-190px + var(--down,0px)));transition:transform .35s ease} /* 上スワイプ退場/下スワイプ1x */
 .home-head>*{pointer-events:auto}
 .slide-img,.room-ph{opacity:calc(1 - var(--p,0));transition:opacity .35s ease,transform .35s ease} /* 写真はフェードアウト */
-.home-wrap.dragging{transition:none}
-.home-wrap.dragging .slide-inner,.home-wrap.dragging .home-head,.home-wrap.dragging .slide-img,.home-wrap.dragging .room-ph{transition:none}
+.home-wrap.dragging .slide-inner,.home-wrap.dragging .home-head,.home-wrap.dragging .slide-img,.home-wrap.dragging .room-ph,.home-wrap.dragging .room-scroll,.home-wrap.dragging .start-button{transition:none}
 .slide-list{position:absolute;left:24px;top:344px;width:554px;height:604px;overflow-y:auto;background:rgba(0,0,0,.35);scrollbar-width:none;
   opacity:var(--p,1);transition:opacity .35s ease} /* 入場はJSでフェードイン、下スワイプは--p連動でフェードアウト */
 .home-wrap.dragging .slide-list{transition:none}
@@ -195,9 +194,9 @@ button{font-family:inherit}
 .wl-cnt{flex:0 0 44px;text-align:right;font-size:18px;font-weight:800;color:rgba(255,255,255,.8)}
 .wl-rate{flex:0 0 64px;text-align:right;font-size:20px;font-weight:900}
 .room-ph{position:absolute;left:24px;top:178px;width:554px;height:507px;display:flex;align-items:center;justify-content:center;font-size:130px;color:rgba(255,255,255,.32);font-weight:800}
-.start-button{position:absolute;left:50%;transform:translateX(-50%);top:1004px;width:540px;height:123px;border:4px solid #FFC400;border-radius:62px;
+.start-button{position:absolute;left:50%;transform:translate(-50%,calc(var(--down,0px)*2.2));top:1004px;width:540px;height:123px;border:4px solid #FFC400;border-radius:62px;
   background:rgba(0,0,0,.8);color:#FFFFFF;font-size:62px;font-weight:900;cursor:pointer;font-family:inherit;z-index:2;
-  animation:glowpulse 1.8s ease-in-out infinite}
+  animation:glowpulse 1.8s ease-in-out infinite;transition:transform .4s ease}
 @keyframes glowpulse{
   0%,100%{box-shadow:0 0 6px 2px rgba(255,196,0,.45);border-color:#FFC400}
   50%{box-shadow:0 0 24px 8px rgba(255,196,0,.9);border-color:#FFE066}
@@ -228,6 +227,12 @@ button{font-family:inherit}
 .wh-empty{color:rgba(255,255,255,.85);font-size:14px;font-weight:700;padding:12px}
 .rm-scale{transform-origin:top left;width:602px}
 .rm-inner{position:relative;width:602px;height:176px;margin-top:14px}
+.dash-headscale{transform-origin:top left;width:602px;margin-top:18px}
+.dash-head{position:relative;width:602px;height:186px}
+.dash-cols{display:flex;gap:16px;margin-top:14px;align-items:center}
+.dash-left{flex:0 0 44%;text-align:center;cursor:pointer}
+.dash-right{flex:1;display:flex;flex-direction:column;justify-content:center}
+.dash-ax .axl,.dash-ax .axr{flex:0 0 20px;width:20px;font-size:14px;text-align:center} /* ラベルは記号のみ */
 .tdetail-sec{margin:16px 0}
 .tdetail-sec .h{color:var(--mute);font-size:11px;font-weight:800;letter-spacing:2px;margin-bottom:6px}
 .tdetail-sec .item{font-size:13px;line-height:1.9}
@@ -739,8 +744,8 @@ function buildRoomSlides(){
         if(_dragDash){
           const cd=parseFloat(w.style.getPropertyValue("--down"))||0;
           if(cd>150){
-            // ヘッダーが最下部に達するまで滑りきってからステータスを表示
-            w.style.setProperty("--down",(window.innerHeight+60)+"px");
+            // ヘッダーが画面の真ん中に達したところでステータスを表示（下層は2.2xで画面外へ）
+            w.style.setProperty("--down",Math.round(window.innerHeight*0.45)+"px");
             setTimeout(()=>{
               renderDashboard();
               w.classList.add("dragging");w.style.setProperty("--down","0px");
@@ -776,7 +781,7 @@ function buildRoomSlides(){
 function scaleHome(){
   const el=document.getElementById("homewrap");if(!el)return;
   const s=Math.min((window.innerWidth||602)/602,1);
-  el.style.transform=`translateY(var(--down,0px)) scale(${s})`;
+  el.style.transform=`scale(${s})`;
   el.style.marginBottom=`-${Math.round(1178*(1-s))}px`; // transformはレイアウト高を変えないため余白を回収
 }
 window.addEventListener("resize",scaleHome);
@@ -1666,7 +1671,23 @@ function renderWordDetail(wordId,back){
   show("s-wdetail");
 }
 
-/* ============================================================ 統合ステータスページ（MBTI・職業・アイコン・4パラメータ・PWRグラフ） ============================================================ */
+/* ============================================================ 統合ステータスページ（上=グラフ+詳細 / 中央=ヘッダー / 下=MBTI+パラメータ） ============================================================ */
+function dashHeaderHTML(){
+  const d=computeDiagnosis(),xp=xpInfo(),pw=pwrOverall();
+  const code=d.axes.some(a=>a.code)?d.code:"----";
+  return `<div class="dash-headscale" id="dash-headscale"><div class="dash-head">
+    <div class="avatar-circle" style="cursor:default"><img class="avatar-image" src="${charPathFor(d)}" alt=""></div>
+    <div class="hv-level">Lv.<span>${xp.level}</span></div>
+    <div class="hv-code" style="cursor:default">${code}</div>
+    <div class="status-panel" style="cursor:default"></div>
+    <div class="hv-lab hv-xplabel">XP</div>
+    <div class="gauge hv-xpg"><div class="gfill" style="background:#FFFF37;width:${Math.min(100,Math.round(xp.cur/xp.next*100))}%"></div></div>
+    <div class="hv-lab hv-xpval">${xp.cur}/${xp.next}</div>
+    <div class="hv-lab hv-pwrlabel">PWR</div>
+    <div class="gauge hv-pwrg"><div class="gfill" style="background:#00FF37;width:${pw}%"></div></div>
+    <div class="hv-lab hv-pwrval">${pw}%</div>
+  </div></div>`;
+}
 function renderDashboard(){
   const d=computeDiagnosis(),any=d.axes.some(a=>a.code);
   const fullCode=d.complete?d.code:AXES.map((ax,i)=>d.axes[i].code||ax.R).join("");
@@ -1674,31 +1695,35 @@ function renderDashboard(){
     const a=d.axes[i],t=Math.round(a.score==null?50:a.score);
     const domLeft=t>=50,col=AXIS_COLORS[domLeft?ax.L:ax.R];
     const pos=100-t;
-    return `<div class="axrow"><span class="axl"${domLeft?` style="color:${col}"`:""}>${ax.ln} ${ax.L}</span>
+    return `<div class="axrow dash-ax"><span class="axl"${domLeft?` style="color:${col}"`:""}>${ax.L}</span>
       <div class="axbar"><div class="axdot" style="left:calc(${pos}% - 9px);background:${col}"></div></div>
-      <span class="axr"${!domLeft?` style="color:${col}"`:""}>${ax.R} ${ax.rn}</span></div>`;
+      <span class="axr"${!domLeft?` style="color:${col}"`:""}>${ax.R}</span></div>`;
   }).join("");
   const now=Date.now(),st=loadStats();
   const learned=Object.keys(st).map(id=>WORD_BY_ID[id]).filter(Boolean);
   const base=learned.length?learned:WORDS;
-  const pwr=pwrOverall();
   document.getElementById("s-dash").innerHTML=`
    <div class="page">
     <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>ステータス</h2></div>
     <div class="page-body">
-      <div class="typebox" style="cursor:default">
-        <div class="t-code">${any?d.code:"分析中"}</div>
-        <div class="t-job">${any?esc((TYPE_INFO[fullCode]||[""])[0]):""}</div>
-        <img class="t-char" src="${charPathFor(d)}" alt="">
-      </div>
-      <div class="tdetail-sec" style="margin-top:24px">${bars}</div>
-      <button class="btn dark" style="width:100%" onclick="renderTypeDetail()">タイプ詳細</button>
-      <div class="cond pwrline" style="margin-top:26px"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${pwr}%"></div></div><span class="pwr-val">${pwr}%</span></div>
       ${curveOverall(now,base)}
-      <button class="btn dark" style="width:100%" onclick="renderCurve()">PWRメータ詳細</button>
+      <button class="btn dark" style="width:100%" onclick="renderCurve()">詳細を見る</button>
+      ${dashHeaderHTML()}
+      <div class="dash-cols">
+        <div class="dash-left" onclick="renderTypeDetail()">
+          <div class="t-code" style="font-size:34px;letter-spacing:4px">${any?d.code:"分析中"}</div>
+          <div class="t-job">${any?esc((TYPE_INFO[fullCode]||[""])[0]):""}</div>
+          <img src="${charPathFor(d)}" alt="" style="width:96px;height:96px;margin-top:10px">
+        </div>
+        <div class="dash-right">${bars}</div>
+      </div>
     </div>
    </div>`;
   show("s-dash");
+  // ヘッダー複製を画面幅へ縮小
+  const sc=Math.min((Math.min(window.innerWidth,602)-32)/602,1);
+  const el=document.getElementById("dash-headscale");
+  if(el){el.style.transform=`scale(${sc})`;el.style.height=Math.round(186*sc)+"px";}
 }
 
 /* ============================================================ PWRメータ（記憶状態の可視化） ============================================================ */
@@ -1839,7 +1864,7 @@ function renderRoomCurve(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.20.2 (2026-06-07)";
+const APP_VERSION="v2.21.0 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
