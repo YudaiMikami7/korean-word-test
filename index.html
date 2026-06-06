@@ -128,7 +128,7 @@ button{font-family:inherit}
 .home-wrap .gauge{position:absolute;background:#333333;border-radius:999px;padding:3px;box-sizing:border-box;z-index:2}
 .home-wrap .gfill{height:100%;border-radius:999px;transition:width .5s ease;width:0}
 /* ヘッダー（さらに上へ。茶色領域は黒80%透過。4色ドットは廃止） */
-.avatar-circle{position:absolute;left:40px;top:44px;width:114px;height:114px;border-radius:50%;background:transparent;border:5px solid rgba(0,0,0,.8);box-sizing:border-box;overflow:hidden;cursor:pointer;z-index:2}
+.avatar-circle{position:absolute;left:40px;top:44px;width:114px;height:114px;border-radius:50%;background:#9FA6AD;border:5px solid rgba(0,0,0,.8);box-sizing:border-box;overflow:hidden;cursor:pointer;z-index:2} /* 背景=タイプ/PWRページと同じグレー */
 .avatar-image{width:100%;height:100%;object-fit:contain;padding:12px;box-sizing:border-box}
 .hv-level{position:absolute;left:176px;top:44px;display:flex;align-items:baseline;gap:3px;line-height:1;z-index:2;font-size:20px}
 .hv-level span{font-size:38px}
@@ -1716,7 +1716,7 @@ function renderRoomCurve(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.16.14 (2026-06-06)";
+const APP_VERSION="v2.16.15 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
