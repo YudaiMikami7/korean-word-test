@@ -192,7 +192,7 @@ button{font-family:inherit}
 .room-panel{position:absolute;left:24px;top:192px;width:554px;height:486px;display:flex;gap:14px}
 .rp-left{flex:1;background:transparent;padding:0;margin:0;overflow-y:auto;scrollbar-width:none}
 .rp-left::-webkit-scrollbar{display:none}
-.th-row{display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.55);padding:5px 10px;margin-bottom:8px;font-size:28px;font-weight:900}
+.th-row{display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.55);padding:5px 10px;margin-bottom:8px;font-size:28px;font-weight:900;cursor:pointer}
 .th-rank{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;flex:0 0 auto}
 .th-score{width:76px;text-align:right}
 .rp-right{flex:1;display:flex;flex-direction:column;gap:14px}
@@ -289,6 +289,10 @@ button{font-family:inherit}
 .cond-v{font-size:40px;font-weight:900;line-height:1.1}
 .cond-v span{font-size:16px;color:var(--mute);font-weight:800}
 .cond-sub{color:var(--mute);font-size:12px;font-weight:700;margin-top:2px}
+.pwrline{display:flex;align-items:center;justify-content:center;gap:12px}
+.pwr-lab,.pwr-val{font-size:22px;font-weight:900;line-height:1}
+.pwr-g{width:210px;height:19px;background:#333;border-radius:999px;padding:3px;box-sizing:border-box}
+.pwr-g div{height:100%;border-radius:999px}
 .cond-sub b{color:var(--green)}
 .tabs{flex:0 0 auto;display:flex;gap:5px;margin-bottom:10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .tab{flex:0 0 auto;background:var(--gray);border:1px solid var(--line);color:var(--mute);font-size:12px;font-weight:700;padding:8px 11px;cursor:pointer;white-space:nowrap}
@@ -564,11 +568,11 @@ function toggleRoomPanel(n){_panelFor=_panelFor===n?null:n;buildRoomSlides();}
 function roomPanelHTML(n){
   const idsArr=LEVEL_SECTIONS[curLevel][n]||[],ids=new Set(idsArr),byTest={};
   loadHistory().forEach(r=>{if(r.testId&&ids.has(r.wordId))(byTest[r.testId]=byTest[r.testId]||[]).push(r);});
-  const tests=Object.values(byTest).map(a=>({at:a[a.length-1].answeredAt,total:a.reduce((x,r)=>x+(r.score||0),0),n:a.length,ok:a.filter(r=>r.isCorrect).length}))
+  const tests=Object.entries(byTest).map(([tid,a])=>({tid,at:a[a.length-1].answeredAt,total:a.reduce((x,r)=>x+(r.score||0),0),n:a.length,ok:a.filter(r=>r.isCorrect).length}))
     .sort((a,b)=>b.at.localeCompare(a.at)).slice(0,8);
   const rowsH=tests.length?tests.map(t=>{
     const full=t.n>=12,rk=full?rankFor(t.total):null,disp=t.total%1===0?t.total:t.total.toFixed(1);
-    return `<div class="th-row">
+    return `<div class="th-row" onclick="renderPastResult('${t.tid}')">
       <span class="th-rank" style="background:${rk?(RANK_COLORS[rk]||"#555"):"rgba(0,0,0,.22)"}">${rk||"-"}</span>
       <span class="th-score">${disp}</span>
       <span style="color:#FF3B3B">○${t.ok}</span><span style="color:#2F6FE0">×${t.n-t.ok}</span></div>`;
@@ -1574,9 +1578,13 @@ function memChart(pts){
 }
 
 function renderCurve(){
-  const now=Date.now(),cond=Math.round(overallCondition(now)),s=loadStats();
+  const now=Date.now(),s=loadStats();
+  // 全体=学習済み全単語（ホームのPWRと同一の母集団・同一値）
+  const learned=Object.keys(s).map(id=>WORD_BY_ID[id]).filter(Boolean);
+  const base=learned.length?learned:WORDS;
+  const cond=pwrOverall();
   // 復習予報
-  const arr=WORDS.map(w=>({w,h:hoursTo70(getStat(w.id,s),now)})).sort((a,b)=>a.h-b.h);
+  const arr=base.map(w=>({w,h:hoursTo70(getStat(w.id,s),now)})).sort((a,b)=>a.h-b.h);
   const today=arr.filter(a=>a.h<=24).length,tom=arr.filter(a=>a.h>24&&a.h<=48).length,d3c=arr.filter(a=>a.h>48&&a.h<=72).length;
   const urgent=arr.filter(a=>a.h<=72).slice(0,12).map(a=>a.w.id);
   const cards=`<div class="curve-stats">
@@ -1595,9 +1603,9 @@ function renderCurve(){
   document.getElementById("s-curve").innerHTML=`
    <div class="page">
     <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>忘却曲線</h2></div>
-    <div class="cond"><div class="cond-k">記憶コンディション</div><div class="cond-v">${cond} <span>/ 100</span></div></div>
+    <div class="cond pwrline"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${cond}%"></div></div><span class="pwr-val">${cond}%</span></div>
     <div class="page-body">
-      ${curveOverall(now)}
+      ${curveOverall(now,base)}
       <div class="tdetail-sec"><div class="h">復習予報</div>${cards}</div>
       <div class="tdetail-sec"><div class="h">単語カテゴリ別</div>${groups}</div>
       ${btn}
@@ -1616,6 +1624,39 @@ function curveWords(now,words){
   return `<table class="htab"><thead><tr><th>韓国語</th><th>日本語</th><th class="num">記憶率</th><th>状態</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 function startReviewTest(ids){curLevel="middle";curSection=1;startTest(ids);} // 復習予報は中級Section01(基本100語)ベース
+
+/* ============================================================ 過去のテスト結果画面 ============================================================ */
+function renderPastResult(testId){
+  const R=loadHistory().filter(r=>r.testId===testId).sort((a,b)=>a.answeredAt.localeCompare(b.answeredAt));
+  if(!R.length)return;
+  const total=R.reduce((a,r)=>a+(r.score||0),0),rank=R.length>=12?rankFor(total):null;
+  const totalDisp=total%1===0?total:total.toFixed(1);
+  const nCorrect=R.filter(r=>r.isCorrect).length,nWrong=R.length-nCorrect;
+  const SYM={correct:["○","#FF3B3B"],incorrect:["×","#2F6FE0"],unknown:["－","rgba(255,255,255,.75)"],timeout:["△","#DFB10F"]};
+  const rows=R.map((r,i)=>{
+    const sy=SYM[r.answerStatus]||["－",""];
+    const hb=r.isHintProvided?'<span class="hint-badge">ヒント</span>':"";
+    const dlt=Math.round((r.memoryScoreAfter||0)-(r.memoryScoreBefore||0));
+    return `<tr><td class="no">${r.questionNumber||i+1}</td><td class="ko">${esc(r.korean)}</td><td>${esc(r.japanese)}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}${hb}</td><td class="num" style="color:${dlt>=0?"#1FAD62":"#FF6B6B"};font-weight:800">${dlt>0?"+":""}${dlt}</td></tr>`;
+  }).join("");
+  document.getElementById("s-result").innerHTML=`
+   <div class="res">
+    <div class="page-head" style="flex:0 0 auto;margin-bottom:4px"><button class="back" onclick="show('s-home')">‹</button><h2>過去の結果</h2></div>
+    <div class="res-head">
+      <div class="res-top">
+        <div class="rank-c" style="background:${rank?(RANK_COLORS[rank]||"#555"):"rgba(0,0,0,.22)"}">${rank||"-"}</div>
+        <div class="res-score">${totalDisp}<span> / 100</span></div>
+      </div>
+      <div class="res-counts"><span style="color:#FF3B3B">○ ${nCorrect}</span><span style="color:#2F6FE0">× ${nWrong}</span></div>
+    </div>
+    <div class="res-listwrap">
+      <table class="rtab"><thead><tr><th class="no">No.</th><th>韓国語</th><th>日本語</th><th>結果</th><th class="num">変化</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>
+    <div class="res-btns"><button class="btn line full" onclick="show('s-home')">ホームに戻る</button></div>
+   </div>`;
+  show("s-result");
+}
 
 /* ============================================================ 単語一覧ページ（シンプル版） ============================================================ */
 function renderRoomMenu(){
@@ -1649,7 +1690,7 @@ function renderRoomCurve(){
   document.getElementById("s-curve").innerHTML=`
    <div class="page">
     <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>ROOM ${nn} 忘却曲線</h2></div>
-    <div class="cond"><div class="cond-k">記憶コンディション</div><div class="cond-v">${cond} <span>/ 100</span></div></div>
+    <div class="cond pwrline"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${cond}%"></div></div><span class="pwr-val">${cond}%</span></div>
     <div class="page-body">
       ${curveOverall(now,words)}
       <div class="tdetail-sec"><div class="h">単語別</div>${curveWords(now,words)}</div>
@@ -1661,7 +1702,7 @@ function renderRoomCurve(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.16.2 (2026-06-06)";
+const APP_VERSION="v2.16.3 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
