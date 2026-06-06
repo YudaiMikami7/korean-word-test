@@ -246,12 +246,15 @@ button{font-family:inherit}
 .rp-g{width:120px;height:15px;background:#333;border-radius:999px;padding:3px;box-sizing:border-box}
 .rp-g div{height:100%;border-radius:999px}
 .res-right{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.res-pwr{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px}
+.res-pwr .pwr-g div{transition:width .9s ease}
+.pwr-delta{font-size:18px;font-weight:900}
 .res-counts{display:flex;justify-content:flex-start;gap:20px;font-size:18px;font-weight:900}
 .res-sess{margin-top:8px;font-size:12.5px;color:var(--faint);font-weight:700}
 .res-sess b{color:var(--text)}
 .btn.dark{background:rgba(0,0,0,.8);color:#fff}
 .btn.dark:active{background:rgba(0,0,0,.65)}
-.res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;margin:14px 0;border:1px solid var(--line);border-radius:0;-webkit-overflow-scrolling:touch}
+.res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;margin:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-left:none;border-right:none;border-radius:0;-webkit-overflow-scrolling:touch}
 .rtab{width:100%;border-collapse:collapse;font-size:15px;background:rgba(0,0,0,.1)}
 .rtab th,.rtab td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
 .rtab th{position:sticky;top:0;background:rgba(0,0,0,.8);color:#fff;font-size:12px;font-weight:800;z-index:1;white-space:nowrap}
@@ -1285,7 +1288,7 @@ function startTest(reviewIds){
   const qs=reviewIds&&reviewIds.length?buildReviewQuestions(reviewIds):buildQuestions();
   const prog=loadProgress();
   state={questions:qs,idx:0,results:[],testId:"t-"+Date.now().toString(36),userId:getUserId(),
-    cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore};
+    cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall()};
   renderQuestion();
   show("s-quiz");
 }
@@ -1479,7 +1482,6 @@ function finishTest(){
   saveSession({at:new Date().toISOString(),before:state.conditionBefore,after:Math.round(overallCondition(nowMs)),
     reviewBefore:state.reviewBefore,reviewAfter:reviewNeedCount(nowMs),
     improved:changes.filter(c=>c.after>c.before).length,changes});
-  const condAfter=Math.round(overallCondition(nowMs)),revAfter=reviewNeedCount(nowMs);
   // タイプ診断を再計算し外枠色を更新（テスト終了時のみ。回答中は更新しない）
   const dg=updateDiagnosis();
   const typeUpd=(dg.changed&&dg.prevCode&&dg.prevCode!==dg.diag.code)
@@ -1491,7 +1493,7 @@ function finishTest(){
     const dlt=Math.round((r.memoryScoreAfter||0)-(r.memoryScoreBefore||0));
     return `<tr><td class="no">${r.questionNumber}</td><td class="ko">${esc(r.korean)}</td><td>${esc(r.japanese)}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}${hb}</td><td class="num" style="color:${dlt>=0?"#1FAD62":"#FF6B6B"};font-weight:800">${dlt>0?"+":""}${dlt}</td></tr>`;
   }).join("");
-  const ri=roomInfoFor(curSection); // テスト反映後のROOMパラメータ
+  const pwrAfter=pwrOverall(),pwrBefore=state.pwrBefore||0,pwrDelta=pwrAfter-pwrBefore;
   document.getElementById("s-result").innerHTML=`
    <div class="res">
     <div class="res-head">
@@ -1502,11 +1504,7 @@ function finishTest(){
           <div class="res-counts"><span style="color:#FF3B3B">○ ${nCorrect}</span><span style="color:#2F6FE0">× ${nWrong}</span></div>
         </div>
       </div>
-      <div class="res-params">
-        <div class="rp"><span class="rp-num">${ri.learned}<i>語</i></span><div class="rp-g"><div style="background:#00FFFF;width:${Math.round(ri.learned/ri.total*100)}%"></div></div></div>
-        <div class="rp"><span class="rp-num">${ri.pwr}<i>%</i></span><div class="rp-g"><div style="background:#00FF37;width:${ri.pwr}%"></div></div></div>
-      </div>
-      <div class="res-sess">記憶コンディション ${state.conditionBefore} → <b>${condAfter}</b>　・　要復習 ${state.reviewBefore} → <b>${revAfter}</b>語</div>
+      <div class="res-pwr"><span class="pwr-lab">PWR</span><div class="pwr-g"><div id="res-pwrfill" style="background:#00FF37;width:${pwrBefore}%"></div></div><span class="pwr-val">${pwrAfter}%</span><span class="pwr-delta" style="color:${pwrDelta>=0?"#1FAD62":"#FF6B6B"}">${pwrDelta>0?"+":""}${pwrDelta}</span></div>
     </div>
     <div class="res-listwrap">
       <table class="rtab"><thead><tr><th class="no">No.</th><th>韓国語</th><th>日本語</th><th>結果</th><th class="num">変化</th></tr></thead>
@@ -1514,12 +1512,15 @@ function finishTest(){
     </div>
     <div class="res-btns">
       <button class="btn dark" onclick="startTest()">もう一度挑戦する</button>
-      <button class="btn dark" onclick="renderCurve()">忘却曲線を見る</button>
+      <button class="btn dark" onclick="renderCurve()">PWRメータを見る</button>
       <button class="btn line full" onclick="show('s-home')">ホームに戻る</button>
     </div>
     ${typeUpd}
    </div>`;
   show("s-result");
+  // PWRが増える演出（前値→後値へフィルがアニメーション）
+  const pf=document.getElementById("res-pwrfill");
+  if(pf)setTimeout(()=>{pf.style.width=pwrAfter+"%";},150);
 }
 
 /* 学習履歴ページは廃止（単語の履歴はROOMメニュー→単語詳細で確認） */
@@ -1715,7 +1716,7 @@ function renderRoomCurve(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.16.7 (2026-06-06)";
+const APP_VERSION="v2.16.8 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
