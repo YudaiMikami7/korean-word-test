@@ -154,8 +154,8 @@ button{font-family:inherit}
 .rmenu-bg{position:absolute;left:40px;top:-12px;width:522px;height:174px;background:rgba(255,255,255,.15);border-radius:999px;cursor:pointer}
 .hv-roomlabel{position:absolute;left:83px;top:0;font-size:36px;letter-spacing:2px;line-height:1;cursor:pointer}
 .hv-roomno{position:absolute;left:72px;top:42px;font-size:108px;line-height:1;cursor:pointer}
-.hv-learned{position:absolute;left:244px;top:10px;font-size:40px;line-height:1;color:#1a1a1a}
-.hv-roompwr{position:absolute;left:244px;top:76px;font-size:48px;line-height:1;color:#1a1a1a}
+.hv-learned{position:absolute;left:244px;top:10px;font-size:40px;line-height:1;color:#FFFFFF}
+.hv-roompwr{position:absolute;left:244px;top:76px;font-size:48px;line-height:1;color:#FFFFFF}
 .hv-learned .unit{font-size:24px;margin-left:4px}
 .hv-roompwr .unit{font-size:28px;margin-left:4px}
 .hv-wordsg{left:238px;top:56px;width:89px;height:10px;padding:2px}
@@ -1619,7 +1619,7 @@ function renderRoomMenu(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.12.3 (2026-06-06)";
+const APP_VERSION="v2.12.4 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
