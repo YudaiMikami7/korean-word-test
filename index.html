@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" id="themecolor" content="#E3A38D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>한국어 단어 테스트</title>
 <style>
 /* LINE Seed JP（公式配布woff2を同梱） */
@@ -115,18 +118,18 @@ button{font-family:inherit}
 /* ===== ホーム（602×1178基準・サーモンピンク背景・絶対配置） ===== */
 #s-home{background:#E3A38D;flex-direction:row;justify-content:center;align-items:flex-start;overflow:hidden}
 .home-wrap{position:relative;flex:0 0 auto;width:602px;height:1178px;background:#E3A38D;
-  transform-origin:top center;color:#FFFFFF;font-weight:700;
+  transform-origin:top center;color:#FFFFFF;font-weight:800; /* 見本はExtraBold相当 */
   font-family:"LINESeedJP","Noto Sans KR","Hiragino Kaku Gothic ProN",sans-serif}
 /* バー：暗いトラック＋内側に角丸フィル（見本準拠） */
 .home-wrap .gauge{position:absolute;background:#333333;border-radius:999px;padding:3px;box-sizing:border-box;z-index:2}
 .home-wrap .gfill{height:100%;border-radius:999px;transition:width .5s ease;width:0}
 .avatar-circle{position:absolute;left:32px;top:35px;width:120px;height:120px;border-radius:50%;background:#5D433A;overflow:hidden;cursor:pointer;z-index:2}
-.avatar-image{width:100%;height:100%;object-fit:contain}
-.hv-level{position:absolute;left:172px;top:34px;display:flex;align-items:baseline;gap:2px;line-height:1;z-index:2;font-size:24px}
-.hv-level span{font-size:46px}
-.type-dots{position:absolute;right:168px;top:46px;display:flex;gap:8px;z-index:2}
+.avatar-image{width:100%;height:100%;object-fit:contain;padding:14px;box-sizing:border-box}
+.hv-level{position:absolute;left:172px;top:30px;display:flex;align-items:baseline;gap:3px;line-height:1;z-index:2;font-size:25px}
+.hv-level span{font-size:48px}
+.type-dots{position:absolute;right:172px;top:48px;display:flex;gap:8px;z-index:2}
 .type-dot{width:32px;height:32px;border-radius:50%}
-.hv-code{position:absolute;right:16px;top:30px;font-size:50px;letter-spacing:1px;line-height:1;cursor:pointer;z-index:2}
+.hv-code{position:absolute;right:16px;top:37px;font-size:46px;letter-spacing:1px;line-height:1;cursor:pointer;z-index:2}
 .status-panel{position:absolute;left:163px;top:80px;width:423px;height:100px;border-radius:50px;background:#5D433A;z-index:1}
 .hv-lab{position:absolute;font-size:22px;line-height:1.2;z-index:2}
 .hv-xplabel{left:180px;top:90px;width:78px;text-align:right}
@@ -1101,7 +1104,13 @@ function scoreFor(type,isCorrect,t,isHint){
 function rankFor(s){if(s===100)return"S";if(s<=50)return"D";if(s<=70)return"C";if(s<=80)return"B";return"A";}
 
 /* ============================================================ 画面遷移 ============================================================ */
-function show(id){document.querySelectorAll(".screen").forEach(e=>e.classList.remove("on"));document.getElementById(id).classList.add("on");window.scrollTo(0,0);if(id==="s-home")renderHome();}
+function show(id){
+  document.querySelectorAll(".screen").forEach(e=>e.classList.remove("on"));
+  document.getElementById(id).classList.add("on");window.scrollTo(0,0);
+  // ステータスバー（時刻表示部）の色を画面に合わせる：ホーム=サーモン、他=黒
+  const tc=document.getElementById("themecolor");if(tc)tc.content=id==="s-home"?"#E3A38D":"#000000";
+  if(id==="s-home")renderHome();
+}
 
 /* ============================================================ テスト進行 ============================================================ */
 let state=null,timer=null,qStart=0,answered=false,ovTimer=null;
@@ -1535,7 +1544,7 @@ function startSectionTest(n){curSection=n;show("s-home");} // ROOM切替：ホ�
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.4.0 (2026-06-06)";
+const APP_VERSION="v2.4.1 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
