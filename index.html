@@ -227,8 +227,16 @@ button{font-family:inherit}
 .wh-empty{color:rgba(255,255,255,.85);font-size:14px;font-weight:700;padding:12px}
 .rm-scale{transform-origin:top left;width:602px}
 .rm-inner{position:relative;width:602px;height:176px;margin-top:14px}
-.dash-headscale{transform-origin:top left;width:602px;margin-top:18px}
-.dash-head{position:relative;width:602px;height:186px}
+#status-ov{position:absolute;inset:0;z-index:3;opacity:0;pointer-events:none;transition:opacity .35s ease}
+.home-wrap.status #status-ov{opacity:1}
+#status-ov>*{pointer-events:none}
+.home-wrap.status #status-ov>*{pointer-events:auto}
+.st-back{position:absolute;left:24px;top:20px}
+.st-top{position:absolute;left:24px;top:74px;width:554px}
+.st-top .chartbox{padding:8px 10px 4px}
+.st-top .chartbox svg{display:block;width:100%;height:300px}
+.st-bottom{position:absolute;left:24px;top:712px;bottom:26px;width:554px;display:flex;flex-direction:column}
+.btn.slim{padding:10px;font-size:16px}
 .dash-cols{display:flex;gap:16px;margin-top:14px;align-items:center}
 .dash-left{flex:0 0 44%;text-align:center;cursor:pointer}
 .dash-right{flex:1;display:flex;flex-direction:column;justify-content:center}
@@ -353,10 +361,10 @@ button{font-family:inherit}
   <div class="screen on" id="s-home">
     <div class="home-wrap" id="homewrap">
       <div class="home-head">
-      <div class="avatar-circle" onclick="renderDashboard()"><img class="avatar-image" id="hv-char" src="characters/analyzing.svg" alt=""></div>
-      <div class="hv-level" id="hv-level" onclick="renderDashboard()" style="cursor:pointer">Lv.<span>1</span></div>
-      <div class="hv-code" id="hv-code" onclick="renderDashboard()">----</div>
-      <div class="status-panel" onclick="renderDashboard()"></div>
+      <div class="avatar-circle" onclick="enterStatusMode()"><img class="avatar-image" id="hv-char" src="characters/analyzing.svg" alt=""></div>
+      <div class="hv-level" id="hv-level" onclick="enterStatusMode()" style="cursor:pointer">Lv.<span>1</span></div>
+      <div class="hv-code" id="hv-code" onclick="enterStatusMode()">----</div>
+      <div class="status-panel" onclick="enterStatusMode()"></div>
       <div class="hv-lab hv-xplabel">XP</div>
       <div class="gauge hv-xpg"><div class="gfill" id="hv-xpfill" style="background:#FFFF37"></div></div>
       <div class="hv-lab hv-xpval" id="hv-xpval">0/100</div>
@@ -366,6 +374,7 @@ button{font-family:inherit}
       </div>
       <div class="room-scroll" id="hv-rooms"></div>
       <button class="start-button" onclick="startTest()">スタート</button>
+      <div id="status-ov"></div>
       <div class="hv-ver" id="appver"></div>
     </div>
   </div>
@@ -383,9 +392,6 @@ button{font-family:inherit}
   <div class="screen" id="s-wdetail"></div>
   <!-- CURVE -->
   <div class="screen" id="s-curve"></div>
-  <!-- DASHBOARD（TYPE+PWR統合） -->
-  <div class="screen" id="s-dash"></div>
-
   <!-- TYPE DETAIL -->
   <div class="screen" id="s-type"></div>
 </div>
@@ -719,7 +725,7 @@ function buildRoomSlides(){
     let _ty=null,_tx=null,_vdrag=false,_dragDown=false,_dragDash=false;
     el.addEventListener("touchstart",e=>{_ty=e.touches[0].clientY;_tx=e.touches[0].clientX;_vdrag=false;_dragDown=false;_dragDash=false;},{passive:true});
     el.addEventListener("touchmove",e=>{
-      if(_ty==null)return;
+      if(_ty==null||_statusMode)return;
       const dy=e.touches[0].clientY-_ty,dx=e.touches[0].clientX-_tx;
       if(!_vdrag){
         if(!_listMode&&dy>12&&Math.abs(dy)>Math.abs(dx)*1.2){
@@ -743,15 +749,8 @@ function buildRoomSlides(){
         const w=document.getElementById("homewrap");w.classList.remove("dragging");
         if(_dragDash){
           const cd=parseFloat(w.style.getPropertyValue("--down"))||0;
-          if(cd>150){
-            // ヘッダーが画面の真ん中に達したところでステータスを表示（下層は2.2xで画面外へ）
-            w.style.setProperty("--down",Math.round(window.innerHeight*0.45)+"px");
-            setTimeout(()=>{
-              renderDashboard();
-              w.classList.add("dragging");w.style.setProperty("--down","0px");
-              requestAnimationFrame(()=>w.classList.remove("dragging"));
-            },420);
-          }else w.style.setProperty("--down","0px");
+          if(cd>150)enterStatusMode(); // ヘッダーが真ん中へ滑り、到着後にグラフ/パラメータがフェードイン
+          else w.style.setProperty("--down","0px");
           _ty=null;_vdrag=false;_dragDash=false;return;
         }
         const cur=parseFloat(w.style.getPropertyValue("--lift"))||0;
@@ -1054,7 +1053,7 @@ function renderTypeDetail(){
   }).join("");
   document.getElementById("s-type").innerHTML=`
    <div class="page">
-    <div class="page-head"><button class="back" onclick="renderDashboard()">‹</button><h2>タイプ詳細</h2></div>
+    <div class="page-head"><button class="back" onclick="backToStatus()">‹</button><h2>タイプ詳細</h2></div>
     <div class="page-body">
       <div class="typebox" style="cursor:default">
         <div class="t-code">${any?d.code:"分析中"}</div>
@@ -1381,7 +1380,7 @@ function show(id){
   document.querySelectorAll(".screen").forEach(e=>e.classList.remove("on"));
   document.getElementById(id).classList.add("on");window.scrollTo(0,0);
   // 背景色: 全体PWRメータ/タイプ詳細はグレー固定、ROOM別PWRはそのROOMの色、他は現在ROOMの色
-  applyBgAll(((id==="s-curve"&&!_roomCurveMode)||id==="s-type"||id==="s-dash")?LEVEL_SLIDE_BG:roomBg(curSection));
+  applyBgAll(((id==="s-curve"&&!_roomCurveMode)||id==="s-type")?LEVEL_SLIDE_BG:roomBg(curSection));
   if(id==="s-home")renderHome();
 }
 
@@ -1671,24 +1670,10 @@ function renderWordDetail(wordId,back){
   show("s-wdetail");
 }
 
-/* ============================================================ 統合ステータスページ（上=グラフ+詳細 / 中央=ヘッダー / 下=MBTI+パラメータ） ============================================================ */
-function dashHeaderHTML(){
-  const d=computeDiagnosis(),xp=xpInfo(),pw=pwrOverall();
-  const code=d.axes.some(a=>a.code)?d.code:"----";
-  return `<div class="dash-headscale" id="dash-headscale"><div class="dash-head">
-    <div class="avatar-circle" style="cursor:default"><img class="avatar-image" src="${charPathFor(d)}" alt=""></div>
-    <div class="hv-level">Lv.<span>${xp.level}</span></div>
-    <div class="hv-code" style="cursor:default">${code}</div>
-    <div class="status-panel" style="cursor:default"></div>
-    <div class="hv-lab hv-xplabel">XP</div>
-    <div class="gauge hv-xpg"><div class="gfill" style="background:#FFFF37;width:${Math.min(100,Math.round(xp.cur/xp.next*100))}%"></div></div>
-    <div class="hv-lab hv-xpval">${xp.cur}/${xp.next}</div>
-    <div class="hv-lab hv-pwrlabel">PWR</div>
-    <div class="gauge hv-pwrg"><div class="gfill" style="background:#00FF37;width:${pw}%"></div></div>
-    <div class="hv-lab hv-pwrval">${pw}%</div>
-  </div></div>`;
-}
-function renderDashboard(){
+/* ============================================================ ステータスモード（ホーム上のオーバーレイ。上=グラフ+詳細 / 中央=実ヘッダー / 下=MBTI+パラメータ） ============================================================ */
+let _statusMode=false;
+const STATUS_DOWN=460; // ヘッダーが真ん中に来る移動量(ローカルpx)
+function updateStatusOverlay(){
   const d=computeDiagnosis(),any=d.axes.some(a=>a.code);
   const fullCode=d.complete?d.code:AXES.map((ax,i)=>d.axes[i].code||ax.R).join("");
   const bars=AXES.map((ax,i)=>{
@@ -1702,13 +1687,13 @@ function renderDashboard(){
   const now=Date.now(),st=loadStats();
   const learned=Object.keys(st).map(id=>WORD_BY_ID[id]).filter(Boolean);
   const base=learned.length?learned:WORDS;
-  document.getElementById("s-dash").innerHTML=`
-   <div class="page">
-    <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>ステータス</h2></div>
-    <div class="page-body">
-      ${curveOverall(now,base)}
-      <button class="btn dark" style="width:100%" onclick="renderCurve()">詳細を見る</button>
-      ${dashHeaderHTML()}
+  document.getElementById("status-ov").innerHTML=`
+    <button class="back st-back" onclick="exitStatusMode()">‹</button>
+    <div class="st-top">
+      <div class="chartbox">${memChart(projectionPoints(now,base))}</div>
+      <button class="btn dark slim" style="width:100%" onclick="renderCurve()">詳細を見る</button>
+    </div>
+    <div class="st-bottom">
       <div class="dash-cols">
         <div class="dash-left" onclick="renderTypeDetail()">
           <div class="t-code" style="font-size:34px;letter-spacing:4px">${any?d.code:"分析中"}</div>
@@ -1717,14 +1702,24 @@ function renderDashboard(){
         </div>
         <div class="dash-right">${bars}</div>
       </div>
-    </div>
-   </div>`;
-  show("s-dash");
-  // ヘッダー複製を画面幅へ縮小
-  const sc=Math.min((Math.min(window.innerWidth,602)-32)/602,1);
-  const el=document.getElementById("dash-headscale");
-  if(el){el.style.transform=`scale(${sc})`;el.style.height=Math.round(186*sc)+"px";}
+      <button class="btn dark slim" style="width:100%;margin-top:auto" onclick="renderTypeDetail()">タイプ詳細を見る</button>
+    </div>`;
 }
+function enterStatusMode(){
+  if(_statusMode||_listMode)return;
+  _statusMode=true;
+  updateStatusOverlay();
+  const w=document.getElementById("homewrap");
+  w.style.setProperty("--down",STATUS_DOWN+"px");
+  setTimeout(()=>w.classList.add("status"),380); // ヘッダーが真ん中に着いてからフェードイン
+}
+function exitStatusMode(){
+  const w=document.getElementById("homewrap");
+  w.classList.remove("status");
+  setTimeout(()=>{w.style.setProperty("--down","0px");},200); // フェードアウト後に戻す
+  setTimeout(()=>{_statusMode=false;},620);
+}
+function backToStatus(){show('s-home');}
 
 /* ============================================================ PWRメータ（記憶状態の可視化） ============================================================ */
 function memState(rate){ // 状態ラベル
@@ -1784,7 +1779,7 @@ function renderCurve(){
   const btn=urgent.length?`<button class="btn dark" style="margin-top:14px" onclick='startReviewTest(${JSON.stringify(urgent)})'>この${urgent.length}語で復習</button>`:"";
   document.getElementById("s-curve").innerHTML=`
    <div class="page">
-    <div class="page-head"><button class="back" onclick="renderDashboard()">‹</button><h2>PWRメータ</h2></div>
+    <div class="page-head"><button class="back" onclick="backToStatus()">‹</button><h2>PWRメータ</h2></div>
     <div class="cond pwrline"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${cond}%"></div></div><span class="pwr-val">${cond}%</span></div>
     <div class="page-body">
       ${curveOverall(now,base)}
@@ -1864,7 +1859,7 @@ function renderRoomCurve(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.21.0 (2026-06-07)";
+const APP_VERSION="v2.22.0 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
