@@ -1474,10 +1474,12 @@ function renderWordDetail(wordId,back){
   const w=WORD_BY_ID[wordId];
   const recs=loadHistory().filter(r=>r.wordId===wordId).sort((a,b)=>a.answeredAt.localeCompare(b.answeredAt));
   const dirJa={jp_to_kr:"日→韓",kr_to_jp:"韓→日"};
+  const SYM={correct:["○","#1FAD62"],incorrect:["×","#2F6FE0"],unknown:["－","rgba(255,255,255,.75)"],timeout:["△","#DFB10F"]};
   const rows=recs.map(r=>{
     const dir=(r.answerType==="writing"?"書き取り":dirJa[r.direction])+(r.isHintProvided?"・ヒント":"");
     const mem=(r.displayMemoryScoreAfterDecay!=null)?r.displayMemoryScoreAfterDecay+"%":"—";
-    return `<tr><td>${fmtDate(r.answeredAt)}</td><td>${dir}</td><td>${STATUS_JA[r.answerStatus]}</td><td class="num">${(r.responseTimeMs/1000).toFixed(1)}秒</td><td class="num">${r.score}点</td><td class="num">${mem}</td></tr>`;
+    const sy=SYM[r.answerStatus]||["－",""];
+    return `<tr><td>${fmtDate(r.answeredAt)}</td><td>${dir}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}</td><td class="num">${(r.responseTimeMs/1000).toFixed(1)}</td><td class="num">${r.score}</td><td class="num">${mem}</td></tr>`;
   }).join("");
   const note=w.n?`<div class="note">⚠️ ${esc(w.n)}</div>`:"";
   const rate=Math.round(displayScore(getStat(wordId),Date.now())),ms=memState(rate);
@@ -1619,7 +1621,7 @@ function renderRoomMenu(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.12.5 (2026-06-06)";
+const APP_VERSION="v2.12.6 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
