@@ -347,10 +347,10 @@ button{font-family:inherit}
   <div class="screen on" id="s-home">
     <div class="home-wrap" id="homewrap">
       <div class="home-head">
-      <div class="avatar-circle" onclick="renderTypeDetail()"><img class="avatar-image" id="hv-char" src="characters/analyzing.svg" alt=""></div>
-      <div class="hv-level" id="hv-level">Lv.<span>1</span></div>
-      <div class="hv-code" id="hv-code" onclick="renderTypeDetail()">----</div>
-      <div class="status-panel" onclick="renderCurve()"></div>
+      <div class="avatar-circle" onclick="renderDashboard()"><img class="avatar-image" id="hv-char" src="characters/analyzing.svg" alt=""></div>
+      <div class="hv-level" id="hv-level" onclick="renderDashboard()" style="cursor:pointer">Lv.<span>1</span></div>
+      <div class="hv-code" id="hv-code" onclick="renderDashboard()">----</div>
+      <div class="status-panel" onclick="renderDashboard()"></div>
       <div class="hv-lab hv-xplabel">XP</div>
       <div class="gauge hv-xpg"><div class="gfill" id="hv-xpfill" style="background:#FFFF37"></div></div>
       <div class="hv-lab hv-xpval" id="hv-xpval">0/100</div>
@@ -377,6 +377,9 @@ button{font-family:inherit}
   <div class="screen" id="s-wdetail"></div>
   <!-- CURVE -->
   <div class="screen" id="s-curve"></div>
+  <!-- DASHBOARD（TYPE+PWR統合） -->
+  <div class="screen" id="s-dash"></div>
+
   <!-- TYPE DETAIL -->
   <div class="screen" id="s-type"></div>
 </div>
@@ -713,7 +716,9 @@ function buildRoomSlides(){
       if(_ty==null)return;
       const dy=e.touches[0].clientY-_ty,dx=e.touches[0].clientX-_tx;
       if(!_vdrag){
-        if(!_listMode&&dy<-12&&Math.abs(dy)>Math.abs(dx)*1.2){
+        if(!_listMode&&dy>40&&Math.abs(dy)>Math.abs(dx)*1.2){
+          _ty=null;renderDashboard();return; // 通常時の下スワイプ=統合ステータスページ
+        }else if(!_listMode&&dy<-12&&Math.abs(dy)>Math.abs(dx)*1.2){
           _vdrag=true;document.getElementById("homewrap").classList.add("dragging");
         }else if(_listMode&&dy>12&&Math.abs(dy)>Math.abs(dx)*1.2){
           // 一覧モード中の下スワイプ: 一覧がスクロール最上部の時だけ「戻る」ドラッグ
@@ -1029,7 +1034,7 @@ function renderTypeDetail(){
   }).join("");
   document.getElementById("s-type").innerHTML=`
    <div class="page">
-    <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>タイプ詳細</h2></div>
+    <div class="page-head"><button class="back" onclick="renderDashboard()">‹</button><h2>タイプ詳細</h2></div>
     <div class="page-body">
       <div class="typebox" style="cursor:default">
         <div class="t-code">${any?d.code:"分析中"}</div>
@@ -1356,7 +1361,7 @@ function show(id){
   document.querySelectorAll(".screen").forEach(e=>e.classList.remove("on"));
   document.getElementById(id).classList.add("on");window.scrollTo(0,0);
   // 背景色: 全体PWRメータ/タイプ詳細はグレー固定、ROOM別PWRはそのROOMの色、他は現在ROOMの色
-  applyBgAll(((id==="s-curve"&&!_roomCurveMode)||id==="s-type")?LEVEL_SLIDE_BG:roomBg(curSection));
+  applyBgAll(((id==="s-curve"&&!_roomCurveMode)||id==="s-type"||id==="s-dash")?LEVEL_SLIDE_BG:roomBg(curSection));
   if(id==="s-home")renderHome();
 }
 
@@ -1646,6 +1651,41 @@ function renderWordDetail(wordId,back){
   show("s-wdetail");
 }
 
+/* ============================================================ 統合ステータスページ（MBTI・職業・アイコン・4パラメータ・PWRグラフ） ============================================================ */
+function renderDashboard(){
+  const d=computeDiagnosis(),any=d.axes.some(a=>a.code);
+  const fullCode=d.complete?d.code:AXES.map((ax,i)=>d.axes[i].code||ax.R).join("");
+  const bars=AXES.map((ax,i)=>{
+    const a=d.axes[i],t=Math.round(a.score==null?50:a.score);
+    const domLeft=t>=50,col=AXIS_COLORS[domLeft?ax.L:ax.R];
+    const pos=100-t;
+    return `<div class="axrow"><span class="axl"${domLeft?` style="color:${col}"`:""}>${ax.ln} ${ax.L}</span>
+      <div class="axbar"><div class="axdot" style="left:calc(${pos}% - 9px);background:${col}"></div></div>
+      <span class="axr"${!domLeft?` style="color:${col}"`:""}>${ax.R} ${ax.rn}</span></div>`;
+  }).join("");
+  const now=Date.now(),st=loadStats();
+  const learned=Object.keys(st).map(id=>WORD_BY_ID[id]).filter(Boolean);
+  const base=learned.length?learned:WORDS;
+  const pwr=pwrOverall();
+  document.getElementById("s-dash").innerHTML=`
+   <div class="page">
+    <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>ステータス</h2></div>
+    <div class="page-body">
+      <div class="typebox" style="cursor:default">
+        <div class="t-code">${any?d.code:"分析中"}</div>
+        <div class="t-job">${any?esc((TYPE_INFO[fullCode]||[""])[0]):""}</div>
+        <img class="t-char" src="${charPathFor(d)}" alt="">
+      </div>
+      <div class="tdetail-sec" style="margin-top:24px">${bars}</div>
+      <button class="btn dark" style="width:100%" onclick="renderTypeDetail()">タイプ詳細</button>
+      <div class="cond pwrline" style="margin-top:26px"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${pwr}%"></div></div><span class="pwr-val">${pwr}%</span></div>
+      ${curveOverall(now,base)}
+      <button class="btn dark" style="width:100%" onclick="renderCurve()">PWRメータ詳細</button>
+    </div>
+   </div>`;
+  show("s-dash");
+}
+
 /* ============================================================ PWRメータ（記憶状態の可視化） ============================================================ */
 function memState(rate){ // 状態ラベル
   if(rate>=80)return{label:"安定",cls:"ms-stable"};
@@ -1704,7 +1744,7 @@ function renderCurve(){
   const btn=urgent.length?`<button class="btn dark" style="margin-top:14px" onclick='startReviewTest(${JSON.stringify(urgent)})'>この${urgent.length}語で復習</button>`:"";
   document.getElementById("s-curve").innerHTML=`
    <div class="page">
-    <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>PWRメータ</h2></div>
+    <div class="page-head"><button class="back" onclick="renderDashboard()">‹</button><h2>PWRメータ</h2></div>
     <div class="cond pwrline"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${cond}%"></div></div><span class="pwr-val">${cond}%</span></div>
     <div class="page-body">
       ${curveOverall(now,base)}
@@ -1784,7 +1824,7 @@ function renderRoomCurve(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.19.2 (2026-06-07)";
+const APP_VERSION="v2.20.0 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
