@@ -245,12 +245,13 @@ button{font-family:inherit}
 .rp-num i{font-style:normal;font-size:13px;margin-left:2px}
 .rp-g{width:120px;height:15px;background:#333;border-radius:999px;padding:3px;box-sizing:border-box}
 .rp-g div{height:100%;border-radius:999px}
-.res-counts{display:flex;justify-content:center;gap:24px;margin-top:9px;font-size:18px;font-weight:900}
+.res-right{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.res-counts{display:flex;justify-content:flex-start;gap:20px;font-size:18px;font-weight:900}
 .res-sess{margin-top:8px;font-size:12.5px;color:var(--faint);font-weight:700}
 .res-sess b{color:var(--text)}
 .btn.dark{background:rgba(0,0,0,.8);color:#fff}
 .btn.dark:active{background:rgba(0,0,0,.65)}
-.res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;margin:14px 0;border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch}
+.res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;margin:14px 0;border:1px solid var(--line);border-radius:0;-webkit-overflow-scrolling:touch}
 .rtab{width:100%;border-collapse:collapse;font-size:15px;background:rgba(0,0,0,.1)}
 .rtab th,.rtab td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
 .rtab th{position:sticky;top:0;background:rgba(0,0,0,.8);color:#fff;font-size:12px;font-weight:800;z-index:1;white-space:nowrap}
@@ -1496,13 +1497,15 @@ function finishTest(){
     <div class="res-head">
       <div class="res-top">
         <div class="rank-c" style="background:${RANK_COLORS[rank]||"#555"}">${rank}</div>
-        <div class="res-score">${totalDisp}<span> / 100</span></div>
+        <div class="res-right">
+          <div class="res-score">${totalDisp}<span> / 100</span></div>
+          <div class="res-counts"><span style="color:#FF3B3B">○ ${nCorrect}</span><span style="color:#2F6FE0">× ${nWrong}</span></div>
+        </div>
       </div>
       <div class="res-params">
         <div class="rp"><span class="rp-num">${ri.learned}<i>語</i></span><div class="rp-g"><div style="background:#00FFFF;width:${Math.round(ri.learned/ri.total*100)}%"></div></div></div>
         <div class="rp"><span class="rp-num">${ri.pwr}<i>%</i></span><div class="rp-g"><div style="background:#00FF37;width:${ri.pwr}%"></div></div></div>
       </div>
-      <div class="res-counts"><span style="color:#FF3B3B">○ ${nCorrect}</span><span style="color:#2F6FE0">× ${nWrong}</span></div>
       <div class="res-sess">記憶コンディション ${state.conditionBefore} → <b>${condAfter}</b>　・　要復習 ${state.reviewBefore} → <b>${revAfter}</b>語</div>
     </div>
     <div class="res-listwrap">
@@ -1653,9 +1656,11 @@ function renderPastResult(testId){
     <div class="res-head">
       <div class="res-top">
         <div class="rank-c" style="background:${rank?(RANK_COLORS[rank]||"#555"):"rgba(0,0,0,.22)"}">${rank||"-"}</div>
-        <div class="res-score">${totalDisp}<span> / 100</span></div>
+        <div class="res-right">
+          <div class="res-score">${totalDisp}<span> / 100</span></div>
+          <div class="res-counts"><span style="color:#FF3B3B">○ ${nCorrect}</span><span style="color:#2F6FE0">× ${nWrong}</span></div>
+        </div>
       </div>
-      <div class="res-counts"><span style="color:#FF3B3B">○ ${nCorrect}</span><span style="color:#2F6FE0">× ${nWrong}</span></div>
     </div>
     <div class="res-listwrap">
       <table class="rtab"><thead><tr><th class="no">No.</th><th>韓国語</th><th>日本語</th><th>結果</th><th class="num">変化</th></tr></thead>
@@ -1710,7 +1715,7 @@ function renderRoomCurve(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.16.6 (2026-06-06)";
+const APP_VERSION="v2.16.7 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
