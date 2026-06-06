@@ -196,12 +196,13 @@ button{font-family:inherit}
 .th-rank{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;flex:0 0 auto}
 .th-score{width:76px;text-align:right}
 .rp-right{flex:1;display:flex;flex-direction:column;gap:14px}
-.rp-preview{flex:1.5;background:rgba(0,0,0,.8);border:none;border-radius:0;color:#fff;font-family:inherit;cursor:pointer;padding:12px 14px;display:flex;flex-direction:column;text-align:left;overflow:hidden}
+.rp-preview{flex:1;background:rgba(0,0,0,.8);border:none;border-radius:0;color:#fff;font-family:inherit;cursor:pointer;padding:12px 14px;display:flex;flex-direction:column;text-align:left;overflow:hidden}
 .rp-preview:active{background:rgba(0,0,0,.65)}
-.pv-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:16px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.15);padding:4px 0}
-.pv-ja{color:rgba(255,255,255,.75);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pv-more{margin-top:auto;text-align:right;font-size:15px;font-weight:800;padding-top:6px}
-.rp-btn{flex:1;background:rgba(0,0,0,.8);color:#fff;border:none;border-radius:0;font-size:32px;font-weight:900;cursor:pointer;font-family:inherit}
+.pv-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:21px;font-weight:800;border-bottom:1px solid rgba(255,255,255,.15);padding:5px 0}
+.pv-ko{flex:0 0 auto}
+.pv-ja{color:rgba(255,255,255,.78);font-size:15px;flex:1;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-more{margin-top:auto;text-align:right;font-size:22px;font-weight:900;padding-top:8px}
+.rp-btn{flex:0 0 58px;background:rgba(0,0,0,.8);color:#fff;border:none;border-radius:0;font-size:21px;font-weight:900;cursor:pointer;font-family:inherit}
 .rp-btn:active{background:rgba(0,0,0,.65)}
 .rm-scale{transform-origin:top left;width:602px}
 .rm-inner{position:relative;width:602px;height:176px;margin-top:14px}
@@ -569,9 +570,9 @@ function roomPanelHTML(n){
   const idsArr=LEVEL_SECTIONS[curLevel][n]||[],ids=new Set(idsArr),byTest={};
   loadHistory().forEach(r=>{if(r.testId&&ids.has(r.wordId))(byTest[r.testId]=byTest[r.testId]||[]).push(r);});
   const tests=Object.entries(byTest).map(([tid,a])=>({tid,at:a[a.length-1].answeredAt,total:a.reduce((x,r)=>x+(r.score||0),0),n:a.length,ok:a.filter(r=>r.isCorrect).length}))
-    .sort((a,b)=>b.at.localeCompare(a.at)).slice(0,8);
+    .sort((a,b)=>b.at.localeCompare(a.at)).slice(0,7);
   const rowsH=tests.length?tests.map(t=>{
-    const full=t.n>=12,rk=full?rankFor(t.total):null,disp=t.total%1===0?t.total:t.total.toFixed(1);
+    const full=t.n>=12,tt=Math.ceil(t.total),rk=full?rankFor(tt):null,disp=tt;
     return `<div class="th-row" onclick="renderPastResult('${t.tid}')">
       <span class="th-rank" style="background:${rk?(RANK_COLORS[rk]||"#555"):"rgba(0,0,0,.22)"}">${rk||"-"}</span>
       <span class="th-score">${disp}</span>
@@ -583,7 +584,7 @@ function roomPanelHTML(n){
     <div class="rp-left">${rowsH}</div>
     <div class="rp-right">
       <button class="rp-preview" onclick="renderRoomMenu()">${pv}<div class="pv-more">単語一覧 ›</div></button>
-      <button class="rp-btn" onclick="renderRoomCurve()">忘却曲線</button>
+      <button class="rp-btn" onclick="renderRoomCurve()">PWRメーター</button>
     </div>
   </div>`;
 }
@@ -1245,7 +1246,7 @@ const ANS_TYPE={jk:"choice",kj:"choice",w:"writing"};
 /* 採点 */
 function scoreFor(type,isCorrect,t,isHint){
   if(!isCorrect)return 0;
-  if(type==="w"){const base=t<10?10:9;return isHint?base/2:base;} // 書き取り：10秒未満=10,10〜20=9。ヒント付きは半分(5/4.5)
+  if(type==="w"){const base=t<10?10:9;return isHint?Math.ceil(base/2):base;} // 書き取り：ヒント付きは半分（小数は切り上げ）
   return t<5?8:7;                        // 四択：5秒未満=8, 5〜10=7
 }
 function rankFor(s){if(s===100)return"S";if(s<=50)return"D";if(s<=70)return"C";if(s<=80)return"B";return"A";}
@@ -1459,8 +1460,8 @@ function refreshInput(){const el=document.getElementById("winput");if(!el)return
 
 /* ============================================================ 結果画面 ============================================================ */
 function finishTest(){
-  const R=state.results,total=R.reduce((a,r)=>a+r.score,0),rank=rankFor(total);
-  const totalDisp=total%1===0?total:total.toFixed(1); // ヒント付き4.5点などの小数を正確に表示
+  const R=state.results,totalRaw=R.reduce((a,r)=>a+r.score,0),total=Math.ceil(totalRaw),rank=rankFor(total); // 小数は切り上げ
+  const totalDisp=total;
   const nCorrect=R.filter(r=>r.isCorrect).length,nWrong=12-nCorrect;
   let perfect=getPerfectCount();if(total===100)perfect=incPerfectCount();
   if(!state.isReview)updateSectionRank(curSection,rank); // 過去最高ランクを上回った場合のみ更新
@@ -1629,8 +1630,8 @@ function startReviewTest(ids){curLevel="middle";curSection=1;startTest(ids);} //
 function renderPastResult(testId){
   const R=loadHistory().filter(r=>r.testId===testId).sort((a,b)=>a.answeredAt.localeCompare(b.answeredAt));
   if(!R.length)return;
-  const total=R.reduce((a,r)=>a+(r.score||0),0),rank=R.length>=12?rankFor(total):null;
-  const totalDisp=total%1===0?total:total.toFixed(1);
+  const total=Math.ceil(R.reduce((a,r)=>a+(r.score||0),0)),rank=R.length>=12?rankFor(total):null;
+  const totalDisp=total;
   const nCorrect=R.filter(r=>r.isCorrect).length,nWrong=R.length-nCorrect;
   const SYM={correct:["○","#FF3B3B"],incorrect:["×","#2F6FE0"],unknown:["－","rgba(255,255,255,.75)"],timeout:["△","#DFB10F"]};
   const rows=R.map((r,i)=>{
@@ -1702,7 +1703,7 @@ function renderRoomCurve(){
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.16.3 (2026-06-06)";
+const APP_VERSION="v2.16.4 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
