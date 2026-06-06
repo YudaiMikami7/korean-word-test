@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>한국어 단어 테스트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700;900&family=Noto+Sans+KR:wght@700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#000; --panel:#16181c; --panel2:#1f2125; --gray:#26282d; --gray-h:#33363c;
@@ -15,7 +18,7 @@ html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
   font-family:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans CJK JP","Noto Sans KR",system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;overscroll-behavior:none}
 body{display:flex;justify-content:center}
-.app{width:100%;max-width:520px;min-height:100dvh;display:flex;flex-direction:column;position:relative;background:var(--bg)}
+.app{width:100%;max-width:602px;min-height:100dvh;display:flex;flex-direction:column;position:relative;background:var(--bg)}
 
 button{font-family:inherit}
 .hidden{display:none!important}
@@ -83,7 +86,7 @@ button{font-family:inherit}
 .whint{color:var(--gold);font-size:15px;font-weight:700;margin-top:12px}
 .whint b{font-size:22px;margin-left:3px}
 /* 韓国語キーボードは画面下部に固定。PCでは中央寄せ＋最大幅でアプリ幅に揃える */
-.korean-keyboard{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:520px;
+.korean-keyboard{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:602px;
   padding:8px 6px calc(8px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--line);z-index:50}
 .krow{display:flex;gap:5px;justify-content:center;margin-bottom:6px}
 .key{flex:1;min-width:0;background:var(--gray);border:none;border-radius:0;color:var(--text);font-size:22px;font-weight:600;
@@ -108,17 +111,44 @@ button{font-family:inherit}
 .home .ver{color:var(--faint);font-size:11px;font-weight:700;text-align:center;letter-spacing:1px;margin-top:14px}
 
 /* ===== タイプ診断（V2.1: コード＋キャラクターのみの引き算デザイン） ===== */
-.home{position:relative}
-.cond-top{position:absolute;top:18px;left:22px;right:22px;text-align:center;color:var(--mute);font-size:12px;font-weight:700;letter-spacing:1px}
-.cond-top b{color:var(--text);font-size:15px}
-/* 右上：曲線/履歴の正方形ボタン（縦並び） */
-.corner-btns{position:absolute;top:48px;right:18px;display:flex;flex-direction:column;gap:8px}
-.sqbtn{width:54px;height:54px;background:var(--gray);border:1px solid var(--line);color:var(--text);font-size:12px;font-weight:700;cursor:pointer}
-.sqbtn:active{background:var(--gray-h)}
-/* 中央下：テスト開始（黄色・大） */
-.btn.start{position:absolute;left:22px;right:22px;bottom:88px;width:auto;background:var(--gold);color:#1a1405;border:none;font-size:19px;font-weight:900;padding:20px}
-.btn.start:active{background:#e6b22f}
-.home .ver{position:absolute;left:0;right:0;bottom:30px;margin-top:0}
+/* ===== ホーム（602×1178基準・サーモンピンク背景・絶対配置） ===== */
+#s-home{background:#E3A38D;flex-direction:row;justify-content:center;align-items:flex-start;overflow:hidden}
+.home-wrap{position:relative;flex:0 0 auto;width:602px;height:1178px;background:#E3A38D;
+  transform-origin:top center;color:#FFFFFF;font-weight:700;
+  font-family:"Noto Sans JP","Noto Sans KR","Hiragino Kaku Gothic ProN","Yu Gothic UI",sans-serif}
+.home-wrap .gauge{position:absolute;background:#333333;border-radius:11px;overflow:hidden;z-index:2}
+.home-wrap .gfill{height:100%;border-radius:inherit;transition:width .5s ease;width:0}
+.avatar-circle{position:absolute;left:32px;top:35px;width:120px;height:120px;border-radius:50%;background:#5D433A;overflow:hidden;cursor:pointer;z-index:2}
+.avatar-image{width:100%;height:100%;object-fit:contain}
+.hv-level{position:absolute;left:174px;top:43px;font-size:24px;line-height:1.2;z-index:2}
+.hv-level span{font-size:34px}
+.type-dots{position:absolute;left:322px;top:46px;display:flex;gap:3px;z-index:2}
+.type-dot{width:27px;height:27px;border:2px solid #FFFFFF;border-radius:50%;box-sizing:border-box}
+.hv-code{position:absolute;left:452px;top:38px;font-size:42px;letter-spacing:1px;line-height:1;cursor:pointer;z-index:2}
+.status-panel{position:absolute;left:163px;top:80px;width:423px;height:100px;border-radius:50px;background:#5D433A;z-index:1}
+.hv-lab{position:absolute;font-size:22px;line-height:1.2;z-index:2}
+.hv-xplabel{left:231px;top:88px}
+.hv-xpg{left:269px;top:91px;width:183px;height:21px}
+.hv-xpval{left:456px;top:89px}
+.hv-pwrlabel{left:205px;top:118px}
+.hv-pwrg{left:269px;top:121px;width:183px;height:21px}
+.hv-pwrval{left:456px;top:119px}
+.hv-roomlabel{position:absolute;left:78px;top:240px;font-size:36px;line-height:1;cursor:pointer}
+.hv-roomno{position:absolute;left:78px;top:272px;font-size:108px;line-height:1;cursor:pointer}
+.hv-learned{position:absolute;left:251px;top:250px;font-size:43px;line-height:1}
+.hv-divider{position:absolute;left:237px;top:299px;width:100px;height:1px;background:rgba(255,255,255,.75)}
+.hv-roompwr{position:absolute;left:251px;top:306px;font-size:44px;line-height:1}
+.hv-roomg{left:241px;top:348px;width:93px;height:11px;border-radius:6px}
+.rank-s{position:absolute;left:369px;top:322px;width:38px;height:38px;border-radius:50%;background:#555;
+  display:flex;align-items:center;justify-content:center;font-size:25px;line-height:1;z-index:1}
+.rank-s1{left:405px}
+.rank-b{position:absolute;left:432px;top:292px;width:103px;height:103px;border-radius:50%;background:#555;
+  display:flex;align-items:center;justify-content:center;font-size:85px;line-height:1;z-index:2}
+.room-diorama{position:absolute;left:24px;top:418px;width:554px;height:507px;object-fit:contain;cursor:pointer}
+.start-button{position:absolute;left:45px;top:1004px;width:540px;height:123px;border:none;border-radius:62px;
+  background:#5D433A;color:#FFFFFF;font-size:62px;font-weight:700;cursor:pointer;font-family:inherit}
+.start-button:active{background:#4a352e}
+.hv-ver{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:11px;color:rgba(255,255,255,.5)}
 .typebox{text-align:center;cursor:pointer;padding:2px 0}
 .t-code{font-size:42px;font-weight:900;letter-spacing:9px;text-indent:9px}
 .t-char{display:block;margin:14px auto 0;width:116px;height:116px}
@@ -215,20 +245,32 @@ button{font-family:inherit}
 <body>
 <div class="app" id="app">
 
-  <!-- HOME -->
+  <!-- HOME（602×1178基準の絶対配置・比例スケール） -->
   <div class="screen on" id="s-home">
-    <div class="home">
-      <div class="cond-top" id="homecond"></div>
-      <div class="corner-btns">
-        <button class="sqbtn" onclick="renderCurve()">曲線</button>
-        <button class="sqbtn" onclick="renderHistory()">履歴</button>
-      </div>
-      <div class="typebox" onclick="renderTypeDetail()">
-        <div class="t-code" id="t-code">分析中</div>
-        <img class="t-char" id="t-char" src="characters/analyzing.svg" alt="">
-      </div>
-      <button class="btn start" onclick="show('s-level')">テストを始める</button>
-      <div class="ver" id="appver"></div>
+    <div class="home-wrap" id="homewrap">
+      <div class="avatar-circle" onclick="renderTypeDetail()"><img class="avatar-image" id="hv-char" src="characters/analyzing.svg" alt=""></div>
+      <div class="hv-level" id="hv-level">Lv.<span>1</span></div>
+      <div class="type-dots" id="hv-dots"></div>
+      <div class="hv-code" id="hv-code" onclick="renderTypeDetail()">----</div>
+      <div class="status-panel"></div>
+      <div class="hv-lab hv-xplabel">XP</div>
+      <div class="gauge hv-xpg"><div class="gfill" id="hv-xpfill" style="background:#FFFF37"></div></div>
+      <div class="hv-lab hv-xpval" id="hv-xpval">0/100</div>
+      <div class="hv-lab hv-pwrlabel">PWR</div>
+      <div class="gauge hv-pwrg"><div class="gfill" id="hv-pwrfill" style="background:#00FF37"></div></div>
+      <div class="hv-lab hv-pwrval" id="hv-pwrval">0%</div>
+      <div class="hv-roomlabel" onclick="renderSectionSelect(curLevel)">ROOM</div>
+      <div class="hv-roomno" id="hv-roomno" onclick="renderSectionSelect(curLevel)">01</div>
+      <div class="hv-learned" id="hv-learned">0語</div>
+      <div class="hv-divider"></div>
+      <div class="hv-roompwr" id="hv-roompwr">0%</div>
+      <div class="gauge hv-roomg"><div class="gfill" id="hv-roomfill" style="background:#00FF37"></div></div>
+      <div class="rank-s" id="hv-rank2">-</div>
+      <div class="rank-s rank-s1" id="hv-rank1">-</div>
+      <div class="rank-b" id="hv-rankbest">-</div>
+      <img class="room-diorama" id="hv-diorama" src="rooms/middle-01.webp" alt="" onclick="renderSectionSelect(curLevel)" onerror="this.style.visibility='hidden'">
+      <button class="start-button" onclick="startTest()">スタート</button>
+      <div class="hv-ver" id="appver"></div>
     </div>
   </div>
 
@@ -428,9 +470,74 @@ function getSectionRec(n){
 }
 function updateSectionRank(n,rank){
   const all=loadSections(),id=secId(n),rec=all[id]||getSectionRec(n);
-  if(!rec.bestRank||RANK_VAL[rank]>RANK_VAL[rec.bestRank]){ // 過去最高を上回った場合のみ更新
-    rec.bestRank=rank;rec.updatedAt=new Date().toISOString();all[id]=rec;saveSections(all);
-  }
+  rec.recentRanks=((rec.recentRanks||[]).concat(rank)).slice(-5); // 直近ランク履歴（ホームの小丸用）
+  if(!rec.bestRank||RANK_VAL[rank]>RANK_VAL[rec.bestRank])rec.bestRank=rank; // 最高は上回った時のみ
+  rec.updatedAt=new Date().toISOString();all[id]=rec;saveSections(all);
+}
+
+/* ============================================================ ホーム画面（602×1178基準） ============================================================ */
+const RANK_COLORS={S:"#FFC400",A:"#FF572F",B:"#1688FF",C:"#A05BD6",D:"#00924A"};
+/* XPは履歴の得点累計（減らない）。レベルLからL+1には L×100 XP 必要 */
+function xpInfo(){
+  const total=Math.round(loadHistory().reduce((a,r)=>a+(r.score||0),0));
+  let lv=1,rem=total;
+  while(rem>=lv*100){rem-=lv*100;lv++;}
+  return{level:lv,cur:rem,next:lv*100};
+}
+/* PWR=学習済み（1回以上出題）全単語の平均記憶率。時間で低下し復習で上昇 */
+function pwrOverall(){
+  const s=loadStats(),ids=Object.keys(s);
+  if(!ids.length)return 0;
+  const now=Date.now();let t=0;ids.forEach(id=>t+=displayScore(getStat(id,s),now));
+  return Math.round(t/ids.length);
+}
+function roomInfo(){
+  const ids=sectionIds(),s=loadStats(),now=Date.now();
+  const learned=ids.filter(id=>s[id]&&s[id].reviewCount>0);
+  let pw=0;learned.forEach(id=>pw+=displayScore(getStat(id,s),now));
+  const rec=getSectionRec(curSection);
+  return{learned:learned.length,total:ids.length,
+    pwr:learned.length?Math.round(pw/learned.length):0,
+    recent:(rec.recentRanks||[]).slice(-2),best:rec.bestRank};
+}
+function dioramaPath(){return `rooms/${curLevel}-${String(curSection).padStart(2,"0")}.webp`;}
+/* 602px基準で比例スケール（PCは等倍上限・中央寄せ） */
+function scaleHome(){
+  const el=document.getElementById("homewrap");if(!el)return;
+  const s=Math.min((window.innerWidth||602)/602,1);
+  el.style.transform=`scale(${s})`;
+  el.style.marginBottom=`-${Math.round(1178*(1-s))}px`; // transformはレイアウト高を変えないため余白を回収
+}
+window.addEventListener("resize",scaleHome);
+function renderHome(){
+  const d=computeDiagnosis();
+  document.getElementById("hv-code").textContent=(d.n<30&&!d.complete)?"----":d.code;
+  document.getElementById("hv-char").src=charPathFor(d);
+  document.getElementById("hv-dots").innerHTML=AXES.map((ax,i)=>`<div class="type-dot" style="background:${axisColor(ax,d.axes[i])}"></div>`).join("");
+  const xp=xpInfo();
+  document.getElementById("hv-level").innerHTML=`Lv.<span>${xp.level}</span>`;
+  document.getElementById("hv-xpval").textContent=`${xp.cur}/${xp.next}`;
+  document.getElementById("hv-xpfill").style.width=Math.min(100,Math.round(xp.cur/xp.next*100))+"%";
+  const pw=pwrOverall();
+  document.getElementById("hv-pwrval").textContent=pw+"%";
+  document.getElementById("hv-pwrfill").style.width=pw+"%";
+  const ri=roomInfo();
+  document.getElementById("hv-roomno").textContent=String(curSection).padStart(2,"0");
+  document.getElementById("hv-learned").textContent=ri.learned+"語";
+  document.getElementById("hv-roompwr").textContent=ri.pwr+"%";
+  document.getElementById("hv-roomfill").style.width=Math.round(ri.learned/Math.max(1,ri.total)*100)+"%";
+  const setRank=(el,rank,dim)=>{
+    if(rank){el.textContent=rank;el.style.background=RANK_COLORS[rank]||"#555";el.style.visibility="visible";}
+    else if(dim){el.textContent="-";el.style.background="rgba(0,0,0,.22)";el.style.visibility="visible";}
+    else el.style.visibility="hidden";
+  };
+  setRank(document.getElementById("hv-rank2"),ri.recent.length===2?ri.recent[0]:null,false);
+  setRank(document.getElementById("hv-rank1"),ri.recent.length>=1?ri.recent[ri.recent.length-1]:null,false);
+  setRank(document.getElementById("hv-rankbest"),ri.best,true);
+  const di=document.getElementById("hv-diorama");
+  di.style.visibility="visible";
+  const p=dioramaPath();if(!di.src.endsWith(p))di.src=p;
+  scaleHome();
 }
 
 /* ============================================================ 韓国語単語タイプ診断（4軸16タイプ） ============================================================ */
@@ -953,7 +1060,7 @@ function scoreFor(type,isCorrect,t,isHint){
 function rankFor(s){if(s===100)return"S";if(s<=50)return"D";if(s<=70)return"C";if(s<=80)return"B";return"A";}
 
 /* ============================================================ 画面遷移 ============================================================ */
-function show(id){document.querySelectorAll(".screen").forEach(e=>e.classList.remove("on"));document.getElementById(id).classList.add("on");window.scrollTo(0,0);if(id==="s-home"){refreshHomeType();refreshHomeStats();}}
+function show(id){document.querySelectorAll(".screen").forEach(e=>e.classList.remove("on"));document.getElementById(id).classList.add("on");window.scrollTo(0,0);if(id==="s-home")renderHome();}
 
 /* ============================================================ テスト進行 ============================================================ */
 let state=null,timer=null,qStart=0,answered=false,ovTimer=null;
@@ -1382,16 +1489,16 @@ function renderSectionSelect(level){
    </div>`;
   show("s-section");
 }
-function startSectionTest(n){curSection=n;startTest();}
+function startSectionTest(n){curSection=n;show("s-home");} // ROOM切替：ホームに戻り表示を更新（テスト開始はスタートボタン）
 
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.2.1 (2026-06-06)";
+const APP_VERSION="v2.3.0 (2026-06-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
-updateDiagnosis();   // 起動時に診断・外枠色・ホーム表示を初期化
-refreshHomeStats();
+updateDiagnosis();   // 起動時に診断を初期化
+renderHome();        // ホーム描画＋スケール適用
 </script>
 </body>
 </html>
