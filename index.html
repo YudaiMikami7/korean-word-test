@@ -254,14 +254,14 @@ button{font-family:inherit}
 .ax2tick{position:absolute;top:50%;width:3px;height:12px;background:#fff;transform:translate(-50%,-50%)}
 .ax2tick.end{height:18px}
 .ax2knob{position:absolute;top:50%;width:21px;height:21px;border-radius:50%;border:3px solid #fff;transform:translate(-50%,-50%);box-sizing:border-box}
+.tdetail-sec .ax2row{margin:12px 0}
 .t16link{margin-top:auto;text-align:right;font-size:17px;font-weight:800;cursor:pointer;letter-spacing:1px}
 .t16link b{font-size:19px}
-.st-graphpanel{background:rgba(255,255,255,.15);padding:16px 14px 12px}
+.st-graphpanel{background:rgba(0,0,0,.8);padding:16px 14px 12px}
 .st-graphpanel .t16link{margin-top:8px}
 .cdot{display:inline-block;width:21px;height:21px;border-radius:50%;margin-right:6px;vertical-align:middle}
 .ctext{margin-left:6px;vertical-align:middle}
-.st-top .chartbox{padding:8px 10px 4px}
-.st-top .chartbox svg{display:block;width:100%;height:300px}
+.st-top .st-graphpanel svg{display:block;width:100%;height:236px}
 
 .btn.slim{padding:10px;font-size:16px}
 .dash-cols{display:flex;gap:16px;margin-top:14px;align-items:center}
@@ -1080,13 +1080,18 @@ function renderTypeDetail(){
   const any=d.axes.some(a=>a.code);
   const fullCode=d.complete?d.code:AXES.map((ax,i)=>d.axes[i].code||ax.R).join("");
   if(!_typePeek)_typePeek=fullCode; // 標準では自分のタイプの説明を表示
+  const ticks=[0,25,50,75,100].map(x=>`<span class="ax2tick${x===0||x===100?" end":""}" style="left:${x}%"></span>`).join("");
   const bars=AXES.map((ax,i)=>{
     const a=d.axes[i],t=Math.round(a.score==null?50:a.score); // t=左寄り度(0-100)
     const domLeft=t>=50,col=AXIS_COLORS[domLeft?ax.L:ax.R];
-    const pos=100-t; // 左寄りほど点が左へ
-    return `<div class="axrow" onclick="toggleAxisPeek(${i})"><span class="axl"${domLeft?` style="color:${col}"`:""}>${ax.ln} ${ax.L}</span>
-      <div class="axbar"><div class="axdot" style="left:calc(${pos}% - 9px);background:${col}"></div></div>
-      <span class="axr"${!domLeft?` style="color:${col}"`:""}>${ax.R} ${ax.rn}</span></div>`;
+    const pos=100-t; // 左寄りほど点が左へ（ステータス画面と同じUI）
+    return `<div class="ax2row" onclick="toggleAxisPeek(${i})">
+      <span class="ax2dot" style="background:${AXIS_COLORS[ax.L]}"></span>
+      <span class="ax2l"${domLeft?` style="color:${col}"`:""}>${ax.L}</span>
+      <div class="ax2bar"><div class="ax2line"></div>${ticks}<div class="ax2knob" style="left:${pos}%;background:${col}"></div></div>
+      <span class="ax2l"${!domLeft?` style="color:${col}"`:""}>${ax.R}</span>
+      <span class="ax2dot" style="background:${AXIS_COLORS[ax.R]}"></span>
+    </div>`;
   }).join("");
   // パラメータの説明は4軸ブロックの下部に統一表示
   const axPeek=_axisPeek!=null?`<div class="tpeek axpeek">${esc(AXES[_axisPeek].desc)}</div>`:"";
@@ -1740,10 +1745,14 @@ function statusMbtiHTML(){ // UI.pdf準拠: 白15%パネル・職業名・目盛
     ${rows}
     <div class="t16link" onclick="renderTypeDetail()">16TYPE 詳細 <b>›</b></div>`;
 }
-function statusSlideHTML(n){ // ヘッダー下=そのROOMのグラフ
+function statusSlideHTML(n){ // ヘッダー下=ROOM表記+PWRメーター+そのROOMのグラフ
   const now=Date.now();
   const base=(LEVEL_SECTIONS[curLevel][n]||[]).map(id=>WORD_BY_ID[id]);
+  const st2=loadStats();let t=0;base.forEach(w=>t+=displayScore(getStat(w.id,st2),now));
+  const cond=Math.round(t/Math.max(1,base.length));
   return `<div class="st-top">
+      <div class="cs-head">ROOM ${String(n).padStart(2,"0")}</div>
+      <div class="cond pwrline" style="margin:2px 0 12px"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${cond}%"></div></div><span class="pwr-val">${cond}%</span></div>
       <div class="st-graphpanel">${memChart(chartPoints(now,base))}
         <div class="t16link" onclick="curSection=${n};renderRoomCurve()">PWRメータ 詳細 <b>›</b></div>
       </div>
@@ -1844,8 +1853,8 @@ function memChart(pts){
   [0,25,50,75,100].forEach(v=>{const yy=y(v);grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="rgba(255,255,255,.30)" stroke-width="1"/><text x="${padL-4}" y="${yy+3}" fill="rgba(255,255,255,.85)" font-size="8" font-weight="700" text-anchor="end">${v}</text>`;});
   pts.forEach((p,i)=>{lbl+=`<text x="${x(i)}" y="${H-padB+14}" fill="rgba(255,255,255,.9)" font-size="8" font-weight="700" text-anchor="middle">${p.label}</text>`;});
   const poly=pts.map(p=>`${x(p.i)},${y(p.rate)}`).join(" ");
-  let dots="";pts.forEach(p=>{dots+=`<circle cx="${x(p.i)}" cy="${y(p.rate)}" r="2.6" fill="#FFFFFF"/>`;});
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block"><line x1="${padL}" y1="${y(70)}" x2="${W-padR}" y2="${y(70)}" stroke="#FFD84D" stroke-width="1.4" stroke-dasharray="3 3"/>${grid}<polyline class="grow" points="${poly}" fill="none" stroke="#FFFFFF" stroke-width="2.4"/>${dots}${lbl}</svg>`;
+  let dots="";pts.forEach(p=>{dots+=`<circle cx="${x(p.i)}" cy="${y(p.rate)}" r="2.6" fill="#00E650"/>`;});
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block"><line x1="${padL}" y1="${y(70)}" x2="${W-padR}" y2="${y(70)}" stroke="#FFD84D" stroke-width="1.4" stroke-dasharray="3 3"/>${grid}<polyline class="grow" points="${poly}" fill="none" stroke="#00E650" stroke-width="2.4"/>${dots}${lbl}</svg>`;
 }
 
 /* PWRメータ: 左右スワイプで 全体(最左) → ROOM01..NN を移動。各スライドは遅延レンダリング */
@@ -1956,7 +1965,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.27.1 (2026-06-07)";
+const APP_VERSION="v2.28.0 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
