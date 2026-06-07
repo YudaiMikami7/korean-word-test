@@ -229,14 +229,30 @@ button{font-family:inherit}
 .home-wrap.status #status-ov{opacity:1}
 #status-ov>*{pointer-events:none}
 .home-wrap.status #status-ov>*{pointer-events:auto}
-.st-back{position:absolute;left:24px;top:20px;z-index:5}
+.st-back{position:absolute;left:24px;top:12px;z-index:5}
 .st-scroll{position:absolute;inset:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none}
 .st-scroll::-webkit-scrollbar{display:none}
 .st-slide{flex:0 0 602px;width:602px;position:relative;scroll-snap-align:start}
 .st-in{position:absolute;inset:0}
 .home-wrap.status .home-head{z-index:4} /* 固定ヘッダーはスライドの上に浮かせる */
 .st-top{position:absolute;left:24px;top:712px;width:554px}
-.st-mbti{position:absolute;left:24px;top:74px;height:420px;width:554px;display:flex;flex-direction:column;z-index:4} /* スワイプで動かない固定MBTI */
+.st-mbti{position:absolute;left:24px;top:60px;height:420px;width:554px;display:flex;flex-direction:column;z-index:4;
+  background:rgba(255,255,255,.15);padding:20px 24px;box-sizing:border-box} /* 白15%パネル(UI.pdf)・スワイプで動かない */
+.st-job{text-align:center;font-size:27px;font-weight:800;margin-bottom:14px}
+.ax2row{display:flex;align-items:center;gap:12px;flex:1}
+.ax2dot{width:15px;height:15px;border-radius:50%;flex:0 0 auto}
+.ax2l{font-size:34px;font-weight:800;width:36px;text-align:center;flex:0 0 auto}
+.ax2bar{position:relative;flex:1;height:40px}
+.ax2line{position:absolute;left:0;right:0;top:50%;height:3px;background:#fff;transform:translateY(-50%)}
+.ax2tick{position:absolute;top:50%;width:3px;height:12px;background:#fff;transform:translate(-50%,-50%)}
+.ax2tick.end{height:18px}
+.ax2knob{position:absolute;top:50%;width:21px;height:21px;border-radius:50%;border:3px solid #fff;transform:translate(-50%,-50%);box-sizing:border-box}
+.t16link{margin-top:auto;text-align:right;font-size:17px;font-weight:800;cursor:pointer;letter-spacing:1px}
+.t16link b{font-size:19px}
+.st-graphpanel{background:rgba(255,255,255,.15);padding:16px 14px 12px}
+.st-graphpanel .t16link{margin-top:8px}
+.cdot{display:inline-block;width:21px;height:21px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.ctext{margin-left:6px;vertical-align:middle}
 .st-top .chartbox{padding:8px 10px 4px}
 .st-top .chartbox svg{display:block;width:100%;height:300px}
 
@@ -808,7 +824,10 @@ window.addEventListener("resize",scaleHome);
 function renderHome(){
   const d=computeDiagnosis();
   // 1軸でも判定できたら即コード表示（テストごとに更新される）
-  document.getElementById("hv-code").textContent=d.axes.some(a=>a.code)?d.code:"----";
+  const codeEl=document.getElementById("hv-code");
+  if(d.axes.some(a=>a.code)){ // UI.pdf準拠: コード前に軸カラーの4ドット
+    codeEl.innerHTML=d.code.split("").map(ch=>`<span class="cdot" style="background:${AXIS_COLORS[ch]||"rgba(255,255,255,.4)"}"></span>`).join("")+`<span class="ctext">${d.code}</span>`;
+  }else codeEl.textContent="----";
   document.getElementById("hv-char").src=charPathFor(d);
   const xp=xpInfo();
   document.getElementById("hv-level").innerHTML=`Lv.<span>${xp.level}</span>`;
@@ -1694,33 +1713,33 @@ function renderWordDetail(wordId,back){
 /* ============================================================ ステータスモード（ホーム上のオーバーレイ。上=グラフ+詳細 / 中央=実ヘッダー / 下=MBTI+パラメータ） ============================================================ */
 let _statusMode=false;
 const STATUS_DOWN=460; // ヘッダーが真ん中に来る移動量(ローカルpx)
-function statusMbtiHTML(){ // ROOM非依存のため固定（スワイプで動かない）
+function statusMbtiHTML(){ // UI.pdf準拠: 白15%パネル・職業名・目盛り付きスケール・16TYPE詳細リンク
   const d=computeDiagnosis(),any=d.axes.some(a=>a.code);
   const fullCode=d.complete?d.code:AXES.map((ax,i)=>d.axes[i].code||ax.R).join("");
-  const bars=AXES.map((ax,i)=>{
+  const ticks=[0,25,50,75,100].map(x=>`<span class="ax2tick${x===0||x===100?" end":""}" style="left:${x}%"></span>`).join("");
+  const rows=AXES.map((ax,i)=>{
     const a=d.axes[i],t=Math.round(a.score==null?50:a.score);
     const domLeft=t>=50,col=AXIS_COLORS[domLeft?ax.L:ax.R];
     const pos=100-t;
-    return `<div class="axrow dash-ax"><span class="axl"${domLeft?` style="color:${col}"`:""}>${ax.L}</span>
-      <div class="axbar"><div class="axdot" style="left:calc(${pos}% - 9px);background:${col}"></div></div>
-      <span class="axr"${!domLeft?` style="color:${col}"`:""}>${ax.R}</span></div>`;
+    return `<div class="ax2row">
+      <span class="ax2dot" style="background:${AXIS_COLORS[ax.L]}"></span>
+      <span class="ax2l">${ax.L}</span>
+      <div class="ax2bar"><div class="ax2line"></div>${ticks}<div class="ax2knob" style="left:${pos}%;background:${col}"></div></div>
+      <span class="ax2l">${ax.R}</span>
+      <span class="ax2dot" style="background:${AXIS_COLORS[ax.R]}"></span>
+    </div>`;
   }).join("");
-  return `<div class="dash-cols">
-      <div class="dash-left" onclick="renderTypeDetail()">
-        <div class="t-code" style="font-size:34px;letter-spacing:4px">${any?d.code:"分析中"}</div>
-        <div class="t-job">${any?esc((TYPE_INFO[fullCode]||[""])[0]):""}</div>
-        <img src="${charPathFor(d)}" alt="" style="width:96px;height:96px;margin-top:10px">
-      </div>
-      <div class="dash-right">${bars}</div>
-    </div>
-    <button class="btn dark slim" style="width:100%;margin-top:auto" onclick="renderTypeDetail()">タイプ詳細を見る</button>`;
+  return `<div class="st-job">${any?esc((TYPE_INFO[fullCode]||[""])[0]):"分析中"}</div>
+    ${rows}
+    <div class="t16link" onclick="renderTypeDetail()">16TYPE 詳細 <b>›</b></div>`;
 }
 function statusSlideHTML(n){ // ヘッダー下=そのROOMのグラフ
   const now=Date.now();
   const base=(LEVEL_SECTIONS[curLevel][n]||[]).map(id=>WORD_BY_ID[id]);
   return `<div class="st-top">
-      <div class="chartbox">${memChart(chartPoints(now,base))}</div>
-      <button class="btn dark slim" style="width:100%" onclick="curSection=${n};renderRoomCurve()">詳細を見る</button>
+      <div class="st-graphpanel">${memChart(chartPoints(now,base))}
+        <div class="t16link" onclick="curSection=${n};renderRoomCurve()">PWRメータ 詳細 <b>›</b></div>
+      </div>
     </div>`;
 }
 function updateStatusOverlay(){
@@ -1930,7 +1949,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.25.0 (2026-06-07)";
+const APP_VERSION="v2.26.0 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
