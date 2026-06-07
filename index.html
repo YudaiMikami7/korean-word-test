@@ -25,7 +25,8 @@ html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
   font-family:"LINESeedJP","LINESeedKR","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans CJK JP","Noto Sans KR",system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;overscroll-behavior:none}
 body{display:flex;justify-content:center}
-.app{width:100%;max-width:602px;min-height:100dvh;display:flex;flex-direction:column;position:relative;background:var(--bg)}
+.app{width:100%;max-width:602px;min-height:100dvh;display:flex;flex-direction:column;position:relative;background:var(--bg);
+  padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)} /* ノッチ/ホームバー回避 */
 
 button{font-family:inherit}
 .hidden{display:none!important}
@@ -1834,11 +1835,11 @@ function memChart(pts){
   const W=320,H=180,padL=30,padB=28,padT=10,padR=10,innerW=W-padL-padR,innerH=H-padT-padB;
   const x=i=>padL+innerW*(i/(pts.length-1)),y=r=>padT+innerH*(1-r/100);
   let grid="",lbl="";
-  [0,25,50,75,100].forEach(v=>{const yy=y(v);grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#26282d" stroke-width="1"/><text x="${padL-4}" y="${yy+3}" fill="#5c616b" font-size="8" text-anchor="end">${v}</text>`;});
-  pts.forEach((p,i)=>{lbl+=`<text x="${x(i)}" y="${H-padB+14}" fill="#8b909a" font-size="8" text-anchor="middle">${p.label}</text>`;});
+  [0,25,50,75,100].forEach(v=>{const yy=y(v);grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="rgba(255,255,255,.30)" stroke-width="1"/><text x="${padL-4}" y="${yy+3}" fill="rgba(255,255,255,.85)" font-size="8" font-weight="700" text-anchor="end">${v}</text>`;});
+  pts.forEach((p,i)=>{lbl+=`<text x="${x(i)}" y="${H-padB+14}" fill="rgba(255,255,255,.9)" font-size="8" font-weight="700" text-anchor="middle">${p.label}</text>`;});
   const poly=pts.map(p=>`${x(p.i)},${y(p.rate)}`).join(" ");
-  let dots="";pts.forEach(p=>{dots+=`<circle cx="${x(p.i)}" cy="${y(p.rate)}" r="2.6" fill="#4cd964"/>`;});
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block"><line x1="${padL}" y1="${y(70)}" x2="${W-padR}" y2="${y(70)}" stroke="#ffc83c" stroke-width="1" stroke-dasharray="3 3"/>${grid}<polyline class="grow" points="${poly}" fill="none" stroke="#4cd964" stroke-width="2"/>${dots}${lbl}</svg>`;
+  let dots="";pts.forEach(p=>{dots+=`<circle cx="${x(p.i)}" cy="${y(p.rate)}" r="2.6" fill="#00E650"/>`;});
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block"><line x1="${padL}" y1="${y(70)}" x2="${W-padR}" y2="${y(70)}" stroke="#FFD84D" stroke-width="1.4" stroke-dasharray="3 3"/>${grid}<polyline class="grow" points="${poly}" fill="none" stroke="#00E650" stroke-width="2.4"/>${dots}${lbl}</svg>`;
 }
 
 /* PWRメータ: 左右スワイプで 全体(最左) → ROOM01..NN を移動。各スライドは遅延レンダリング */
@@ -1949,7 +1950,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.26.0 (2026-06-07)";
+const APP_VERSION="v2.26.1 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
