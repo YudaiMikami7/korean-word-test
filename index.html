@@ -257,6 +257,11 @@ button{font-family:inherit}
 .tdetail-sec .ax2row{margin:12px 0}
 .t16link{margin-top:auto;text-align:right;font-size:17px;font-weight:800;cursor:pointer;letter-spacing:1px}
 .t16link b{font-size:19px}
+/* ステータス内のROOM表記・PWRメーターはPWR詳細ページと同じ見た目サイズ（--invで逆スケール補正） */
+.st-top .cs-head{font-size:calc(20px*var(--inv,1));margin:2px 0 calc(8px*var(--inv,1))}
+.st-top .pwrline{gap:calc(12px*var(--inv,1))}
+.st-top .pwr-lab,.st-top .pwr-val{font-size:calc(22px*var(--inv,1))}
+.st-top .pwr-g{width:calc(210px*var(--inv,1));height:calc(19px*var(--inv,1));padding:calc(3px*var(--inv,1))}
 .st-graphpanel{background:rgba(0,0,0,.8);padding:16px 14px 12px}
 .st-graphpanel .t16link{margin-top:8px}
 .cdot{display:inline-block;width:21px;height:21px;border-radius:50%;margin-right:6px;vertical-align:middle}
@@ -347,7 +352,7 @@ button{font-family:inherit}
 .cstat{flex:1 1 44%;background:var(--panel);border:1px solid var(--line);border-radius:0;padding:12px}
 .cstat .k{color:var(--mute);font-size:11px;font-weight:700}
 .cstat .v{font-size:17px;font-weight:800;margin-top:3px}
-.chartbox{background:var(--panel);border:1px solid var(--line);border-radius:0;padding:14px 10px 8px}
+.chartbox{background:rgba(0,0,0,.8);border:1px solid var(--line);border-radius:0;padding:14px 10px 8px}
 .chartbox polyline.grow{stroke-dasharray:1200;stroke-dashoffset:1200;animation:draw 1.1s ease forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
 /* 記憶コンディション・タブ */
@@ -824,6 +829,7 @@ function scaleHome(){
   const appW=app?app.clientWidth:Math.min(window.innerWidth||602,602);
   const s=Math.min(appW/602,availH/1178,1);
   el.style.transform=`scale(${s})`; // #s-homeのjustify-content:center+origin:top centerで水平中央は自動
+  el.style.setProperty("--inv",String(1/s)); // スケール補正係数（ステータス内をPWR詳細ページと同じ実寸にする）
   el.style.marginBottom=`-${Math.round(1178*(1-s))}px`; // transformはレイアウト高を変えないため余白を回収
 }
 window.addEventListener("resize",scaleHome);
@@ -1965,7 +1971,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.28.0 (2026-06-07)";
+const APP_VERSION="v2.28.1 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
