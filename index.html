@@ -91,7 +91,7 @@ button{font-family:inherit}
 .wcaret{display:inline-block;width:2px;height:30px;background:var(--text);margin-left:2px;animation:blink 1s steps(1) infinite;vertical-align:middle}
 @keyframes blink{50%{opacity:0}}
 /* 成績連動ヒント（先頭1音節）。ボタンではなく自動表示 */
-.whint{color:var(--gold);font-size:15px;font-weight:700;margin-top:12px}
+.whint{color:#FFFFFF;font-size:15px;font-weight:700;margin-top:12px}
 .whint b{font-size:22px;margin-left:3px}
 /* 韓国語キーボードは画面下部に固定。PCでは中央寄せ＋最大幅でアプリ幅に揃える */
 .korean-keyboard{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:602px;
@@ -1950,7 +1950,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.26.1 (2026-06-07)";
+const APP_VERSION="v2.26.2 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
