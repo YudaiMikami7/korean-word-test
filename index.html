@@ -235,10 +235,11 @@ button{font-family:inherit}
 .st-slide{flex:0 0 602px;width:602px;position:relative;scroll-snap-align:start}
 .st-in{position:absolute;inset:0}
 .home-wrap.status .home-head{z-index:4} /* 固定ヘッダーはスライドの上に浮かせる */
-.st-top{position:absolute;left:24px;top:74px;width:554px}
+.st-top{position:absolute;left:24px;top:712px;width:554px}
+.st-mbti{position:absolute;left:24px;top:74px;height:420px;width:554px;display:flex;flex-direction:column;z-index:4} /* スワイプで動かない固定MBTI */
 .st-top .chartbox{padding:8px 10px 4px}
 .st-top .chartbox svg{display:block;width:100%;height:300px}
-.st-bottom{position:absolute;left:24px;top:712px;bottom:26px;width:554px;display:flex;flex-direction:column}
+
 .btn.slim{padding:10px;font-size:16px}
 .dash-cols{display:flex;gap:16px;margin-top:14px;align-items:center}
 .dash-left{flex:0 0 44%;text-align:center;cursor:pointer}
@@ -1693,7 +1694,7 @@ function renderWordDetail(wordId,back){
 /* ============================================================ ステータスモード（ホーム上のオーバーレイ。上=グラフ+詳細 / 中央=実ヘッダー / 下=MBTI+パラメータ） ============================================================ */
 let _statusMode=false;
 const STATUS_DOWN=460; // ヘッダーが真ん中に来る移動量(ローカルpx)
-function statusSlideHTML(n){
+function statusMbtiHTML(){ // ROOM非依存のため固定（スワイプで動かない）
   const d=computeDiagnosis(),any=d.axes.some(a=>a.code);
   const fullCode=d.complete?d.code:AXES.map((ax,i)=>d.axes[i].code||ax.R).join("");
   const bars=AXES.map((ax,i)=>{
@@ -1704,22 +1705,22 @@ function statusSlideHTML(n){
       <div class="axbar"><div class="axdot" style="left:calc(${pos}% - 9px);background:${col}"></div></div>
       <span class="axr"${!domLeft?` style="color:${col}"`:""}>${ax.R}</span></div>`;
   }).join("");
+  return `<div class="dash-cols">
+      <div class="dash-left" onclick="renderTypeDetail()">
+        <div class="t-code" style="font-size:34px;letter-spacing:4px">${any?d.code:"分析中"}</div>
+        <div class="t-job">${any?esc((TYPE_INFO[fullCode]||[""])[0]):""}</div>
+        <img src="${charPathFor(d)}" alt="" style="width:96px;height:96px;margin-top:10px">
+      </div>
+      <div class="dash-right">${bars}</div>
+    </div>
+    <button class="btn dark slim" style="width:100%;margin-top:auto" onclick="renderTypeDetail()">タイプ詳細を見る</button>`;
+}
+function statusSlideHTML(n){ // ヘッダー下=そのROOMのグラフ
   const now=Date.now();
   const base=(LEVEL_SECTIONS[curLevel][n]||[]).map(id=>WORD_BY_ID[id]);
   return `<div class="st-top">
       <div class="chartbox">${memChart(projectionPoints(now,base))}</div>
       <button class="btn dark slim" style="width:100%" onclick="curSection=${n};renderRoomCurve()">詳細を見る</button>
-    </div>
-    <div class="st-bottom">
-      <div class="dash-cols">
-        <div class="dash-left" onclick="renderTypeDetail()">
-          <div class="t-code" style="font-size:34px;letter-spacing:4px">${any?d.code:"分析中"}</div>
-          <div class="t-job">${any?esc((TYPE_INFO[fullCode]||[""])[0]):""}</div>
-          <img src="${charPathFor(d)}" alt="" style="width:96px;height:96px;margin-top:10px">
-        </div>
-        <div class="dash-right">${bars}</div>
-      </div>
-      <button class="btn dark slim" style="width:100%;margin-top:auto" onclick="renderTypeDetail()">タイプ詳細を見る</button>
     </div>`;
 }
 function updateStatusOverlay(){
@@ -1729,6 +1730,7 @@ function updateStatusOverlay(){
     return `<div class="st-slide" style="background:${roomBg(n)}"><div class="st-in" id="st-in-${n}"></div></div>`;}).join("");
   document.getElementById("status-ov").innerHTML=`
     <button class="back st-back" onclick="exitStatusMode()">‹</button>
+    <div class="st-mbti">${statusMbtiHTML()}</div>
     <div class="st-scroll" id="st-scroll">${slides}</div>`;
   const fill=n=>{const e=document.getElementById("st-in-"+n);if(e&&!e.dataset.f){e.dataset.f="1";e.innerHTML=statusSlideHTML(n);}};
   fill(curSection);fill(Math.max(1,curSection-1));fill(Math.min(N,curSection+1));
@@ -1901,7 +1903,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.24.1 (2026-06-07)";
+const APP_VERSION="v2.24.2 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
