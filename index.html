@@ -753,37 +753,28 @@ function buildRoomSlides(){
   if(!el.dataset.bound){
     el.dataset.bound="1";
     // 上スワイプ: ROOMメニューがスワイプに連動して上部へ移動し、到達で単語一覧を表示
-    let _ty=null,_tx=null,_vdrag=false,_dragDown=false,_dragDash=false;
-    el.addEventListener("touchstart",e=>{_ty=e.touches[0].clientY;_tx=e.touches[0].clientX;_vdrag=false;_dragDown=false;_dragDash=false;},{passive:true});
+    let _ty=null,_tx=null,_vdrag=false,_dragDown=false;
+    el.addEventListener("touchstart",e=>{_ty=e.touches[0].clientY;_tx=e.touches[0].clientX;_vdrag=false;_dragDown=false;},{passive:true});
     el.addEventListener("touchmove",e=>{
       if(_ty==null||_statusMode)return;
       const dy=e.touches[0].clientY-_ty,dx=e.touches[0].clientX-_tx;
       if(!_vdrag){
         if(!_listMode&&dy>12&&Math.abs(dy)>Math.abs(dx)*1.2){
-          _vdrag=true;_dragDash=true;document.getElementById("homewrap").classList.add("dragging"); // 下スワイプ=全体が連動して下降
+          _ty=null;enterStatusMode();return; // 下スクロールを少しでもしたら即ステータスへ
         }else if(!_listMode&&dy<-12&&Math.abs(dy)>Math.abs(dx)*1.2){
           _vdrag=true;document.getElementById("homewrap").classList.add("dragging");
         }else if(_listMode&&dy>12&&Math.abs(dy)>Math.abs(dx)*1.2){
-          // 一覧モード中の下スワイプ: 一覧がスクロール最上部の時だけ「戻る」ドラッグ
-          const sl=el.querySelector(`.room-slide[data-n="${curSection}"] .slide-list`);
-          if(sl&&sl.scrollTop<=0){_vdrag=true;_dragDown=true;document.getElementById("homewrap").classList.add("dragging");}
-          else return;
+          // 一覧モード中の下スワイプ: 単語群のスクロールが途中でも「戻る」ドラッグを開始
+          _vdrag=true;_dragDown=true;document.getElementById("homewrap").classList.add("dragging");
         }else return;
       }
       e.preventDefault();
-      if(_dragDash)document.getElementById("homewrap").style.setProperty("--down",Math.max(0,dy)+"px");
-      else if(_dragDown)setLift(Math.max(-LIFT_MAX,Math.min(0,-LIFT_MAX+dy)));
+      if(_dragDown)setLift(Math.max(-LIFT_MAX,Math.min(0,-LIFT_MAX+dy)));
       else setLift(Math.max(-LIFT_MAX,Math.min(0,dy)));
     },{passive:false});
     el.addEventListener("touchend",()=>{
       if(_vdrag){
         const w=document.getElementById("homewrap");w.classList.remove("dragging");
-        if(_dragDash){
-          const cd=parseFloat(w.style.getPropertyValue("--down"))||0;
-          if(cd>150)enterStatusMode(); // ヘッダーが真ん中へ滑り、到着後にグラフ/パラメータがフェードイン
-          else w.style.setProperty("--down","0px");
-          _ty=null;_vdrag=false;_dragDash=false;return;
-        }
         const cur=parseFloat(w.style.getPropertyValue("--lift"))||0;
         if(_dragDown){
           if(cur>=-LIFT_MAX+80){exitListMode();} // 下スワイプで元に戻る（写真はフェードイン）
@@ -1965,7 +1956,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.27.0 (2026-06-07)";
+const APP_VERSION="v2.27.1 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
