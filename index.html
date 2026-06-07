@@ -217,10 +217,8 @@ button{font-family:inherit}
 .wl-mid{position:absolute;left:24px;top:178px;width:554px;height:150px;display:flex;gap:14px;
   opacity:var(--p,1);transition:opacity .35s ease}
 .home-wrap.dragging .wl-mid{transition:none}
-.wl-pwrbtn{flex:0 0 calc(40% - 7px);background:rgba(0,0,0,.8);color:#fff;border:none;border-radius:0;
-  font-size:24px;font-weight:900;cursor:pointer;font-family:inherit}
-.wl-pwrbtn:active{background:rgba(0,0,0,.65)}
 .wl-hist{flex:1;background:rgba(0,0,0,.35);overflow:hidden}
+.wh-date{font-size:13px;font-weight:700;color:rgba(255,255,255,.75);width:158px;flex:0 0 auto}
 .wh-row{display:flex;align-items:center;gap:10px;height:50px;padding:0 12px;font-size:22px;font-weight:900;cursor:pointer;border-bottom:1px solid var(--line)}
 .wh-rank{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:23px;font-weight:900;flex:0 0 auto}
 .wh-score{width:54px;text-align:right}
@@ -654,12 +652,12 @@ function roomMidHTML(n){
   const rows=tests.length?tests.map(t=>{
     const full=t.n>=12,tt=Math.ceil(t.total),rk=full?rankFor(tt):null;
     return `<div class="wh-row" onclick="renderPastResult('${t.tid}')">
+      <span class="wh-date">${fmtDate(t.at)}</span>
       <span class="wh-rank" style="background:${rk?(RANK_COLORS[rk]||"#555"):"rgba(0,0,0,.22)"}">${rk||"-"}</span>
       <span class="wh-score">${tt}</span>
       <span style="color:#FF3B3B">○${t.ok}</span><span style="color:#2F6FE0">×${t.n-t.ok}</span></div>`;
   }).join(""):'<div class="wh-empty">まだテスト履歴がありません</div>';
   return `<div class="wl-mid">
-    <button class="wl-pwrbtn" onclick="renderRoomCurve()">PWRメータ</button>
     <div class="wl-hist">${rows}</div>
   </div>`;
 }
@@ -1903,7 +1901,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.24.0 (2026-06-07)";
+const APP_VERSION="v2.24.1 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
