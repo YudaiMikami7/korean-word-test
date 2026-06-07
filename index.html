@@ -1847,8 +1847,8 @@ function memChart(pts){
   [0,25,50,75,100].forEach(v=>{const yy=y(v);grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="rgba(255,255,255,.30)" stroke-width="1"/><text x="${padL-4}" y="${yy+3}" fill="rgba(255,255,255,.85)" font-size="8" font-weight="700" text-anchor="end">${v}</text>`;});
   pts.forEach((p,i)=>{lbl+=`<text x="${x(i)}" y="${H-padB+14}" fill="rgba(255,255,255,.9)" font-size="8" font-weight="700" text-anchor="middle">${p.label}</text>`;});
   const poly=pts.map(p=>`${x(p.i)},${y(p.rate)}`).join(" ");
-  let dots="";pts.forEach(p=>{dots+=`<circle cx="${x(p.i)}" cy="${y(p.rate)}" r="2.6" fill="#00E650"/>`;});
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block"><line x1="${padL}" y1="${y(70)}" x2="${W-padR}" y2="${y(70)}" stroke="#FFD84D" stroke-width="1.4" stroke-dasharray="3 3"/>${grid}<polyline class="grow" points="${poly}" fill="none" stroke="#00E650" stroke-width="2.4"/>${dots}${lbl}</svg>`;
+  let dots="";pts.forEach(p=>{dots+=`<circle cx="${x(p.i)}" cy="${y(p.rate)}" r="2.6" fill="#FFFFFF"/>`;});
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block"><line x1="${padL}" y1="${y(70)}" x2="${W-padR}" y2="${y(70)}" stroke="#FFD84D" stroke-width="1.4" stroke-dasharray="3 3"/>${grid}<polyline class="grow" points="${poly}" fill="none" stroke="#FFFFFF" stroke-width="2.4"/>${dots}${lbl}</svg>`;
 }
 
 /* PWRメータ: 左右スワイプで 全体(最左) → ROOM01..NN を移動。各スライドは遅延レンダリング */
@@ -1959,7 +1959,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.26.4 (2026-06-07)";
+const APP_VERSION="v2.26.5 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
