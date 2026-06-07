@@ -1719,7 +1719,7 @@ function statusSlideHTML(n){ // ヘッダー下=そのROOMのグラフ
   const now=Date.now();
   const base=(LEVEL_SECTIONS[curLevel][n]||[]).map(id=>WORD_BY_ID[id]);
   return `<div class="st-top">
-      <div class="chartbox">${memChart(projectionPoints(now,base))}</div>
+      <div class="chartbox">${memChart(chartPoints(now,base))}</div>
       <button class="btn dark slim" style="width:100%" onclick="curSection=${n};renderRoomCurve()">詳細を見る</button>
     </div>`;
 }
@@ -1771,6 +1771,33 @@ function memState(rate){ // 状態ラベル
 }
 /* 全体平均を時間軸で前方投影（学習直後→30日後） */
 const PROJ=[{l:"直後",h:0},{l:"1h",h:1},{l:"6h",h:6},{l:"12h",h:12},{l:"1日",h:24},{l:"3日",h:72},{l:"7日",h:168},{l:"14日",h:336},{l:"30日",h:720}];
+/* 過去1週間の実績（履歴から状態を復元）＋今後30日の予測を合成 */
+function chartPoints(nowMs,words){
+  const idset=new Set(words.map(w=>w.id)),byWord={};
+  loadHistory().forEach(r=>{if(idset.has(r.wordId))(byWord[r.wordId]=byWord[r.wordId]||[]).push(r);});
+  Object.values(byWord).forEach(a=>a.sort((x,y)=>String(x.answeredAt).localeCompare(String(y.answeredAt))));
+  const pastAt=h=>{ // h時間前のPWR（記録を時刻Tまでリプレイ）
+    const T=nowMs-h*3600000;let t=0;
+    words.forEach(w=>{
+      const recs=byWord[w.id]||[];let st=null,cc=0,cons=0;
+      for(const r of recs){
+        if(new Date(r.answeredAt).getTime()>T)break;
+        if(r.isCorrect){cc++;cons++;}else cons=0;
+        st={memoryScore:(r.memoryScoreAfter!=null?r.memoryScoreAfter:DEFAULT_SCORE),lastReviewedAt:r.answeredAt,correctCount:cc,consecutiveCorrectCount:cons};
+      }
+      t+=st?displayScore(st,T):DEFAULT_SCORE;
+    });
+    return t/Math.max(1,words.length);
+  };
+  const s=loadStats();
+  const nowRate=words.reduce((a,w)=>a+displayScore(getStat(w.id,s),nowMs),0)/Math.max(1,words.length);
+  const fut=h=>{let t=0;words.forEach(w=>{const st=getStat(w.id,s);t+=displayScore(st,nowMs)*Math.exp(-h/Math.max(1,stabilityHours(st)));});return t/Math.max(1,words.length);};
+  const pts=[];
+  for(let d=7;d>=1;d--)pts.push({label:"-"+d,rate:pastAt(24*d)});
+  pts.push({label:"今",rate:nowRate});
+  [["+1",24],["+3",72],["+7",168],["+14",336],["+30",720]].forEach(([l,h])=>pts.push({label:l,rate:fut(h)}));
+  return pts.map((p,i)=>({i,label:p.label,rate:p.rate}));
+}
 function projectionPoints(nowMs,words){
   const s=loadStats(),list=words||WORDS;
   return PROJ.map((p,i)=>{
@@ -1851,8 +1878,8 @@ function renderCurveCarousel(){
 }
 function renderCurve(){_curveIdx=0;renderCurveCarousel();}
 function curveOverall(now,words){
-  return `<div class="chartbox">${memChart(projectionPoints(now,words))}</div>
-    <div style="background:rgba(255,255,255,.92);color:#1a1a1a;font-weight:700;font-size:11.5px;line-height:1.7;margin-top:8px;padding:9px 11px">※ 横軸＝学習からの経過時間，縦軸＝推定記憶率。黄色の点線=70%ライン。テストのたびに即時更新されます。</div>`;
+  return `<div class="chartbox">${memChart(chartPoints(now,words))}</div>
+    <div style="background:rgba(255,255,255,.92);color:#1a1a1a;font-weight:700;font-size:11.5px;line-height:1.7;margin-top:8px;padding:9px 11px">※ 横軸＝過去1週間の実績（日）と今後の予測，縦軸＝推定記憶率。黄色の点線=70%ライン。</div>`;
 }
 function curveWords(now,words){
   const s=loadStats();
@@ -1903,7 +1930,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.24.2 (2026-06-07)";
+const APP_VERSION="v2.25.0 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
