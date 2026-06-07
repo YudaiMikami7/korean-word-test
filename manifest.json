@@ -1,0 +1,14 @@
+{
+  "name": "韓国語単語テスト",
+  "short_name": "単語テスト",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#E3A38D",
+  "theme_color": "#E3A38D",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
