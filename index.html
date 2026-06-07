@@ -254,6 +254,7 @@ button{font-family:inherit}
 .ax2tick{position:absolute;top:50%;width:3px;height:12px;background:#fff;transform:translate(-50%,-50%)}
 .ax2tick.end{height:18px}
 .ax2knob{position:absolute;top:50%;width:21px;height:21px;border-radius:50%;border:3px solid #fff;transform:translate(-50%,-50%);box-sizing:border-box}
+.ax2panel{background:rgba(255,255,255,.15);padding:14px 18px} /* 4メータの白15%背景 */
 .tdetail-sec .ax2row{margin:12px 0}
 .t16link{margin-top:auto;text-align:right;font-size:17px;font-weight:800;cursor:pointer;letter-spacing:1px}
 .t16link b{font-size:19px}
@@ -1118,7 +1119,7 @@ function renderTypeDetail(){
         <div class="t-job">${any?esc((TYPE_INFO[fullCode]||[""])[0]):""}</div>
         <img class="t-char" src="${charPathFor(d)}" alt="">
       </div>
-      <div class="tdetail-sec" style="margin-top:24px">${bars}${axPeek}</div>
+      <div class="tdetail-sec" style="margin-top:24px"><div class="ax2panel">${bars}</div>${axPeek}</div>
       <div class="tdetail-sec">${peek}<div class="tlist">${list}</div></div>
     </div>
    </div>`;
@@ -1971,7 +1972,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.28.2 (2026-06-07)";
+const APP_VERSION="v2.28.3 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
