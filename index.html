@@ -329,6 +329,10 @@ button{font-family:inherit}
 .cond-v{font-size:40px;font-weight:900;line-height:1.1}
 .cond-v span{font-size:16px;color:var(--mute);font-weight:800}
 .cond-sub{color:var(--mute);font-size:12px;font-weight:700;margin-top:2px}
+.curve-scroll{flex:1;min-height:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none}
+.curve-scroll::-webkit-scrollbar{display:none}
+.curve-slide{flex:0 0 100%;width:100%;scroll-snap-align:start;overflow-y:auto;padding:0 16px 24px;box-sizing:border-box;-webkit-overflow-scrolling:touch}
+.cs-head{font-size:20px;font-weight:900;letter-spacing:2px;margin:2px 0 8px}
 .pwrline{display:flex;align-items:center;justify-content:center;gap:12px}
 .pwr-lab,.pwr-val{font-size:22px;font-weight:900;line-height:1}
 .pwr-g{width:210px;height:19px;background:#333;border-radius:999px;padding:3px;box-sizing:border-box}
@@ -1639,7 +1643,7 @@ function finishTest(){
     </div>
     <div class="res-btns">
       <button class="btn dark" onclick="startTest()">もう一度挑戦する</button>
-      <button class="btn dark" onclick="renderCurve()">PWRメータを見る</button>
+      <button class="btn dark" onclick="renderRoomCurve()">PWRメータを見る</button>
       <button class="btn line full" onclick="show('s-home')">ホームに戻る</button>
     </div>
    </div>`;
@@ -1697,14 +1701,13 @@ function updateStatusOverlay(){
       <div class="axbar"><div class="axdot" style="left:calc(${pos}% - 9px);background:${col}"></div></div>
       <span class="axr"${!domLeft?` style="color:${col}"`:""}>${ax.R}</span></div>`;
   }).join("");
-  const now=Date.now(),st=loadStats();
-  const learned=Object.keys(st).map(id=>WORD_BY_ID[id]).filter(Boolean);
-  const base=learned.length?learned:WORDS;
+  const now=Date.now();
+  const base=(LEVEL_SECTIONS[curLevel][curSection]||[]).map(id=>WORD_BY_ID[id]); // 現在ROOMのグラフ
   document.getElementById("status-ov").innerHTML=`
     <button class="back st-back" onclick="exitStatusMode()">‹</button>
     <div class="st-top">
       <div class="chartbox">${memChart(projectionPoints(now,base))}</div>
-      <button class="btn dark slim" style="width:100%" onclick="renderCurve()">詳細を見る</button>
+      <button class="btn dark slim" style="width:100%" onclick="renderRoomCurve()">詳細を見る</button>
     </div>
     <div class="st-bottom">
       <div class="dash-cols">
@@ -1766,15 +1769,11 @@ function memChart(pts){
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block"><line x1="${padL}" y1="${y(70)}" x2="${W-padR}" y2="${y(70)}" stroke="#ffc83c" stroke-width="1" stroke-dasharray="3 3"/>${grid}<polyline class="grow" points="${poly}" fill="none" stroke="#4cd964" stroke-width="2"/>${dots}${lbl}</svg>`;
 }
 
-function renderCurve(){
-  _roomCurveMode=false; // 全体PWR=グレー背景
-  const now=Date.now(),s=loadStats();
-  // 全体=学習済み全単語（ホームのPWRと同一の母集団・同一値）
-  const learned=Object.keys(s).map(id=>WORD_BY_ID[id]).filter(Boolean);
-  const base=learned.length?learned:WORDS;
-  const cond=pwrOverall();
-  // 復習予報
-  const arr=base.map(w=>({w,h:hoursTo70(getStat(w.id,s),now)})).sort((a,b)=>a.h-b.h);
+/* PWRメータ: 左右スワイプで 全体(最左) → ROOM01..NN を移動。各スライドは遅延レンダリング */
+let _curveIdx=0;
+function curveForecastBlock(now,words){
+  const s=loadStats();
+  const arr=words.map(w=>({w,h:hoursTo70(getStat(w.id,s),now)})).sort((a,b)=>a.h-b.h);
   const today=arr.filter(a=>a.h<=24).length,tom=arr.filter(a=>a.h>24&&a.h<=48).length,d3c=arr.filter(a=>a.h>48&&a.h<=72).length;
   const urgent=arr.filter(a=>a.h<=72).slice(0,12).map(a=>a.w.id);
   const cards=`<div class="curve-stats">
@@ -1782,27 +1781,48 @@ function renderCurve(){
       <div class="cstat"><div class="k">明日までに復習</div><div class="v ms-review">${tom}語</div></div>
       <div class="cstat"><div class="k">3日以内に復習</div><div class="v">${d3c}語</div></div>
     </div>`;
-  // 単語カテゴリ別
-  const grows=Object.entries(CATS).map(([cat,ids])=>{
-    let sum=0,need=0;ids.forEach(id=>{const r=displayScore(getStat(id,s),now);sum+=r;if(r<70)need++;});
-    const rate=Math.round(sum/ids.length),ms=memState(rate);
-    return `<tr><td style="font-weight:700">${esc(cat)}</td><td class="num ${ms.cls}">${rate}%</td><td class="num">${need}語</td></tr>`;
-  }).join("");
-  const groups=`<table class="htab"><thead><tr><th>カテゴリ</th><th class="num">記憶率</th><th class="num">要復習</th></tr></thead><tbody>${grows}</tbody></table>`;
   const btn=urgent.length?`<button class="btn dark" style="margin-top:14px" onclick='startReviewTest(${JSON.stringify(urgent)})'>この${urgent.length}語で復習</button>`:"";
-  document.getElementById("s-curve").innerHTML=`
-   <div class="page">
-    <div class="page-head"><button class="back" onclick="backToStatus()">‹</button><h2>PWRメータ</h2></div>
-    <div class="cond pwrline"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${cond}%"></div></div><span class="pwr-val">${cond}%</span></div>
-    <div class="page-body">
-      ${curveOverall(now,base)}
-      <div class="tdetail-sec"><div class="h">復習予報</div>${cards}</div>
-      <div class="tdetail-sec"><div class="h">単語カテゴリ別</div>${groups}</div>
-      ${btn}
-    </div>
-   </div>`;
-  show("s-curve");
+  return `<div class="tdetail-sec"><div class="h">復習予報</div>${cards}${btn}</div>`;
 }
+function curveSlideHTML(i,now){
+  const meter=c=>`<div class="cond pwrline" style="margin:2px 0 12px"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${c}%"></div></div><span class="pwr-val">${c}%</span></div>`;
+  if(i===0){ // 最左=全体
+    const st=loadStats();
+    const learned=Object.keys(st).map(id=>WORD_BY_ID[id]).filter(Boolean);
+    const base=learned.length?learned:WORDS;
+    return `<div class="cs-head">全体</div>${meter(pwrOverall())}${curveOverall(now,base)}${curveForecastBlock(now,base)}`;
+  }
+  const nn=String(i).padStart(2,"0");
+  const words=(LEVEL_SECTIONS[curLevel][i]||[]).map(id=>WORD_BY_ID[id]);
+  const st2=loadStats();let t=0;words.forEach(w=>t+=displayScore(getStat(w.id,st2),now));
+  const cond=Math.round(t/Math.max(1,words.length));
+  return `<div class="cs-head">ROOM ${nn}</div>${meter(cond)}${curveOverall(now,words)}${curveForecastBlock(now,words)}
+    <div class="tdetail-sec"><div class="h">単語別</div>${curveWords(now,words)}</div>`;
+}
+function renderCurveCarousel(){
+  const N=LEVEL_INFO[curLevel].count;
+  const slides=Array.from({length:N+1},(_,i)=>`<div class="curve-slide" data-i="${i}"><div class="curve-slide-in" id="cs-${i}"></div></div>`).join("");
+  document.getElementById("s-curve").innerHTML=`
+   <div class="page" style="padding-left:0;padding-right:0">
+    <div class="page-head" style="padding:0 16px"><button class="back" onclick="show('s-home')">‹</button><h2>PWRメータ</h2></div>
+    <div class="curve-scroll" id="curve-scroll">${slides}</div>
+   </div>`;
+  const now=Date.now();
+  const fill=i=>{const e=document.getElementById("cs-"+i);if(e&&!e.dataset.f){e.dataset.f="1";e.innerHTML=curveSlideHTML(i,now);}};
+  fill(_curveIdx);fill(Math.max(0,_curveIdx-1));fill(Math.min(N,_curveIdx+1));
+  _roomCurveMode=_curveIdx>0;
+  show("s-curve");
+  const sc=document.getElementById("curve-scroll");
+  sc.scrollLeft=_curveIdx*sc.clientWidth;
+  let t2=null;
+  sc.addEventListener("scroll",()=>{clearTimeout(t2);t2=setTimeout(()=>{
+    const i=Math.max(0,Math.min(N,Math.round(sc.scrollLeft/sc.clientWidth)));
+    _curveIdx=i;_roomCurveMode=i>0;
+    fill(i);fill(Math.max(0,i-1));fill(Math.min(N,i+1));
+    applyBgAll(i>0?roomBg(i):LEVEL_SLIDE_BG); // スライドに応じて背景色も切替
+  },90);});
+}
+function renderCurve(){_curveIdx=0;renderCurveCarousel();}
 function curveOverall(now,words){
   return `<div class="chartbox">${memChart(projectionPoints(now,words))}</div>
     <div style="background:rgba(255,255,255,.92);color:#1a1a1a;font-weight:700;font-size:11.5px;line-height:1.7;margin-top:8px;padding:9px 11px">※ 横軸＝学習からの経過時間，縦軸＝推定記憶率。黄色の点線=70%ライン。テストのたびに即時更新されます。</div>`;
@@ -1850,29 +1870,13 @@ function renderPastResult(testId){
   show("s-result");
 }
 
-/* ============================================================ ROOM限定のPWRメータページ ============================================================ */
-function renderRoomCurve(){
-  _roomCurveMode=true; // ROOM別PWR=そのROOMの色背景
-  const now=Date.now(),nn=String(curSection).padStart(2,"0");
-  const words=sectionIds().map(id=>WORD_BY_ID[id]);
-  const st=loadStats();let t=0;words.forEach(w=>t+=displayScore(getStat(w.id,st),now));
-  const cond=Math.round(t/Math.max(1,words.length));
-  document.getElementById("s-curve").innerHTML=`
-   <div class="page">
-    <div class="page-head"><button class="back" onclick="show('s-home')">‹</button><h2>ROOM ${nn} PWRメータ</h2></div>
-    <div class="cond pwrline"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${cond}%"></div></div><span class="pwr-val">${cond}%</span></div>
-    <div class="page-body">
-      ${curveOverall(now,words)}
-      <div class="tdetail-sec"><div class="h">単語別</div>${curveWords(now,words)}</div>
-    </div>
-   </div>`;
-  show("s-curve");
-}
+/* ROOM限定: 現在ROOMのスライドから開始（左右スワイプで他ROOM/全体へ） */
+function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.22.1 (2026-06-07)";
+const APP_VERSION="v2.23.0 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
