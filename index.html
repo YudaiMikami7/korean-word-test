@@ -191,15 +191,15 @@ button{font-family:inherit}
   opacity:var(--p,1);transition:opacity .35s ease} /* 入場はJSでフェードイン、下スワイプは--p連動でフェードアウト */
 .home-wrap.dragging .slide-list{transition:none}
 .slide-list::-webkit-scrollbar{display:none}
-.wl-head{position:sticky;top:0;z-index:1;display:flex;align-items:baseline;gap:10px;padding:8px 12px;background:rgba(0,0,0,.8);color:#fff;font-size:12px;font-weight:800;white-space:nowrap} /* 他の表と同じヘッダーデザイン */
+.wl-head{position:sticky;top:0;z-index:1;display:flex;align-items:baseline;gap:6px;padding:8px 12px;background:rgba(0,0,0,.8);color:#fff;font-size:12px;font-weight:800;white-space:nowrap} /* 他の表と同じヘッダーデザイン */
 .wl-head span{font-size:12px!important;font-weight:800;color:#fff;opacity:1}
-.wl-row{display:flex;align-items:baseline;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer}
+.wl-row{display:flex;align-items:baseline;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer}
 .wl-un{opacity:.5}
 .wl-no{flex:0 0 52px;font-size:18px;font-weight:800;color:rgba(255,255,255,.7)}
 .wl-ko{font-size:48px;font-weight:800;flex:0 0 auto}
 .wl-ja{flex:1;font-size:30px;font-weight:700;color:rgba(255,255,255,.88);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wl-cnt{flex:0 0 44px;text-align:right;font-size:18px;font-weight:800;color:rgba(255,255,255,.8)}
-.wl-rate{flex:0 0 64px;text-align:right;font-size:20px;font-weight:900}
+.wl-rate{flex:0 0 46px;text-align:right;font-size:20px;font-weight:900}
 .room-ph{position:absolute;left:24px;top:178px;width:554px;height:507px;display:flex;align-items:center;justify-content:center;font-size:130px;color:rgba(255,255,255,.32);font-weight:800}
 .start-button{position:absolute;left:50%;transform:translate(-50%,calc(var(--down,0px)*2.2));top:1004px;width:540px;height:123px;border:4px solid #FFC400;border-radius:62px;
   background:rgba(0,0,0,.8);color:#FFFFFF;font-size:62px;font-weight:900;cursor:pointer;font-family:inherit;z-index:2;
@@ -362,6 +362,12 @@ button{font-family:inherit}
 .cond-v{font-size:40px;font-weight:900;line-height:1.1}
 .cond-v span{font-size:16px;color:var(--mute);font-weight:800}
 .cond-sub{color:var(--mute);font-size:12px;font-weight:700;margin-top:2px}
+.curve-words{background:rgba(0,0,0,.35)}
+.curve-words .wl-ko{font-size:30px}
+.curve-words .wl-ja{font-size:19px}
+.curve-words .wl-no{flex:0 0 36px;font-size:12px}
+.curve-words .wl-rate{flex:0 0 40px;font-size:14px}
+.curve-words .wl-row{padding:8px 10px}
 .curve-scroll{flex:1;min-height:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none}
 .curve-scroll::-webkit-scrollbar{display:none}
 .curve-slide{flex:0 0 100%;width:100%;scroll-snap-align:start;overflow-y:auto;padding:0 16px 24px;box-sizing:border-box;-webkit-overflow-scrolling:touch}
@@ -1923,11 +1929,17 @@ function curveOverall(now,words){
   return `<div class="chartbox">${memChart(chartPoints(now,words))}</div>
     <div style="background:rgba(255,255,255,.92);color:#1a1a1a;font-weight:700;font-size:11.5px;line-height:1.7;margin-top:8px;padding:9px 11px">※ 横軸＝過去1週間の実績（日）と今後の予測，縦軸＝推定記憶率。黄色の点線=70%ライン。</div>`;
 }
-function curveWords(now,words){
+function curveWords(now,words){ // ROOMボードの単語表と同じUI（番号・韓・日・記憶）
   const s=loadStats();
-  const list=(words||WORDS).map(w=>({w,rate:Math.round(displayScore(getStat(w.id,s),now))})).sort((a,b)=>a.rate-b.rate);
-  const rows=list.map(({w,rate})=>{const ms=memState(rate);return `<tr class="click" onclick="renderWordDetail(${w.id})"><td class="ko" style="font-weight:700">${esc(w.ko)}</td><td style="color:var(--mute)">${esc(w.ja)}</td><td class="num ${ms.cls}">${rate}%</td><td class="${ms.cls}">${ms.label}</td></tr>`;}).join("");
-  return `<table class="htab"><thead><tr><th>韓国語</th><th>日本語</th><th class="num">記憶率</th><th>状態</th></tr></thead><tbody>${rows}</tbody></table>`;
+  const rows=(words||WORDS).map((w,i)=>{
+    const st=getStat(w.id,s),no=String(i+1).padStart(3,"0");
+    if(st.lastReviewedAt){
+      const rate=Math.round(displayScore(st,now)),ms=memState(rate);
+      return `<div class="wl-row" onclick="renderWordDetail(${w.id})"><span class="wl-no">${no}</span><span class="wl-ko">${esc(w.ko)}</span><span class="wl-ja">${esc(w.ja)}</span><span class="wl-rate ${ms.cls}">${rate}</span></div>`;
+    }
+    return `<div class="wl-row wl-un"><span class="wl-no">${no}</span><span class="wl-ko">${esc(w.ko)}</span><span class="wl-ja">${esc(w.ja)}</span><span class="wl-rate">未</span></div>`;
+  }).join("");
+  return `<div class="curve-words"><div class="wl-head"><span class="wl-no">No.</span><span class="wl-ko">韓国語</span><span class="wl-ja">日本語</span><span class="wl-rate">記憶</span></div>${rows}</div>`;
 }
 function startReviewTest(ids){curLevel="middle";curSection=1;startTest(ids);} // 復習予報は中級Section01(基本100語)ベース
 
@@ -1972,7 +1984,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.28.5 (2026-06-07)";
+const APP_VERSION="v2.28.6 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
