@@ -350,7 +350,7 @@ button{font-family:inherit}
 .empty{color:var(--mute);text-align:center;padding:40px 20px;line-height:1.9;font-size:14px}
 .note{background:#1a1407;border:1px solid #3a2e0a;border-radius:0;padding:11px 13px;font-size:12.5px;color:#e8c878;line-height:1.6;margin:10px 0}
 .curve-stats{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
-.cstat{flex:1 1 44%;background:var(--panel);border:1px solid var(--line);border-radius:0;padding:12px}
+.cstat{flex:1 1 44%;background:rgba(0,0,0,.8);border:none;border-radius:0;padding:12px}
 .cstat .k{color:var(--mute);font-size:11px;font-weight:700}
 .cstat .v{font-size:17px;font-weight:800;margin-top:3px}
 .chartbox{background:rgba(0,0,0,.8);border:1px solid var(--line);border-radius:0;padding:14px 10px 8px}
@@ -362,6 +362,8 @@ button{font-family:inherit}
 .cond-v{font-size:40px;font-weight:900;line-height:1.1}
 .cond-v span{font-size:16px;color:var(--mute);font-weight:800}
 .cond-sub{color:var(--mute);font-size:12px;font-weight:700;margin-top:2px}
+.mpanel{background:rgba(0,0,0,.8);padding:10px 14px 12px;margin-bottom:12px}
+.mpanel .cs-head{margin-bottom:6px}
 .curve-words{background:rgba(0,0,0,.35)}
 .curve-words .wl-ko{font-size:30px}
 .curve-words .wl-ja{font-size:19px}
@@ -1764,8 +1766,8 @@ function statusSlideHTML(n){ // ヘッダー下=ROOM表記+PWRメーター+そ�
   const st2=loadStats();let t=0;base.forEach(w=>t+=displayScore(getStat(w.id,st2),now));
   const cond=Math.round(t/Math.max(1,base.length));
   return `<div class="st-top">
-      <div class="cs-head">ROOM ${String(n).padStart(2,"0")}</div>
-      <div class="cond pwrline" style="margin:2px 0 12px"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${cond}%"></div></div><span class="pwr-val">${cond}%</span></div>
+      <div class="mpanel"><div class="cs-head">ROOM ${String(n).padStart(2,"0")}</div>
+      <div class="cond pwrline" style="margin:2px 0 4px"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${cond}%"></div></div><span class="pwr-val">${cond}%</span></div></div>
       <div class="st-graphpanel" onclick="curSection=${n};renderRoomCurve()">${memChart(chartPoints(now,base))}
         <div class="t16link" onclick="curSection=${n};renderRoomCurve()">PWRメータ 詳細 <b>›</b></div>
       </div>
@@ -1891,13 +1893,13 @@ function curveSlideHTML(i,now){
     const st=loadStats();
     const learned=Object.keys(st).map(id=>WORD_BY_ID[id]).filter(Boolean);
     const base=learned.length?learned:WORDS;
-    return `<div class="cs-head">全体</div>${meter(pwrOverall())}${curveOverall(now,base)}${curveForecastBlock(now,base)}`;
+    return `<div class="mpanel"><div class="cs-head">全体</div>${meter(pwrOverall())}</div>${curveOverall(now,base)}${curveForecastBlock(now,base)}`;
   }
   const nn=String(i).padStart(2,"0");
   const words=(LEVEL_SECTIONS[curLevel][i]||[]).map(id=>WORD_BY_ID[id]);
   const st2=loadStats();let t=0;words.forEach(w=>t+=displayScore(getStat(w.id,st2),now));
   const cond=Math.round(t/Math.max(1,words.length));
-  return `<div class="cs-head">ROOM ${nn}</div>${meter(cond)}${curveOverall(now,words)}${curveForecastBlock(now,words)}
+  return `<div class="mpanel"><div class="cs-head">ROOM ${nn}</div>${meter(cond)}</div>${curveOverall(now,words)}${curveForecastBlock(now,words)}
     <div class="tdetail-sec"><div class="h">単語別</div>${curveWords(now,words)}</div>`;
 }
 function renderCurveCarousel(){
@@ -1984,7 +1986,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.28.6 (2026-06-07)";
+const APP_VERSION="v2.28.7 (2026-06-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
