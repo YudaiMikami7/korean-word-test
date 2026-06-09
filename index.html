@@ -197,18 +197,18 @@ button{font-family:inherit}
 .cal-sp{margin-top:14px;text-align:center;font-size:14px;font-weight:800}
 .cal-sp .rbtext{font-weight:900}
 .cal-close{position:absolute;right:10px;top:6px;background:transparent;border:none;font-size:24px;font-weight:900;color:#888;cursor:pointer}
-.bonus-icons{position:absolute;right:8px;top:150px;display:flex;gap:6px;z-index:4;cursor:pointer}
-.bonus-icons .bi{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;overflow:hidden}
-.bonus-icons .bi img{width:84%;height:84%;object-fit:contain}
 .pwr-fine{position:absolute;left:44px;top:10px;display:flex;align-items:center;gap:8px;z-index:2;pointer-events:none}
 .pf-lab{font-size:13px;font-weight:900;letter-spacing:1px}
 .pf-meter{width:150px;height:9px;background:rgba(0,0,0,.45);border-radius:999px;padding:2px;box-sizing:border-box}
 .pf-fill{height:100%;border-radius:999px;background:#00FF37;width:0;transition:width .3s linear}
 .pf-num{font-size:15px;font-weight:900;font-variant-numeric:tabular-nums}
-.present-btn{position:absolute;right:2px;top:8px;width:78px;height:78px;border:none;background:transparent;cursor:pointer;z-index:5;padding:0}
-.present-btn img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 5px rgba(0,0,0,.3))}
-.present-btn.rb img{animation:rbglow 1.4s linear infinite}
-.present-btn.bob{animation:bob 1.6s ease-in-out infinite}
+.reward-rail{position:absolute;right:8px;top:172px;display:flex;flex-direction:column;gap:9px;z-index:5}
+.rr-btn{width:68px;height:68px;border:none;background:rgba(255,255,255,.18);border-radius:50%;cursor:pointer;padding:0;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
+.rr-btn img{width:86%;height:86%;object-fit:contain}
+.rr-btn.present{background:transparent}
+.rr-btn.present img{filter:drop-shadow(0 2px 5px rgba(0,0,0,.35))}
+.rr-btn.present.rb img{animation:rbglow 1.4s linear infinite}
+.rr-btn.present.bob{animation:bob 1.6s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes rbglow{0%{filter:drop-shadow(0 0 7px #ff3b3b)}17%{filter:drop-shadow(0 0 9px #ffb13b)}33%{filter:drop-shadow(0 0 10px #ffe93b)}50%{filter:drop-shadow(0 0 11px #3bff6a)}67%{filter:drop-shadow(0 0 10px #3bc4ff)}83%{filter:drop-shadow(0 0 9px #b13bff)}100%{filter:drop-shadow(0 0 7px #ff3b3b)}}
 .present-badge{position:absolute;right:0;top:-2px;min-width:22px;height:22px;border-radius:11px;background:#FF3B3B;color:#fff;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box;border:2px solid #fff}
@@ -460,12 +460,12 @@ button{font-family:inherit}
       <div class="avatar-circle" onclick="enterStatusMode()"><img class="avatar-image" id="hv-char" src="characters/analyzing.svg" alt=""></div>
       <div class="hv-level" id="hv-level" onclick="enterStatusMode()" style="cursor:pointer">Lv.<span>1</span></div>
       <div class="hv-code" id="hv-code" onclick="enterStatusMode()">----</div>
-      <button class="present-btn" id="present-btn" onclick="openPresent()"><img src="icons/present.webp" alt="プレゼント"><span class="present-badge" id="present-badge" style="display:none">!</span></button>
-      <div class="bonus-icons" onclick="openPresent()">
-        <div class="bi"><img src="icons/bonus-daily.webp" alt="毎日"></div>
-        <div class="bi"><img src="icons/bonus-rank.webp" alt="ランク"></div>
-        <div class="bi"><img src="icons/bonus-level.webp" alt="レベル"></div>
-        <div class="bi"><img src="icons/bonus-pwr.webp" alt="PWR"></div>
+      <div class="reward-rail">
+        <button class="rr-btn present" id="present-btn" onclick="openPresent()"><img src="icons/present.webp" alt="プレゼント"><span class="present-badge" id="present-badge" style="display:none">!</span></button>
+        <button class="rr-btn" onclick="openPresent()"><img src="icons/bonus-daily.webp" alt="毎日"></button>
+        <button class="rr-btn" onclick="openPresent()"><img src="icons/bonus-rank.webp" alt="ランク"></button>
+        <button class="rr-btn" onclick="openPresent()"><img src="icons/bonus-level.webp" alt="レベル"></button>
+        <button class="rr-btn" onclick="openPresent()"><img src="icons/bonus-pwr.webp" alt="PWR"></button>
       </div>
       <div class="status-panel" onclick="enterStatusMode()"></div>
       <div class="hv-lab hv-xplabel">XP</div>
@@ -2381,7 +2381,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.34.0 (2026-06-08)";
+const APP_VERSION="v2.34.1 (2026-06-08)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
