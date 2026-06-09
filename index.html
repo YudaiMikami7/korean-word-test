@@ -1591,7 +1591,7 @@ function startTest(reviewIds){
   const qs=reviewIds&&reviewIds.length?buildReviewQuestions(reviewIds):buildQuestions();
   const prog=loadProgress();
   state={questions:qs,idx:0,results:[],testId:"t-"+Date.now().toString(36),userId:getUserId(),
-    cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall()};
+    cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr};
   renderQuestion();
   show("s-quiz");
 }
@@ -1834,10 +1834,12 @@ function finishTest(){
   const rows=R.map(r=>{
     const sy=SYM[r.answerStatus]||["−",""];
     const hb=r.isHintProvided?'<span class="hint-badge">ヒント</span>':"";
-    const dlt=Math.round((r.memoryScoreAfter||0)-(r.memoryScoreBefore||0));
+    const dAfter=(r.displayMemoryScoreAfter!=null?r.displayMemoryScoreAfter:(r.displayMemoryScoreAfterDecay!=null?r.displayMemoryScoreAfterDecay:r.memoryScoreAfter))||0;
+    const dBefore=(r.displayMemoryScoreBefore!=null?r.displayMemoryScoreBefore:r.memoryScoreBefore)||0;
+    const dlt=Math.round(dAfter-dBefore);
     return `<tr><td class="no">${r.questionNumber}</td><td class="ko">${esc(r.korean)}</td><td>${esc(r.japanese)}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}${hb}</td><td class="num" style="color:${dlt>=0?"#1FAD62":"#FF6B6B"};font-weight:800">${dlt>0?"+":""}${dlt}</td></tr>`;
   }).join("");
-  const pwrAfter=pwrOverall(),pwrBefore=state.pwrBefore||0,pwrDelta=pwrAfter-pwrBefore;
+  const _ri=roomInfoFor(curSection),pwrAfter=_ri.pwr,pwrBefore=(state.roomPwrBefore!=null?state.roomPwrBefore:0),pwrDelta=pwrAfter-pwrBefore; // そのROOMのPWR
   document.getElementById("s-result").innerHTML=`
    <div class="res">
     <div class="res-head">
@@ -2123,7 +2125,9 @@ function renderPastResult(testId){
   const rows=R.map((r,i)=>{
     const sy=SYM[r.answerStatus]||["－",""];
     const hb=r.isHintProvided?'<span class="hint-badge">ヒント</span>':"";
-    const dlt=Math.round((r.memoryScoreAfter||0)-(r.memoryScoreBefore||0));
+    const dAfter=(r.displayMemoryScoreAfter!=null?r.displayMemoryScoreAfter:(r.displayMemoryScoreAfterDecay!=null?r.displayMemoryScoreAfterDecay:r.memoryScoreAfter))||0;
+    const dBefore=(r.displayMemoryScoreBefore!=null?r.displayMemoryScoreBefore:r.memoryScoreBefore)||0;
+    const dlt=Math.round(dAfter-dBefore);
     return `<tr><td class="no">${r.questionNumber||i+1}</td><td class="ko">${esc(r.korean)}</td><td>${esc(r.japanese)}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}${hb}</td><td class="num" style="color:${dlt>=0?"#1FAD62":"#FF6B6B"};font-weight:800">${dlt>0?"+":""}${dlt}</td></tr>`;
   }).join("");
   document.getElementById("s-result").innerHTML=`
@@ -2153,7 +2157,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.29.0 (2026-06-08)";
+const APP_VERSION="v2.29.1 (2026-06-08)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
