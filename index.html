@@ -1222,24 +1222,108 @@ const LS_HIST="kwt_history_v1", LS_PERFECT="kwt_perfect_v1", LS_USER="kwt_user_v
       LS_STATS="kwt_stats_v1", LS_PROG="kwt_progress_v1", LS_SESS="kwt_session_v1";
 function getUserId(){let u=localStorage.getItem(LS_USER);if(!u){u="u-"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);localStorage.setItem(LS_USER,u);}return u;}
 function loadHistory(){try{return JSON.parse(localStorage.getItem(LS_HIST)||"[]");}catch(e){return[];}}
-function saveAnswer(rec){const h=loadHistory();h.push(rec);localStorage.setItem(LS_HIST,JSON.stringify(h));}
+function saveAnswer(rec){const h=loadHistory();h.push(rec);localStorage.setItem(LS_HIST,JSON.stringify(h));_histIdxCache=null;}
 function getPerfectCount(){return parseInt(localStorage.getItem(LS_PERFECT)||"0",10);}
 function incPerfectCount(){const n=getPerfectCount()+1;localStorage.setItem(LS_PERFECT,String(n));return n;}
 
-/* --- 単語別の記憶状態（memoryScore など） --- */
-const DEFAULT_SCORE=30; // 未学習語の初期記憶スコア
+/* --- 単語別の記憶状態（忘却/形成モデル）。係数はconfigで外出し（後から調整可能） --- */
+const MEMORY_CONFIG={
+  initialMemoryScore:0, initialFormingScore:0,
+  initialStabilityHours:12, initialFormingStabilityHours:12,
+  minStabilityHours:6, maxStabilityHours:720, reviewThreshold:70,
+  defaultWordDifficulty:1.0, minWordDifficulty:0.7, maxWordDifficulty:1.5,
+  historyDecayLambda:0.08, accuracyBonusWeight:0.5,
+  dailyGainMax:0.25, dailyGainK:0.8,
+  predictionLearningRateGamma:0.25,
+  correctActualMin:60, correctActualMax:95, responseSpeedAlpha:0.10,
+  formingIncorrectGain:5, formingUnknownGain:3, formingTimeoutGain:2, firstCorrectMemoryScore:45,
+  choiceFastCorrectDelta:12, choiceNormalCorrectDelta:8,
+  writingFastCorrectDelta:18, writingNormalCorrectDelta:14,
+  choiceIncorrectDelta:-15, writingIncorrectDelta:-18, unknownDelta:-18, timeoutDelta:-18,
+  hintMultiplier:0.5,
+  actualIncorrect:25, actualUnknown:10, actualTimeout:15,
+  fastChoiceSec:5, fastWritingSec:10
+};
+const DEFAULT_SCORE=0; // 互換: 未学習語の初期記憶スコア
+function clampN(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
 function loadStats(){try{return JSON.parse(localStorage.getItem(LS_STATS)||"{}");}catch(e){return{};}}
 function saveStats(s){localStorage.setItem(LS_STATS,JSON.stringify(s));}
-function defaultStat(){return{memoryScore:DEFAULT_SCORE,lastReviewedAt:null,reviewCount:0,correctCount:0,incorrectCount:0,consecutiveCorrectCount:0,averageResponseTimeMs:0,lastAnswerStatus:null,lastAnswerType:null,isHintProvided:false};}
-function getStat(id,store){const s=(store||loadStats())[id];return s?Object.assign(defaultStat(),s):defaultStat();}
-function stabilityHours(st){return 12*(1+(st.consecutiveCorrectCount||0))+6*(st.correctCount||0);} // 正解・連続正解が多いほど安定（減衰が緩やか）
-function displayScore(st,nowMs){
-  if(!st||st.lastReviewedAt==null)return 0; // 未学習は0（ROOMごとのメータは独立、やっていないROOMは0%）
-  const h=(nowMs-new Date(st.lastReviewedAt).getTime())/3600000;
-  return st.memoryScore*Math.exp(-h/Math.max(1,stabilityHours(st)));
+function defaultStat(){const C=MEMORY_CONFIG;return{
+  hasSeen:false,hasEverCorrect:false,
+  memoryScore:C.initialMemoryScore,formingScore:C.initialFormingScore,
+  stabilityHours:C.initialStabilityHours,wordDifficulty:C.defaultWordDifficulty,
+  lastReviewedAt:null,firstCorrectAt:null,lastReviewDay:null,nextReviewAt:null,
+  reviewCount:0,correctCount:0,incorrectCount:0,sameDayCorrectCount:0,
+  consecutiveCorrectCount:0,averageResponseTimeMs:0,
+  lastAnswerStatus:null,lastAnswerType:null,lastResponseTimeSec:null,isHintProvided:false};}
+function getStat(id,store){
+  const raw=(store||loadStats())[id];
+  const st=raw?Object.assign(defaultStat(),raw):defaultStat();
+  st.wordId=id;
+  // --- 旧データ移行: 新フィールドが無い既存statを補完 ---
+  if(raw){
+    if(raw.hasSeen===undefined)st.hasSeen=raw.lastReviewedAt!=null;
+    if(raw.hasEverCorrect===undefined)st.hasEverCorrect=(raw.correctCount||0)>0;
+    if(raw.stabilityHours===undefined)st.stabilityHours=clampN(12*(1+(raw.consecutiveCorrectCount||0))+6*(raw.correctCount||0),MEMORY_CONFIG.minStabilityHours,MEMORY_CONFIG.maxStabilityHours);
+    if(raw.wordDifficulty===undefined)st.wordDifficulty=MEMORY_CONFIG.defaultWordDifficulty;
+  }
+  return st;
+}
+/* 履歴を単語ごとに索引（重い再計算を避けるためキャッシュ。saveAnswerで無効化） */
+let _histIdxCache=null;
+function histByWord(){
+  if(_histIdxCache)return _histIdxCache;
+  const m={};loadHistory().forEach(r=>{(m[r.wordId]=m[r.wordId]||[]).push(r);});
+  for(const k in m)m[k].sort((a,b)=>String(a.answeredAt).localeCompare(String(b.answeredAt)));
+  _histIdxCache=m;return m;
+}
+function dayKey(ms){const d=new Date(ms);return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
+/* Ba: 時間減衰付き正答率補正（最近の回答ほど重い） */
+function accuracyBonus(wordId,nowMs){
+  const C=MEMORY_CONFIG,recs=histByWord()[wordId]||[];
+  if(!recs.length)return 1;
+  let num=0,den=0;
+  recs.forEach(r=>{const dt=Math.max(0,(nowMs-new Date(r.answeredAt).getTime())/86400000);const w=Math.exp(-C.historyDecayLambda*dt);den+=w;num+=w*(r.isCorrect?1:0);});
+  return 1+C.accuracyBonusWeight*(den>0?num/den:0);
+}
+/* Cd: 同日定着上限補正（その日の同一単語の正解回数で頭打ち） */
+function dailyConsolidationBonus(st,nowMs){
+  const C=MEMORY_CONFIG;
+  const n=(st.lastReviewDay===dayKey(nowMs))?(st.sameDayCorrectCount||0):0;
+  return 1+C.dailyGainMax*(1-Math.exp(-C.dailyGainK*n));
+}
+/* 実効安定度 = Su * Ba * Cd / Dw */
+function effectiveStability(st,nowMs){
+  const C=MEMORY_CONFIG;
+  const Su=clampN(st.stabilityHours||C.initialStabilityHours,C.minStabilityHours,C.maxStabilityHours);
+  const Dw=clampN(st.wordDifficulty||C.defaultWordDifficulty,C.minWordDifficulty,C.maxWordDifficulty);
+  return Math.max(1,Su*accuracyBonus(st.wordId,nowMs)*dailyConsolidationBonus(st,nowMs)/Dw);
+}
+/* 現在の推定記憶率（初正解前は形成スコアの減衰、初正解後は忘却曲線） */
+function displayMemoryScore(st,nowMs){
+  const C=MEMORY_CONFIG;
+  if(!st||st.lastReviewedAt==null)return 0; // 未接触=0
+  const t=(nowMs-new Date(st.lastReviewedAt).getTime())/3600000;
+  if(!st.hasEverCorrect){
+    const Dw=clampN(st.wordDifficulty||C.defaultWordDifficulty,C.minWordDifficulty,C.maxWordDifficulty);
+    return (st.formingScore||0)*Math.exp(-(t*Dw)/C.initialFormingStabilityHours);
+  }
+  return (st.memoryScore||0)*Math.exp(-t/effectiveStability(st,nowMs));
+}
+function displayScore(st,nowMs){return displayMemoryScore(st,nowMs);} // 互換エイリアス
+function stabilityHours(st){return effectiveStability(st,Date.now());} // 互換（hoursTo70等）
+/* 単語状態の分類（new/forming/urgent/review/stabilizing/stable） */
+function wordState(st,nowMs){
+  if(!st||!st.hasSeen&&st.lastReviewedAt==null)return"new";
+  if(!st.hasEverCorrect)return"forming";
+  const M=displayMemoryScore(st,nowMs);
+  if(M<40)return"urgent";
+  if(M<70)return"review";
+  if(M<85)return"stabilizing";
+  return"stable";
 }
 function overallCondition(nowMs){const s=loadStats();let t=0;WORDS.forEach(w=>t+=displayScore(getStat(w.id,s),nowMs));return t/WORDS.length;}
-function reviewNeedCount(nowMs){const s=loadStats();return WORDS.filter(w=>displayScore(getStat(w.id,s),nowMs)<70).length;}
+function reviewNeedCount(nowMs){const s=loadStats();return WORDS.filter(w=>displayScore(getStat(w.id,s),nowMs)<MEMORY_CONFIG.reviewThreshold).length;}
 
 /* --- 周回・出題進捗（Sectionごとに保持。旧単一形式はmiddle-01へ移行） --- */
 function _progAll(){
@@ -1398,28 +1482,67 @@ function pickReview(n,excludeIds,prog,stats){
 }
 
 /* 通常テスト：新出枠9＋復習枠3。現在Sectionの単語群と進捗で管理 */
+/* 各単語の優先度スコア（忘れそう/緊急/難/直近ミス/形成必要/重要度） */
+function priorityScore(w,st,nowMs){
+  const C=MEMORY_CONFIG;
+  const disp=displayMemoryScore(st,nowMs);
+  const forgettingRisk=100-disp;
+  const urgency=(st.nextReviewAt&&new Date(st.nextReviewAt).getTime()<=nowMs)?100:(st.hasSeen?0:100);
+  const difficulty=(clampN(st.wordDifficulty||C.defaultWordDifficulty,C.minWordDifficulty,C.maxWordDifficulty)-C.minWordDifficulty)/(C.maxWordDifficulty-C.minWordDifficulty)*100;
+  const recentMistake=(st.hasSeen&&st.lastAnswerStatus!=="correct")?100:0;
+  const formingNeed=!st.hasEverCorrect?100:0;
+  const importance=(w.importanceScore!=null?w.importanceScore:50);
+  let ps=forgettingRisk*0.30+urgency*0.20+difficulty*0.15+recentMistake*0.15+formingNeed*0.10+importance*0.10;
+  const today=dayKey(nowMs);
+  if(st.lastReviewDay===today&&(st.sameDayCorrectCount||0)>=2)ps*=0.4; // 同日2回以上正解は下げる
+  return ps;
+}
 function buildQuestions(){
-  const prog=loadProgress(),stats=loadStats();
+  const prog=loadProgress(),stats=loadStats(),nowMs=Date.now();
   const POOL_IDS=sectionIds();
-  let served=new Set(prog.served||[]);
-  const NEW_TARGET=9;
-  let newIds=[];
-  for(const id of shuffle(POOL_IDS.filter(id=>!served.has(id)))){ if(newIds.length>=NEW_TARGET)break; newIds.push(id); served.add(id); }
-  // 周回内の未出題が9語未満→この周回を出し切り、次の周回を開始して補充
-  if(newIds.length<NEW_TARGET){
-    prog.cycleNumber=(prog.cycleNumber||1)+1; served=new Set();
-    for(const id of shuffle(POOL_IDS.filter(id=>!newIds.includes(id)))){ if(newIds.length>=NEW_TARGET)break; newIds.push(id); served.add(id); }
+  // 直近2回連続で出した単語は3回目を避ける
+  const last=prog.lastTestIds||[],prev=prog.prevTestIds||[];
+  const blocked=new Set(last.filter(id=>prev.includes(id)));
+  // 状態分類と優先度
+  const info=POOL_IDS.map(id=>{const w=WORD_BY_ID[id],st=getStat(id,stats);return{id,w,st,state:wordState(st,nowMs),ps:priorityScore(w,st,nowMs)};});
+  const seen=info.filter(x=>x.st.hasSeen).length;
+  const coverage=seen/Math.max(1,POOL_IDS.length);
+  // カテゴリ枠（coverageが低いと探索を増やす）
+  let quota=coverage<0.6?{nf:5,urgent:4,review:2,stabilizing:1,stable:0}:{nf:3,urgent:4,review:3,stabilizing:1,stable:1};
+  const buckets={nf:[],urgent:[],review:[],stabilizing:[],stable:[]};
+  info.forEach(x=>{
+    if(blocked.has(x.id))return;
+    if(x.state==="new"||x.state==="forming")buckets.nf.push(x);
+    else if(x.state==="urgent")buckets.urgent.push(x);
+    else if(x.state==="review")buckets.review.push(x);
+    else if(x.state==="stabilizing")buckets.stabilizing.push(x);
+    else buckets.stable.push(x);
+  });
+  for(const k in buckets)buckets[k].sort((a,b)=>b.ps-a.ps);
+  // 枠ごとに抽出（偏り防止）→不足分は全体の優先度で補充
+  const chosen=[],used=new Set();
+  const take=(arr,n)=>{for(const x of arr){if(chosen.length>=12||n<=0)break;if(!used.has(x.id)){chosen.push(x);used.add(x.id);n--;}}};
+  take(buckets.nf,quota.nf);take(buckets.urgent,quota.urgent);take(buckets.review,quota.review);take(buckets.stabilizing,quota.stabilizing);take(buckets.stable,quota.stable);
+  if(chosen.length<12){
+    const rest=info.filter(x=>!used.has(x.id)&&!blocked.has(x.id)).sort((a,b)=>b.ps-a.ps);
+    take(rest,12-chosen.length);
   }
-  const reviewIds=pickReview(12-newIds.length,newIds,prog,stats);
-  let chosen=newIds.map(id=>({id,source:"new"})).concat(reviewIds.map(id=>({id,source:"review"})));
-  if(chosen.length<12){ const used=new Set(chosen.map(c=>c.id)); for(const id of shuffle(POOL_IDS.filter(id=>!used.has(id)))){ if(chosen.length>=12)break; chosen.push({id,source:"review"}); } }
-  chosen=shuffle(chosen).slice(0,12);
-  // 進捗保存
+  if(chosen.length<12){ // それでも足りなければblocked解除して補充
+    const rest=info.filter(x=>!used.has(x.id)).sort((a,b)=>b.ps-a.ps);
+    take(rest,12-chosen.length);
+  }
+  // 形成/安定が書き取り枠(末尾2問)に来るよう並べ替え（出題形式を状態に寄せる）
+  const writeRank=x=>(x.state==="stable"?3:x.state==="stabilizing"?2:0);
+  chosen.sort((a,b)=>writeRank(a)-writeRank(b)); // 書き取り向きを後ろへ
+  const list=chosen.slice(0,12).map(x=>({id:x.id,source:(x.state==="new"||x.state==="forming")?"new":"review"}));
+  // 進捗保存（未接触の出題を記録）
+  let served=new Set(prog.served||[]);
+  list.forEach(c=>served.add(c.id));
   prog.served=Array.from(served);
   prog.prevTestIds=prog.lastTestIds||[];
-  prog.lastTestIds=chosen.map(c=>c.id);
+  prog.lastTestIds=list.map(c=>c.id);
   saveProgress(prog);
-  return makeQuestionsFromIds(chosen);
+  return makeQuestionsFromIds(list);
 }
 
 /* 復習テスト：指定idだけ（不足分は現在Sectionから補い12問に） */
@@ -1543,29 +1666,70 @@ function submit(status,userAnswer){
     const cw=classifyWritingError(userAnswer,q.word);
     writingErrorType=cw.type;writingErrorDetail=cw.detail;selectedWrongWordId=cw.wrongWordId;
   }
-  // ---- 記憶スコア更新 ----
-  const stats=loadStats(),st=getStat(q.word.id,stats),before=st.memoryScore;
-  let delta;
-  if(isCorrect){ delta=q.type==="w"?(elapsed<10?18:14):(elapsed<5?12:8); if(isHint)delta/=2; }
-  else delta=status==="incorrect"?-15:-18; // わからない・時間切れ=-18
-  const after=Math.max(0,Math.min(100,before+delta));
+  // ---- 記憶スコア更新（忘却/形成エンジン） ----
+  const C=MEMORY_CONFIG,nowMs=Date.now(),answeredAt=new Date(nowMs).toISOString();
+  const stats=loadStats(),st=getStat(q.word.id,stats);
+  const isWriting=q.type==="w",r=elapsed; // 回答秒（0.1秒単位）
+  const fast=isWriting?(r<C.fastWritingSec):(r<C.fastChoiceSec);
+  // 前状態スナップショット
+  const sBefore=st.stabilityHours,dwBefore=st.wordDifficulty,memBefore=st.memoryScore;
+  const dispBefore=displayMemoryScore(st,nowMs);
+  const Mp=dispBefore; // 予測記憶率
+  // 実測記憶率A
+  let A;
+  if(isCorrect)A=C.correctActualMin+(C.correctActualMax-C.correctActualMin)*Math.exp(-C.responseSpeedAlpha*r);
+  else A=(status==="incorrect")?C.actualIncorrect:(status==="timeout"?C.actualTimeout:C.actualUnknown);
+  const E=A-Mp;
+  // 安定度Suの更新（予測誤差で学習）
+  st.stabilityHours=clampN(st.stabilityHours*Math.exp(C.predictionLearningRateGamma*E/100),C.minStabilityHours,C.maxStabilityHours);
+  // 同日定着カウント
+  const today=dayKey(nowMs);
+  if(isCorrect){ if(st.lastReviewDay!==today)st.sameDayCorrectCount=0; st.sameDayCorrectCount=(st.sameDayCorrectCount||0)+1; }
+  st.lastReviewDay=today;
+  // memoryScore / formingScore
+  if(!st.hasEverCorrect){
+    if(isCorrect){ st.hasEverCorrect=true; st.firstCorrectAt=answeredAt; st.memoryScore=C.firstCorrectMemoryScore; } // 初正解
+    else st.formingScore=(st.formingScore||0)+(status==="incorrect"?C.formingIncorrectGain:status==="timeout"?C.formingTimeoutGain:C.formingUnknownGain); // 初正解前は減点せず接触で加点
+  }else{
+    let delta;
+    if(isCorrect)delta=isWriting?(fast?C.writingFastCorrectDelta:C.writingNormalCorrectDelta):(fast?C.choiceFastCorrectDelta:C.choiceNormalCorrectDelta);
+    else delta=(status==="incorrect")?(isWriting?C.writingIncorrectDelta:C.choiceIncorrectDelta):(status==="timeout"?C.timeoutDelta:C.unknownDelta);
+    if(isCorrect&&isHint)delta*=C.hintMultiplier;
+    st.memoryScore=clampN(dispBefore+delta,0,100); // 現在記憶率を起点に加算しM0を更新
+  }
+  // 単語難易度の緩やかな適応
+  if(isCorrect&&fast)st.wordDifficulty=clampN(st.wordDifficulty-0.02,C.minWordDifficulty,C.maxWordDifficulty);
+  else if(!isCorrect)st.wordDifficulty=clampN(st.wordDifficulty+0.03,C.minWordDifficulty,C.maxWordDifficulty);
+  // カウンタ等
+  st.hasSeen=true; st.lastReviewedAt=answeredAt; st.reviewCount=(st.reviewCount||0)+1;
+  if(isCorrect){st.correctCount=(st.correctCount||0)+1;st.consecutiveCorrectCount=(st.consecutiveCorrectCount||0)+1;}
+  else{st.incorrectCount=(st.incorrectCount||0)+1;st.consecutiveCorrectCount=0;}
+  const rtMs=Math.round(elapsed*1000);
+  st.averageResponseTimeMs=st.reviewCount<=1?rtMs:Math.round((st.averageResponseTimeMs*(st.reviewCount-1)+rtMs)/st.reviewCount);
+  st.lastAnswerStatus=status; st.lastAnswerType=ANS_TYPE[q.type]; st.lastResponseTimeSec=Math.round(elapsed*10)/10; st.isHintProvided=isHint;
+  // 次回復習推奨日時
+  const dispAfter=displayMemoryScore(st,nowMs);
+  if(!st.hasEverCorrect){ st.nextReviewAt=new Date(nowMs+C.initialFormingStabilityHours*3600000).toISOString(); }
+  else if(st.memoryScore<=C.reviewThreshold){ st.nextReviewAt=answeredAt; }
+  else { const hrs=effectiveStability(st,nowMs)*Math.log(st.memoryScore/C.reviewThreshold); st.nextReviewAt=new Date(nowMs+Math.max(0,hrs)*3600000).toISOString(); }
+  stats[q.word.id]=st; saveStats(stats);
+  // 履歴（上書きせず全保存）
   const rec={
     userId:state.userId,wordId:q.word.id,testId:state.testId,questionNumber:state.idx+1,
-    korean:q.word.ko,japanese:q.word.ja,answerType:ANS_TYPE[q.type],direction:DIRECTION[q.type],
+    korean:q.word.ko,japanese:q.word.ja,answerType:ANS_TYPE[q.type],direction:DIRECTION[q.type],questionType:ANS_TYPE[q.type],
     userAnswer:userAnswer||"",correctAnswer:q.correct,answerStatus:status,isCorrect,
     selectedWrongWordId,distractorType,writingErrorType,writingErrorDetail,
     isHintProvided:isHint,hintText:q.hintText||null,
     cycleNumber:state.cycleNumber,questionSource:q.source||"new",
-    responseTimeMs:Math.round(elapsed*1000),score,answeredAt:new Date().toISOString()
+    responseTimeMs:rtMs,responseTimeSec:Math.round(elapsed*10)/10,score,answeredAt,
+    memoryScoreBefore:memBefore,memoryScoreAfter:st.memoryScore,
+    stabilityHoursBefore:sBefore,stabilityHoursAfter:st.stabilityHours,
+    displayMemoryScoreBefore:Math.round(dispBefore),displayMemoryScoreAfter:Math.round(dispAfter),
+    predictedMemory:Math.round(Mp),actualMemory:Math.round(A),predictionError:Math.round(E),
+    wordDifficultyBefore:dwBefore,wordDifficultyAfter:st.wordDifficulty,
+    nextReviewAt:st.nextReviewAt,
+    displayMemoryScoreAfterDecay:Math.round(dispAfter) // 互換
   };
-  st.memoryScore=after; st.lastReviewedAt=rec.answeredAt; st.reviewCount=(st.reviewCount||0)+1;
-  if(isCorrect){st.correctCount=(st.correctCount||0)+1;st.consecutiveCorrectCount=(st.consecutiveCorrectCount||0)+1;}
-  else{st.incorrectCount=(st.incorrectCount||0)+1;st.consecutiveCorrectCount=0;}
-  st.averageResponseTimeMs=st.reviewCount<=1?rec.responseTimeMs:Math.round((st.averageResponseTimeMs*(st.reviewCount-1)+rec.responseTimeMs)/st.reviewCount);
-  st.lastAnswerStatus=status; st.lastAnswerType=ANS_TYPE[q.type]; st.isHintProvided=isHint;
-  stats[q.word.id]=st; saveStats(stats);
-  rec.memoryScoreBefore=before; rec.memoryScoreAfter=after;
-  rec.displayMemoryScoreAfterDecay=Math.round(displayScore(st,Date.now()));
   state.results.push(rec);saveAnswer(rec);
   speakKorean(q.word); // 正解・不正解・わからない・時間切れすべてで正解の韓国語音声を再生（学習のため）
   showOverlay(status,q,userAnswer);
@@ -1829,19 +1993,22 @@ function chartPoints(nowMs,words){
   const pastAt=h=>{ // h時間前のPWR（記録を時刻Tまでリプレイ）
     const T=nowMs-h*3600000;let t=0;
     words.forEach(w=>{
-      const recs=byWord[w.id]||[];let st=null,cc=0,cons=0;
-      for(const r of recs){
-        if(new Date(r.answeredAt).getTime()>T)break;
-        if(r.isCorrect){cc++;cons++;}else cons=0;
-        st={memoryScore:(r.memoryScoreAfter!=null?r.memoryScoreAfter:DEFAULT_SCORE),lastReviewedAt:r.answeredAt,correctCount:cc,consecutiveCorrectCount:cons};
+      const recs=byWord[w.id]||[];let last=null;
+      for(const r of recs){ if(new Date(r.answeredAt).getTime()>T)break; last=r; }
+      if(last){
+        const st={memoryScore:last.memoryScoreAfter!=null?last.memoryScoreAfter:0,formingScore:0,
+          hasEverCorrect:last.memoryScoreAfter!=null&&last.memoryScoreAfter>0&&(last.firstCorrectAt!=null||last.isCorrect||last.memoryScoreAfter>=45),
+          stabilityHours:last.stabilityHoursAfter!=null?last.stabilityHoursAfter:MEMORY_CONFIG.initialStabilityHours,
+          wordDifficulty:last.wordDifficultyAfter!=null?last.wordDifficultyAfter:MEMORY_CONFIG.defaultWordDifficulty,
+          lastReviewedAt:last.answeredAt,wordId:w.id};
+        t+=displayMemoryScore(st,T);
       }
-      t+=st?displayScore(st,T):0; // その時点で未学習なら0
     });
     return t/Math.max(1,words.length);
   };
   const s=loadStats();
-  const nowRate=words.reduce((a,w)=>a+displayScore(getStat(w.id,s),nowMs),0)/Math.max(1,words.length);
-  const fut=h=>{let t=0;words.forEach(w=>{const st=getStat(w.id,s);t+=displayScore(st,nowMs)*Math.exp(-h/Math.max(1,stabilityHours(st)));});return t/Math.max(1,words.length);};
+  const nowRate=words.reduce((a,w)=>a+displayMemoryScore(getStat(w.id,s),nowMs),0)/Math.max(1,words.length);
+  const fut=h=>{let t=0;words.forEach(w=>{const st=getStat(w.id,s);t+=displayMemoryScore(st,nowMs)*Math.exp(-h/effectiveStability(st,nowMs));});return t/Math.max(1,words.length);};
   const pts=[];
   for(let d=7;d>=1;d--)pts.push({label:"-"+d,rate:pastAt(24*d)});
   pts.push({label:"今",rate:nowRate});
@@ -1986,7 +2153,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.28.8 (2026-06-08)";
+const APP_VERSION="v2.29.0 (2026-06-08)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
