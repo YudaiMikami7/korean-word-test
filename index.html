@@ -200,10 +200,8 @@ button{font-family:inherit}
 .reward-rail{position:absolute;right:8px;top:172px;display:flex;flex-direction:column;gap:9px;z-index:5}
 .rr-btn{width:68px;height:68px;border:none;background:rgba(255,255,255,.18);border-radius:50%;cursor:pointer;padding:0;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
 .rr-btn img{width:86%;height:86%;object-fit:contain}
-.rr-btn.present{background:transparent}
-.rr-btn.present img{filter:drop-shadow(0 2px 5px rgba(0,0,0,.35))}
-.rr-btn.present.rb img{animation:rbglow 1.4s linear infinite}
-.rr-btn.present.bob{animation:bob 1.6s ease-in-out infinite}
+.rr-btn.rb{animation:rbglow 1.4s linear infinite}
+.rr-btn.bob{animation:bob 1.6s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes rbglow{0%{filter:drop-shadow(0 0 7px #ff3b3b)}17%{filter:drop-shadow(0 0 9px #ffb13b)}33%{filter:drop-shadow(0 0 10px #ffe93b)}50%{filter:drop-shadow(0 0 11px #3bff6a)}67%{filter:drop-shadow(0 0 10px #3bc4ff)}83%{filter:drop-shadow(0 0 9px #b13bff)}100%{filter:drop-shadow(0 0 7px #ff3b3b)}}
 .present-badge{position:absolute;right:0;top:-2px;min-width:22px;height:22px;border-radius:11px;background:#FF3B3B;color:#fff;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box;border:2px solid #fff}
@@ -455,8 +453,7 @@ button{font-family:inherit}
       <div class="hv-level" id="hv-level" onclick="enterStatusMode()" style="cursor:pointer">Lv.<span>1</span></div>
       <div class="hv-code" id="hv-code" onclick="enterStatusMode()">----</div>
       <div class="reward-rail">
-        <button class="rr-btn present" id="present-btn" onclick="openPresent()"><img src="icons/present.webp" alt="プレゼント"><span class="present-badge" id="present-badge" style="display:none">!</span></button>
-        <button class="rr-btn" onclick="openPresent()"><img src="icons/bonus-daily.webp" alt="毎日"></button>
+        <button class="rr-btn" id="present-btn" onclick="openPresent()"><img src="icons/bonus-daily.webp" alt="毎日"><span class="present-badge" id="present-badge" style="display:none">!</span></button>
         <button class="rr-btn" onclick="openPresent()"><img src="icons/bonus-rank.webp" alt="ランク"></button>
         <button class="rr-btn" onclick="openPresent()"><img src="icons/bonus-level.webp" alt="レベル"></button>
         <button class="rr-btn" onclick="openPresent()"><img src="icons/bonus-pwr.webp" alt="PWR"></button>
@@ -2375,7 +2372,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.35.0 (2026-06-08)";
+const APP_VERSION="v2.35.1 (2026-06-08)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
