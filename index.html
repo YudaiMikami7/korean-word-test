@@ -198,13 +198,13 @@ button{font-family:inherit}
 .reward-rail{position:absolute;right:14px;top:430px;display:flex;flex-direction:column;gap:8px;z-index:5;
   opacity:1;transition:opacity .3s ease} /* ピルの下・画面右に縦4 */
 .home-wrap.status .reward-rail,.home-wrap.hiderail .reward-rail{opacity:0;pointer-events:none}
-.rr-btn{width:68px;height:68px;border:none;background:rgba(255,255,255,.18);border-radius:50%;cursor:pointer;padding:0;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
+.rr-btn{width:68px;height:68px;border:none;background:rgba(255,255,255,.18);border-radius:50%;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;position:relative}
 .rr-btn img{width:86%;height:86%;object-fit:contain}
 .rr-btn.rb{animation:rbglow 1.4s linear infinite}
 .rr-btn.bob{animation:bob 1.6s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes rbglow{0%{filter:drop-shadow(0 0 7px #ff3b3b)}17%{filter:drop-shadow(0 0 9px #ffb13b)}33%{filter:drop-shadow(0 0 10px #ffe93b)}50%{filter:drop-shadow(0 0 11px #3bff6a)}67%{filter:drop-shadow(0 0 10px #3bc4ff)}83%{filter:drop-shadow(0 0 9px #b13bff)}100%{filter:drop-shadow(0 0 7px #ff3b3b)}}
-.rr-badge{position:absolute;right:1px;top:1px;min-width:22px;height:22px;border-radius:11px;background:#FF3B3B;color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box;border:2px solid #fff}
+.rr-badge{position:absolute;right:-4px;top:-4px;z-index:1;min-width:22px;height:22px;border-radius:11px;background:#FF3B3B;color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box;border:2px solid #fff}
 .present-badge{position:absolute;right:0;top:-2px;min-width:22px;height:22px;border-radius:11px;background:#FF3B3B;color:#fff;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box;border:2px solid #fff}
 #present-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
 #present-modal.on{display:flex}
@@ -254,12 +254,14 @@ button{font-family:inherit}
 /* カード図鑑 */
 .zk-sum{position:sticky;top:0;z-index:1;background:rgba(0,0,0,.8);color:#fff;font-size:15px;font-weight:800;padding:9px 12px;letter-spacing:1px}
 .zk-sum b{color:#FFC400;font-size:18px}
-.zk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px}
-.zk-card{position:relative;background:#FFFFFF;color:#1a1a1a;min-height:172px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:20px 6px 10px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.zk-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:12px}
+.zk-card{position:relative;background:#FFFFFF;color:#1a1a1a;min-height:235px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;padding:24px 6px 12px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.18);border-radius:12px;overflow:hidden}
 .zk-no{position:absolute;left:7px;top:6px;font-size:11px;font-weight:800;color:#999}
 .zk-cnt{position:absolute;right:6px;top:5px;background:#FFC400;color:#1a1a1a;font-size:13px;font-weight:900;padding:1px 7px;border-radius:999px}
-.zk-img{width:128px;height:128px;object-fit:contain;margin:2px 0 0}
-.zk-rate-top{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:900}
+.zk-img{width:200px;height:172px;object-fit:contain;margin:-6px 0 0}
+.zk-ko,.zk-ja{position:relative;z-index:1} /* 画像に重なってよい */
+.zk-ko{margin-top:-26px;text-shadow:0 1px 4px rgba(255,255,255,.9)}
+.zk-rate-bot{position:absolute;bottom:7px;left:0;right:0;text-align:center;font-size:14px;font-weight:900}
 .zk-ko{font-size:25px;font-weight:800;text-align:center;line-height:1.15;word-break:keep-all}
 .zk-ja{font-size:12px;font-weight:700;color:#666;text-align:center;line-height:1.3}
 .zk-rate{font-size:13px;font-weight:900;margin-top:2px}
@@ -963,8 +965,9 @@ function roomListHTML(n){
       const rate=Math.round(displayScore(getStat(id,st),now)),ms=memState(rate);
       const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko])?`<img class="zk-img" src="${WORD_IMG[w.ko]}" loading="lazy" alt="">`:"";
       return `<div class="zk-card" onclick="renderWordDetail(${id},'room')">
-        <span class="zk-no">${no}</span><span class="zk-rate-top ${ms.cls}">${rate}%</span><span class="zk-cnt">×${cnt}</span>
-        ${img}<div class="zk-ko">${esc(w.ko)}</div><div class="zk-ja">${esc(w.ja)}</div></div>`;
+        <span class="zk-no">${no}</span><span class="zk-cnt">×${cnt}</span>
+        ${img}<div class="zk-ko">${esc(w.ko)}</div><div class="zk-ja">${esc(w.ja)}</div>
+        <div class="zk-rate-bot ${ms.cls}">${rate}%</div></div>`;
     }
     if(seen){
       return `<div class="zk-card zk-seen" onclick="renderWordDetail(${id},'room')">
@@ -987,7 +990,7 @@ function roomInfoFor(n){
     recent:(rec.recentRanks||[]).slice(-3),best:rec.bestRank||null};
 }
 const LEVEL_SLIDE_BG="#9FA6AD";
-function switchLevel(l){curLevel=l;curSection=1;buildRoomSlides();applyHomeBg();}
+function switchLevel(l){curLevel=l;curSection=1;buildRoomSlides();applyHomeBg();saveLastRoom();}
 function buildRoomSlides(){
   const el=document.getElementById("hv-rooms");if(!el)return;
   const count=LEVEL_INFO[curLevel].count;
@@ -1084,7 +1087,7 @@ function buildRoomSlides(){
       clearTimeout(_roomScrollT);
       _roomScrollT=setTimeout(()=>{
         const n=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count);
-        if(n>=1&&n!==curSection){curSection=n;applyHomeBg();}
+        if(n>=1&&n!==curSection){curSection=n;applyHomeBg();saveLastRoom();}
       },120);
     });
   }
@@ -1488,7 +1491,7 @@ const IME={
 /* ============================================================ ストレージ（全件保存） ============================================================ */
 const LS_HIST="kwt_history_v1", LS_PERFECT="kwt_perfect_v1", LS_USER="kwt_user_v1",
       LS_STATS="kwt_stats_v1", LS_PROG="kwt_progress_v1", LS_SESS="kwt_session_v1",
-      LS_BONUS="kwt_bonus_v1", LS_PRESENT="kwt_present_v1", LS_CARDS="kwt_cards_v1", LS_LAUNCH="kwt_launch_v1";
+      LS_BONUS="kwt_bonus_v1", LS_PRESENT="kwt_present_v1", LS_CARDS="kwt_cards_v1", LS_LAUNCH="kwt_launch_v1", LS_LASTROOM="kwt_lastroom_v1";
 function getUserId(){let u=localStorage.getItem(LS_USER);if(!u){u="u-"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);localStorage.setItem(LS_USER,u);}return u;}
 function loadHistory(){try{return JSON.parse(localStorage.getItem(LS_HIST)||"[]");}catch(e){return[];}}
 function saveAnswer(rec){const h=loadHistory();h.push(rec);localStorage.setItem(LS_HIST,JSON.stringify(h));_histIdxCache=null;}
@@ -2186,6 +2189,7 @@ function wdSlideHTML(id,i){
     <div class="wd-ko2">${esc(w.ko)}</div>
     <div class="wd-ja2">${esc(w.ja)}</div>
     ${note}
+    <div class="st-graphpanel" style="margin-top:12px">${memChart(chartPoints(Date.now(),[w]))}</div>
     <div class="tdetail-sec"><div class="h">学習履歴</div>
       <table class="htab"><thead><tr><th>日時</th><th>方向</th><th>結果</th><th class="num">時間</th><th class="num">得点</th><th class="num">記憶率(%)</th></tr></thead>
       <tbody>${wdHistRows(id)||'<tr><td colspan="6" style="color:var(--mute);text-align:center;padding:20px">履歴なし</td></tr>'}</tbody></table>
@@ -2267,7 +2271,7 @@ function updateStatusOverlay(){
     const n=Math.max(1,Math.min(N,Math.round(sc.scrollLeft/602)+1));
     if(n!==curSection){
       curSection=n;
-      const hv=document.getElementById("hv-rooms");if(hv)hv.scrollLeft=n*602; // ホーム側も同じROOMへ同期
+      const hv=document.getElementById("hv-rooms");if(hv)hv.scrollLeft=n*602;saveLastRoom(); // ホーム側も同じROOMへ同期
     }
     applyBgAll(roomBg(n));
     fill(n);fill(Math.max(1,n-1));fill(Math.min(N,n+1));
@@ -2467,9 +2471,21 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.39.0 (2026-06-10)";
+const APP_VERSION="v2.40.0 (2026-06-10)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
+/* 前回開いていたROOMを起動時に復元 */
+function saveLastRoom(){try{localStorage.setItem(LS_LASTROOM,JSON.stringify({level:curLevel,section:curSection}));}catch(e){}}
+(function restoreLastRoom(){
+  try{
+    const v=JSON.parse(localStorage.getItem(LS_LASTROOM)||"null");
+    if(v&&LEVEL_INFO[v.level]&&v.section>=1&&v.section<=LEVEL_INFO[v.level].count){
+      curLevel=v.level;curSection=v.section;
+      renderHome();
+      requestAnimationFrame(()=>{const el=document.getElementById("hv-rooms");if(el)el.scrollLeft=curSection*602;});
+    }
+  }catch(e){}
+})();
 updateDiagnosis();   // 起動時に診断を初期化
 renderHome();        // ホーム描画＋スケール適用
 </script>
