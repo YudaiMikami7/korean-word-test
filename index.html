@@ -197,7 +197,7 @@ button{font-family:inherit}
 .cal-sp{margin-top:14px;text-align:center;font-size:14px;font-weight:800}
 .cal-sp .rbtext{font-weight:900}
 .cal-close{position:absolute;right:10px;top:6px;background:transparent;border:none;font-size:24px;font-weight:900;color:#888;cursor:pointer}
-.reward-rail{position:absolute;right:8px;top:432px;display:flex;flex-direction:column;gap:10px;z-index:5;
+.reward-rail{position:absolute;right:14px;top:432px;display:flex;flex-direction:column;gap:10px;z-index:5;
   opacity:1;transition:opacity .3s ease} /* ピルの下・画面右に縦4 */
 .home-wrap.status .reward-rail,.home-wrap.hiderail .reward-rail{opacity:0;pointer-events:none}
 .rr-btn{width:68px;height:68px;border:none;background:rgba(255,255,255,.18);border-radius:50%;cursor:pointer;padding:0;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
@@ -206,7 +206,7 @@ button{font-family:inherit}
 .rr-btn.bob{animation:bob 1.6s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes rbglow{0%{filter:drop-shadow(0 0 7px #ff3b3b)}17%{filter:drop-shadow(0 0 9px #ffb13b)}33%{filter:drop-shadow(0 0 10px #ffe93b)}50%{filter:drop-shadow(0 0 11px #3bff6a)}67%{filter:drop-shadow(0 0 10px #3bc4ff)}83%{filter:drop-shadow(0 0 9px #b13bff)}100%{filter:drop-shadow(0 0 7px #ff3b3b)}}
-.rr-badge{position:absolute;right:-2px;top:-2px;min-width:22px;height:22px;border-radius:11px;background:#FF3B3B;color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box;border:2px solid #fff}
+.rr-badge{position:absolute;right:1px;top:1px;min-width:22px;height:22px;border-radius:11px;background:#FF3B3B;color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box;border:2px solid #fff}
 .present-badge{position:absolute;right:0;top:-2px;min-width:22px;height:22px;border-radius:11px;background:#FF3B3B;color:#fff;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box;border:2px solid #fff}
 #present-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
 #present-modal.on{display:flex}
@@ -833,6 +833,7 @@ function claimPresent(){
   const idx=st.queue.findIndex(x=>x.cat===_presCat);
   if(idx<0){closePresent();return;}
   const r=st.queue.splice(idx,1)[0];
+  sfxClaim();
   addBonus(r.total);
   _savePresent(st);
   updatePresent();
@@ -1590,6 +1591,14 @@ function saveSession(s){localStorage.setItem(LS_SESS,JSON.stringify(s));}
 
 /* ============================================================ 韓国語音声（正解時のみ） ============================================================ */
 /* 既存の音声ファイルが word.audio に登録されていればそれを優先。無ければSpeechSynthesisで ko-KR 読み上げ。 */
+/* 効果音（WebAudio合成）。スタート時とプレゼント受け取り時 */
+let _sfxCtx=null;
+function _sfx(){try{_sfxCtx=_sfxCtx||new (window.AudioContext||window.webkitAudioContext)();if(_sfxCtx.state==="suspended")_sfxCtx.resume();return _sfxCtx;}catch(e){return null;}}
+function _tone(ctx,freq,t0,dur,vol,type){const o=ctx.createOscillator(),g=ctx.createGain();o.type=type||"sine";o.frequency.value=freq;
+  g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  o.connect(g);g.connect(ctx.destination);o.start(t0);o.stop(t0+dur+0.05);}
+function sfxStart(){const c=_sfx();if(!c)return;const t=c.currentTime; _tone(c,523,t,0.12,0.25,"square");_tone(c,784,t+0.1,0.18,0.25,"square");}
+function sfxClaim(){const c=_sfx();if(!c)return;const t=c.currentTime;[523,659,784,1047].forEach((f,i)=>_tone(c,f,t+i*0.07,0.3,0.22,"triangle"));_tone(c,1568,t+0.3,0.45,0.12,"sine");}
 let _koVoice=null,_curAudio=null;
 function _pickKoVoice(){
   if(!('speechSynthesis' in window))return;
@@ -1842,6 +1851,7 @@ function startTest(reviewIds){
   const prog=loadProgress();
   state={questions:qs,idx:0,results:[],testId:"t-"+Date.now().toString(36),userId:getUserId(),
     cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level};
+  sfxStart();
   renderQuestion();
   show("s-quiz");
 }
@@ -2416,7 +2426,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.37.0 (2026-06-10)";
+const APP_VERSION="v2.37.1 (2026-06-10)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
