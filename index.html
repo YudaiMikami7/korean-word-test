@@ -139,7 +139,7 @@ button{font-family:inherit}
 .avatar-image{width:100%;height:100%;object-fit:contain;padding:12px;box-sizing:border-box}
 .hv-level{position:absolute;left:176px;top:44px;display:flex;align-items:baseline;gap:3px;line-height:1;z-index:2;font-size:20px}
 .hv-level span{font-size:38px}
-.hv-code{position:absolute;right:104px;top:42px;font-size:40px;letter-spacing:1px;line-height:1;cursor:pointer;z-index:2}
+.hv-code{position:absolute;right:47px;top:42px;font-size:40px;letter-spacing:1px;line-height:1;cursor:pointer;z-index:2}
 .status-panel{position:absolute;left:166px;top:83px;width:403px;height:64px;border-radius:32px;background:rgba(0,0,0,.8);z-index:1;cursor:pointer}
 .hv-lab,.hv-xpg,.hv-pwrg{pointer-events:none}
 .hv-lab{position:absolute;font-size:18px;line-height:19px;z-index:2}
@@ -252,6 +252,7 @@ button{font-family:inherit}
 .zk-card{position:relative;background:#FFFFFF;color:#1a1a1a;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:20px 6px 10px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.18)}
 .zk-no{position:absolute;left:7px;top:6px;font-size:11px;font-weight:800;color:#999}
 .zk-cnt{position:absolute;right:6px;top:5px;background:#FFC400;color:#1a1a1a;font-size:13px;font-weight:900;padding:1px 7px;border-radius:999px}
+.zk-img{width:92px;height:92px;object-fit:contain;margin:-6px 0 0}
 .zk-ko{font-size:25px;font-weight:800;text-align:center;line-height:1.15;word-break:keep-all}
 .zk-ja{font-size:12px;font-weight:700;color:#666;text-align:center;line-height:1.3}
 .zk-rate{font-size:13px;font-weight:900;margin-top:2px}
@@ -511,6 +512,7 @@ button{font-family:inherit}
 <div id="calendar-modal"></div>
 
 <script src="words-middle.js"></script>
+<script src="words-images.js"></script>
 <script src="words-beginner.js"></script>
 <script>
 /* ============================================================ 単語データ 100語 ============================================================ */
@@ -939,9 +941,10 @@ function roomListHTML(n){
     if(cnt>0){
       owned++;totalCnt+=cnt;
       const rate=Math.round(displayScore(getStat(id,st),now)),ms=memState(rate);
+      const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko])?`<img class="zk-img" src="${WORD_IMG[w.ko]}" loading="lazy" alt="">`:"";
       return `<div class="zk-card" onclick="renderWordDetail(${id},'room')">
         <span class="zk-no">${no}</span><span class="zk-cnt">×${cnt}</span>
-        <div class="zk-ko">${esc(w.ko)}</div><div class="zk-ja">${esc(w.ja)}</div>
+        ${img}<div class="zk-ko">${esc(w.ko)}</div><div class="zk-ja">${esc(w.ja)}</div>
         <div class="zk-rate ${ms.cls}">${rate}%</div></div>`;
     }
     if(seen){
@@ -2413,7 +2416,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.36.0 (2026-06-10)";
+const APP_VERSION="v2.37.0 (2026-06-10)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
