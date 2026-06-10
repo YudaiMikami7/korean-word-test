@@ -197,13 +197,16 @@ button{font-family:inherit}
 .cal-sp{margin-top:14px;text-align:center;font-size:14px;font-weight:800}
 .cal-sp .rbtext{font-weight:900}
 .cal-close{position:absolute;right:10px;top:6px;background:transparent;border:none;font-size:24px;font-weight:900;color:#888;cursor:pointer}
-.reward-rail{position:absolute;right:8px;top:172px;display:flex;flex-direction:column;gap:9px;z-index:5}
+.reward-rail{position:absolute;right:8px;top:432px;display:flex;flex-direction:column;gap:10px;z-index:5;
+  opacity:1;transition:opacity .3s ease} /* ピルの下・画面右に縦4 */
+.home-wrap.status .reward-rail,.home-wrap.hiderail .reward-rail{opacity:0;pointer-events:none}
 .rr-btn{width:68px;height:68px;border:none;background:rgba(255,255,255,.18);border-radius:50%;cursor:pointer;padding:0;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
 .rr-btn img{width:86%;height:86%;object-fit:contain}
 .rr-btn.rb{animation:rbglow 1.4s linear infinite}
 .rr-btn.bob{animation:bob 1.6s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes rbglow{0%{filter:drop-shadow(0 0 7px #ff3b3b)}17%{filter:drop-shadow(0 0 9px #ffb13b)}33%{filter:drop-shadow(0 0 10px #ffe93b)}50%{filter:drop-shadow(0 0 11px #3bff6a)}67%{filter:drop-shadow(0 0 10px #3bc4ff)}83%{filter:drop-shadow(0 0 9px #b13bff)}100%{filter:drop-shadow(0 0 7px #ff3b3b)}}
+.rr-badge{position:absolute;right:-2px;top:-2px;min-width:22px;height:22px;border-radius:11px;background:#FF3B3B;color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box;border:2px solid #fff}
 .present-badge{position:absolute;right:0;top:-2px;min-width:22px;height:22px;border-radius:11px;background:#FF3B3B;color:#fff;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box;border:2px solid #fff}
 #present-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
 #present-modal.on{display:flex}
@@ -242,6 +245,21 @@ button{font-family:inherit}
 .wl-ja{flex:1;font-size:30px;font-weight:700;color:rgba(255,255,255,.88);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wl-cnt{flex:0 0 44px;text-align:right;font-size:18px;font-weight:800;color:rgba(255,255,255,.8)}
 .wl-rate{flex:0 0 46px;text-align:right;font-size:20px;font-weight:900}
+/* カード図鑑 */
+.zk-sum{position:sticky;top:0;z-index:1;background:rgba(0,0,0,.8);color:#fff;font-size:15px;font-weight:800;padding:9px 12px;letter-spacing:1px}
+.zk-sum b{color:#FFC400;font-size:18px}
+.zk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px}
+.zk-card{position:relative;background:#FFFFFF;color:#1a1a1a;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:20px 6px 10px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.zk-no{position:absolute;left:7px;top:6px;font-size:11px;font-weight:800;color:#999}
+.zk-cnt{position:absolute;right:6px;top:5px;background:#FFC400;color:#1a1a1a;font-size:13px;font-weight:900;padding:1px 7px;border-radius:999px}
+.zk-ko{font-size:25px;font-weight:800;text-align:center;line-height:1.15;word-break:keep-all}
+.zk-ja{font-size:12px;font-weight:700;color:#666;text-align:center;line-height:1.3}
+.zk-rate{font-size:13px;font-weight:900;margin-top:2px}
+.zk-seen{background:rgba(255,255,255,.45);box-shadow:none}
+.zk-seen .zk-rate{color:#777;font-size:11px}
+.zk-lock{background:rgba(0,0,0,.35);box-shadow:none;cursor:default}
+.zk-lock .zk-no{color:rgba(255,255,255,.6)}
+.zk-q{font-size:44px;font-weight:900;color:rgba(255,255,255,.55)}
 .room-ph{position:absolute;left:24px;top:178px;width:554px;height:507px;display:flex;align-items:center;justify-content:center;font-size:130px;color:rgba(255,255,255,.32);font-weight:800}
 .start-button{position:absolute;left:50%;transform:translate(-50%,calc(var(--down,0px)*2.2));top:1004px;width:540px;height:123px;border:4px solid #FFC400;border-radius:62px;
   background:rgba(0,0,0,.8);color:#FFFFFF;font-size:62px;font-weight:900;cursor:pointer;font-family:inherit;z-index:2;
@@ -448,15 +466,15 @@ button{font-family:inherit}
   <div class="screen on" id="s-home">
     <div class="home-wrap" id="homewrap">
       <div class="home-head">
-      <button class="cal-btn" id="cal-btn" onclick="openCalendar()"><img src="icons/bonus-daily.webp" alt="カレンダー"></button>
+      <button class="cal-btn" id="cal-btn" onclick="openCalendar()"><img src="icons/calendar.webp" alt="カレンダー"></button>
       <div class="avatar-circle" onclick="enterStatusMode()"><img class="avatar-image" id="hv-char" src="characters/analyzing.svg" alt=""></div>
       <div class="hv-level" id="hv-level" onclick="enterStatusMode()" style="cursor:pointer">Lv.<span>1</span></div>
       <div class="hv-code" id="hv-code" onclick="enterStatusMode()">----</div>
       <div class="reward-rail">
-        <button class="rr-btn" id="present-btn" onclick="openPresent()"><img src="icons/bonus-daily.webp" alt="毎日"><span class="present-badge" id="present-badge" style="display:none">!</span></button>
-        <button class="rr-btn" onclick="openPresent()"><img src="icons/bonus-rank.webp" alt="ランク"></button>
-        <button class="rr-btn" onclick="openPresent()"><img src="icons/bonus-level.webp" alt="レベル"></button>
-        <button class="rr-btn" onclick="openPresent()"><img src="icons/bonus-pwr.webp" alt="PWR"></button>
+        <button class="rr-btn" id="rr-daily" onclick="openPresent('daily')"><img src="icons/bonus-daily.webp" alt="毎日"><span class="rr-badge" id="pb-daily" style="display:none"></span></button>
+        <button class="rr-btn" id="rr-rank" onclick="openPresent('rank')"><img src="icons/bonus-rank.webp" alt="ランク"><span class="rr-badge" id="pb-rank" style="display:none"></span></button>
+        <button class="rr-btn" id="rr-level" onclick="openPresent('level')"><img src="icons/bonus-level.webp" alt="レベル"><span class="rr-badge" id="pb-level" style="display:none"></span></button>
+        <button class="rr-btn" id="rr-pwr" onclick="openPresent('pwr')"><img src="icons/bonus-pwr.webp" alt="PWR"><span class="rr-badge" id="pb-pwr" style="display:none"></span></button>
       </div>
       <div class="status-panel" onclick="enterStatusMode()"></div>
       <div class="hv-lab hv-xplabel">XP</div>
@@ -675,12 +693,6 @@ function xpInfo(){
   return{level:lv,cur:rem,next:lv*100};
 }
 /* ============================================================ プレゼント（やればやるほどレインボーボーナス） ============================================================ */
-function _presentState(){try{const o=JSON.parse(localStorage.getItem(LS_PRESENT)||"{}")||{};if(!Array.isArray(o.queue))o.queue=[];return o;}catch(e){return{queue:[]};}}
-function _savePresent(o){localStorage.setItem(LS_PRESENT,JSON.stringify(o));}
-function totalTests(){const set=new Set();loadHistory().forEach(r=>{if(r.testId)set.add(r.testId);});return set.size;}
-let _secOfWord=null;
-function secOfWord(){if(_secOfWord)return _secOfWord;const m={};["beginner","middle"].forEach(lv=>{const L=LEVEL_SECTIONS[lv]||{};Object.keys(L).forEach(n=>{(L[n]||[]).forEach(id=>{m[id]=lv+"-"+n;});});});_secOfWord=m;return m;}
-function roomsPlayed(){const m=secOfWord(),set=new Set();loadHistory().forEach(r=>{const k=m[r.wordId];if(k)set.add(k);});return set.size;}
 /* n番目の曜日(weekday:0=日)の日付。可変祝日用 */
 function nthWeekday(y,m,wd,n){let d=new Date(y,m,1),c=0;while(d.getMonth()===m){if(d.getDay()===wd){c++;if(c===n)return new Date(d);}d.setDate(d.getDate()+1);}return null;}
 /* その日にかかわる特別ボーナス（無ければnull） */
@@ -726,74 +738,88 @@ function openCalendar(){
   m.classList.add("on");
 }
 function closeCalendar(){document.getElementById("calendar-modal").classList.remove("on");}
-/* 達成ボーナス（毎日起動/回数/ROOM種類/特別日）。条件を満たすたびプレゼントを1個追加（各1回） */
+const PRES_CATS=["daily","rank","level","pwr"];
+const PRES_LABEL={daily:"毎日ボーナス",rank:"テストのごほうび",level:"レベル・達成ボーナス",pwr:"PWRボーナス"};
+function _presentState(){
+  let o;try{o=JSON.parse(localStorage.getItem(LS_PRESENT)||"{}")||{};}catch(e){o={};}
+  if(!Array.isArray(o.queue))o.queue=[];
+  o.queue.forEach(it=>{ // 旧データ移行: catが無い項目に割り当て
+    if(!it.cat)it.cat=(it.kind==="achv")?((it.title&&(it.title.includes("プレイ達成")||it.title.includes("ROOM")))?"level":"daily"):"rank";
+  });
+  return o;
+}
+function _savePresent(o){localStorage.setItem(LS_PRESENT,JSON.stringify(o));}
+function totalTests(){const set=new Set();loadHistory().forEach(r=>{if(r.testId)set.add(r.testId);});return set.size;}
+let _secOfWord=null;
+function secOfWord(){if(_secOfWord)return _secOfWord;const m={};["beginner","middle"].forEach(lv=>{const L=LEVEL_SECTIONS[lv]||{};Object.keys(L).forEach(n=>{(L[n]||[]).forEach(id=>{m[id]=lv+"-"+n;});});});_secOfWord=m;return m;}
+function roomsPlayed(){const m=secOfWord(),set=new Set();loadHistory().forEach(r=>{const k=m[r.wordId];if(k)set.add(k);});return set.size;}
+/* 達成ボーナス（毎日起動/特別日→daily、回数/ROOM種類→level）。各1回 */
 function checkAchievements(){
   const st=_presentState();st.achv=st.achv||{};let changed=false;
-  const add=(id,title,amount)=>{if(!st.achv[id]){st.achv[id]=1;st.queue.push({kind:"achv",title,total:amount,at:new Date().toISOString()});changed=true;}};
+  const add=(id,title,amount,cat)=>{if(!st.achv[id]){st.achv[id]=1;st.queue.push({cat:cat||"daily",kind:"achv",title,total:amount,at:new Date().toISOString()});changed=true;}};
   markLaunch();
-  add("daily-"+dayKey(Date.now()),"毎日起動ボーナス",50);
+  add("daily-"+dayKey(Date.now()),"毎日起動ボーナス",50,"daily");
   const _sp=specialBonusFor(new Date());
-  if(_sp)add("sp-"+_sp.name+"-"+new Date().getFullYear(),_sp.name+"ボーナス",_sp.amount);
+  if(_sp)add("sp-"+_sp.name+"-"+new Date().getFullYear(),_sp.name+"ボーナス",_sp.amount,"daily");
   const tt=totalTests();
-  if(tt>=3)add("tests3","3回プレイ達成",100);
-  if(tt>=5)add("tests5","5回プレイ達成",200);
-  if(tt>=10)add("tests10","10回プレイ達成",300);
-  if(roomsPlayed()>=3)add("rooms3","3種類のROOM達成",150);
+  if(tt>=3)add("tests3","3回プレイ達成",100,"level");
+  if(tt>=5)add("tests5","5回プレイ達成",200,"level");
+  if(tt>=10)add("tests10","10回プレイ達成",300,"level");
+  if(roomsPlayed()>=3)add("rooms3","3種類のROOM達成",150,"level");
   if(changed)_savePresent(st);
   updatePresent();
 }
+function presentsAvailable(cat){const q=_presentState().queue;return cat?q.filter(x=>x.cat===cat).length:q.length;}
 const RANK_BONUS={S:100,A:60,B:40,C:20,D:10};
-/* このテストのプレゼント1個をキューに追加（レベルアップ/ランク/PWR上昇/レインボー） */
+/* テスト終了時: 4種それぞれ独立のプレゼントとして追加 */
 function enqueuePresent(rank,pwrDelta){
-  const st=_presentState();
-  const base=30;
-  const rainbow=totalTests()*5;                                  // やればやるほど
-  const levelBonus=Math.max(0,(xpInfo().level-(state.levelBefore||1)))*100; // レベルが上がった
-  const rankBonus=RANK_BONUS[rank]||0;                            // ランクごと
-  const pwrBonus=Math.max(0,Math.round(pwrDelta||0))*5;           // PWRが上がった分
-  const total=base+rainbow+levelBonus+rankBonus+pwrBonus;
-  st.queue.push({base,rainbow,levelBonus,rankBonus,pwrBonus,rank,total,at:new Date().toISOString()});
+  const st=_presentState(),at=new Date().toISOString();
+  const base=30,rainbow=totalTests()*5,rankBonus=RANK_BONUS[rank]||0;
+  st.queue.push({cat:"rank",kind:"test",rank,base,rainbow,rankBonus,total:base+rainbow+rankBonus,at});
+  const levelBonus=Math.max(0,(xpInfo().level-(state.levelBefore||1)))*100;
+  if(levelBonus>0)st.queue.push({cat:"level",kind:"achv",title:"レベルアップ",total:levelBonus,at});
+  const pwrBonus=Math.max(0,Math.round(pwrDelta||0))*5;
+  if(pwrBonus>0)st.queue.push({cat:"pwr",kind:"achv",title:"PWRが上がった！ +"+Math.round(pwrDelta)+"%",total:pwrBonus,at});
   _savePresent(st);
 }
-function presentsAvailable(){return _presentState().queue.length;}
 function updatePresent(){
-  const btn=document.getElementById("present-btn");if(!btn)return;
-  const av=presentsAvailable();
-  btn.classList.toggle("rb",av>0);
-  btn.classList.toggle("bob",av>0);
-  const badge=document.getElementById("present-badge");
-  if(badge){badge.style.display=av>0?"flex":"none";badge.textContent=av>0?String(av):"";}
+  PRES_CATS.forEach(cat=>{
+    const btn=document.getElementById("rr-"+cat),badge=document.getElementById("pb-"+cat);
+    if(!btn)return;
+    const n=presentsAvailable(cat);
+    btn.classList.toggle("rb",n>0);btn.classList.toggle("bob",n>0);
+    if(badge){badge.style.display=n>0?"flex":"none";badge.textContent=n>0?String(n):"";}
+  });
 }
 function _bonusRow(label,v,cls){return v>0?`<div class="pm-line"><span>${label}</span><span class="${cls||''}">+${v}</span></div>`:"";}
-function openPresent(){
+let _presCat="rank";
+function openPresent(cat){
+  _presCat=cat||"rank";
   const m=document.getElementById("present-modal");
-  const q=_presentState().queue,av=q.length;
-  if(av>0){
+  const q=_presentState().queue.filter(x=>x.cat===_presCat);
+  if(q.length>0){
     const r=q[0];
     const body=(r.kind==="achv")
-      ? `<div class="pm-sub">${esc(r.title||"達成ボーナス")}</div><div class="pm-reward">+${r.total}<small> XP</small></div><div class="pm-bonus" style="margin-top:14px"><span class="rbtext">達成ボーナス</span>を獲得！</div>`
+      ? `<div class="pm-sub">${esc(r.title||"達成ボーナス")}</div><div class="pm-reward">+${r.total}<small> XP</small></div><div class="pm-bonus" style="margin-top:14px"><span class="rbtext">${esc(PRES_LABEL[_presCat])}</span>を獲得！</div>`
       : `<div class="pm-sub">RANK ${r.rank} のごほうび</div><div class="pm-reward">+${r.total}<small> XP</small></div>
          <div class="pm-breakdown">
            ${_bonusRow("基本",r.base)}
            ${_bonusRow("ランク "+r.rank,r.rankBonus)}
-           ${_bonusRow("レベルアップ",r.levelBonus)}
-           ${_bonusRow("PWR上昇",r.pwrBonus)}
            ${_bonusRow("レインボー",r.rainbow,"rbtext")}
          </div>`;
     m.innerHTML=`<div class="pm-card rainbow">
       <button class="pm-close" onclick="closePresent()">×</button>
-      <img class="pm-img" src="icons/present.webp" alt="">
-      <div class="pm-title">プレゼントが ${av} 個</div>
+      <img class="pm-img" src="icons/bonus-${_presCat}.webp" alt="">
+      <div class="pm-title">${esc(PRES_LABEL[_presCat])}が ${q.length} 個</div>
       ${body}
       <button class="pm-btn" onclick="claimPresent()">1個受け取る</button>
     </div>`;
   }else{
     m.innerHTML=`<div class="pm-card">
       <button class="pm-close" onclick="closePresent()">×</button>
-      <img class="pm-img" src="icons/present.webp" alt="">
-      <div class="pm-title">プレゼントは空っぽ</div>
-      <div class="pm-sub">テストをこなすとプレゼントが届きます</div>
-      <div class="pm-bonus">ランクが高い・レベルやPWRが上がるほど<span class="rbtext">ボーナス</span>が大きくなります。</div>
+      <img class="pm-img" src="icons/bonus-${_presCat}.webp" alt="">
+      <div class="pm-title">${esc(PRES_LABEL[_presCat])}は空っぽ</div>
+      <div class="pm-sub">${_presCat==="daily"?"毎日起動すると届きます":_presCat==="rank"?"テストをこなすと届きます":_presCat==="level"?"レベルアップや達成で届きます":"PWRが上がると届きます"}</div>
       <button class="pm-btn" onclick="closePresent()">とじる</button>
     </div>`;
   }
@@ -802,12 +828,13 @@ function openPresent(){
 function closePresent(){document.getElementById("present-modal").classList.remove("on");}
 function claimPresent(){
   const st=_presentState();
-  if(!st.queue.length){closePresent();return;}
-  const r=st.queue.shift();
+  const idx=st.queue.findIndex(x=>x.cat===_presCat);
+  if(idx<0){closePresent();return;}
+  const r=st.queue.splice(idx,1)[0];
   addBonus(r.total);
   _savePresent(st);
   updatePresent();
-  if(st.queue.length>0)openPresent(); else closePresent();
+  if(st.queue.some(x=>x.cat===_presCat))openPresent(_presCat); else closePresent();
   renderHome(); // XP・プレゼント状態を更新
 }
 /* PWR=学習済み（1回以上出題）全単語の平均記憶率。時間で低下し復習で上昇 */
@@ -859,6 +886,7 @@ function setLift(px){ // ピル上昇量(px)とヘッダー/写真用の進捗(-
 }
 function enterListMode(){
   if(_listMode)return;
+  document.getElementById("homewrap").classList.add("hiderail");
   setLift(-LIFT_MAX); // ROOMメニューが最上部へ・ヘッダー退場・写真フェード
   setTimeout(()=>{
     _listMode=true;buildRoomSlides();
@@ -870,6 +898,7 @@ function enterListMode(){
   },360);
 }
 function exitListMode(){
+  document.getElementById("homewrap").classList.remove("hiderail");
   setLift(0);
   setTimeout(()=>{
     _listMode=false;buildRoomSlides();
@@ -900,20 +929,32 @@ function roomMidHTML(n){
   </div>`;
 }
 
-/* スライド内の単語一覧 */
+/* スライド内の単語カード図鑑（獲得カード=カラー、未獲得=シルエット） */
 function roomListHTML(n){
-  const ids=LEVEL_SECTIONS[curLevel][n]||[],st=loadStats(),now=Date.now();
-  const rows=ids.map((id,i)=>{
-    const w=WORD_BY_ID[id],x=st[id],no=String(i+1).padStart(3,"0");
-    if(x&&x.reviewCount>0){
+  const ids=LEVEL_SECTIONS[curLevel][n]||[],st=loadStats(),cards=loadCards(),now=Date.now();
+  let owned=0,totalCnt=0;
+  const cells=ids.map((id,i)=>{
+    const w=WORD_BY_ID[id],x=st[id],cnt=cards[id]||0,no=String(i+1).padStart(3,"0");
+    const seen=x&&x.reviewCount>0;
+    if(cnt>0){
+      owned++;totalCnt+=cnt;
       const rate=Math.round(displayScore(getStat(id,st),now)),ms=memState(rate);
-      return `<div class="wl-row" onclick="renderWordDetail(${id},'room')"><span class="wl-no">${no}</span><span class="wl-ko">${esc(w.ko)}</span><span class="wl-ja">${esc(w.ja)}</span><span class="wl-rate ${ms.cls}">${rate}</span></div>`;
+      return `<div class="zk-card" onclick="renderWordDetail(${id},'room')">
+        <span class="zk-no">${no}</span><span class="zk-cnt">×${cnt}</span>
+        <div class="zk-ko">${esc(w.ko)}</div><div class="zk-ja">${esc(w.ja)}</div>
+        <div class="zk-rate ${ms.cls}">${rate}%</div></div>`;
     }
-    return `<div class="wl-row wl-un"><span class="wl-no">${no}</span><span class="wl-ko">${esc(w.ko)}</span><span class="wl-ja">${esc(w.ja)}</span><span class="wl-rate">未</span></div>`;
+    if(seen){
+      return `<div class="zk-card zk-seen" onclick="renderWordDetail(${id},'room')">
+        <span class="zk-no">${no}</span>
+        <div class="zk-ko">${esc(w.ko)}</div><div class="zk-ja">${esc(w.ja)}</div>
+        <div class="zk-rate">カード未獲得</div></div>`;
+    }
+    return `<div class="zk-card zk-lock"><span class="zk-no">${no}</span><div class="zk-q">?</div></div>`;
   }).join("");
   return `<div class="slide-list">
-    <div class="wl-head"><span class="wl-no">No.</span><span class="wl-ko">韓国語</span><span class="wl-ja">日本語</span><span class="wl-rate">記憶</span></div>
-    ${rows}</div>`;
+    <div class="zk-sum">図鑑 <b>${owned}</b> / ${ids.length}　カード <b>${totalCnt}</b>枚</div>
+    <div class="zk-grid">${cells}</div></div>`;
 }
 function roomInfoFor(n){
   const ids=LEVEL_SECTIONS[curLevel][n]||[],s=loadStats(),now=Date.now();
@@ -2372,7 +2413,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.35.1 (2026-06-08)";
+const APP_VERSION="v2.36.0 (2026-06-10)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 updateDiagnosis();   // 起動時に診断を初期化
