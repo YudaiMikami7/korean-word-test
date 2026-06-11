@@ -1783,7 +1783,8 @@ function buildQuestions(){
   const last=prog.lastTestIds||[],prev=prog.prevTestIds||[];
   const blocked=new Set(last.filter(id=>prev.includes(id)));
   // 状態分類と優先度
-  const info=POOL_IDS.map(id=>{const w=WORD_BY_ID[id],st=getStat(id,stats);return{id,w,st,state:wordState(st,nowMs),ps:priorityScore(w,st,nowMs)};});
+  // 先にシャッフル: 優先度が同点（例: 全部newの新規ROOM）のとき01から順に出ず、ランダムになる
+  const info=shuffle(POOL_IDS).map(id=>{const w=WORD_BY_ID[id],st=getStat(id,stats);return{id,w,st,state:wordState(st,nowMs),ps:priorityScore(w,st,nowMs)};});
   const seen=info.filter(x=>x.st.hasSeen).length;
   const coverage=seen/Math.max(1,POOL_IDS.length);
   // カテゴリ枠（coverageが低いと探索を増やす）
@@ -2470,7 +2471,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.40.1 (2026-06-10)";
+const APP_VERSION="v2.40.2 (2026-06-10)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* 前回開いていたROOMを起動時に復元 */
