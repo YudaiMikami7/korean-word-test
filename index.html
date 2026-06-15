@@ -271,9 +271,10 @@ button{font-family:inherit}
 .zk-rate{font-size:13px;font-weight:900;margin-top:2px}
 .zk-seen{background:rgba(255,255,255,.45);box-shadow:none}
 .zk-seen .zk-rate{color:#777;font-size:11px}
-.zk-lock{background:rgba(0,0,0,.35);box-shadow:none;cursor:default}
-.zk-lock .zk-no{color:rgba(255,255,255,.6)}
-.zk-q{font-size:44px;font-weight:900;color:rgba(255,255,255,.55)}
+.zk-lock{background:rgba(255,255,255,.45);box-shadow:none}
+.zk-lock .zk-ko,.zk-lock .zk-ja{color:rgba(0,0,0,.45)}
+.zk-sil{filter:brightness(0) opacity(.78)} /* 黒シルエット */
+.zk-q{font-size:44px;font-weight:900;color:rgba(0,0,0,.4)}
 .room-ph{position:absolute;left:24px;top:178px;width:554px;height:507px;display:flex;align-items:center;justify-content:center;font-size:130px;color:rgba(255,255,255,.32);font-weight:800}
 .start-button{position:absolute;left:50%;transform:translate(-50%,calc(var(--down,0px)*2.2));top:1004px;width:540px;height:123px;border:4px solid #FFC400;border-radius:62px;
   background:rgba(0,0,0,.8);color:#FFFFFF;font-size:62px;font-weight:900;cursor:pointer;font-family:inherit;z-index:2;
@@ -990,7 +991,9 @@ function roomListHTML(n){
         <span class="zk-no">${no}</span>
         <div class="zk-ko">${esc(w.ko)}</div><div style="font-size:13px;font-weight:800;color:#777;margin-top:auto">カード未獲得</div><div class="zk-ja">${esc(w.ja)}</div></div>`;
     }
-    return `<div class="zk-card zk-lock"><span class="zk-no">${no}</span><div class="zk-q">?</div></div>`;
+    const silImg=(typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko])?`<img class="zk-img zk-sil" src="${WORD_IMG[w.ko]}" loading="lazy" alt="">`:`<div class="zk-q">?</div>`;
+    return `<div class="zk-card zk-lock"><span class="zk-no">${no}</span>
+      <div class="zk-ko">${esc(w.ko)}</div>${silImg}<div class="zk-ja">${esc(w.ja)}</div></div>`;
   }).join("");
   return `<div class="slide-list">
     <div class="zk-sum">図鑑 <b>${owned}</b> / ${ids.length}　カード <b>${totalCnt}</b>枚</div>
@@ -2495,7 +2498,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.41.3 (2026-06-15)";
+const APP_VERSION="v2.42.0 (2026-06-15)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* 設定 */
