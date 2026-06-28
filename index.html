@@ -2513,7 +2513,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.46.0 (2026-06-18)";
+const APP_VERSION="v2.46.1 (2026-06-18)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
@@ -2561,6 +2561,10 @@ function openSettings(){
       <div class="set-sw ${st.tapAdvance?'on':''}"><span></span></div>
     </div>
     ${MONETIZE.donateUrl?`<div class="set-row" style="justify-content:center;border-top:1px solid #eee">${donateBtnHTML('btn dark full')}</div>`:""}
+    <div class="set-row" style="justify-content:center;gap:18px;border-top:1px solid #eee;font-size:13px;font-weight:700">
+      <a href="about.html" style="color:#666;text-decoration:none">このアプリについて</a>
+      <a href="privacy.html" style="color:#666;text-decoration:none">プライバシーポリシー</a>
+    </div>
   </div>`;
   m.classList.add("on");
 }
