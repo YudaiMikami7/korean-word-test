@@ -302,6 +302,9 @@ button{font-family:inherit}
 .set-sw.on{background:#00C24E}
 .set-sw span{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s}
 .set-sw.on span{left:25px}
+.btn.full{width:100%}
+.ad-wrap{margin:14px 0 4px;min-height:60px;text-align:center}
+.ad-wrap ins{margin:0 auto}
 .typebox{text-align:center;cursor:pointer;padding:2px 0}
 .t-code{font-size:42px;font-weight:900;letter-spacing:9px;text-indent:9px}
 .t-char{display:block;margin:14px auto 0;width:116px;height:116px}
@@ -2186,9 +2189,12 @@ function finishTest(){
       <button class="btn dark" onclick="startTest()">もう一度挑戦する</button>
       <button class="btn dark" onclick="renderRoomCurve()">PWRメータを見る</button>
       <button class="btn line full" onclick="show('s-home')">ホームに戻る</button>
+      ${donateBtnHTML('btn line full')}
     </div>
+    ${adSlotHTML()}
    </div>`;
   show("s-result");
+  activateAds(document.getElementById("s-result"));
   // PWRが増える演出（前値→後値へフィルがアニメーション）
   const pf=document.getElementById("res-pwrfill");
   if(pf)setTimeout(()=>{pf.style.width=pwrAfter+"%";},150);
@@ -2506,9 +2512,39 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.43.2 (2026-06-18)";
+const APP_VERSION="v2.44.0 (2026-06-18)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
+/* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
+const MONETIZE={
+  donateUrl:"",      // 例: "https://ko-fi.com/yourname" / BOOTH / FANBOX 等のURL
+  donateLabel:"☕ 応援する（投げ銭）",
+  adsenseClient:"",  // 例: "ca-pub-1234567890123456"（AdSense審査通過後に発行）
+  adsenseSlot:""     // 例: "1234567890"（広告ユニットのスロットID）
+};
+let _adsLoaded=false;
+function ensureAdsense(){
+  if(_adsLoaded||!MONETIZE.adsenseClient)return;
+  _adsLoaded=true;
+  const sc=document.createElement("script");
+  sc.async=true;sc.crossOrigin="anonymous";
+  sc.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client="+MONETIZE.adsenseClient;
+  document.head.appendChild(sc);
+}
+/* 指定要素にレスポンシブ広告を描画（IDが揃っているときだけ） */
+function adSlotHTML(){
+  if(!MONETIZE.adsenseClient||!MONETIZE.adsenseSlot)return "";
+  return `<div class="ad-wrap"><ins class="adsbygoogle" style="display:block" data-ad-client="${MONETIZE.adsenseClient}" data-ad-slot="${MONETIZE.adsenseSlot}" data-ad-format="auto" data-full-width-responsive="true"></ins></div>`;
+}
+function activateAds(root){
+  if(!MONETIZE.adsenseClient)return;
+  ensureAdsense();
+  try{(root||document).querySelectorAll(".adsbygoogle:not([data-done])").forEach(el=>{el.setAttribute("data-done","1");(window.adsbygoogle=window.adsbygoogle||[]).push({});});}catch(e){}
+}
+function donateBtnHTML(cls){
+  if(!MONETIZE.donateUrl)return "";
+  return `<a class="${cls||'btn line full'}" href="${MONETIZE.donateUrl}" target="_blank" rel="noopener" style="text-decoration:none;display:flex;align-items:center;justify-content:center">${MONETIZE.donateLabel}</a>`;
+}
 /* 設定 */
 function loadSettings(){try{return Object.assign({tapAdvance:false},JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}"));}catch(e){return{tapAdvance:false};}}
 function saveSettings(o){localStorage.setItem(LS_SETTINGS,JSON.stringify(o));}
@@ -2522,6 +2558,7 @@ function openSettings(){
       <div><div class="set-t">四択回答後の進み方</div><div class="set-d">${st.tapAdvance?"タップで次へ":"自動で次へ"}</div></div>
       <div class="set-sw ${st.tapAdvance?'on':''}"><span></span></div>
     </div>
+    ${MONETIZE.donateUrl?`<div class="set-row" style="justify-content:center;border-top:1px solid #eee">${donateBtnHTML('btn dark full')}</div>`:""}
   </div>`;
   m.classList.add("on");
 }
