@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="単語テスト">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7581865183013796" crossorigin="anonymous"></script>
 <meta name="theme-color" id="themecolor" content="#E3A38D">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2512,27 +2513,26 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.45.0 (2026-06-18)";
+const APP_VERSION="v2.46.0 (2026-06-18)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
 const MONETIZE={
   donateUrl:"",      // 例: "https://ko-fi.com/yourname" / BOOTH / FANBOX 等のURL
   donateLabel:"☕ 応援する（投げ銭）",
-  adsenseClient:"",  // 例: "ca-pub-1234567890123456"（AdSense審査通過後に発行）
+  adsenseClient:"ca-pub-7581865183013796",  // YudaiMikami7 / k-tango
   adsenseSlot:""     // 例: "1234567890"（広告ユニットのスロットID）
 };
 let _adsLoaded=false;
 function ensureAdsense(){
   if(_adsLoaded||!MONETIZE.adsenseClient)return;
   _adsLoaded=true;
+  if(document.querySelector('script[src*="adsbygoogle.js"]'))return; // <head>で読込済みなら何もしない
   const sc=document.createElement("script");
   sc.async=true;sc.crossOrigin="anonymous";
   sc.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client="+MONETIZE.adsenseClient;
   document.head.appendChild(sc);
 }
-// 起動時にAdSenseを読み込む（Auto Adsをオンにしていればサイト全体に自動配置される）
-if(MONETIZE.adsenseClient)ensureAdsense();
 /* 指定要素にレスポンシブ広告を描画（IDが揃っているときだけ） */
 function adSlotHTML(){
   if(!MONETIZE.adsenseClient||!MONETIZE.adsenseSlot)return "";

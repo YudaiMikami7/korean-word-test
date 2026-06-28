@@ -1,2 +1,1 @@
-# AdSense承認後、下行の pub-0000000000000000 を自分のパブリッシャーID(ca-pub-の後ろの数字)に置き換えて公開する
-google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+google.com, pub-7581865183013796, DIRECT, f08c47fec0942fa0
