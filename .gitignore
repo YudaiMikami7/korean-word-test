@@ -6,6 +6,7 @@ UI.pdf
 [0-2][0-9].png
 0-*.png
 images/
+images-middle/
 _*.png
 _*.js
 _*.py
