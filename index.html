@@ -298,16 +298,16 @@ button{font-family:inherit}
 .slide-list{position:absolute;left:0;top:166px;width:602px;height:929px;overflow-y:auto;background:transparent;scrollbar-width:none;
   opacity:var(--p,1);transition:opacity .35s ease} /* ROOMメニュー直下から下端まで・全幅・背景なし。入場はJSでフェードイン */
 /* 単語帳の流れる帯（ホームの帯と同デザイン系・番号/枚数/％付き） */
-.wb-band{position:relative;height:510px;margin:2px 0;background:transparent;overflow-x:auto;overflow-y:hidden;display:flex;align-items:flex-end;scrollbar-width:none;-webkit-overflow-scrolling:touch} /* 背景なし・全幅で端から端まで流れる（カード3倍化に伴い縦は上下スクロール前提） */
+.wb-band{position:relative;height:258px;margin:2px 0;background:transparent;overflow-x:auto;overflow-y:hidden;display:flex;align-items:flex-end;scrollbar-width:none;-webkit-overflow-scrolling:touch} /* 背景なし・全幅で端から端まで流れる（縦は上下スクロール前提） */
 .wb-band::-webkit-scrollbar{display:none}
-.wb-track{display:flex;gap:36px;padding:180px 20px 12px;align-items:flex-end}
-.wb-card{position:relative;flex:0 0 auto;background:rgba(255,255,255,.95);border-radius:42px;padding:18px 36px;min-width:378px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a}
-.wb-imgspace{width:180px;height:126px;flex:0 0 auto} /* 画像の下半分ぶんの席を確保（韓国語と重ならない） */
-.wb-img{position:absolute;top:-168px;left:50%;transform:translateX(-50%);width:312px;height:312px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 5px 10px rgba(0,0,0,.18))}
+.wb-track{display:flex;gap:18px;padding:90px 12px 8px;align-items:flex-end}
+.wb-card{position:relative;flex:0 0 auto;background:rgba(255,255,255,.95);border-radius:21px;padding:9px 18px;min-width:189px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a}
+.wb-imgspace{width:90px;height:63px;flex:0 0 auto} /* 画像の下半分ぶんの席を確保（韓国語と重ならない） */
+.wb-img{position:absolute;top:-84px;left:50%;transform:translateX(-50%);width:156px;height:156px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18))}
 .wb-img.sil{filter:brightness(0) opacity(.5)} /* 未獲得はシルエット */
-.wb-ko{font-size:63px;font-weight:900;line-height:1.15}
-.wb-ja{font-size:32px;font-weight:700;color:#666;max-width:450px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wb-info{display:flex;gap:20px;font-size:30px;font-weight:800;color:#888;margin-top:6px;line-height:1}
+.wb-ko{font-size:32px;font-weight:900;line-height:1.15}
+.wb-ja{font-size:16px;font-weight:700;color:#666;max-width:230px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb-info{display:flex;gap:10px;font-size:15px;font-weight:800;color:#888;margin-top:3px;line-height:1}
 .wb-rate.ms-stable{color:#1FAD62}.wb-rate.ms-review{color:#C79A00}.wb-rate.ms-urgent{color:#E0433B}
 .mutehint{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;font-size:13px;font-weight:800;padding:8px 16px;border-radius:999px;z-index:500;opacity:0;pointer-events:none;transition:opacity .3s ease}
 .mutehint.on{opacity:1}
@@ -2981,7 +2981,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.64 (2026-07-19)";
+const APP_VERSION="v2.64.1 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{}); // オフラインキャッシュ（画像はキャッシュ優先・HTML/JSはネット優先）
