@@ -1,7 +1,7 @@
 /* GA4 計測ローダー（全ページ共通）
  * GA_ID に測定ID (G-XXXXXXXXXX) を設定すると計測が始まる。空なら何もしない。
  * イベント送信は window.track(name, params) を使う（未設定時は無害なno-op）。 */
-window.GA_ID = "";
+window.GA_ID = "G-5BG06XSKB4";
 (function () {
   if (!window.GA_ID) return;
   var s = document.createElement("script");
