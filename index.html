@@ -60,7 +60,8 @@ button{font-family:inherit}
 /* ===== top bar (quiz) ===== */
 /* 問題番号・残り時間は白文字 */
 .qbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0;font-size:13px;color:#FFFFFF;font-weight:700;gap:12px}
-.qadv{display:flex;align-items:center;gap:6px;background:transparent;border:none;color:#fff;font-size:11px;font-weight:800;padding:4px;cursor:pointer;flex:0 0 auto} /* タップで次への切替（問題数表記の右・設定画面風スイッチ） */
+.qbar{position:relative}
+.qadv{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;background:transparent;border:none;color:#fff;font-size:11px;font-weight:800;padding:4px;cursor:pointer;visibility:hidden} /* タップで次への切替（画面中央・出題番号と同時に表示） */
 .qsw{width:40px;height:22px;border-radius:999px;background:rgba(0,0,0,.35);position:relative;transition:background .2s;display:inline-block}
 .qsw.on{background:#00C24E}
 .qsw i{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s}
@@ -2170,6 +2171,7 @@ function showCountdown(cb){
   const stage=document.getElementById("qstage");
   document.getElementById("prog").textContent="";
   document.getElementById("time").textContent="";
+  const qa=document.getElementById("qadv");if(qa)qa.style.visibility="hidden"; // スイッチは出題番号が出るまで隠す
   const fill=document.getElementById("tfill");if(fill){fill.className="tfill";fill.style.width="100%";}
   let n=3;
   const draw=()=>{stage.innerHTML=`<div class="cdown"><span class="cnum">${n}</span></div>`;};
@@ -2204,6 +2206,7 @@ function renderQuestion(){
   // 重複防止は次の正解時に speakKorean() 側の stopSpeak() が担う。
   const q=state.questions[state.idx];
   document.getElementById("prog").textContent=(state.idx+1)+" / 12";
+  const _qa=document.getElementById("qadv");if(_qa)_qa.style.visibility="visible"; // 出題番号と同時にスイッチ表示
   const stage=document.getElementById("qstage");
   if(q.type==="kj"||q.type==="jk"){
     const display=q.type==="kj"?q.word.ko:q.word.ja;
@@ -2961,7 +2964,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.65.1 (2026-07-19)";
+const APP_VERSION="v2.65.2 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{}); // オフラインキャッシュ（画像はキャッシュ優先・HTML/JSはネット優先）
