@@ -336,7 +336,6 @@ button{font-family:inherit}
 .wbh-ko{font-size:18px}
 .wbh-ja{font-size:12px;color:#666;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wbh-room{font-size:11px;color:#999}
-.ov-detail{position:absolute;right:16px;bottom:13.5%;background:rgba(0,0,0,.7);color:#fff;font-size:13px;font-weight:800;padding:9px 14px;border-radius:999px;pointer-events:auto;cursor:pointer}
 .wd-nav{position:absolute;top:46%;transform:translateY(-50%);z-index:5;width:44px;height:64px;border:none;border-radius:12px;background:rgba(0,0,0,.35);color:#fff;font-size:26px;font-weight:900;cursor:pointer}
 .wd-prev{left:6px}.wd-next{right:6px}
 /* 文字サイズ 大 モード */
@@ -363,6 +362,15 @@ body.bigtext .set-d{font-size:13.5px}
 .hist-card .wh-date{color:rgba(0,0,0,.55)}
 .hist-card .wh-empty{color:rgba(0,0,0,.55)}
 .hist-close{position:absolute;right:10px;top:6px;background:transparent;border:none;font-size:24px;font-weight:900;color:#888;cursor:pointer}
+/* アプリ内確認ダイアログ */
+.appconfirm{position:fixed;inset:0;z-index:650;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center}
+.ac-card{background:#fff;color:#1a1a1a;border-radius:18px;padding:22px 20px;width:300px;text-align:center}
+.ac-t{font-size:16px;font-weight:900;line-height:1.7;margin-bottom:16px}
+.ac-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ac-btns .btn{padding:12px;font-size:14px;border-radius:999px}
+/* 横向き案内（非ブロッキング） */
+#rotate-hint{display:none;position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:700;background:rgba(0,0,0,.8);color:#fff;font-size:13px;font-weight:800;padding:9px 16px;border-radius:999px;pointer-events:none}
+@media (orientation:landscape) and (max-height:540px){#rotate-hint{display:block}}
 .home-wrap.dragging .slide-list{transition:none}
 .slide-list::-webkit-scrollbar{display:none}
 .wl-head{position:sticky;top:0;z-index:1;display:flex;align-items:baseline;gap:6px;padding:8px 12px;background:rgba(0,0,0,.8);color:#fff;font-size:12px;font-weight:800;white-space:nowrap} /* 他の表と同じヘッダーデザイン */
@@ -645,11 +653,11 @@ body.bigtext .set-d{font-size:13.5px}
   <div class="screen on" id="s-home">
     <div class="home-wrap" id="homewrap">
       <div class="home-head">
-      <div class="avatar-circle" onclick="renderTypeDetail()"><img class="avatar-image" id="hv-char" src="characters/analyzing.svg" alt=""></div><!-- アイコンタップで16TYPE詳細へ -->
+      <div class="avatar-circle" onclick="renderTypeDetail()" role="button" aria-label="タイプ詳細"><img class="avatar-image" id="hv-char" src="characters/analyzing.svg" alt=""></div><!-- アイコンタップで16TYPE詳細へ -->
       <div class="hv-level" id="hv-level" onclick="enterStatusMode()" style="cursor:pointer">Lv.<span>1</span></div>
       <div class="hv-code" id="hv-code" onclick="enterStatusMode()"></div>
       <div class="reward-rail">
-        <button class="rr-btn rr-set" id="set-btn" onclick="openSettings()">⚙</button>
+        <button class="rr-btn rr-set" id="set-btn" onclick="openSettings()" aria-label="設定">⚙</button>
         <button class="rr-btn" id="cal-btn" onclick="openCalendar()"><img src="icons/calendar.webp" alt="カレンダー"></button>
         <button class="rr-btn" id="rr-daily" onclick="openPresent('daily')"><img src="icons/bonus-daily.webp" alt="毎日"><span class="rr-badge" id="pb-daily" style="display:none"></span></button>
         <button class="rr-btn" id="rr-rank" onclick="openPresent('rank')"><img src="icons/bonus-rank.webp" alt="ランク"><span class="rr-badge" id="pb-rank" style="display:none"></span></button>
@@ -679,7 +687,7 @@ body.bigtext .set-d{font-size:13.5px}
 
   <!-- QUIZ -->
   <div class="screen" id="s-quiz">
-    <div class="qbar"><button class="qhome" onclick="confirmQuit()">‹</button><span class="prog" id="prog">1 / 12</span><button class="qadv" id="qadv" onclick="toggleAdvMode()"><span>タップで次へ</span><span class="qsw" id="qsw"><i></i></span></button><span class="time" id="time">10.0</span></div>
+    <div class="qbar"><button class="qhome" onclick="confirmQuit()" aria-label="テストを中断">‹</button><span class="prog" id="prog">1 / 12</span><button class="qadv" id="qadv" onclick="toggleAdvMode()" aria-label="回答後の進み方を切り替え"><span>タップで次へ</span><span class="qsw" id="qsw"><i></i></span></button><span class="time" id="time">10.0</span></div>
     <div class="tbar"><div class="tfill" id="tfill"></div></div>
     <div class="qstage" id="qstage"></div>
   </div>
@@ -697,6 +705,7 @@ body.bigtext .set-d{font-size:13.5px}
 <div id="calendar-modal"></div>
 <div id="settings-modal"></div>
 <div id="history-modal"></div>
+<div id="rotate-hint">📱 縦向きでのご利用がおすすめです</div>
 
 <script src="words-middle.js"></script>
 <script src="words-images.js"></script>
@@ -904,7 +913,18 @@ function specialBonusFor(dt){
 function launchedDays(){try{return JSON.parse(localStorage.getItem(LS_LAUNCH)||"[]")||[];}catch(e){return[];}}
 function markLaunch(){const a=launchedDays(),tk=dayKey(Date.now());if(!a.includes(tk)){a.push(tk);localStorage.setItem(LS_LAUNCH,JSON.stringify(a));}}
 /* 連続ログイン日数：今日を起点に起動記録(kwt_launch_v1)が連続している日数 */
-function loginStreak(){const s=new Set(launchedDays());let n=0;const d=new Date();for(;;){if(!s.has(dayKey(d.getTime())))break;n++;d.setDate(d.getDate()-1);}return n||1;}
+function loginStreak(){
+  const s=new Set(launchedDays());let n=0,grace=false;const d=new Date();
+  for(;;){
+    if(s.has(dayKey(d.getTime()))){n++;d.setDate(d.getDate()-1);continue;}
+    if(!grace&&n>0){ // ストリーク保険：1日だけの途切れは継続扱い（1ストリークにつき1回）
+      const d2=new Date(d);d2.setDate(d2.getDate()-1);
+      if(s.has(dayKey(d2.getTime()))){grace=true;d.setDate(d.getDate()-1);continue;}
+    }
+    break;
+  }
+  return n||1;
+}
 function openCalendar(){if(!document.getElementById("calendar-modal").classList.contains("on"))pushNav("modal");
   const m=document.getElementById("calendar-modal");
   const now=new Date(),y=now.getFullYear(),mo=now.getMonth();
@@ -941,7 +961,24 @@ function _presentState(){
   return o;
 }
 function _savePresent(o){localStorage.setItem(LS_PRESENT,JSON.stringify(o));}
-function totalTests(){const set=new Set();loadHistory().forEach(r=>{if(r.testId)set.add(r.testId);});return set.size;}
+function totalTests(){const set=new Set();loadHistory().forEach(r=>{if(r.testId)set.add(r.testId);});let pruned=0;try{pruned=(JSON.parse(localStorage.getItem("kwt_histmeta_v1")||"{}").prunedTests)||0;}catch(e){}return set.size+pruned;}
+/* 回答履歴の間引き：90日より古い明細を削除（テスト数だけメタに繰入れ）。localStorage肥大と全走査の劣化を防ぐ */
+function pruneHistory(){
+  try{
+    const KEY="kwt_histprune_v1",today=dayKey(Date.now());
+    if(localStorage.getItem(KEY)===today)return; // 1日1回だけ
+    localStorage.setItem(KEY,today);
+    const h=loadHistory();if(h.length<2000)return; // 少量なら触らない
+    const cutoff=Date.now()-90*86400000;
+    const keep=h.filter(r=>new Date(r.answeredAt).getTime()>=cutoff);
+    if(keep.length===h.length)return;
+    const droppedTests=new Set(h.filter(r=>new Date(r.answeredAt).getTime()<cutoff).map(r=>r.testId)).size;
+    const meta=JSON.parse(localStorage.getItem("kwt_histmeta_v1")||"{}");
+    meta.prunedTests=(meta.prunedTests||0)+droppedTests;
+    localStorage.setItem("kwt_histmeta_v1",JSON.stringify(meta));
+    localStorage.setItem(LS_HIST,JSON.stringify(keep));_histIdxCache=null;
+  }catch(e){}
+}
 let _secOfWord=null;
 function secOfWord(){if(_secOfWord)return _secOfWord;const m={};["beginner","middle"].forEach(lv=>{const L=LEVEL_SECTIONS[lv]||{};Object.keys(L).forEach(n=>{(L[n]||[]).forEach(id=>{m[id]=lv+"-"+n;});});});_secOfWord=m;return m;}
 function roomsPlayed(){const m=secOfWord(),set=new Set();loadHistory().forEach(r=>{const k=m[r.wordId];if(k)set.add(k);});return set.size;}
@@ -1003,6 +1040,7 @@ function openPresent(cat){if(!document.getElementById("present-modal").classList
       <div class="pm-title">${esc(PRES_LABEL[_presCat])}が ${q.length} 個</div>
       <div class="pm-sub">タップして受け取ろう</div>
       <div class="pm-grid">${items}</div>
+      ${q.length>=2?`<button class="pm-btn" style="background:#1a1a1a;color:#fff" onclick="claimAllPresents()">まとめて受け取る</button>`:""}
       <button class="pm-btn" onclick="closePresent()">とじる</button>
     </div>`;
   }else{
@@ -1017,6 +1055,17 @@ function openPresent(cat){if(!document.getElementById("present-modal").classList
   m.classList.add("on");
 }
 function closePresent(){document.getElementById("present-modal").classList.remove("on");}
+function claimAllPresents(){
+  const st=_presentState();
+  const items=st.queue.filter(x=>x.cat===_presCat);
+  if(!items.length)return;
+  let sum=0;items.forEach(r=>sum+=r.total);
+  st.queue=st.queue.filter(x=>x.cat!==_presCat);
+  _savePresent(st);
+  sfxClaim();addBonus(sum);
+  updatePresent();renderHome();
+  openPresent(_presCat); // 空になったカードに切替（モーダルは開いたまま）
+}
 function claimPresentItem(btn){
   if(btn.classList.contains("claimed"))return;
   const at=btn.dataset.at,total=+btn.dataset.total;
@@ -1220,7 +1269,8 @@ function roomInfoFor(n){
     recent:(rec.recentRanks||[]).slice(-3),best:rec.bestRank||null};
 }
 const LEVEL_SLIDE_BG="#9FA6AD";
-function switchLevel(l){curLevel=l;curSection=1;buildRoomSlides();applyHomeBg();saveLastRoom();}
+function switchLevel(l){curLevel=l;curSection=1;buildRoomSlides();attachHomeRain();applyHomeBg();saveLastRoom();}
+function toggleLevelSetting(){switchLevel(curLevel==="beginner"?"middle":"beginner");openSettings();}
 function buildRoomSlides(){
   const el=document.getElementById("hv-rooms");if(!el)return;
   const count=LEVEL_INFO[curLevel].count;
@@ -1939,14 +1989,20 @@ function showMuteHint(){
   if(!el){el=document.createElement("div");el.id="mutehint";el.className="mutehint";el.textContent="🔇 音声を再生できません";document.body.appendChild(el);}
   el.classList.add("on");setTimeout(()=>el.classList.remove("on"),1800);
 }
-function _speakTTS(text){
+let _lastSpk={t:"",at:0};
+function speakSmart(text){ // 同じ単語を4秒以内にもう一度押すとゆっくり再生
+  const slow=_lastSpk.t===text&&Date.now()-_lastSpk.at<4000;
+  _lastSpk={t:text,at:Date.now()};
+  stopSpeak();_speakTTS(text,slow?0.55:0.9);
+}
+function _speakTTS(text,rate){
   try{
     if(loadSettings().sound===false)return; // 音声オフ設定
     if(!text)return;
     if(!('speechSynthesis' in window)){showMuteHint();return;} // 再生不可は視覚で知らせる
     if(!_koVoice)_pickKoVoice();
     const u=new SpeechSynthesisUtterance(text);
-    u.lang="ko-KR";u.rate=0.9;u.pitch=1.0;
+    u.lang="ko-KR";u.rate=rate||0.9;u.pitch=1.0;
     u.onerror=e=>{const c=e&&e.error;if(c==="canceled"||c==="interrupted")return;showMuteHint();}; // 次問題への切替時のcancelは正常動作なので通知しない
     if(_koVoice)u.voice=_koVoice;
     window.speechSynthesis.speak(u);
@@ -2187,8 +2243,28 @@ function show(id){
 
 /* ============================================================ テスト進行 ============================================================ */
 let state=null,timer=null,qStart=0,answered=false,ovTimer=null,_roomCurveMode=false;
+/* 通知確認や画面ロック中はタイマーを進めない（復帰時に離席ぶんを差し戻す） */
+let _hiddenAt=0;
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){_hiddenAt=performance.now();}
+  else if(_hiddenAt){
+    const d=performance.now()-_hiddenAt;_hiddenAt=0;
+    const q=document.getElementById("s-quiz");
+    if(q&&q.classList.contains("on")&&!answered&&state)qStart+=d;
+  }
+});
 
-function confirmQuit(){if(confirm("テストを中断してホームに戻りますか？"))quitTest();} // 誤タップで1テスト分が消えないように
+function confirmQuit(){
+  const t0=performance.now(); // ダイアログ表示中はタイマーを止める
+  const m=document.createElement("div");m.className="appconfirm";
+  m.innerHTML=`<div class="ac-card"><div class="ac-t">テストを中断して<br>ホームに戻りますか？</div>
+    <div class="ac-btns"><button class="btn ghost" id="ac-no">つづける</button><button class="btn dark" id="ac-yes">中断する</button></div></div>`;
+  document.body.appendChild(m);
+  const resume=()=>{if(!answered)qStart+=performance.now()-t0;m.remove();};
+  m.querySelector("#ac-no").onclick=resume;
+  m.querySelector("#ac-yes").onclick=()=>{m.remove();quitTest();};
+  m.onclick=e=>{if(e.target===m)resume();};
+}
 /* 出題中にホームへ戻る（タイマー・音声・○×表示を止めて中断） */
 function quitTest(){
   clearInterval(timer);clearTimeout(ovTimer);
@@ -2390,7 +2466,6 @@ function showOverlay(status,q,userAnswer){
     highlightChoices(q,status,userAnswer); // 実際の選択肢ボタンを色分け（赤=正解 / 青=選んだ誤答）
   }
   const tap=loadSettings().tapAdvance;
-  if(tap)inner+=`<div class="ov-detail" onclick="event.stopPropagation();ovOpenDetail(${q.word.id})">この単語の詳細 ›</div>`; // 誤答直後の深掘り導線
   if(tap)inner+='<div class="tap-next">タップで次へ ›</div>';
   ov.innerHTML=inner;
   document.body.appendChild(ov);
@@ -2558,7 +2633,7 @@ function speakChoiceKo(q,v){
     if(q.type==="jk")ko=v; // 選択肢自体が韓国語
     else if(v===q.correct)ko=q.word.ko;
     else{const m=q.cmeta&&q.cmeta[v];if(m&&m.wordId!=null&&WORD_BY_ID[m.wordId])ko=WORD_BY_ID[m.wordId].ko;} // Section01の手作り誤答(wordId=null)は対応する韓国語が無いため再生しない
-    if(ko){stopSpeak();_speakTTS(ko);}
+    if(ko)speakSmart(ko); // 2度押しでゆっくり再生
   }catch(e){}
 }
 /* 四択：正解の選択肢を赤、ユーザーが選んだ誤答を青で強調。その他は暗い灰色のまま */
@@ -2573,7 +2648,7 @@ function highlightChoices(q,status,userAnswer){
 function writingAnsHTML(status,q,userAnswer){
   const ko=esc(q.word.ko);
   // タップで次へ設定時は正解表示の横に音声再生ボタン（押しても次に進まない）
-  const spk=loadSettings().tapAdvance?`<button class="oa-spk" onclick="event.stopPropagation();stopSpeak();_speakTTS(WORD_BY_ID[${q.word.id}].ko)">${SPK_SVG}</button>`:"";
+  const spk=loadSettings().tapAdvance?`<button class="oa-spk" aria-label="音声を再生（2度押しでゆっくり）" onclick="event.stopPropagation();speakSmart(WORD_BY_ID[${q.word.id}].ko)">${SPK_SVG}</button>`:"";
   if(status==="incorrect"){
     return `<div class="ovans">
       <div class="oa-row"><div class="oa-lab">入力</div><div class="oa-ko wrong">${esc(userAnswer)||"（無回答）"}</div></div>
@@ -2587,13 +2662,7 @@ function afterAnswer(){
   if(state.idx>=11){finishTest();return;}
   state.idx++;renderQuestion();
 }
-/* 回答オーバーレイから単語詳細へ（テストは中断扱い。各回答は既に保存済み） */
-function ovOpenDetail(wordId){
-  clearInterval(timer);clearTimeout(ovTimer);
-  document.querySelectorAll(".overlay").forEach(e=>e.remove());
-  stopSpeak();answered=true;
-  renderWordDetail(wordId,'room');
-}
+
 /* 出題画面ヘッダーの「タップで次へ」スイッチ */
 function updateAdvBtn(){const sw=document.getElementById("qsw");if(sw)sw.classList.toggle("on",!!loadSettings().tapAdvance);}
 function toggleAdvMode(){const st=loadSettings();st.tapAdvance=!st.tapAdvance;saveSettings(st);updateAdvBtn();}
@@ -2752,11 +2821,11 @@ function renderWordDetail(wordId,back){
    <div class="page" style="padding-left:0;padding-right:0;position:relative;z-index:1">
     <div class="page-head" style="padding:0 16px"><button class="back" onclick="${_wdBack==='room'?"show('s-home')":"renderRoomCurve()"}">‹</button><h2>単語詳細</h2></div>
     <div class="wd-scroll" id="wd-scroll">${slides}</div>
-    <button class="wd-nav wd-prev" onclick="wdNav(-1)">‹</button>
-    <button class="wd-nav wd-next" onclick="wdNav(1)">›</button>
+    <button class="wd-nav wd-prev" onclick="wdNav(-1)" aria-label="前の単語">‹</button>
+    <button class="wd-nav wd-next" onclick="wdNav(1)" aria-label="次の単語">›</button>
    </div>`;
   const fill=i=>{if(i<0||i>=ids.length)return;const e=document.getElementById("wd-in-"+i);if(e&&!e.dataset.f){e.dataset.f="1";e.innerHTML=wdSlideHTML(ids[i],i);}};
-  fill(idx);fill(idx-1);fill(idx+1);
+  fill(idx);fill(idx-1);fill(idx+1);fill(idx-2);fill(idx+2);
   show("s-wdetail");
   wdRain(ids[idx]); // 表示中の単語の出題履歴ぶんの玉を降らせる
   const sc=document.getElementById("wd-scroll");
@@ -2765,7 +2834,7 @@ function renderWordDetail(wordId,back){
   let t=null;
   sc.addEventListener("scroll",()=>{clearTimeout(t);t=setTimeout(()=>{
     const i=Math.max(0,Math.min(ids.length-1,Math.round(sc.scrollLeft/sc.clientWidth)));
-    fill(i);fill(i-1);fill(i+1); // 左右スワイプで前後の単語カードへ（遅延レンダリング）
+    fill(i);fill(i-1);fill(i+1);fill(i-2);fill(i+2); // 前後2枚まで先読み（ボタン連打でも空白を見せない）
     if(String(i)!==sc.dataset.cur){sc.dataset.cur=i;wdRain(ids[i]);} // 単語が切り替わったら玉も入れ替え
   },90);});
 }
@@ -3051,10 +3120,11 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.67 (2026-07-19)";
+const APP_VERSION="v2.68 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
+pruneHistory(); // 90日超の履歴を間引き（1日1回）
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{}); // オフラインキャッシュ（画像はキャッシュ優先・HTML/JSはネット優先）
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
 const MONETIZE={
@@ -3119,7 +3189,9 @@ function shareResult(){
   lines.push(r.rank==="S"?"Sランク、あなたも取れる？（無料・登録不要）":"あなたは何点取れる？（無料・登録不要）");
   lines.push("#韓国語 #韓国語勉強");
   lines.push("https://k-tango.com/?utm_source=share&utm_medium=social&utm_campaign=result");
-  window.open("https://twitter.com/intent/tweet?text="+encodeURIComponent(lines.join("\n")),"_blank","noopener");
+  const text=lines.join("\n");
+  if(navigator.share){navigator.share({text}).catch(()=>{});} // OSの共有シート（LINE等）
+  else window.open("https://twitter.com/intent/tweet?text="+encodeURIComponent(text),"_blank","noopener");
 }
 function installBtnHTML(){
   if(window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches)return "";
@@ -3166,6 +3238,10 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
     <div class="set-row" onclick="toggleSetting('bigText')">
       <div><div class="set-t">文字サイズ 大</div><div class="set-d">${st.bigText?"大きめ表示":"標準"}</div></div>
       <div class="set-sw ${st.bigText?'on':''}"><span></span></div>
+    </div>
+    <div class="set-row" onclick="toggleLevelSetting()">
+      <div><div class="set-t">レベル切替</div><div class="set-d">いまは${curLevel==="beginner"?"初級":"中級"}（タップで${curLevel==="beginner"?"中級":"初級"}へ）</div></div>
+      <div style="font-weight:900;color:#888">›</div>
     </div>
     <div class="set-row" onclick="showCoach()">
       <div><div class="set-t">つかいかた</div><div class="set-d">ジェスチャー操作の一覧を見る</div></div>
