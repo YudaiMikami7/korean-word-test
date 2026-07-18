@@ -90,6 +90,15 @@ button{font-family:inherit}
 .choice.correct{background:rgba(255,59,59,.8);color:#fff}
 .choice.wrong{background:rgba(47,139,255,.8);color:#fff}
 
+/* 正解単語が降り積もる背景レイヤー（UIより背面・操作は透過） */
+#s-quiz{position:relative}
+#s-quiz .qbar,#s-quiz .tbar,#s-quiz .qstage{position:relative;z-index:1} /* 出題UIは常に降下レイヤーより前面 */
+.q-rain{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.qr-img{position:absolute;top:-140px;left:var(--x);width:110px;height:110px;object-fit:contain;will-change:transform;
+  animation:qrfall .9s cubic-bezier(.45,.05,.8,.5) forwards,qrroll .5s .9s ease-out forwards}
+@keyframes qrfall{from{transform:translateY(0) rotate(0deg)}to{transform:translateY(var(--fy)) rotate(var(--r1))}}
+@keyframes qrroll{from{transform:translateY(var(--fy)) rotate(var(--r1))}to{transform:translateY(var(--fy)) translateX(var(--dx)) rotate(var(--r2))}}
+
 /* unknown btn */
 .unknown{display:block;margin:0 auto;background:rgba(0,0,0,.8);border:none;color:#fff;
   font-size:13px;font-weight:600;padding:9px 22px;border-radius:0;cursor:pointer}
@@ -193,11 +202,11 @@ button{font-family:inherit}
 .hv-wordsg{left:238px;top:37px;width:89px;height:10px;padding:2px}
 .hv-roomg{left:238px;top:88px;width:89px;height:10px;padding:2px}
 /* ランクの下端(146)を下段バー(132+14=146)・ROOM番号の字面下端と一致させる */
-.rank-s{position:absolute;left:363px;top:78px;width:24px;height:24px;border-radius:50%;background:#555;
-  display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;z-index:1}
-.rank-s1{left:385px}
-.rank-b{position:absolute;left:455px;top:37px;width:65px;height:65px;border-radius:50%;background:#555;
-  display:flex;align-items:center;justify-content:center;font-size:53px;line-height:1;z-index:2}
+.rank-s{position:absolute;left:363px;top:72px;width:30px;height:30px;border-radius:50%;background:#555;
+  display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;z-index:1}
+.rank-s1{left:389px}
+.rank-b{position:absolute;left:442px;top:24px;width:78px;height:78px;border-radius:50%;background:#555;
+  display:flex;align-items:center;justify-content:center;font-size:62px;line-height:1;z-index:2}
 /* ROOM01の左にある難易度切替スライド */
 .lv-pick{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;gap:26px;width:380px}
 .lvbtn{height:112px;border:none;border-radius:56px;background:rgba(0,0,0,.8);color:#fff;font-size:44px;font-weight:800;cursor:pointer;font-family:inherit}
@@ -592,6 +601,7 @@ button{font-family:inherit}
 
   <!-- QUIZ -->
   <div class="screen" id="s-quiz">
+    <div class="q-rain" id="q-rain"></div><!-- 正解単語の画像が降り積もる背景レイヤー -->
     <div class="qbar"><button class="qhome" onclick="quitTest()">‹</button><span class="prog" id="prog">1 / 12</span><span class="time" id="time">10.0</span></div>
     <div class="tbar"><div class="tfill" id="tfill"></div></div>
     <div class="qstage" id="qstage"></div>
@@ -2014,6 +2024,7 @@ function startTest(reviewIds){
   state={questions:qs,idx:0,results:[],testId:"t-"+Date.now().toString(36),userId:getUserId(),
     cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level};
   sfxStart();
+  const qr=document.getElementById("q-rain");if(qr)qr.innerHTML=""; // 前回の積もりをリセット
   show("s-quiz");
   showCountdown(()=>renderQuestion());
 }
@@ -2179,6 +2190,7 @@ function submit(status,userAnswer){
   };
   state.results.push(rec);saveAnswer(rec);
   speakKorean(q.word); // 正解・不正解・わからない・時間切れすべてで正解の韓国語音声を再生（学習のため）
+  if(isCorrect&&q.type!=="w")spawnWordDrop(q.word); // 四択正解：単語画像が背景に降り積もる
   showOverlay(status,q,userAnswer);
 }
 
@@ -2213,6 +2225,26 @@ function showOverlay(status,q,userAnswer){
     ovTimer=setTimeout(()=>{ov.remove();afterAnswer();},isCorrect?1000:2000);
   }
 }
+/* 四択正解時：その単語の画像が上から降り、下端に積もって着地後ひと転がりする（背景レイヤー） */
+function spawnWordDrop(word){
+  try{
+    const layer=document.getElementById("q-rain");if(!layer)return;
+    const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[word.ko]:null;if(!src)return;
+    while(layer.children.length>=30)layer.removeChild(layer.firstChild); // 積もりすぎ防止（古いものから消す）
+    const el=document.createElement("img");
+    el.className="qr-img";el.src=src;el.alt="";
+    const h=layer.clientHeight||window.innerHeight;
+    const dir=Math.random()<0.5?-1:1;
+    const r1=Math.round(Math.random()*40-20);
+    el.style.setProperty("--x",(4+Math.random()*72)+"%");
+    el.style.setProperty("--fy",Math.round(h+140-108-Math.random()*26)+"px"); // 下端に少しばらけて積もる
+    el.style.setProperty("--r1",r1+"deg");
+    el.style.setProperty("--r2",(r1+dir*(45+Math.round(Math.random()*30)))+"deg");
+    el.style.setProperty("--dx",dir*Math.round(14+Math.random()*22)+"px");
+    layer.appendChild(el);
+  }catch(e){}
+}
+
 /* 回答後（タップで次へ設定時）用：選択肢右端の音声マークと、選択肢の韓国語読み上げ */
 const SPK_SVG='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3z" fill="#fff"/><path d="M16 8.6a4.2 4.2 0 010 6.8M18.6 6.2a7.6 7.6 0 010 11.6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
 function addChoiceSpeakers(){document.querySelectorAll("#qstage .choice").forEach(b=>{if(!b.querySelector(".chspk"))b.insertAdjacentHTML("beforeend",`<span class="chspk">${SPK_SVG}</span>`);});}
@@ -2669,7 +2701,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.56 (2026-07-19)";
+const APP_VERSION="v2.57 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
