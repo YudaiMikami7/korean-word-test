@@ -60,10 +60,14 @@ button{font-family:inherit}
 /* ===== top bar (quiz) ===== */
 /* 問題番号・残り時間は白文字 */
 .qbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0;font-size:13px;color:#FFFFFF;font-weight:700;gap:12px}
-.qadv{background:rgba(255,255,255,.35);border:none;border-radius:999px;color:#fff;font-size:11px;font-weight:800;padding:7px 10px;cursor:pointer;flex:0 0 auto} /* 回答後の進み方の切替（戻るボタンの左） */
+.qadv{display:flex;align-items:center;gap:6px;background:transparent;border:none;color:#fff;font-size:11px;font-weight:800;padding:4px;cursor:pointer;flex:0 0 auto} /* タップで次への切替（問題数表記の右・設定画面風スイッチ） */
+.qsw{width:40px;height:22px;border-radius:999px;background:rgba(0,0,0,.35);position:relative;transition:background .2s;display:inline-block}
+.qsw.on{background:#00C24E}
+.qsw i{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s}
+.qsw.on i{left:20px}
 .qhome{background:rgba(0,0,0,.8);border:none;color:#fff;width:32px;height:32px;font-size:16px;cursor:pointer;flex:0 0 auto}
-.qbar .prog{margin-right:auto;letter-spacing:.5px}
-.qbar .time{color:#FFFFFF;font-variant-numeric:tabular-nums}
+.qbar .prog{letter-spacing:.5px}
+.qbar .time{color:#FFFFFF;font-variant-numeric:tabular-nums;margin-left:auto}
 .tbar{height:3px;margin:8px 18px 0;background:rgba(0,0,0,.35);border-radius:3px;overflow:hidden}
 .tfill{height:100%;width:100%;background:#00FF37;transition:width .1s linear} /* 制限時間バーは緑（ホームのトンマナ） */
 .tfill.warn{background:#FFC400}
@@ -648,7 +652,7 @@ button{font-family:inherit}
 
   <!-- QUIZ -->
   <div class="screen" id="s-quiz">
-    <div class="qbar"><button class="qadv" id="qadv" onclick="toggleAdvMode()"></button><button class="qhome" onclick="quitTest()">‹</button><span class="prog" id="prog">1 / 12</span><span class="time" id="time">10.0</span></div>
+    <div class="qbar"><button class="qhome" onclick="quitTest()">‹</button><span class="prog" id="prog">1 / 12</span><button class="qadv" id="qadv" onclick="toggleAdvMode()"><span>タップで次へ</span><span class="qsw" id="qsw"><i></i></span></button><span class="time" id="time">10.0</span></div>
     <div class="tbar"><div class="tfill" id="tfill"></div></div>
     <div class="qstage" id="qstage"></div>
   </div>
@@ -1922,7 +1926,7 @@ function _speakTTS(text){
     if(!_koVoice)_pickKoVoice();
     const u=new SpeechSynthesisUtterance(text);
     u.lang="ko-KR";u.rate=0.9;u.pitch=1.0;
-    u.onerror=()=>showMuteHint();
+    u.onerror=e=>{const c=e&&e.error;if(c==="canceled"||c==="interrupted")return;showMuteHint();}; // 次問題への切替時のcancelは正常動作なので通知しない
     if(_koVoice)u.voice=_koVoice;
     window.speechSynthesis.speak(u);
   }catch(e){}
@@ -2527,8 +2531,8 @@ function afterAnswer(){
   if(state.idx>=11){finishTest();return;}
   state.idx++;renderQuestion();
 }
-/* 出題画面ヘッダーの「回答後の進み方」切替 */
-function updateAdvBtn(){const b=document.getElementById("qadv");if(b)b.textContent=loadSettings().tapAdvance?"タップで次へ":"自動で次へ";}
+/* 出題画面ヘッダーの「タップで次へ」スイッチ */
+function updateAdvBtn(){const sw=document.getElementById("qsw");if(sw)sw.classList.toggle("on",!!loadSettings().tapAdvance);}
 function toggleAdvMode(){const st=loadSettings();st.tapAdvance=!st.tapAdvance;saveSettings(st);updateAdvBtn();}
 
 /* ============================================================ キーボード ============================================================ */
@@ -2981,7 +2985,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.64.1 (2026-07-19)";
+const APP_VERSION="v2.64.2 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{}); // オフラインキャッシュ（画像はキャッシュ優先・HTML/JSはネット優先）
