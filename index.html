@@ -54,7 +54,7 @@ button{font-family:inherit}
 .hidden{display:none!important}
 
 /* ===== screens ===== */
-.screen{flex:1;display:none;flex-direction:column;min-height:0}
+.screen{flex:1;display:none;flex-direction:column;min-height:0;position:relative;z-index:1} /* 玉レイヤー(z0)より前面 */
 .screen.on{display:flex}
 
 /* ===== top bar (quiz) ===== */
@@ -94,6 +94,7 @@ button{font-family:inherit}
 #s-quiz{position:relative}
 #s-quiz .qbar,#s-quiz .tbar,#s-quiz .qstage{position:relative;z-index:1} /* 出題UIは常に降下レイヤーより前面 */
 .q-rain{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.q-rain.front{z-index:50} /* ホーム帰還時の一斉降下は全UIの前面（操作は透過） */
 .qr-ball{position:absolute;left:0;top:0;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.55);
   box-shadow:inset 0 -6px 12px rgba(0,0,0,.08),0 4px 10px rgba(0,0,0,.15);
   display:flex;align-items:center;justify-content:center;will-change:transform} /* 白半透明の丸カプセル */
@@ -564,6 +565,7 @@ button{font-family:inherit}
   </div>
 </noscript>
 <div class="app" id="app">
+  <div class="q-rain" id="q-rain"></div><!-- 正解玉の物理レイヤー（クイズ/結果=背面、ホーム帰還時=前面で一斉降下） -->
 
   <!-- HOME（602×1178基準の絶対配置・比例スケール） -->
   <div class="screen on" id="s-home">
@@ -601,7 +603,6 @@ button{font-family:inherit}
 
   <!-- QUIZ -->
   <div class="screen" id="s-quiz">
-    <div class="q-rain" id="q-rain"></div><!-- 正解単語の画像が降り積もる背景レイヤー -->
     <div class="qbar"><button class="qhome" onclick="quitTest()">‹</button><span class="prog" id="prog">1 / 12</span><span class="time" id="time">10.0</span></div>
     <div class="tbar"><div class="tfill" id="tfill"></div></div>
     <div class="qstage" id="qstage"></div>
@@ -1014,6 +1015,7 @@ function setLift(px){ // ピル上昇量(px)とヘッダー/写真用の進捗(-
 }
 function enterListMode(){
   if(_listMode)return;
+  qrDismiss(); // 玉の山は片付けてから一覧へ
   document.getElementById("homewrap").classList.add("hiderail");
   setLift(-LIFT_MAX); // ROOMメニューが最上部へ・ヘッダー退場・写真フェード
   setTimeout(()=>{
@@ -2002,6 +2004,13 @@ function show(id){
   document.getElementById(id).classList.add("on");window.scrollTo(0,0);
   // 背景色: 全体PWRメータ/タイプ詳細はグレー固定、ROOM別PWRはそのROOMの色、他は現在ROOMの色
   applyBgAll(((id==="s-curve"&&!_roomCurveMode)||id==="s-type")?LEVEL_SLIDE_BG:roomBg(curSection));
+  // 玉レイヤー: クイズ/結果=背面表示で持ち越し、ホーム=未降下があれば一斉降下、他画面=非表示
+  const qr=document.getElementById("q-rain");
+  if(qr){
+    if(id==="s-quiz"||id==="s-result"){qr.classList.remove("front");qr.style.display="";}
+    else if(id==="s-home"){if(_ballLog.length)homeRain();else if(!qr.classList.contains("front"))qr.style.display="none";}
+    else qr.style.display="none";
+  }
   if(id==="s-home")renderHome();
 }
 
@@ -2190,7 +2199,7 @@ function submit(status,userAnswer){
   };
   state.results.push(rec);saveAnswer(rec);
   speakKorean(q.word); // 正解・不正解・わからない・時間切れすべてで正解の韓国語音声を再生（学習のため）
-  if(isCorrect&&q.type!=="w")spawnWordDrop(q.word,Math.max(0,limit-elapsed)/limit); // 四択正解：単語画像の玉が背景に降り積もる（速答ほど大きい）
+  if(isCorrect)spawnWordDrop(q.word,Math.max(0,limit-elapsed)/limit); // 正解（四択・書き取りとも）：単語玉が背景に降り積もる（速答ほど大きい）
   showOverlay(status,q,userAnswer);
 }
 
@@ -2226,27 +2235,47 @@ function showOverlay(status,q,userAnswer){
   }
 }
 /* 四択正解時：単語画像入りの白半透明カプセル玉が落下し、衝突・転がりながらどんどん積もる（簡易物理・背景レイヤー） */
-const QR={balls:[],raf:0,last:0,calm:0};
+const QR={balls:[],raf:0,last:0,calm:0,rainTimer:0};
+let _ballLog=[]; // ホームでまだ降らせていない正解玉（テストをまたいで蓄積）
 function spawnWordDrop(word,speed){
   try{
-    const layer=document.getElementById("q-rain");if(!layer)return;
     const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[word.ko]:null;if(!src)return;
-    if(QR.balls.length>=30){const old=QR.balls.shift();old.el.remove();} // 上限超過は古い玉から消す（上の玉は自然に崩れ落ちる）
     const r=32+Math.round(28*Math.min(1,Math.max(0,speed==null?0.5:speed))); // 速答ほど大きい玉（直径64〜120px）
-    const el=document.createElement("div");el.className="qr-ball";
-    el.style.width=el.style.height=(r*2)+"px";
-    el.innerHTML=`<img src="${src}" alt="">`;
-    layer.appendChild(el);
-    const W=layer.clientWidth||602;
-    QR.balls.push({x:r+Math.random()*(W-2*r),y:-r-10,vx:(Math.random()*2-1)*120,vy:0,a:0,va:0,r,el});
-    QR.calm=0;
-    if(!QR.raf){QR.last=0;QR.raf=requestAnimationFrame(qrStep);}
+    const bg=roomBg(curSection); // 玉のカプセル色は出題ROOMの背景色
+    _ballLog.push({src,r,bg});if(_ballLog.length>36)_ballLog.shift();
+    spawnBallRaw(src,r,bg);
   }catch(e){}
 }
-function qrClear(){QR.balls.forEach(b=>b.el.remove());QR.balls=[];if(QR.raf){cancelAnimationFrame(QR.raf);QR.raf=0;}}
+function spawnBallRaw(src,r,bg){
+  const layer=document.getElementById("q-rain");if(!layer)return;
+  if(QR.balls.length>=30){const old=QR.balls.shift();old.el.remove();} // 上限超過は古い玉から消す（上の玉は自然に崩れ落ちる）
+  const el=document.createElement("div");el.className="qr-ball";
+  el.style.width=el.style.height=(r*2)+"px";
+  if(bg)el.style.background=bg+"D9"; // ROOM色85%
+  el.innerHTML=`<img src="${src}" alt="">`;
+  layer.appendChild(el);
+  const W=layer.clientWidth||602;
+  QR.balls.push({x:r+Math.random()*(W-2*r),y:-r-10,vx:(Math.random()*2-1)*120,vy:0,a:0,va:0,r,el});
+  QR.calm=0;
+  if(!QR.raf){QR.last=0;QR.raf=requestAnimationFrame(qrStep);}
+}
+function qrClear(){QR.balls.forEach(b=>b.el.remove());QR.balls=[];if(QR.raf){cancelAnimationFrame(QR.raf);QR.raf=0;}if(QR.rainTimer){clearInterval(QR.rainTimer);QR.rainTimer=0;}}
+function qrDismiss(){qrClear();const qr=document.getElementById("q-rain");if(qr){qr.classList.remove("front");qr.style.display="none";}}
+/* ホーム帰還時：未降下の玉（複数テストぶん含む）を0.1秒間隔で上から一斉降下（前面レイヤー・操作透過） */
+function homeRain(){
+  const qr=document.getElementById("q-rain");if(!qr||!_ballLog.length||QR.rainTimer)return;
+  qrClear();qr.classList.add("front");qr.style.display="";
+  const q=_ballLog.slice();_ballLog=[];
+  let i=0;
+  QR.rainTimer=setInterval(()=>{
+    if(i>=q.length){clearInterval(QR.rainTimer);QR.rainTimer=0;return;}
+    const b=q[i++];spawnBallRaw(b.src,b.r,b.bg);
+  },100);
+}
 function qrStep(ts){
-  const layer=document.getElementById("q-rain"),scr=document.getElementById("s-quiz");
-  if(!layer||!scr||!scr.classList.contains("on")){QR.raf=0;return;} // 出題画面を離れたら停止（次の正解で再開）
+  const layer=document.getElementById("q-rain");
+  const active=["s-quiz","s-result","s-home"].some(id=>{const e=document.getElementById(id);return e&&e.classList.contains("on");});
+  if(!layer||layer.style.display==="none"||!active){QR.raf=0;return;} // 対象画面を離れたら停止（次のspawnで再開）
   if(!QR.last)QR.last=ts;
   const dt=Math.min(0.032,(ts-QR.last)/1000);QR.last=ts;
   const W=layer.clientWidth,H=layer.clientHeight,G=2400,bs=QR.balls;
@@ -2544,6 +2573,7 @@ function updateStatusOverlay(){
 }
 function enterStatusMode(){
   if(_statusMode||_listMode)return;
+  qrDismiss(); // 玉の山は片付けてからステータスへ
   _statusMode=true;
   updateStatusOverlay();
   const w=document.getElementById("homewrap");
@@ -2736,7 +2766,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.57.2 (2026-07-19)";
+const APP_VERSION="v2.58 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
