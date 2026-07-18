@@ -292,11 +292,10 @@ button{font-family:inherit}
 .home-head>*{pointer-events:auto}
 .slide-img,.room-ph{opacity:calc(1 - var(--p,0));transition:opacity .35s ease,transform .35s ease} /* 写真はフェードアウト */
 .home-wrap.dragging .slide-inner,.home-wrap.dragging .home-head,.home-wrap.dragging .slide-img,.home-wrap.dragging .room-ph,.home-wrap.dragging .room-scroll,.home-wrap.dragging .start-button{transition:none}
-.slide-list{position:absolute;left:24px;top:344px;width:554px;height:604px;overflow-y:auto;background:rgba(0,0,0,.35);scrollbar-width:none;
-  opacity:var(--p,1);transition:opacity .35s ease,height .35s ease} /* 入場はJSでフェードイン、下スワイプは--p連動でフェードアウト */
-.home-wrap.hiderail .slide-list{height:745px} /* 一覧モードはスタートボタンが無いぶん下端(バージョン表記上)まで拡張 */
+.slide-list{position:absolute;left:0;top:110px;width:602px;height:985px;overflow-y:auto;background:transparent;scrollbar-width:none;
+  opacity:var(--p,1);transition:opacity .35s ease} /* ROOMメニュー直下から下端まで・全幅・背景なし。入場はJSでフェードイン */
 /* 単語帳の流れる帯（ホームの帯と同デザイン系・番号/枚数/％付き） */
-.wb-band{position:relative;height:140px;margin:5px 0;background:rgba(255,255,255,.35);overflow-x:auto;overflow-y:hidden;display:flex;align-items:flex-end;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.wb-band{position:relative;height:140px;margin:2px 0;background:transparent;overflow-x:auto;overflow-y:hidden;display:flex;align-items:flex-end;scrollbar-width:none;-webkit-overflow-scrolling:touch} /* 背景なし・全幅で端から端まで流れる */
 .wb-band::-webkit-scrollbar{display:none}
 .wb-track{display:flex;gap:10px;padding:52px 8px 8px;align-items:flex-end}
 .wb-card{position:relative;flex:0 0 auto;background:rgba(255,255,255,.95);border-radius:12px;padding:5px 10px;min-width:104px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a}
@@ -307,6 +306,15 @@ button{font-family:inherit}
 .wb-ja{font-size:10px;font-weight:700;color:#666;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wb-info{display:flex;gap:6px;font-size:10px;font-weight:800;color:#888;margin-top:2px;line-height:1}
 .wb-rate.ms-stable{color:#1FAD62}.wb-rate.ms-review{color:#C79A00}.wb-rate.ms-urgent{color:#E0433B}
+/* 過去履歴モーダル（ランク円タップで表示・白透明の表） */
+#history-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45)}
+#history-modal.on{display:flex}
+.hist-card{width:520px;max-width:92vw;max-height:76vh;overflow-y:auto;background:rgba(255,255,255,.85);color:#1a1a1a;padding:14px;position:relative;border-radius:14px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.hist-h{font-size:15px;font-weight:900;text-align:center;margin-bottom:8px;letter-spacing:1px}
+.hist-card .wh-row{border-bottom:1px solid rgba(0,0,0,.12)}
+.hist-card .wh-date{color:rgba(0,0,0,.55)}
+.hist-card .wh-empty{color:rgba(0,0,0,.55)}
+.hist-close{position:absolute;right:10px;top:6px;background:transparent;border:none;font-size:24px;font-weight:900;color:#888;cursor:pointer}
 .home-wrap.dragging .slide-list{transition:none}
 .slide-list::-webkit-scrollbar{display:none}
 .wl-head{position:sticky;top:0;z-index:1;display:flex;align-items:baseline;gap:6px;padding:8px 12px;background:rgba(0,0,0,.8);color:#fff;font-size:12px;font-weight:800;white-space:nowrap} /* 他の表と同じヘッダーデザイン */
@@ -637,6 +645,7 @@ button{font-family:inherit}
 <div id="present-modal"></div>
 <div id="calendar-modal"></div>
 <div id="settings-modal"></div>
+<div id="history-modal"></div>
 
 <script src="words-middle.js"></script>
 <script src="words-images.js"></script>
@@ -1076,6 +1085,27 @@ function roomMidHTML(n){
   </div>`;
 }
 
+/* ROOMメニューのランク円タップ：そのROOMの過去履歴一覧（whローデザイン・白透明モーダル） */
+function openRoomHistory(n){
+  const ids=new Set(LEVEL_SECTIONS[curLevel][n]||[]),byTest={};
+  loadHistory().forEach(r=>{if(r.testId&&ids.has(r.wordId))(byTest[r.testId]=byTest[r.testId]||[]).push(r);});
+  const tests=Object.entries(byTest).map(([tid,a])=>({tid,at:a[a.length-1].answeredAt,total:a.reduce((x,r)=>x+(r.score||0),0),n:a.length,ok:a.filter(r=>r.isCorrect).length}))
+    .sort((a,b)=>b.at.localeCompare(a.at)).slice(0,20);
+  const rows=tests.length?tests.map(t=>{
+    const full=t.n>=12,tt=Math.ceil(t.total),rk=full?rankFor(tt):null;
+    return `<div class="wh-row" onclick="closeRoomHistory();renderPastResult('${t.tid}')">
+      <span class="wh-date">${fmtDate(t.at)}</span>
+      <span class="wh-rank" style="background:${rk?(RANK_COLORS[rk]||"#555"):"rgba(0,0,0,.22)"}">${rk||"-"}</span>
+      <span class="wh-score">${tt}</span>
+      <span style="color:#FF3B3B">○${t.ok}</span><span style="color:#2F6FE0">×${t.n-t.ok}</span></div>`;
+  }).join(""):'<div class="wh-empty">まだテスト履歴がありません</div>';
+  const m=document.getElementById("history-modal");
+  m.innerHTML=`<div class="hist-card"><button class="hist-close" onclick="closeRoomHistory()">×</button><div class="hist-h">ROOM ${String(n).padStart(2,"0")}　テスト履歴</div>${rows}</div>`;
+  m.classList.add("on");
+  m.onclick=e=>{if(e.target===m)closeRoomHistory();};
+}
+function closeRoomHistory(){const m=document.getElementById("history-modal");if(m)m.classList.remove("on");}
+
 /* スライド内の単語帳：ホームの帯と同デザインの流れる帯×5（20語ずつ・交互方向・手動スクロール可） */
 function wbCardHTML(id,i,st,cards,now){
   const w=WORD_BY_ID[id],cnt=cards[id]||0,no=String(i+1).padStart(3,"0");
@@ -1149,13 +1179,13 @@ function buildRoomSlides(){
   </div>`;
   el.innerHTML=levelSlide+Array.from({length:count},(_,i)=>{
     const n=i+1,nn=String(n).padStart(2,"0"),ri=roomInfoFor(n);
-    const circ=(cls,rank)=>rank?`<div class="${cls}" style="background:${RANK_COLORS[rank]||"#555"}">${rank}</div>`:"";
+    const circ=(cls,rank)=>rank?`<div class="${cls}" style="background:${RANK_COLORS[rank]||"#555"};cursor:pointer" onclick="openRoomHistory(${n})">${rank}</div>`:""; // ランク円タップ=過去履歴一覧
     // 直近=右の大きい丸 / 1つ前=真ん中(小) / 2つ前=左(小)
     const arr=ri.recent;
     const rLast=arr.length>=1?arr[arr.length-1]:null;
     const rPrev1=arr.length>=2?arr[arr.length-2]:null;
     const rPrev2=arr.length>=3?arr[arr.length-3]:null;
-    const big=rLast?circ("rank-b",rLast):`<div class="rank-b" style="background:rgba(0,0,0,.22)">-</div>`;
+    const big=rLast?circ("rank-b",rLast):`<div class="rank-b" style="background:rgba(0,0,0,.22);cursor:pointer" onclick="openRoomHistory(${n})">-</div>`;
     return `<div class="room-slide" data-n="${n}" style="background:${roomBg(n)}">
       <div class="slide-inner">
       <div class="rmenu-bg" onclick="roomMenuTap(${n})"></div>
@@ -1168,7 +1198,7 @@ function buildRoomSlides(){
       ${rPrev2?circ("rank-s",rPrev2):""}
       ${rPrev1?circ("rank-s rank-s1",rPrev1):""}
       ${big}
-      ${_listMode?(roomMidHTML(n)+roomListHTML(n)):`<div class="room-ph">${nn}</div>
+      ${_listMode?roomListHTML(n):`<div class="room-ph">${nn}</div>
       <img class="slide-img" src="rooms/${curLevel}-${nn}.webp" alt="" loading="lazy"
         onload="this.previousElementSibling.style.display='none'"
         onerror="this.style.display='none'">`}
@@ -2869,7 +2899,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.61.1 (2026-07-19)";
+const APP_VERSION="v2.62 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
