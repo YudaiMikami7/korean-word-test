@@ -458,7 +458,7 @@ button{font-family:inherit}
 .btn.line{background:transparent;border:1px solid var(--line);color:var(--mute)}
 
 /* ===== result (fixed, only list scrolls) ===== */
-.res{height:100dvh;display:flex;flex-direction:column;padding:18px 18px calc(14px + env(safe-area-inset-bottom))}
+.res{flex:1 1 auto;min-height:0;width:100%;display:flex;flex-direction:column;padding:14px 18px calc(10px + env(safe-area-inset-bottom))} /* 100dvh固定をやめ画面領域内に収める（ページスクロール撲滅） */
 .res-head{flex:0 0 auto;text-align:center}
 .res-top{display:flex;align-items:center;justify-content:center;gap:18px}
 .rank-c{width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:54px;font-weight:900;color:#fff}
@@ -471,15 +471,18 @@ button{font-family:inherit}
 .rp-g{width:120px;height:15px;background:#333;border-radius:999px;padding:3px;box-sizing:border-box}
 .rp-g div{height:100%;border-radius:999px}
 .res-right{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
-.res-pwr{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px}
+.res-pwr{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
 .res-pwr .pwr-g div{transition:width .9s ease}
+.res-pwr .pwr-lab,.res-pwr .pwr-val{font-size:15px} /* メータ縮小に合わせ文字も小さく */
+.res-pwr .pwr-g{width:180px;height:12px;padding:2px}
 .pwr-delta{font-size:18px;font-weight:900}
+.res-pwr .pwr-delta{font-size:14px}
 .res-counts{display:flex;justify-content:flex-start;gap:20px;font-size:18px;font-weight:900}
 .res-sess{margin-top:8px;font-size:12.5px;color:var(--faint);font-weight:700}
 .res-sess b{color:var(--text)}
 .btn.dark{background:rgba(0,0,0,.8);color:#fff}
 .btn.dark:active{background:rgba(0,0,0,.65)}
-.res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;margin:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-left:none;border-right:none;border-radius:0;-webkit-overflow-scrolling:touch}
+.res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;margin:10px 0;border-top:1px solid var(--line);border-bottom:none;border-left:none;border-right:none;border-radius:0;-webkit-overflow-scrolling:touch} /* 表とシェアボタンの間の線は無し */
 /* 出題表はコンパクト表示（ボタン群がスクロールなしで見えるよう縦を圧縮） */
 .rtab{width:100%;border-collapse:collapse;font-size:13px;background:rgba(0,0,0,.65)}
 .rtab th,.rtab td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
@@ -2840,7 +2843,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.60 (2026-07-19)";
+const APP_VERSION="v2.60.1 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
