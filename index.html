@@ -2559,20 +2559,39 @@ function showOverlay(status,q,userAnswer){
   if(tap)inner+='<div class="tap-next">タップで次へ ›</div>';
   ov.innerHTML=inner;
   document.body.appendChild(ov);
+  const advance=()=>{if(ov._done)return;ov._done=true;ov.remove();afterAnswer();};
+  // 回答後のどの状態（タップ待ち/自動送り待ち/切替直後）でも1つのハンドラで処理する
+  ov.addEventListener("click",(e)=>{
+    if(ov._done)return;
+    const els=document.elementsFromPoint(e.clientX,e.clientY);
+    // 進み方スイッチはオーバーレイ越しでも常に操作可能（押した瞬間にモードを移行）
+    if(els.some(n=>n.id==="qadv"||(n.closest&&n.closest("#qadv")))){
+      toggleAdvMode();
+      clearTimeout(ovTimer);
+      const tapNow=loadSettings().tapAdvance;
+      ov.style.cursor=tapNow?"pointer":"";
+      const tn=ov.querySelector(".tap-next");
+      if(tapNow){
+        if(!tn)ov.insertAdjacentHTML("beforeend",'<div class="tap-next">タップで次へ ›</div>');
+        if(q.type!=="w")addChoiceSpeakers();
+      }else{
+        if(tn)tn.remove();
+        ovTimer=setTimeout(advance,800); // オフに切替→自動送りへ移行
+      }
+      return;
+    }
+    if(!loadSettings().tapAdvance)return; // 自動送り待ち中の他タップは無視
+    if(q.type!=="w"){ // オーバーレイ越しに選択肢を叩いたらその単語の韓国語音声（次へは進まない）
+      const hit=els.find(el=>el.classList&&el.classList.contains("choice"));
+      if(hit){speakChoiceKo(q,hit.dataset.v);return;}
+    }
+    advance();
+  });
   if(tap){
     ov.style.cursor="pointer";
     if(q.type!=="w")addChoiceSpeakers(); // 各選択肢の右端に音声マーク
-    const go=(e)=>{
-      if(ov._done)return;
-      if(q.type!=="w"&&e){ // オーバーレイ越しに選択肢を叩いたらその単語の韓国語音声（次へは進まない）
-        const hit=document.elementsFromPoint(e.clientX,e.clientY).find(el=>el.classList&&el.classList.contains("choice"));
-        if(hit){speakChoiceKo(q,hit.dataset.v);return;}
-      }
-      ov._done=true;ov.remove();afterAnswer();
-    };
-    ov.addEventListener("click",go);
   }else{
-    ovTimer=setTimeout(()=>{ov.remove();afterAnswer();},isCorrect?1000:2000);
+    ovTimer=setTimeout(advance,isCorrect?1000:2000);
   }
 }
 /* 四択正解時：単語画像入りの白半透明カプセル玉が落下し、衝突・転がりながらどんどん積もる（簡易物理・背景レイヤー） */
@@ -3224,7 +3243,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.69.1 (2026-07-19)";
+const APP_VERSION="v2.69.2 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
