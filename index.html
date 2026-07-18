@@ -295,6 +295,18 @@ button{font-family:inherit}
 .slide-list{position:absolute;left:24px;top:344px;width:554px;height:604px;overflow-y:auto;background:rgba(0,0,0,.35);scrollbar-width:none;
   opacity:var(--p,1);transition:opacity .35s ease,height .35s ease} /* 入場はJSでフェードイン、下スワイプは--p連動でフェードアウト */
 .home-wrap.hiderail .slide-list{height:745px} /* 一覧モードはスタートボタンが無いぶん下端(バージョン表記上)まで拡張 */
+/* 単語帳の流れる帯（ホームの帯と同デザイン系・番号/枚数/％付き） */
+.wb-band{position:relative;height:140px;margin:5px 0;background:rgba(255,255,255,.35);overflow-x:auto;overflow-y:hidden;display:flex;align-items:flex-end;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.wb-band::-webkit-scrollbar{display:none}
+.wb-track{display:flex;gap:10px;padding:52px 8px 8px;align-items:flex-end}
+.wb-card{position:relative;flex:0 0 auto;background:rgba(255,255,255,.95);border-radius:12px;padding:5px 10px;min-width:104px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a}
+.wb-imgspace{width:48px;height:10px;flex:0 0 auto}
+.wb-img{position:absolute;top:-42px;left:50%;transform:translateX(-50%);width:80px;height:80px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.18))}
+.wb-img.sil{filter:brightness(0) opacity(.5)} /* 未獲得はシルエット */
+.wb-ko{font-size:16px;font-weight:900;line-height:1.15}
+.wb-ja{font-size:10px;font-weight:700;color:#666;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb-info{display:flex;gap:6px;font-size:10px;font-weight:800;color:#888;margin-top:2px;line-height:1}
+.wb-rate.ms-stable{color:#1FAD62}.wb-rate.ms-review{color:#C79A00}.wb-rate.ms-urgent{color:#E0433B}
 .home-wrap.dragging .slide-list{transition:none}
 .slide-list::-webkit-scrollbar{display:none}
 .wl-head{position:sticky;top:0;z-index:1;display:flex;align-items:baseline;gap:6px;padding:8px 12px;background:rgba(0,0,0,.8);color:#fff;font-size:12px;font-weight:800;white-space:nowrap} /* 他の表と同じヘッダーデザイン */
@@ -1027,6 +1039,7 @@ function enterListMode(){
     ls.forEach(e=>e.style.opacity="0");
     void document.body.offsetHeight;
     ls.forEach(e=>e.style.opacity="");
+    wbStart(); // 帯のオートスクロール開始
   },360);
 }
 function exitListMode(){
@@ -1061,34 +1074,56 @@ function roomMidHTML(n){
   </div>`;
 }
 
-/* スライド内の単語帳（獲得カード=カラー、未獲得=シルエット） */
+/* スライド内の単語帳：ホームの帯と同デザインの流れる帯×5（20語ずつ・交互方向・手動スクロール可） */
+function wbCardHTML(id,i,st,cards,now){
+  const w=WORD_BY_ID[id],cnt=cards[id]||0,no=String(i+1).padStart(3,"0");
+  const ownedC=cnt>0;
+  const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[w.ko]:null;
+  const img=src?`<span class="wb-imgspace"></span><img class="wb-img${ownedC?"":" sil"}" src="${src}" loading="lazy" alt="">`:"";
+  let rateHTML='<span class="wb-rate">—</span>';
+  if(ownedC){const rate=Math.round(displayScore(getStat(id,st),now)),ms=memState(rate);rateHTML=`<span class="wb-rate ${ms.cls}">${rate}%</span>`;}
+  return `<div class="wb-card" onclick="renderWordDetail(${id},'room')">
+    ${img}
+    <div class="wb-ko">${esc(w.ko)}</div>
+    <div class="wb-ja">${esc(w.ja)}</div>
+    <div class="wb-info"><span class="wb-no">${no}</span><span class="wb-cnt">×${cnt}</span>${rateHTML}</div>
+  </div>`;
+}
 function roomListHTML(n){
   const ids=LEVEL_SECTIONS[curLevel][n]||[],st=loadStats(),cards=loadCards(),now=Date.now();
   let owned=0,totalCnt=0;
-  const cells=ids.map((id,i)=>{
-    const w=WORD_BY_ID[id],x=st[id],cnt=cards[id]||0,no=String(i+1).padStart(3,"0");
-    const seen=x&&x.reviewCount>0;
-    if(cnt>0){
-      owned++;totalCnt+=cnt;
-      const rate=Math.round(displayScore(getStat(id,st),now)),ms=memState(rate);
-      const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko])?`<img class="zk-img" src="${WORD_IMG[w.ko]}" loading="lazy" alt="">`:"";
-      return `<div class="zk-card" onclick="renderWordDetail(${id},'room')">
-        <span class="zk-no">${no}</span><span class="zk-cnt">×${cnt}</span><span class="zk-rate-side ${ms.cls}">${rate}%</span>
-        <div class="zk-ko">${esc(w.ko)}</div>${img}<div class="zk-ja">${esc(w.ja)}</div></div>`;
-    }
-    if(seen){
-      return `<div class="zk-card zk-seen" onclick="renderWordDetail(${id},'room')">
-        <span class="zk-no">${no}</span>
-        <div class="zk-ko">${esc(w.ko)}</div><div style="font-size:13px;font-weight:800;color:#777;margin-top:auto">カード未獲得</div><div class="zk-ja">${esc(w.ja)}</div></div>`;
-    }
-    const silImg=(typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko])?`<img class="zk-img zk-sil" src="${WORD_IMG[w.ko]}" loading="lazy" alt="">`:`<div class="zk-q">?</div>`;
-    return `<div class="zk-card zk-lock"><span class="zk-no">${no}</span>
-      <div class="zk-ko">${esc(w.ko)}</div>${silImg}<div class="zk-ja">${esc(w.ja)}</div></div>`;
-  }).join("");
-  return `<div class="slide-list">
+  ids.forEach(id=>{const c=cards[id]||0;if(c>0){owned++;totalCnt+=c;}});
+  const bands=[];
+  for(let b=0;b*20<ids.length&&b<5;b++){
+    const cs=ids.slice(b*20,b*20+20).map((id,j)=>wbCardHTML(id,b*20+j,st,cards,now)).join("");
+    bands.push(`<div class="wb-band" data-dir="${b%2===0?1:-1}"><div class="wb-track">${cs}${cs}</div></div>`); // 2連結でシームレスループ
+  }
+  return `<div class="slide-list wb-list">
     <div class="zk-sum">単語帳 <b>${owned}</b> / ${ids.length}　カード <b>${totalCnt}</b>枚</div>
-    <div class="zk-grid">${cells}</div></div>`;
+    ${bands.join("")}</div>`;
 }
+/* 帯のオートスクロール：一覧モード中、現在ROOMの帯を左右交互に流す。指で触れている帯は停止し、離して1.5秒後に再開 */
+let _wbRaf=0,_wbLast=0;
+function wbLoop(ts){
+  if(!_listMode){_wbRaf=0;return;}
+  if(!_wbLast)_wbLast=ts;
+  const dt=Math.min(0.05,(ts-_wbLast)/1000);_wbLast=ts;
+  document.querySelectorAll(`.room-slide[data-n="${curSection}"] .wb-band`).forEach(band=>{
+    if(band.dataset.hold==="1"||(band.dataset.holdUntil&&Date.now()<+band.dataset.holdUntil))return;
+    const tr=band.firstElementChild;if(!tr)return;
+    const half=tr.scrollWidth/2;
+    if(half<=band.clientWidth)return;
+    let sl=(band._sl!=null&&Math.abs(band._sl-band.scrollLeft)<2)?band._sl:band.scrollLeft; // 手動操作後は実位置から再開
+    sl+=(+band.dataset.dir||1)*28*dt;
+    if(sl>=half)sl-=half;
+    if(sl<=0)sl+=half;
+    band._sl=sl;band.scrollLeft=sl;
+  });
+  _wbRaf=requestAnimationFrame(wbLoop);
+}
+function wbStart(){if(!_wbRaf){_wbLast=0;_wbRaf=requestAnimationFrame(wbLoop);}}
+document.addEventListener("touchstart",e=>{const b=e.target&&e.target.closest&&e.target.closest(".wb-band");if(b)b.dataset.hold="1";},{passive:true});
+document.addEventListener("touchend",()=>{document.querySelectorAll('.wb-band[data-hold="1"]').forEach(b=>{b.dataset.hold="0";b.dataset.holdUntil=String(Date.now()+1500);});},{passive:true});
 function roomInfoFor(n){
   const ids=LEVEL_SECTIONS[curLevel][n]||[],s=loadStats(),now=Date.now();
   const learned=ids.filter(id=>s[id]&&s[id].reviewCount>0);
@@ -2055,7 +2090,7 @@ function showCountdown(cb){
     n--;
     if(n<=0){clearInterval(timer);cb();return;}
     draw();
-  },1000);
+  },2000); // 表示テンポは従来(1秒)の50%スピード
 }
 
 function curLimit(){return state.questions[state.idx].type==="w"?20:10;}
@@ -2805,7 +2840,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.59 (2026-07-19)";
+const APP_VERSION="v2.60 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
