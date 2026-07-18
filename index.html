@@ -183,7 +183,7 @@ button{font-family:inherit}
 .hv-code{position:absolute;right:47px;top:39px;font-size:40px;letter-spacing:1px;line-height:1;cursor:pointer;z-index:2;display:flex;align-items:center;gap:5px} /* 数字上端がLv.数字(top44)と揃う位置：39+(50-40)/2=44 */
 .streak-fire{width:50px;height:50px;object-fit:contain;display:block}
 #hv-pwrdown{position:absolute;left:166px;top:153px;width:403px;text-align:center;font-size:16px;font-weight:700;color:#fff;z-index:2;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.5)}
-#hv-nextrev{position:absolute;left:166px;top:176px;width:403px;text-align:center;font-size:13px;font-weight:800;color:rgba(255,255,255,.92);z-index:2;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+#hv-nextrev{position:absolute;left:166px;top:176px;width:403px;text-align:center;font-size:13px;font-weight:800;color:rgba(255,255,255,.92);z-index:2;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .home-side-btn img{width:74%;height:74%;object-fit:contain;pointer-events:none;display:block;margin:auto}
 .status-panel{position:absolute;left:166px;top:83px;width:403px;height:64px;border-radius:32px;background:rgba(0,0,0,.8);z-index:1;cursor:pointer}
 .hv-lab,.hv-xpg,.hv-pwrg{pointer-events:none}
@@ -264,9 +264,9 @@ button{font-family:inherit}
   opacity:1;transition:opacity .3s ease} /* ROOMメニュー(下端329px)のすぐ下から縦に並ぶ */
 .home-wrap.status .reward-rail,.home-wrap.hiderail .reward-rail,.home-wrap.status .home-side-btn,.home-wrap.hiderail .home-side-btn,.home-wrap.status .start-button,.home-wrap.hiderail .start-button{opacity:0;pointer-events:none}
 .home-side-btn{opacity:1;transition:transform .4s ease,opacity .3s ease}
-.rr-btn{width:68px;height:68px;border:none;background:rgba(255,255,255,.18);border-radius:50%;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;position:relative}
+.rr-btn{width:68px;height:68px;border:none;background:#fff;border-radius:50%;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 2px 6px rgba(0,0,0,.12)} /* 背景は不透明の白 */
 .rr-btn img{width:86%;height:86%;object-fit:contain}
-.rr-set{font-size:34px;color:#fff;line-height:1}
+.rr-set{font-size:34px;color:#555;line-height:1} /* 白背景に映る濃色 */
 .rr-btn.rb{animation:rbglow 1.4s linear infinite}
 .rr-btn.bob{animation:bob 1.6s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
@@ -362,6 +362,22 @@ body.bigtext .set-d{font-size:13.5px}
 .hist-card .wh-date{color:rgba(0,0,0,.55)}
 .hist-card .wh-empty{color:rgba(0,0,0,.55)}
 .hist-close{position:absolute;right:10px;top:6px;background:transparent;border:none;font-size:24px;font-weight:900;color:#888;cursor:pointer}
+.oa-close{display:inline-block;background:rgba(255,216,77,.95);color:#5a4300;font-size:14px;font-weight:900;padding:7px 14px;border-radius:999px;margin-bottom:10px} /* 書き取りのおしい表示 */
+.res-cheer{font-size:12.5px;font-weight:800;color:rgba(255,255,255,.95);margin-top:6px}
+.wb-tabs{display:flex;gap:8px;padding:10px 12px 0}
+.wb-tab{flex:1;border:none;border-radius:999px;padding:9px 4px;font-weight:800;font-size:13px;background:rgba(0,0,0,.35);color:#fff;cursor:pointer;font-family:inherit}
+.wb-tab.on{background:#fff;color:#1a1a1a}
+.wb-none{color:#fff;padding:40px 0;text-align:center;font-weight:800}
+.rr-map{font-size:28px;line-height:1}
+#map-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45)}
+#map-modal.on{display:flex}
+.rm-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rm-cell{border:none;border-radius:12px;background:rgba(0,0,0,.06);padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-weight:800;color:#1a1a1a;font-family:inherit}
+.rm-cell.cur{outline:2px solid #1a1a1a}
+.rm-no{font-size:15px;font-weight:900}
+.rm-rank{width:26px;height:26px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900}
+.rm-pwr{font-size:12px;color:#555}
+.rm-learn{font-size:10px;color:#888}
 /* アプリ内確認ダイアログ */
 .appconfirm{position:fixed;inset:0;z-index:650;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center}
 .ac-card{background:#fff;color:#1a1a1a;border-radius:18px;padding:22px 20px;width:300px;text-align:center}
@@ -658,6 +674,7 @@ body.bigtext .set-d{font-size:13.5px}
       <div class="hv-code" id="hv-code" onclick="enterStatusMode()"></div>
       <div class="reward-rail">
         <button class="rr-btn rr-set" id="set-btn" onclick="openSettings()" aria-label="設定">⚙</button>
+        <button class="rr-btn rr-map" id="map-btn" onclick="openRoomMap()" aria-label="ROOM一覧">🗺</button>
         <button class="rr-btn" id="cal-btn" onclick="openCalendar()"><img src="icons/calendar.webp" alt="カレンダー"></button>
         <button class="rr-btn" id="rr-daily" onclick="openPresent('daily')"><img src="icons/bonus-daily.webp" alt="毎日"><span class="rr-badge" id="pb-daily" style="display:none"></span></button>
         <button class="rr-btn" id="rr-rank" onclick="openPresent('rank')"><img src="icons/bonus-rank.webp" alt="ランク"><span class="rr-badge" id="pb-rank" style="display:none"></span></button>
@@ -672,7 +689,7 @@ body.bigtext .set-d{font-size:13.5px}
       <div class="gauge hv-pwrg"><div class="gfill" id="hv-pwrfill" style="background:#00FF37"></div></div>
       <div class="hv-lab hv-pwrval" id="hv-pwrval">0%</div>
       <div id="hv-pwrdown"></div>
-      <div id="hv-nextrev"></div>
+      <div id="hv-nextrev" onclick="startDueReview()"></div>
       </div>
       <div class="room-scroll" id="hv-rooms"></div>
       <div id="wb-search"><input id="wb-q" type="search" placeholder="単語をさがす（韓国語・日本語）" oninput="wbSearch(this.value)"><div id="wb-hits"></div></div>
@@ -705,6 +722,7 @@ body.bigtext .set-d{font-size:13.5px}
 <div id="calendar-modal"></div>
 <div id="settings-modal"></div>
 <div id="history-modal"></div>
+<div id="map-modal"></div>
 <div id="rotate-hint">📱 縦向きでのご利用がおすすめです</div>
 
 <script src="words-middle.js"></script>
@@ -911,7 +929,7 @@ function specialBonusFor(dt){
   return null;
 }
 function launchedDays(){try{return JSON.parse(localStorage.getItem(LS_LAUNCH)||"[]")||[];}catch(e){return[];}}
-function markLaunch(){const a=launchedDays(),tk=dayKey(Date.now());if(!a.includes(tk)){a.push(tk);localStorage.setItem(LS_LAUNCH,JSON.stringify(a));}}
+function markLaunch(){const a=launchedDays(),tk=dayKey(Date.now());if(!a.includes(tk)){a.push(tk);if(a.length>420)a.splice(0,a.length-400);localStorage.setItem(LS_LAUNCH,JSON.stringify(a));}} // 400日ぶんだけ保持
 /* 連続ログイン日数：今日を起点に起動記録(kwt_launch_v1)が連続している日数 */
 function loginStreak(){
   const s=new Set(launchedDays());let n=0,grace=false;const d=new Date();
@@ -1208,6 +1226,34 @@ function openRoomHistory(n){if(!document.getElementById("history-modal").classLi
   m.onclick=e=>{if(e.target===m)closeRoomHistory();};
 }
 function closeRoomHistory(){const m=document.getElementById("history-modal");if(m)m.classList.remove("on");}
+/* ROOM一覧マップ：全ROOMの進捗を俯瞰し、タップでそのROOMへジャンプ */
+function openRoomMap(){
+  if(!document.getElementById("map-modal").classList.contains("on"))pushNav("modal");
+  const N=LEVEL_INFO[curLevel].count,secs=loadSections();
+  const cells=Array.from({length:N},(_,k)=>{
+    const n=k+1,ri=roomInfoFor(n);
+    const rec=secs[curLevel+"-"+String(n).padStart(2,"0")]||{};
+    const rk=(rec.recentRanks||[]).slice(-1)[0]||null;
+    return `<button class="rm-cell${n===curSection?" cur":""}" onclick="jumpRoom(${n})">
+      <span class="rm-no">${String(n).padStart(2,"0")}</span>
+      <span class="rm-rank" style="background:${rk?(RANK_COLORS[rk]||"#555"):"rgba(0,0,0,.15)"}">${rk||"−"}</span>
+      <span class="rm-pwr">${ri.pwr}%</span><span class="rm-learn">${ri.learned}/${ri.total}語</span>
+    </button>`;
+  }).join("");
+  const m=document.getElementById("map-modal");
+  m.innerHTML=`<div class="hist-card"><button class="hist-close" onclick="closeRoomMap()" aria-label="閉じる">×</button>
+    <div class="hist-h">ROOM一覧（${curLevel==="beginner"?"初級":"中級"}）</div>
+    <div class="rm-grid">${cells}</div></div>`;
+  m.classList.add("on");
+  m.onclick=e=>{if(e.target===m)closeRoomMap();};
+}
+function closeRoomMap(){document.getElementById("map-modal").classList.remove("on");}
+function jumpRoom(n){
+  closeRoomMap();
+  curSection=n;saveLastRoom();applyHomeBg();
+  const hv=document.getElementById("hv-rooms");if(hv)hv.scrollLeft=n*602;
+  attachHomeRain();
+}
 
 /* スライド内の単語帳：ホームの帯と同デザインの流れる帯×5（20語ずつ・交互方向・手動スクロール可） */
 function wbCardHTML(id,i,st,cards,now){
@@ -1225,14 +1271,23 @@ function wbCardHTML(id,i,st,cards,now){
     <div class="wb-info"><span class="wb-no">${no}</span><span class="wb-cnt">×${cnt}</span>${rateHTML}</div>
   </div>`;
 }
+let _wbFilter="all";
+function wbSetFilter(f){_wbFilter=f;buildRoomSlides();attachHomeRain();}
 function roomListHTML(n){
   const ids=LEVEL_SECTIONS[curLevel][n]||[],st=loadStats(),cards=loadCards(),now=Date.now();
   let owned=0,totalCnt=0;
   ids.forEach(id=>{const c=cards[id]||0;if(c>0){owned++;totalCnt+=c;}});
-  const cells=ids.map((id,i)=>wbCardHTML(id,i,st,cards,now)).join("");
+  let pairs=ids.map((id,i)=>({id,i})); // 番号は常に元の通し番号を維持
+  if(_wbFilter==="unowned")pairs=pairs.filter(p=>!(cards[p.id]>0));
+  else if(_wbFilter==="owned")pairs=pairs.filter(p=>cards[p.id]>0);
+  else if(_wbFilter==="review")pairs=pairs.filter(p=>cards[p.id]>0&&displayScore(getStat(p.id,st),now)<70)
+    .sort((a,b)=>displayScore(getStat(a.id,st),now)-displayScore(getStat(b.id,st),now)); // 記憶率が低い順
+  const tab=(f,l)=>`<button class="wb-tab${_wbFilter===f?" on":""}" onclick="wbSetFilter('${f}')">${l}</button>`;
+  const cells=pairs.map(p=>wbCardHTML(p.id,p.i,st,cards,now)).join("");
   return `<div class="slide-list wb-list">
     <div class="zk-sum">単語帳 <b>${owned}</b> / ${ids.length}　カード <b>${totalCnt}</b>枚</div>
-    <div class="wb-grid">${cells}</div></div>`;
+    <div class="wb-tabs">${tab("all","全部")}${tab("unowned","未獲得")}${tab("review","要復習")}${tab("owned","獲得済み")}</div>
+    ${pairs.length?`<div class="wb-grid">${cells}</div>`:'<div class="wb-none">該当する単語はありません</div>'}</div>`;
 }
 /* 単語検索：現在レベルの全語からkoまたは訳の部分一致（最大20件）。タップで単語詳細へ */
 function wbSearch(q){
@@ -1251,7 +1306,7 @@ function wbSearch(q){
 /* 初回だけジェスチャー案内を表示 */
 function showCoach(){
   const el=document.createElement("div");el.className="coach";
-  el.innerHTML=`<div class="coach-in">つかいかた<br>⬆️ 上スワイプ / ROOM番号タップ … 単語帳<br>⬇️ 下スワイプ / Lv.タップ … ステータス<br>↔️ 左右スワイプ … ROOM切替<br>🅰️ ランク円タップ … テスト履歴<div class="coach-ok">OK</div></div>`;
+  el.innerHTML=`<div class="coach-in">つかいかた<br>▶️ まずはスタートボタンでテスト！<br>⬆️ 上スワイプ / ROOM番号タップ … 単語帳<br>⬇️ 下スワイプ / Lv.タップ … ステータス<br>↔️ 左右スワイプ … ROOM切替<br>🅰️ ランク円タップ … テスト履歴<div class="coach-ok">OK</div></div>`;
   el.onclick=()=>el.remove();
   document.body.appendChild(el);
 }
@@ -1259,6 +1314,22 @@ function maybeCoach(){
   if(localStorage.getItem("kwt_coach_v1"))return;
   localStorage.setItem("kwt_coach_v1","1");
   showCoach();
+}
+/* バックアップの穏やかなリマインド */
+function maybeBackupNag(){
+  try{
+    if(loadHistory().length<500)return;
+    const now=Date.now();
+    const last=localStorage.getItem("kwt_lastbackup_v1");
+    if(last&&now-new Date(last).getTime()<21*86400000)return;
+    const nag=localStorage.getItem("kwt_backupnag_v1");
+    if(nag&&now-new Date(nag).getTime()<7*86400000)return;
+    localStorage.setItem("kwt_backupnag_v1",new Date().toISOString());
+    const wrap=document.getElementById("homewrap");if(!wrap)return;
+    const el=document.createElement("div");el.className="home-toast";el.textContent="💾 設定からデータのバックアップができます";
+    wrap.appendChild(el);
+    setTimeout(()=>{el.classList.add("out");setTimeout(()=>el.remove(),450);},3500);
+  }catch(e){}
 }
 function roomInfoFor(n){
   const ids=LEVEL_SECTIONS[curLevel][n]||[],s=loadStats(),now=Date.now();
@@ -1410,7 +1481,7 @@ function renderHome(){
   document.getElementById("hv-pwrfill").style.width=pw+"%";
   buildRoomSlides();
   attachHomeRain(); // スライド再構築後に玉レイヤーを差し直し（玉は保持）
-  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();setTimeout(maybeCoach,900);} // 起動時：過去7日の正解玉を一斉降下＋初回コーチ
+  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();setTimeout(maybeCoach,900);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋初回コーチ＋バックアップ提案
   buildTodayBand();
   applyHomeBg();
   scaleHome();
@@ -1422,12 +1493,24 @@ function renderHome(){
   if(nr)nr.textContent=nextReviewInfo(); // 次の復習時刻（リマインダー代替）
   if(_homeNotice){showHomeNotice(_homeNotice);_homeNotice=null;}
 }
+/* 「復習どき」タップ：期限が来ている単語だけで復習テストを開始（優先度順に12語） */
+function startDueReview(){
+  const s=loadStats(),now=Date.now(),due=[];
+  Object.keys(s).forEach(id=>{
+    const st=s[id];
+    if(st&&st.hasSeen&&st.nextReviewAt&&new Date(st.nextReviewAt).getTime()<=now&&WORD_BY_ID[id])
+      due.push({id,ps:priorityScore(WORD_BY_ID[id],st,now)});
+  });
+  if(!due.length)return; // 待機なし（表示も出ていない）
+  due.sort((a,b)=>b.ps-a.ps);
+  startTest(due.slice(0,12).map(x=>x.id));
+}
 /* 次の復習の目安：期限が来ている語数、なければ最短の復習推奨時刻まで */
 function nextReviewInfo(){
   try{
     const s=loadStats(),now=Date.now();let due=0,minT=Infinity;
     Object.keys(s).forEach(id=>{const st=s[id];if(!st||!st.hasSeen||!st.nextReviewAt)return;const t=new Date(st.nextReviewAt).getTime();if(t<=now)due++;else if(t<minT)minT=t;});
-    if(due>0)return `復習どき：${due}語が待機中`;
+    if(due>0)return `復習どき：${due}語が待機中（タップで復習）`;
     if(isFinite(minT)){const h=(minT-now)/3600000;return "次の復習まで あと"+(h<1?Math.max(1,Math.round(h*60))+"分":Math.round(h)+"時間");}
     return "";
   }catch(e){return "";}
@@ -1958,8 +2041,8 @@ function _sfx(){try{_sfxCtx=_sfxCtx||new (window.AudioContext||window.webkitAudi
 function _tone(ctx,freq,t0,dur,vol,type){const o=ctx.createOscillator(),g=ctx.createGain();o.type=type||"sine";o.frequency.value=freq;
   g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
   o.connect(g);g.connect(ctx.destination);o.start(t0);o.stop(t0+dur+0.05);}
-function sfxStart(){const c=_sfx();if(!c)return;const t=c.currentTime; _tone(c,440,t,0.09,0.22,"sawtooth");_tone(c,660,t+0.07,0.09,0.22,"sawtooth");_tone(c,990,t+0.14,0.26,0.24,"triangle");} // 出発の3音上昇
-function sfxClaim(){const c=_sfx();if(!c)return;const t=c.currentTime;[523,659,784,1047].forEach((f,i)=>_tone(c,f,t+i*0.07,0.3,0.22,"triangle"));_tone(c,1568,t+0.3,0.45,0.12,"sine");}
+function sfxStart(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime; _tone(c,440,t,0.09,0.22,"sawtooth");_tone(c,660,t+0.07,0.09,0.22,"sawtooth");_tone(c,990,t+0.14,0.26,0.24,"triangle");} // 出発の3音上昇
+function sfxClaim(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;[523,659,784,1047].forEach((f,i)=>_tone(c,f,t+i*0.07,0.3,0.22,"triangle"));_tone(c,1568,t+0.3,0.45,0.12,"sine");}
 let _koVoice=null,_curAudio=null;
 function _pickKoVoice(){
   if(!('speechSynthesis' in window))return;
@@ -2209,7 +2292,7 @@ window.addEventListener("popstate",()=>{
   _fromPop=true;
   try{
     // 1) 開いているモーダルを閉じる
-    for(const id of ["present-modal","calendar-modal","settings-modal","history-modal"]){
+    for(const id of ["present-modal","calendar-modal","settings-modal","history-modal","map-modal"]){
       const m=document.getElementById(id);
       if(m&&m.classList.contains("on")){m.classList.remove("on");return;}
     }
@@ -2493,7 +2576,7 @@ function spawnWordDrop(word,speed){
     const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[word.ko]:null;if(!src)return;
     const r=32+Math.round(28*Math.min(1,Math.max(0,speed==null?0.5:speed))); // 速答ほど大きい玉（直径64〜120px）
     const bg=roomBg(curSection); // 玉のカプセル色は出題ROOMの背景色
-    _ballLog.push({src,r,bg});if(_ballLog.length>84)_ballLog.shift();
+    _ballLog.push({src,r,bg});if(_ballLog.length>48)_ballLog.shift();
     spawnBallRaw(src,r,bg);
   }catch(e){}
 }
@@ -2501,7 +2584,7 @@ function spawnBallRaw(src,r,bg,layerId){
   if(loadSettings().balls===false)return; // 玉の演出オフ
   layerId=layerId||"q-rain";
   const layer=document.getElementById(layerId);if(!layer)return;
-  const cap=layerId==="home-rain"?84:30; // ホームは7日ぶんを残せるよう多め
+  const cap=layerId==="home-rain"?48:30; // ホームは7日ぶんを残せるよう多め
   const inLayer=QR.balls.filter(b=>b.layer===layerId);
   if(inLayer.length>=cap){
     const old=inLayer[0];old.el.remove();QR.balls.splice(QR.balls.indexOf(old),1);
@@ -2535,7 +2618,7 @@ function bootBallLog(){
   if(_bootRained)return;_bootRained=true;
   try{
     const cutoff=Date.now()-7*86400000,m=secOfWord();
-    loadHistory().filter(r=>r.isCorrect&&new Date(r.answeredAt).getTime()>=cutoff).slice(-84).forEach(r=>{
+    loadHistory().filter(r=>r.isCorrect&&new Date(r.answeredAt).getTime()>=cutoff).slice(-48).forEach(r=>{
       const w=WORD_BY_ID[r.wordId];if(!w)return;
       const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[w.ko]:null;if(!src)return;
       const limit=r.answerType==="writing"?20:10;
@@ -2544,7 +2627,7 @@ function bootBallLog(){
       const key=m[r.wordId],sn=key?parseInt(key.split("-")[1],10):curSection;
       _ballLog.push({src,r:rr,bg:roomBg(sn||curSection)});
     });
-    if(_ballLog.length>84)_ballLog=_ballLog.slice(-84);
+    if(_ballLog.length>48)_ballLog=_ballLog.slice(-48);
   }catch(e){}
 }
 /* ホーム帰還時：未降下の玉（複数テストぶん含む）を0.1秒間隔でホーム背景レイヤーに一斉降下。既存の山の上に積み増す */
@@ -2650,7 +2733,13 @@ function writingAnsHTML(status,q,userAnswer){
   // タップで次へ設定時は正解表示の横に音声再生ボタン（押しても次に進まない）
   const spk=loadSettings().tapAdvance?`<button class="oa-spk" aria-label="音声を再生（2度押しでゆっくり）" onclick="event.stopPropagation();speakSmart(WORD_BY_ID[${q.word.id}].ko)">${SPK_SVG}</button>`:"";
   if(status==="incorrect"){
-    return `<div class="ovans">
+    let close="";
+    try{
+      const cw=classifyWritingError(userAnswer,q.word);
+      if(cw.type==="phonetic_spelling")close='<div class="oa-close">おしい！音は合っています（表記だけ違う）</div>';
+      else if(cw.type==="semantic_substitution")close='<div class="oa-close">意味の近い別の単語を書いています</div>';
+    }catch(e){}
+    return `<div class="ovans">${close}
       <div class="oa-row"><div class="oa-lab">入力</div><div class="oa-ko wrong">${esc(userAnswer)||"（無回答）"}</div></div>
       <div class="oa-row"><div class="oa-lab">正解</div><div class="oa-ko correct">${ko}${spk}</div></div>
     </div>`;
@@ -2751,6 +2840,11 @@ function finishTest(){
         </div>
       </div>
       <div class="res-pwr"><span class="pwr-lab">PWR</span><div class="pwr-g"><div id="res-pwrfill" style="background:#00FF37;width:${pwrBefore}%"></div></div><span class="pwr-val">${pwrAfter}%</span><span class="pwr-delta" style="color:${pwrDelta>=0?"#1FAD62":"#FF6B6B"}">${pwrDelta>0?"+":""}${pwrDelta}</span></div>
+      <div class="res-cheer">${(()=>{const newCnt=R.filter(r=>(r.displayMemoryScoreBefore||0)===0).length;
+        if(totalDisp>=90)return"すばらしい！この調子！";
+        if(nCorrect<=4&&newCnt>=6)return"初見の単語が多めでした。2回目から一気に伸びます！";
+        if(nCorrect<=4)return"むずかしい回でした。まちがえた単語はまた出ます。取り返しましょう！";
+        return"いい感じ！まちがえた単語は近いうちに再登場します。";})()}</div>
     </div>
     ${typeUpd}
     <div class="res-listwrap">
@@ -2819,13 +2913,15 @@ function renderWordDetail(wordId,back){
   document.getElementById("s-wdetail").innerHTML=`
    <div class="q-rain" id="wd-rain"></div>
    <div class="page" style="padding-left:0;padding-right:0;position:relative;z-index:1">
-    <div class="page-head" style="padding:0 16px"><button class="back" onclick="${_wdBack==='room'?"show('s-home')":"renderRoomCurve()"}">‹</button><h2>単語詳細</h2></div>
+    <div class="page-head" style="padding:0 16px"><button class="back" onclick="${_wdBack==='room'?"show('s-home')":"renderRoomCurve()"}">‹</button><h2 id="wd-title">単語詳細</h2></div>
     <div class="wd-scroll" id="wd-scroll">${slides}</div>
     <button class="wd-nav wd-prev" onclick="wdNav(-1)" aria-label="前の単語">‹</button>
     <button class="wd-nav wd-next" onclick="wdNav(1)" aria-label="次の単語">›</button>
    </div>`;
   const fill=i=>{if(i<0||i>=ids.length)return;const e=document.getElementById("wd-in-"+i);if(e&&!e.dataset.f){e.dataset.f="1";e.innerHTML=wdSlideHTML(ids[i],i);}};
   fill(idx);fill(idx-1);fill(idx+1);fill(idx-2);fill(idx+2);
+  const wdTitle=i=>{const t=document.getElementById("wd-title"),w=WORD_BY_ID[ids[i]];if(t&&w)t.textContent=`${w.ko}（${i+1}/${ids.length}）`;};
+  wdTitle(idx);
   show("s-wdetail");
   wdRain(ids[idx]); // 表示中の単語の出題履歴ぶんの玉を降らせる
   const sc=document.getElementById("wd-scroll");
@@ -2835,6 +2931,7 @@ function renderWordDetail(wordId,back){
   sc.addEventListener("scroll",()=>{clearTimeout(t);t=setTimeout(()=>{
     const i=Math.max(0,Math.min(ids.length-1,Math.round(sc.scrollLeft/sc.clientWidth)));
     fill(i);fill(i-1);fill(i+1);fill(i-2);fill(i+2); // 前後2枚まで先読み（ボタン連打でも空白を見せない）
+    wdTitle(i); // ヘッダーに現在の単語と位置
     if(String(i)!==sc.dataset.cur){sc.dataset.cur=i;wdRain(ids[i]);} // 単語が切り替わったら玉も入れ替え
   },90);});
 }
@@ -3120,7 +3217,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.68 (2026-07-19)";
+const APP_VERSION="v2.69 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -3224,7 +3321,7 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
       <div class="set-sw ${st.tapAdvance?'on':''}"><span></span></div>
     </div>
     <div class="set-row" onclick="toggleSetting('sound')">
-      <div><div class="set-t">音声読み上げ</div><div class="set-d">${st.sound!==false?"オン":"オフ"}</div></div>
+      <div><div class="set-t">サウンド</div><div class="set-d">${st.sound!==false?"読み上げ・効果音オン":"すべてオフ"}</div></div>
       <div class="set-sw ${st.sound!==false?'on':''}"><span></span></div>
     </div>
     <div class="set-row" onclick="toggleSetting('slowTimer')">
@@ -3278,6 +3375,7 @@ function exportData(){
     const a=document.createElement("a");
     a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:"application/json"}));
     a.download="k-tango-backup-"+dayKey(Date.now())+".json";a.click();
+    localStorage.setItem("kwt_lastbackup_v1",new Date().toISOString());
   }catch(e){alert("書き出しに失敗しました");}
 }
 function importData(inp){
