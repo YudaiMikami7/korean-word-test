@@ -60,6 +60,7 @@ button{font-family:inherit}
 /* ===== top bar (quiz) ===== */
 /* 問題番号・残り時間は白文字 */
 .qbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0;font-size:13px;color:#FFFFFF;font-weight:700;gap:12px}
+.qadv{background:rgba(255,255,255,.35);border:none;border-radius:999px;color:#fff;font-size:11px;font-weight:800;padding:7px 10px;cursor:pointer;flex:0 0 auto} /* 回答後の進み方の切替（戻るボタンの左） */
 .qhome{background:rgba(0,0,0,.8);border:none;color:#fff;width:32px;height:32px;font-size:16px;cursor:pointer;flex:0 0 auto}
 .qbar .prog{margin-right:auto;letter-spacing:.5px}
 .qbar .time{color:#FFFFFF;font-variant-numeric:tabular-nums}
@@ -82,6 +83,7 @@ button{font-family:inherit}
 .choice{position:relative;background:rgba(0,0,0,.8);border:none;border-radius:0;padding:18px;font-size:21px;font-weight:700;color:#fff;
   text-align:center;cursor:pointer;transition:background .12s,transform .08s;min-height:60px}
 .chspk{position:absolute;right:6px;top:50%;transform:translateY(-50%);opacity:.8;pointer-events:none;display:flex}
+.oa-spk{background:rgba(0,0,0,.45);border:none;border-radius:50%;width:42px;height:42px;margin-left:12px;vertical-align:middle;cursor:pointer;display:inline-flex;align-items:center;justify-content:center} /* 書き取り正解表示横の音声ボタン */
 .cdown{display:flex;align-items:center;justify-content:center;height:60vh}
 .cnum{font-size:170px;font-weight:900;color:#fff;line-height:1;animation:cpop .4s ease}
 @keyframes cpop{from{transform:scale(1.8);opacity:.15}to{transform:scale(1);opacity:1}}
@@ -113,11 +115,12 @@ button{font-family:inherit}
 .overlay.backdrop{background:rgba(0,0,0,.72)}
 .tap-next{position:absolute;left:0;right:0;bottom:7%;text-align:center;font-size:16px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6);animation:bob 1.4s ease-in-out infinite}
 /* 大きさ-10%(60→54vw) / 線+20%(1.4→1.68, 1.2→1.44vw) / 縦は5%下へ(-20→-15vh) / 横中央・透明度.6維持 */
-.ovsym{font-size:54vw;line-height:1;font-weight:600;opacity:.6;transform:translateY(-15vh)}
+.ovsym{font-size:54vw;line-height:1;font-weight:600;opacity:.6;transform:translateY(-15vh);pointer-events:none} /* 装飾記号がボタン等のタップを遮らないように */
 .ovsym.o{color:var(--red);-webkit-text-stroke:1.68vw var(--red);text-stroke:1.68vw var(--red)}
 .ovsym.x{color:var(--blue);font-weight:400;-webkit-text-stroke:1.44vw var(--blue);text-stroke:1.44vw var(--blue)}
 /* 書き取りの正誤比較：入力=青文字 / 正解=赤文字。問題と選択肢の間（画面中央）に配置 */
 .ovans{position:absolute;left:0;right:0;top:30%;transform:translateY(-50%);text-align:center;padding:0 18px;pointer-events:none}
+.ovans .oa-spk{pointer-events:auto} /* 音声ボタンだけタップ可能（親はpointer-events:none） */
 .ovans .oa-row{margin:8px 0}
 .ovans .oa-lab{color:var(--mute);font-size:11px;font-weight:700;letter-spacing:2px;margin-bottom:2px}
 .ovans .oa-ko{font-size:clamp(38px,10vw,54px);font-weight:800;line-height:1.25;word-break:break-all}
@@ -221,8 +224,8 @@ button{font-family:inherit}
 .home-toast.out{opacity:0;transition:opacity .45s ease}
 @keyframes toastin{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 /* 今日学ぶべき単語の帯：スタートボタン上に半透明白、カードが左→右に流れる */
-.today-band{position:absolute;left:0;top:905px;width:602px;height:87px;background:rgba(255,255,255,.35);z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease} /* 帯の縦幅もカードに合わせ縮小（カード/画像の画面位置は不変） */
-.tb-clip{position:absolute;left:0;top:-100px;width:602px;height:187px;overflow:hidden;display:flex;align-items:flex-end} /* 画像の上はみ出し(100px)ぶん上に広いクリップ層。横は画面幅でクリップ */
+.today-band{position:absolute;left:0;top:810px;width:602px;height:182px;background:rgba(255,255,255,.35);z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease} /* 白帯は画像上端まで拡張（背後の玉との被り対策）。カード/画像の画面位置は不変 */
+.tb-clip{position:absolute;left:0;top:-5px;width:602px;height:187px;overflow:hidden;display:flex;align-items:flex-end}
 .home-wrap.status .today-band,.home-wrap.hiderail .today-band{opacity:0}
 .tb-track{display:flex;animation:tbflow 30s linear infinite;will-change:transform;backface-visibility:hidden;margin-bottom:8px}
 .tb-group{display:flex;gap:12px;padding:0 6px;flex:0 0 auto} /* 同一グループ2連結で-50%＝ちょうど1周＝つなぎ目ゼロ */
@@ -295,16 +298,16 @@ button{font-family:inherit}
 .slide-list{position:absolute;left:0;top:110px;width:602px;height:985px;overflow-y:auto;background:transparent;scrollbar-width:none;
   opacity:var(--p,1);transition:opacity .35s ease} /* ROOMメニュー直下から下端まで・全幅・背景なし。入場はJSでフェードイン */
 /* 単語帳の流れる帯（ホームの帯と同デザイン系・番号/枚数/％付き） */
-.wb-band{position:relative;height:140px;margin:2px 0;background:transparent;overflow-x:auto;overflow-y:hidden;display:flex;align-items:flex-end;scrollbar-width:none;-webkit-overflow-scrolling:touch} /* 背景なし・全幅で端から端まで流れる */
+.wb-band{position:relative;height:162px;margin:2px 0;background:transparent;overflow-x:auto;overflow-y:hidden;display:flex;align-items:flex-end;scrollbar-width:none;-webkit-overflow-scrolling:touch} /* 背景なし・全幅で端から端まで流れる */
 .wb-band::-webkit-scrollbar{display:none}
-.wb-track{display:flex;gap:10px;padding:52px 8px 8px;align-items:flex-end}
-.wb-card{position:relative;flex:0 0 auto;background:rgba(255,255,255,.95);border-radius:12px;padding:5px 10px;min-width:104px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a}
-.wb-imgspace{width:48px;height:10px;flex:0 0 auto}
-.wb-img{position:absolute;top:-42px;left:50%;transform:translateX(-50%);width:80px;height:80px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.18))}
+.wb-track{display:flex;gap:12px;padding:66px 8px 8px;align-items:flex-end}
+.wb-card{position:relative;flex:0 0 auto;background:rgba(255,255,255,.95);border-radius:14px;padding:6px 12px;min-width:126px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a}
+.wb-imgspace{width:60px;height:12px;flex:0 0 auto}
+.wb-img{position:absolute;top:-56px;left:50%;transform:translateX(-50%);width:104px;height:104px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.18))}
 .wb-img.sil{filter:brightness(0) opacity(.5)} /* 未獲得はシルエット */
-.wb-ko{font-size:16px;font-weight:900;line-height:1.15}
-.wb-ja{font-size:10px;font-weight:700;color:#666;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wb-info{display:flex;gap:6px;font-size:10px;font-weight:800;color:#888;margin-top:2px;line-height:1}
+.wb-ko{font-size:21px;font-weight:900;line-height:1.15}
+.wb-ja{font-size:13px;font-weight:700;color:#666;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb-info{display:flex;gap:7px;font-size:12px;font-weight:800;color:#888;margin-top:2px;line-height:1}
 .wb-rate.ms-stable{color:#1FAD62}.wb-rate.ms-review{color:#C79A00}.wb-rate.ms-urgent{color:#E0433B}
 /* 過去履歴モーダル（ランク円タップで表示・白透明の表） */
 #history-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45)}
@@ -464,6 +467,7 @@ button{font-family:inherit}
 .btn.primary{background:var(--gray-h);color:var(--text);border:1px solid var(--line)}
 .btn.ghost{background:var(--gray);color:var(--text)}
 .btn.line{background:transparent;border:1px solid var(--line);color:var(--mute)}
+.btn.wt{background:rgba(255,255,255,.6);border:none;color:#1a1a1a} /* 白透明ボタン（結果画面のPWRメータ/応援） */
 
 /* ===== result (fixed, only list scrolls) ===== */
 .res{flex:1 1 auto;min-height:0;width:100%;display:flex;flex-direction:column;padding:14px 18px calc(10px + env(safe-area-inset-bottom))} /* 100dvh固定をやめ画面領域内に収める（ページスクロール撲滅） */
@@ -628,7 +632,7 @@ button{font-family:inherit}
 
   <!-- QUIZ -->
   <div class="screen" id="s-quiz">
-    <div class="qbar"><button class="qhome" onclick="quitTest()">‹</button><span class="prog" id="prog">1 / 12</span><span class="time" id="time">10.0</span></div>
+    <div class="qbar"><button class="qadv" id="qadv" onclick="toggleAdvMode()"></button><button class="qhome" onclick="quitTest()">‹</button><span class="prog" id="prog">1 / 12</span><span class="time" id="time">10.0</span></div>
     <div class="tbar"><div class="tfill" id="tfill"></div></div>
     <div class="qstage" id="qstage"></div>
   </div>
@@ -1857,6 +1861,7 @@ function stopSpeak(){
 function speakKorean(word){
   // 再生失敗してもテストは止めない（全てtry/catchで握りつぶす）
   try{
+    if(loadSettings().sound===false)return; // 音声オフ設定
     stopSpeak(); // 前の問題の音声が残っていれば停止し、重複再生を防ぐ
     if(word&&word.audio){
       const a=new Audio(word.audio);_curAudio=a;
@@ -1868,6 +1873,7 @@ function speakKorean(word){
 }
 function _speakTTS(text){
   try{
+    if(loadSettings().sound===false)return; // 音声オフ設定
     if(!('speechSynthesis' in window)||!text)return;
     if(!_koVoice)_pickKoVoice();
     const u=new SpeechSynthesisUtterance(text);
@@ -2105,6 +2111,7 @@ function startTest(reviewIds){
     cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level};
   sfxStart();
   qrStopRain();qrClearLayer("q-rain");QR.active="q-rain"; // クイズ側の積もりをリセット（ホームの山は保持）
+  updateAdvBtn();
   show("s-quiz");
   showCountdown(()=>renderQuestion());
 }
@@ -2436,19 +2443,24 @@ function highlightChoices(q,status,userAnswer){
 /* 書き取り：正解=赤文字 / 不正解=入力(青)+正解(赤) / わからない・時間切れ=正解(赤)のみ */
 function writingAnsHTML(status,q,userAnswer){
   const ko=esc(q.word.ko);
+  // タップで次へ設定時は正解表示の横に音声再生ボタン（押しても次に進まない）
+  const spk=loadSettings().tapAdvance?`<button class="oa-spk" onclick="event.stopPropagation();stopSpeak();_speakTTS(WORD_BY_ID[${q.word.id}].ko)">${SPK_SVG}</button>`:"";
   if(status==="incorrect"){
     return `<div class="ovans">
       <div class="oa-row"><div class="oa-lab">入力</div><div class="oa-ko wrong">${esc(userAnswer)||"（無回答）"}</div></div>
-      <div class="oa-row"><div class="oa-lab">正解</div><div class="oa-ko correct">${ko}</div></div>
+      <div class="oa-row"><div class="oa-lab">正解</div><div class="oa-ko correct">${ko}${spk}</div></div>
     </div>`;
   }
   // correct / unknown / timeout は韓国語の正解のみ（正解時は音声も再生）
-  return `<div class="ovans"><div class="oa-ko correct">${ko}</div></div>`;
+  return `<div class="ovans"><div class="oa-ko correct">${ko}${spk}</div></div>`;
 }
 function afterAnswer(){
   if(state.idx>=11){finishTest();return;}
   state.idx++;renderQuestion();
 }
+/* 出題画面ヘッダーの「回答後の進み方」切替 */
+function updateAdvBtn(){const b=document.getElementById("qadv");if(b)b.textContent=loadSettings().tapAdvance?"タップで次へ":"自動で次へ";}
+function toggleAdvMode(){const st=loadSettings();st.tapAdvance=!st.tapAdvance;saveSettings(st);updateAdvBtn();}
 
 /* ============================================================ キーボード ============================================================ */
 const KB_ROWS=[["ㅂ","ㅈ","ㄷ","ㄱ","ㅅ","ㅛ","ㅕ","ㅑ","ㅐ","ㅔ"],["ㅁ","ㄴ","ㅇ","ㄹ","ㅎ","ㅗ","ㅓ","ㅏ","ㅣ"],["ㅋ","ㅌ","ㅊ","ㅍ","ㅠ","ㅜ","ㅡ"]];
@@ -2544,8 +2556,8 @@ function finishTest(){
       <button class="btn dark full" onclick="shareResult()" style="border:1px solid var(--gold);color:var(--gold)">&#120143; 結果をシェアして友達に挑戦</button>
       <button class="btn dark" onclick="startTest()">もう一度挑戦する</button>
       <button class="btn dark" onclick="show('s-home')">ホームに戻る</button>
-      <button class="btn line" onclick="renderRoomCurve()">PWRメータを見る</button>
-      ${donateBtnHTML('btn line')}
+      <button class="btn wt" onclick="renderRoomCurve()">PWRメータを見る</button>
+      ${donateBtnHTML('btn wt')}
       ${installBtnHTML()}
     </div>
     ${adSlotHTML()}
@@ -2899,7 +2911,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.62 (2026-07-19)";
+const APP_VERSION="v2.63 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
@@ -2984,7 +2996,7 @@ function promptInstall(){
   document.body.appendChild(ov);
 }
 /* 設定 */
-function loadSettings(){try{return Object.assign({tapAdvance:false},JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}"));}catch(e){return{tapAdvance:false};}}
+function loadSettings(){try{return Object.assign({tapAdvance:false,sound:true},JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}"));}catch(e){return{tapAdvance:false,sound:true};}}
 function saveSettings(o){localStorage.setItem(LS_SETTINGS,JSON.stringify(o));}
 function openSettings(){
   const st=loadSettings();
@@ -2993,8 +3005,12 @@ function openSettings(){
     <button class="pm-close" onclick="closeSettings()">×</button>
     <div class="set-h">設定</div>
     <div class="set-row" onclick="toggleSetting('tapAdvance')">
-      <div><div class="set-t">四択回答後の進み方</div><div class="set-d">${st.tapAdvance?"タップで次へ":"自動で次へ"}</div></div>
+      <div><div class="set-t">回答後の進み方</div><div class="set-d">${st.tapAdvance?"タップで次へ":"自動で次へ"}</div></div>
       <div class="set-sw ${st.tapAdvance?'on':''}"><span></span></div>
+    </div>
+    <div class="set-row" onclick="toggleSetting('sound')">
+      <div><div class="set-t">音声読み上げ</div><div class="set-d">${st.sound!==false?"オン":"オフ"}</div></div>
+      <div class="set-sw ${st.sound!==false?'on':''}"><span></span></div>
     </div>
     ${MONETIZE.donateUrl?`<div class="set-row" style="justify-content:center;border-top:1px solid #eee">${donateBtnHTML('btn dark full')}</div>`:""}
     <div class="set-row" style="justify-content:center;gap:18px;border-top:1px solid #eee;font-size:13px;font-weight:700">
