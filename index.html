@@ -371,6 +371,9 @@ body.bigtext .set-d{font-size:13.5px}
 .rr-map{font-size:28px;line-height:1}
 #map-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45)}
 #map-modal.on{display:flex}
+.rm-lv{display:flex;gap:8px;margin-bottom:10px}
+.rm-lvbtn{flex:1;border:none;border-radius:999px;padding:9px;font-weight:900;font-size:14px;background:rgba(0,0,0,.08);color:#1a1a1a;cursor:pointer;font-family:inherit}
+.rm-lvbtn.on{background:#1a1a1a;color:#fff}
 .rm-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .rm-cell{border:none;border-radius:12px;background:rgba(0,0,0,.06);padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-weight:800;color:#1a1a1a;font-family:inherit}
 .rm-cell.cur{outline:2px solid #1a1a1a}
@@ -1242,7 +1245,11 @@ function openRoomMap(){
   }).join("");
   const m=document.getElementById("map-modal");
   m.innerHTML=`<div class="hist-card"><button class="hist-close" onclick="closeRoomMap()" aria-label="閉じる">×</button>
-    <div class="hist-h">ROOM一覧（${curLevel==="beginner"?"初級":"中級"}）</div>
+    <div class="hist-h">ROOM一覧</div>
+    <div class="rm-lv">
+      <button class="rm-lvbtn ${curLevel==="beginner"?"on":""}" onclick="mapSwitchLevel('beginner')">初級</button>
+      <button class="rm-lvbtn ${curLevel==="middle"?"on":""}" onclick="mapSwitchLevel('middle')">中級</button>
+    </div>
     <div class="rm-grid">${cells}</div></div>`;
   m.classList.add("on");
   m.onclick=e=>{if(e.target===m)closeRoomMap();};
@@ -1341,7 +1348,7 @@ function roomInfoFor(n){
 }
 const LEVEL_SLIDE_BG="#9FA6AD";
 function switchLevel(l){curLevel=l;curSection=1;buildRoomSlides();attachHomeRain();applyHomeBg();saveLastRoom();}
-function toggleLevelSetting(){switchLevel(curLevel==="beginner"?"middle":"beginner");openSettings();}
+function mapSwitchLevel(l){if(l!==curLevel)switchLevel(l);openRoomMap();} // マップ内の初級/中級トグル（表示も切替）
 function buildRoomSlides(){
   const el=document.getElementById("hv-rooms");if(!el)return;
   const count=LEVEL_INFO[curLevel].count;
@@ -3217,7 +3224,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.69 (2026-07-19)";
+const APP_VERSION="v2.69.1 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -3335,10 +3342,6 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
     <div class="set-row" onclick="toggleSetting('bigText')">
       <div><div class="set-t">文字サイズ 大</div><div class="set-d">${st.bigText?"大きめ表示":"標準"}</div></div>
       <div class="set-sw ${st.bigText?'on':''}"><span></span></div>
-    </div>
-    <div class="set-row" onclick="toggleLevelSetting()">
-      <div><div class="set-t">レベル切替</div><div class="set-d">いまは${curLevel==="beginner"?"初級":"中級"}（タップで${curLevel==="beginner"?"中級":"初級"}へ）</div></div>
-      <div style="font-weight:900;color:#888">›</div>
     </div>
     <div class="set-row" onclick="showCoach()">
       <div><div class="set-t">つかいかた</div><div class="set-d">ジェスチャー操作の一覧を見る</div></div>
