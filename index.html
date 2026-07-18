@@ -94,7 +94,8 @@ button{font-family:inherit}
 #s-quiz{position:relative}
 #s-quiz .qbar,#s-quiz .tbar,#s-quiz .qstage{position:relative;z-index:1} /* 出題UIは常に降下レイヤーより前面 */
 .q-rain{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-.q-rain.front{z-index:50} /* ホーム帰還時の一斉降下は全UIの前面（操作は透過） */
+#home-rain{transition:opacity .3s ease} /* ホームの玉レイヤー：一覧/ステータスモード中は隠すだけで山は保持 */
+.home-wrap.status #home-rain,.home-wrap.hiderail #home-rain{opacity:0}
 .qr-ball{position:absolute;left:0;top:0;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.55);
   box-shadow:inset 0 -6px 12px rgba(0,0,0,.08),0 4px 10px rgba(0,0,0,.15);
   display:flex;align-items:center;justify-content:center;will-change:transform} /* 白半透明の丸カプセル */
@@ -466,13 +467,14 @@ button{font-family:inherit}
 .res-sess b{color:var(--text)}
 .btn.dark{background:rgba(0,0,0,.8);color:#fff}
 .btn.dark:active{background:rgba(0,0,0,.65)}
-.res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;margin:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-left:none;border-right:none;border-radius:0;-webkit-overflow-scrolling:touch}
-.rtab{width:100%;border-collapse:collapse;font-size:15px;background:rgba(0,0,0,.65)}
-.rtab th,.rtab td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
-.rtab th{position:sticky;top:0;background:rgba(0,0,0,.8);color:#fff;font-size:12px;font-weight:800;z-index:1;white-space:nowrap}
-.rtab td:nth-child(3){font-size:16px;font-weight:700}
-.rtab td.no{color:var(--mute);text-align:right;width:34px}
-.rtab td.ko{font-weight:700;font-size:18px}
+.res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;margin:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-left:none;border-right:none;border-radius:0;-webkit-overflow-scrolling:touch}
+/* 出題表はコンパクト表示（ボタン群がスクロールなしで見えるよう縦を圧縮） */
+.rtab{width:100%;border-collapse:collapse;font-size:13px;background:rgba(0,0,0,.65)}
+.rtab th,.rtab td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
+.rtab th{position:sticky;top:0;background:rgba(0,0,0,.8);color:#fff;font-size:11px;font-weight:800;z-index:1;white-space:nowrap}
+.rtab td:nth-child(3){font-size:13px;font-weight:700}
+.rtab td.no{color:var(--mute);text-align:right;width:30px}
+.rtab td.ko{font-weight:700;font-size:15px}
 .rtab .r-ok{color:var(--green)}.rtab .r-ng{color:var(--blue)}.rtab .r-un{color:var(--mute)}.rtab .r-to{color:var(--gold)}
 .hint-badge{display:inline-block;margin-left:6px;padding:1px 6px;border:1px solid var(--line);color:var(--gold);font-size:10px;font-weight:700;vertical-align:middle}
 .res-btns{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;gap:9px}
@@ -592,6 +594,7 @@ button{font-family:inherit}
       <div id="hv-pwrdown"></div>
       </div>
       <div class="room-scroll" id="hv-rooms"></div>
+      <div class="q-rain" id="home-rain"></div><!-- ホーム用の玉レイヤー：ROOM背景の上・UI(帯/ボタン)の下 -->
       <div class="today-band" id="today-band" style="display:none"><div class="tb-clip"><div class="tb-track" id="tb-track"></div></div></div><!-- 中身が入るまで非表示（空の白帯チラ見え防止） -->
       <button class="home-side-btn hsb-left" onclick="renderRoomCurve()" aria-label="忘却曲線"><img src="images-thumb/0912.webp" alt="忘却曲線"></button>
       <button class="start-button" onclick="startTest()">スタート</button>
@@ -1015,7 +1018,6 @@ function setLift(px){ // ピル上昇量(px)とヘッダー/写真用の進捗(-
 }
 function enterListMode(){
   if(_listMode)return;
-  qrDismiss(); // 玉の山は片付けてから一覧へ
   document.getElementById("homewrap").classList.add("hiderail");
   setLift(-LIFT_MAX); // ROOMメニューが最上部へ・ヘッダー退場・写真フェード
   setTimeout(()=>{
@@ -2004,12 +2006,12 @@ function show(id){
   document.getElementById(id).classList.add("on");window.scrollTo(0,0);
   // 背景色: 全体PWRメータ/タイプ詳細はグレー固定、ROOM別PWRはそのROOMの色、他は現在ROOMの色
   applyBgAll(((id==="s-curve"&&!_roomCurveMode)||id==="s-type")?LEVEL_SLIDE_BG:roomBg(curSection));
-  // 玉レイヤー: クイズ/結果=背面表示で持ち越し、ホーム=未降下があれば一斉降下、他画面=非表示
+  // 玉レイヤー: クイズ/結果=共有レイヤーを背面表示で持ち越し、ホーム=専用背景レイヤーへ一斉降下（山はページ移動しても保持）
   const qr=document.getElementById("q-rain");
-  if(qr){
-    if(id==="s-quiz"||id==="s-result"){qr.classList.remove("front");qr.style.display="";}
-    else if(id==="s-home"){if(_ballLog.length)homeRain();else if(!qr.classList.contains("front"))qr.style.display="none";}
-    else qr.style.display="none";
+  if(qr)qr.style.display=(id==="s-quiz"||id==="s-result")?"":"none";
+  if(id==="s-home"){
+    if(_ballLog.length)homeRain();
+    else if(QR.balls.some(b=>b.layer==="home-rain")&&!QR.raf){QR.active="home-rain";QR.calm=0;QR.last=0;QR.raf=requestAnimationFrame(qrStep);} // 途中で離脱した玉を着地させる
   }
   if(id==="s-home")renderHome();
 }
@@ -2033,7 +2035,7 @@ function startTest(reviewIds){
   state={questions:qs,idx:0,results:[],testId:"t-"+Date.now().toString(36),userId:getUserId(),
     cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level};
   sfxStart();
-  qrClear(); // 前回の積もりをリセット
+  qrStopRain();qrClearLayer("q-rain");QR.active="q-rain"; // クイズ側の積もりをリセット（ホームの山は保持）
   show("s-quiz");
   showCountdown(()=>renderQuestion());
 }
@@ -2246,39 +2248,47 @@ function spawnWordDrop(word,speed){
     spawnBallRaw(src,r,bg);
   }catch(e){}
 }
-function spawnBallRaw(src,r,bg){
-  const layer=document.getElementById("q-rain");if(!layer)return;
-  if(QR.balls.length>=30){const old=QR.balls.shift();old.el.remove();} // 上限超過は古い玉から消す（上の玉は自然に崩れ落ちる）
+function spawnBallRaw(src,r,bg,layerId){
+  layerId=layerId||"q-rain";
+  const layer=document.getElementById(layerId);if(!layer)return;
+  const inLayer=QR.balls.filter(b=>b.layer===layerId);
+  if(inLayer.length>=30){const old=inLayer[0];old.el.remove();QR.balls.splice(QR.balls.indexOf(old),1);} // 上限超過は古い玉から消す（上の玉は自然に崩れ落ちる）
   const el=document.createElement("div");el.className="qr-ball";
   el.style.width=el.style.height=(r*2)+"px";
   if(bg)el.style.background=bg+"D9"; // ROOM色85%
-  el.innerHTML=`<img src="${src}" alt="">`;
+  el.innerHTML=src?`<img src="${src}" alt="">`:""; // 画像なし単語は無地カプセル
   layer.appendChild(el);
   const W=layer.clientWidth||602;
-  QR.balls.push({x:r+Math.random()*(W-2*r),y:-r-10,vx:(Math.random()*2-1)*120,vy:0,a:0,va:0,r,el});
-  QR.calm=0;
+  QR.balls.push({x:r+Math.random()*(W-2*r),y:-r-10,vx:(Math.random()*2-1)*120,vy:0,a:0,va:0,r,el,layer:layerId});
+  QR.active=layerId;QR.calm=0;
   if(!QR.raf){QR.last=0;QR.raf=requestAnimationFrame(qrStep);}
 }
-function qrClear(){QR.balls.forEach(b=>b.el.remove());QR.balls=[];if(QR.raf){cancelAnimationFrame(QR.raf);QR.raf=0;}if(QR.rainTimer){clearInterval(QR.rainTimer);QR.rainTimer=0;}}
-function qrDismiss(){qrClear();const qr=document.getElementById("q-rain");if(qr){qr.classList.remove("front");qr.style.display="none";}}
-/* ホーム帰還時：未降下の玉（複数テストぶん含む）を0.1秒間隔で上から一斉降下（前面レイヤー・操作透過） */
+function qrClearLayer(layerId){QR.balls=QR.balls.filter(b=>{if(b.layer===layerId){b.el.remove();return false;}return true;});}
+function qrStopRain(){if(QR.rainTimer){clearInterval(QR.rainTimer);QR.rainTimer=0;}}
+/* ホーム帰還時：未降下の玉（複数テストぶん含む）を0.1秒間隔でホーム背景レイヤーに一斉降下。既存の山の上に積み増す */
 function homeRain(){
-  const qr=document.getElementById("q-rain");if(!qr||!_ballLog.length||QR.rainTimer)return;
-  qrClear();qr.classList.add("front");qr.style.display="";
+  if(!_ballLog.length||QR.rainTimer)return;
+  QR.active="home-rain";
   const q=_ballLog.slice();_ballLog=[];
   let i=0;
   QR.rainTimer=setInterval(()=>{
-    if(i>=q.length){clearInterval(QR.rainTimer);QR.rainTimer=0;return;}
-    const b=q[i++];spawnBallRaw(b.src,b.r,b.bg);
+    const home=document.getElementById("s-home");
+    if(!home||!home.classList.contains("on"))return; // ホームを離れている間は待機し、戻ったら続きから降る
+    if(i>=q.length){qrStopRain();return;}
+    const b=q[i++];spawnBallRaw(b.src,b.r,b.bg,"home-rain");
   },100);
 }
 function qrStep(ts){
-  const layer=document.getElementById("q-rain");
-  const active=["s-quiz","s-result","s-home"].some(id=>{const e=document.getElementById(id);return e&&e.classList.contains("on");});
-  if(!layer||layer.style.display==="none"||!active){QR.raf=0;return;} // 対象画面を離れたら停止（次のspawnで再開）
+  const layer=document.getElementById(QR.active);
+  const scrOk=QR.active==="home-rain"
+    ?document.getElementById("s-home").classList.contains("on")
+    :QR.active==="wd-rain"
+    ?document.getElementById("s-wdetail").classList.contains("on")
+    :["s-quiz","s-result"].some(id=>{const e=document.getElementById(id);return e&&e.classList.contains("on");});
+  if(!layer||!scrOk){QR.raf=0;return;} // 対象画面を離れたら停止（次のspawn/ホーム復帰で再開）
   if(!QR.last)QR.last=ts;
   const dt=Math.min(0.032,(ts-QR.last)/1000);QR.last=ts;
-  const W=layer.clientWidth,H=layer.clientHeight,G=2400,bs=QR.balls;
+  const W=layer.clientWidth,H=layer.clientHeight,G=2400,bs=QR.balls.filter(b=>b.layer===QR.active); // 物理はアクティブレイヤーの玉のみ（他レイヤーは凍結保持）
   for(const b of bs){
     b.vy+=G*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;b.a+=b.va*dt;
     if(b.y>H-b.r){b.y=H-b.r;if(b.vy>0)b.vy=-b.vy*0.2;if(Math.abs(b.vy)<40)b.vy=0;b.vx*=0.96;b.va=b.vx/b.r;} // 床：小バウンド＋接地摩擦、回転は移動速度連動（自然な転がり）
@@ -2491,24 +2501,54 @@ function wdSlideHTML(id,i){
 }
 function renderWordDetail(wordId,back){
   _wdBack=back||"room";
+  qrClearLayer("wd-rain"); // 前回の詳細ページの玉参照を破棄
   let ids=sectionIds(); let idx=ids.indexOf(wordId);
   if(idx<0){ids=[wordId];idx=0;}
   const slides=ids.map((id,i)=>`<div class="wd-slide" data-i="${i}"><div class="wd-in" id="wd-in-${i}"></div></div>`).join("");
   document.getElementById("s-wdetail").innerHTML=`
-   <div class="page" style="padding-left:0;padding-right:0">
+   <div class="q-rain" id="wd-rain"></div>
+   <div class="page" style="padding-left:0;padding-right:0;position:relative;z-index:1">
     <div class="page-head" style="padding:0 16px"><button class="back" onclick="${_wdBack==='room'?"show('s-home')":"renderRoomCurve()"}">‹</button><h2>単語詳細</h2></div>
     <div class="wd-scroll" id="wd-scroll">${slides}</div>
    </div>`;
   const fill=i=>{if(i<0||i>=ids.length)return;const e=document.getElementById("wd-in-"+i);if(e&&!e.dataset.f){e.dataset.f="1";e.innerHTML=wdSlideHTML(ids[i],i);}};
   fill(idx);fill(idx-1);fill(idx+1);
   show("s-wdetail");
+  wdRain(ids[idx]); // 表示中の単語の出題履歴ぶんの玉を降らせる
   const sc=document.getElementById("wd-scroll");
   sc.scrollLeft=idx*sc.clientWidth;
+  sc.dataset.cur=idx;
   let t=null;
   sc.addEventListener("scroll",()=>{clearTimeout(t);t=setTimeout(()=>{
     const i=Math.max(0,Math.min(ids.length-1,Math.round(sc.scrollLeft/sc.clientWidth)));
     fill(i);fill(i-1);fill(i+1); // 左右スワイプで前後の単語カードへ（遅延レンダリング）
+    if(String(i)!==sc.dataset.cur){sc.dataset.cur=i;wdRain(ids[i]);} // 単語が切り替わったら玉も入れ替え
   },90);});
+}
+/* 単語詳細ページ：その単語の出題履歴の数だけ玉を降らせる（回答が速かった出題ほど大きい玉） */
+function wdRain(wordId){
+  try{
+    if(QR.wdTimer){clearInterval(QR.wdTimer);QR.wdTimer=0;}
+    qrClearLayer("wd-rain");
+    const w=WORD_BY_ID[wordId];if(!w)return;
+    const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[w.ko]:null;
+    const secKey=secOfWord()[wordId],secN=secKey?parseInt(secKey.split("-")[1],10):curSection;
+    const bg=roomBg(secN||curSection);
+    const recs=loadHistory().filter(r=>r.wordId===wordId).slice(-30); // 出題1回=玉1個（直近30回まで）
+    if(!recs.length)return;
+    QR.active="wd-rain";
+    let i=0;
+    QR.wdTimer=setInterval(()=>{
+      const scr=document.getElementById("s-wdetail");
+      if(!scr||!scr.classList.contains("on")){clearInterval(QR.wdTimer);QR.wdTimer=0;return;}
+      if(i>=recs.length){clearInterval(QR.wdTimer);QR.wdTimer=0;return;}
+      const rec=recs[i++];
+      const limit=rec.answerType==="writing"?20:10;
+      const sec=rec.responseTimeSec!=null?rec.responseTimeSec:limit;
+      const rr=32+Math.round(28*Math.min(1,Math.max(0,(limit-sec)/limit))); // 回答時間→玉サイズ
+      spawnBallRaw(src,rr,bg,"wd-rain");
+    },90);
+  }catch(e){}
 }
 
 /* ============================================================ ステータスモード（ホーム上のオーバーレイ。上=グラフ+詳細 / 中央=実ヘッダー / 下=MBTI+パラメータ） ============================================================ */
@@ -2573,7 +2613,6 @@ function updateStatusOverlay(){
 }
 function enterStatusMode(){
   if(_statusMode||_listMode)return;
-  qrDismiss(); // 玉の山は片付けてからステータスへ
   _statusMode=true;
   updateStatusOverlay();
   const w=document.getElementById("homewrap");
@@ -2766,7 +2805,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.58 (2026-07-19)";
+const APP_VERSION="v2.59 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
