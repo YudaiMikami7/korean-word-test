@@ -302,16 +302,17 @@ button{font-family:inherit}
 .slide-list{position:absolute;left:0;top:166px;width:602px;height:929px;overflow-y:auto;background:transparent;scrollbar-width:none;
   opacity:var(--p,1);transition:opacity .35s ease} /* ROOMメニュー直下から下端まで・全幅・背景なし。入場はJSでフェードイン */
 /* 単語帳の流れる帯（ホームの帯と同デザイン系・番号/枚数/％付き） */
-.wb-band{position:relative;height:258px;margin:2px 0;background:transparent;overflow-x:auto;overflow-y:hidden;display:flex;align-items:flex-end;scrollbar-width:none;-webkit-overflow-scrolling:touch} /* 背景なし・全幅で端から端まで流れる（縦は上下スクロール前提） */
-.wb-band::-webkit-scrollbar{display:none}
-.wb-track{display:flex;gap:18px;padding:90px 12px 8px;align-items:flex-end}
-.wb-card{position:relative;flex:0 0 auto;background:rgba(255,255,255,.95);border-radius:21px;padding:9px 18px;min-width:189px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a}
-.wb-imgspace{width:90px;height:63px;flex:0 0 auto} /* 画像の下半分ぶんの席を確保（韓国語と重ならない） */
-.wb-img{position:absolute;top:-84px;left:50%;transform:translateX(-50%);width:156px;height:156px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18))}
+/* 単語帳: 3列グリッド（縦スクロール）＋動的演出（カスケード出現・画像のゆらぎ） */
+.wb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:92px 10px;padding:96px 10px 24px}
+.wb-card{position:relative;background:rgba(255,255,255,.95);border-radius:18px;padding:8px 10px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a;animation:wbin .5s ease backwards}
+@keyframes wbin{from{opacity:0;transform:translateY(18px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
+.wb-imgspace{width:90px;height:60px;flex:0 0 auto} /* 画像の下半分ぶんの席を確保（韓国語と重ならない） */
+.wb-img{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:150px;height:150px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18));animation:wbbob 3.2s ease-in-out infinite}
+@keyframes wbbob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
 .wb-img.sil{filter:brightness(0) opacity(.5)} /* 未獲得はシルエット */
-.wb-ko{font-size:32px;font-weight:900;line-height:1.15}
-.wb-ja{font-size:16px;font-weight:700;color:#666;max-width:230px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wb-info{display:flex;gap:10px;font-size:15px;font-weight:800;color:#888;margin-top:3px;line-height:1}
+.wb-ko{font-size:27px;font-weight:900;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wb-ja{font-size:14px;font-weight:700;color:#666;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb-info{display:flex;gap:8px;font-size:13px;font-weight:800;color:#888;margin-top:3px;line-height:1}
 .wb-rate.ms-stable{color:#1FAD62}.wb-rate.ms-review{color:#C79A00}.wb-rate.ms-urgent{color:#E0433B}
 .mutehint{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;font-size:13px;font-weight:800;padding:8px 16px;border-radius:999px;z-index:500;opacity:0;pointer-events:none;transition:opacity .3s ease}
 .mutehint.on{opacity:1}
@@ -1075,7 +1076,6 @@ function enterListMode(){
     ls.forEach(e=>e.style.opacity="0");
     void document.body.offsetHeight;
     ls.forEach(e=>e.style.opacity="");
-    wbStart(); // 帯のオートスクロール開始
   },360);
 }
 function exitListMode(){
@@ -1136,10 +1136,11 @@ function wbCardHTML(id,i,st,cards,now){
   const w=WORD_BY_ID[id],cnt=cards[id]||0,no=String(i+1).padStart(3,"0");
   const ownedC=cnt>0;
   const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[w.ko]:null;
-  const img=src?`<span class="wb-imgspace"></span><img class="wb-img${ownedC?"":" sil"}" src="${src}" loading="lazy" alt="">`:"";
+  const bobDelay=(i*137)%1600; // 画像のゆらぎ位相をカードごとにずらす
+  const img=src?`<span class="wb-imgspace"></span><img class="wb-img${ownedC?"":" sil"}" style="animation-delay:${bobDelay}ms" src="${src}" loading="lazy" alt="">`:"";
   let rateHTML='<span class="wb-rate">—</span>';
   if(ownedC){const rate=Math.round(displayScore(getStat(id,st),now)),ms=memState(rate);rateHTML=`<span class="wb-rate ${ms.cls}">${rate}%・${ms.label.charAt(0)}</span>`;} // 色+1文字ラベルで色覚多様性に配慮
-  return `<div class="wb-card" onclick="renderWordDetail(${id},'room')">
+  return `<div class="wb-card" style="animation-delay:${(i%12)*45}ms" onclick="renderWordDetail(${id},'room')">
     ${img}
     <div class="wb-ko">${esc(w.ko)}</div>
     <div class="wb-ja">${esc(w.ja)}</div>
@@ -1150,14 +1151,10 @@ function roomListHTML(n){
   const ids=LEVEL_SECTIONS[curLevel][n]||[],st=loadStats(),cards=loadCards(),now=Date.now();
   let owned=0,totalCnt=0;
   ids.forEach(id=>{const c=cards[id]||0;if(c>0){owned++;totalCnt+=c;}});
-  const bands=[];
-  for(let b=0;b*20<ids.length&&b<5;b++){
-    const cs=ids.slice(b*20,b*20+20).map((id,j)=>wbCardHTML(id,b*20+j,st,cards,now)).join("");
-    bands.push(`<div class="wb-band" data-dir="${b%2===0?1:-1}"><div class="wb-track">${cs}${cs}</div></div>`); // 2連結でシームレスループ
-  }
+  const cells=ids.map((id,i)=>wbCardHTML(id,i,st,cards,now)).join("");
   return `<div class="slide-list wb-list">
     <div class="zk-sum">単語帳 <b>${owned}</b> / ${ids.length}　カード <b>${totalCnt}</b>枚</div>
-    ${bands.join("")}</div>`;
+    <div class="wb-grid">${cells}</div></div>`;
 }
 /* 単語検索：現在レベルの全語からkoまたは訳の部分一致（最大20件）。タップで単語詳細へ */
 function wbSearch(q){
@@ -1180,28 +1177,6 @@ function maybeCoach(){
   el.onclick=()=>el.remove();
   document.body.appendChild(el);
 }
-/* 帯のオートスクロール：一覧モード中、現在ROOMの帯を左右交互に流す。指で触れている帯は停止し、離して1.5秒後に再開 */
-let _wbRaf=0,_wbLast=0;
-function wbLoop(ts){
-  if(!_listMode){_wbRaf=0;return;}
-  if(!_wbLast)_wbLast=ts;
-  const dt=Math.min(0.05,(ts-_wbLast)/1000);_wbLast=ts;
-  document.querySelectorAll(`.room-slide[data-n="${curSection}"] .wb-band`).forEach(band=>{
-    if(band.dataset.hold==="1"||(band.dataset.holdUntil&&Date.now()<+band.dataset.holdUntil))return;
-    const tr=band.firstElementChild;if(!tr)return;
-    const half=tr.scrollWidth/2;
-    if(half<=band.clientWidth)return;
-    let sl=(band._sl!=null&&Math.abs(band._sl-band.scrollLeft)<2)?band._sl:band.scrollLeft; // 手動操作後は実位置から再開
-    sl+=(+band.dataset.dir||1)*28*dt;
-    if(sl>=half)sl-=half;
-    if(sl<=0)sl+=half;
-    band._sl=sl;band.scrollLeft=sl;
-  });
-  _wbRaf=requestAnimationFrame(wbLoop);
-}
-function wbStart(){if(!_wbRaf){_wbLast=0;_wbRaf=requestAnimationFrame(wbLoop);}}
-document.addEventListener("touchstart",e=>{const b=e.target&&e.target.closest&&e.target.closest(".wb-band");if(b)b.dataset.hold="1";},{passive:true});
-document.addEventListener("touchend",()=>{document.querySelectorAll('.wb-band[data-hold="1"]').forEach(b=>{b.dataset.hold="0";b.dataset.holdUntil=String(Date.now()+1500);});},{passive:true});
 function roomInfoFor(n){
   const ids=LEVEL_SECTIONS[curLevel][n]||[],s=loadStats(),now=Date.now();
   const learned=ids.filter(id=>s[id]&&s[id].reviewCount>0);
@@ -2985,7 +2960,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.64.2 (2026-07-19)";
+const APP_VERSION="v2.65 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{}); // オフラインキャッシュ（画像はキャッシュ優先・HTML/JSはネット優先）
