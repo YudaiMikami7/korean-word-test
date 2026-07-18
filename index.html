@@ -231,7 +231,7 @@ button{font-family:inherit}
 /* 今日学ぶべき単語の帯：スタートボタン上に半透明白、カードが左→右に流れる */
 .today-band{position:absolute;left:0;top:810px;width:602px;height:182px;background:rgba(255,255,255,.35);z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease} /* 白帯は画像上端まで拡張（背後の玉との被り対策）。カード/画像の画面位置は不変 */
 .tb-clip{position:absolute;left:0;top:-5px;width:602px;height:187px;overflow:hidden;display:flex;align-items:flex-end}
-.tb-label{position:absolute;left:14px;top:8px;z-index:2;font-size:14px;font-weight:900;letter-spacing:1px;color:rgba(0,0,0,.55);pointer-events:none} /* 帯左上の見出し */
+.tb-label{position:absolute;left:14px;top:8px;font-size:14px;font-weight:900;letter-spacing:1px;color:rgba(0,0,0,.55);pointer-events:none} /* 帯左上の見出し（流れる画像より背面） */
 .home-wrap.status .today-band,.home-wrap.hiderail .today-band{opacity:0}
 .tb-track{display:flex;animation:tbflow 30s linear infinite;will-change:transform;backface-visibility:hidden;margin-bottom:8px}
 .tb-group{display:flex;gap:12px;padding:0 6px;flex:0 0 auto} /* 同一グループ2連結で-50%＝ちょうど1周＝つなぎ目ゼロ */
@@ -305,7 +305,8 @@ button{font-family:inherit}
   opacity:var(--p,1);transition:opacity .35s ease} /* ROOMメニュー直下から下端まで・全幅・背景なし。入場はJSでフェードイン */
 /* 単語帳の流れる帯（ホームの帯と同デザイン系・番号/枚数/％付き） */
 /* 単語帳: 3列グリッド（縦スクロール）＋動的演出（カスケード出現・画像のゆらぎ） */
-.wb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:92px 10px;padding:96px 10px 24px}
+.wb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:92px 10px;padding:96px 10px 24px} /* 長い単語でも3列とも同幅・画面からはみ出さない */
+.wb-card{min-width:0;max-width:100%}
 .wb-card{position:relative;background:rgba(255,255,255,.95);border-radius:18px;padding:8px 10px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a;animation:wbin .5s ease backwards}
 @keyframes wbin{from{opacity:0;transform:translateY(18px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
 .wb-imgspace{width:90px;height:60px;flex:0 0 auto} /* 画像の下半分ぶんの席を確保（韓国語と重ならない） */
@@ -2964,7 +2965,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.65.2 (2026-07-19)";
+const APP_VERSION="v2.65.3 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{}); // オフラインキャッシュ（画像はキャッシュ優先・HTML/JSはネット優先）
