@@ -1074,6 +1074,7 @@ function enterListMode(){
   setLift(-LIFT_MAX); // ROOMメニューが最上部へ・ヘッダー退場・写真フェード
   setTimeout(()=>{
     _listMode=true;buildRoomSlides();
+    attachHomeRain(); // スライド再構築で玉レイヤーが剥がれるため差し直す
     // 表全体をフェードイン（強制リフローでtransitionを確実に発火）
     const ls=document.querySelectorAll(".slide-list,.wl-mid");
     ls.forEach(e=>e.style.opacity="0");
@@ -1086,6 +1087,7 @@ function exitListMode(){
   setLift(0);
   setTimeout(()=>{
     _listMode=false;buildRoomSlides();
+    attachHomeRain(); // スライド再構築で玉レイヤーが剥がれるため差し直す（単語帳から戻ると玉が消える問題の修正）
     // 写真はフェードインで再表示
     const ph=document.querySelectorAll(".slide-img,.room-ph");
     ph.forEach(e=>e.style.opacity="0");
@@ -2399,6 +2401,10 @@ function attachHomeRain(){
   if(!QR.homeEl){QR.homeEl=document.createElement("div");QR.homeEl.className="q-rain";QR.homeEl.id="home-rain";}
   const host=document.querySelector(`.room-slide[data-n="${curSection}"] .slide-inner`);
   if(host&&QR.homeEl.parentNode!==host)host.insertBefore(QR.homeEl,host.firstChild);
+  // レイヤー剥がれ等で物理ループが死んでいたら再開（静止済みならすぐ自動停止する）
+  if(!QR.raf&&QR.balls.some(b=>b.layer==="home-rain")&&document.getElementById("s-home").classList.contains("on")){
+    QR.active="home-rain";QR.calm=0;QR.last=0;QR.raf=requestAnimationFrame(qrStep);
+  }
 }
 /* 起動時：過去7日間に正解した単語（直近30件）を玉として積み直す＝ホームの山は7日間保持 */
 let _bootRained=false;
@@ -2433,13 +2439,18 @@ function homeRain(){
   },100);
 }
 function qrStep(ts){
-  const layer=document.getElementById(QR.active);
+  let layer;
+  if(QR.active==="home-rain"){ // ホーム層はスライド再構築で剥がれることがあるため毎フレーム差し直す
+    const host=document.querySelector(`.room-slide[data-n="${curSection}"] .slide-inner`);
+    if(host&&QR.homeEl&&QR.homeEl.parentNode!==host)host.insertBefore(QR.homeEl,host.firstChild);
+    layer=QR.homeEl&&QR.homeEl.isConnected?QR.homeEl:null;
+  }else layer=document.getElementById(QR.active);
   const scrOk=QR.active==="home-rain"
     ?document.getElementById("s-home").classList.contains("on")
     :QR.active==="wd-rain"
     ?document.getElementById("s-wdetail").classList.contains("on")
     :["s-quiz","s-result"].some(id=>{const e=document.getElementById(id);return e&&e.classList.contains("on");});
-  if(!layer||!scrOk){QR.raf=0;return;} // 対象画面を離れたら停止（次のspawn/ホーム復帰で再開）
+  if(!layer||!scrOk){QR.raf=0;return;} // 対象画面を離れたら停止（次のspawn/ホーム復帰/attachで再開）
   if(!QR.last)QR.last=ts;
   const dt=Math.min(0.032,(ts-QR.last)/1000);QR.last=ts;
   const W=layer.clientWidth,H=layer.clientHeight,G=2400,bs=QR.balls.filter(b=>b.layer===QR.active); // 物理はアクティブレイヤーの玉のみ（他レイヤーは凍結保持）
@@ -2965,7 +2976,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.65.3 (2026-07-19)";
+const APP_VERSION="v2.65.4 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{}); // オフラインキャッシュ（画像はキャッシュ優先・HTML/JSはネット優先）
