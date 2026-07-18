@@ -181,7 +181,7 @@ button{font-family:inherit}
   scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;z-index:0}
 .room-scroll::-webkit-scrollbar{display:none}
 .room-slide{position:relative;flex:0 0 602px;width:602px;height:1178px;scroll-snap-align:start}
-.slide-inner{position:absolute;left:0;top:255px;width:602px;height:686px}
+.slide-inner{position:absolute;left:0;top:225px;width:602px;height:686px} /* 帯拡大に伴い30px上へ */
 /* ROOMパラメータ（ラベル/番号・語数/バー/%の間に余白。ランクD,B=36px・A=98pxで下端揃え） */
 .rmenu-bg{position:absolute;left:40px;top:-12px;width:522px;height:116px;background:rgba(255,255,255,.15);border-radius:999px;cursor:pointer} /* 縦幅=旧174の2/3 */
 .hv-roomlabel{position:absolute;left:83px;top:2px;font-size:21px;letter-spacing:.5px;line-height:1;cursor:pointer}
@@ -210,14 +210,15 @@ button{font-family:inherit}
 .home-toast.out{opacity:0;transition:opacity .45s ease}
 @keyframes toastin{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 /* 今日学ぶべき単語の帯：スタートボタン上に半透明白、カードが左→右に流れる */
-.today-band{position:absolute;left:0;top:888px;width:602px;height:104px;background:rgba(255,255,255,.35);z-index:1;overflow:hidden;display:flex;align-items:center;pointer-events:none;opacity:1;transition:opacity .3s ease}
+.today-band{position:absolute;left:0;top:858px;width:602px;height:134px;background:rgba(255,255,255,.35);z-index:1;overflow:hidden;display:flex;align-items:center;pointer-events:none;opacity:1;transition:opacity .3s ease}
 .home-wrap.status .today-band,.home-wrap.hiderail .today-band{opacity:0}
 .tb-track{display:flex;animation:tbflow 30s linear infinite;will-change:transform;backface-visibility:hidden}
 .tb-group{display:flex;gap:12px;padding:0 6px;flex:0 0 auto} /* 同一グループ2連結で-50%＝ちょうど1周＝つなぎ目ゼロ */
 @keyframes tbflow{from{transform:translateX(0)}to{transform:translateX(-50%)}} /* 右→左 */
-.tb-card{flex:0 0 auto;background:rgba(255,255,255,.92);border-radius:14px;padding:10px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:110px}
-.tb-ko{font-size:26px;font-weight:900;color:#222;line-height:1.15}
-.tb-ja{font-size:14px;font-weight:700;color:#666;margin-top:2px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-card{flex:0 0 auto;background:rgba(255,255,255,.92);border-radius:14px;padding:8px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:118px}
+.tb-img{width:60px;height:60px;object-fit:contain;display:block}
+.tb-ko{font-size:21px;font-weight:900;color:#222;line-height:1.15}
+.tb-ja{font-size:12px;font-weight:700;color:#666;margin-top:1px;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* 単語一覧モード：スワイプ連動（--lift/--pはhome-wrapに設定） */
 .home-wrap .slide-inner{transform:translateY(var(--lift,0px));transition:transform .35s ease}
 #calendar-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
@@ -950,7 +951,7 @@ function updatePwrFine(){
   if(!_pwrT0)calibratePwr();
   const el=(Date.now()-_pwrT0)/1000;
   const v=Math.max(0,_pwrBase-0.01*Math.floor(el/10)); // カウントダウンが0になった瞬間に0.01%必ず減る（段階減算）
-  num.textContent=v.toFixed(3)+"%";
+  num.textContent=v.toFixed(2)+"%"; // 0.001の位は表示しない
   // ゲージ幅は目に見える差（0.05%以上）のときだけ更新。毎0.3秒のwidth書き換えはtransitionが常時走り、帯アニメ等をカクつかせるため
   const f=document.getElementById("hv-pwrfill");
   if(f&&Math.abs(v-_pwrFillLast)>=0.05){f.style.width=v+"%";_pwrFillLast=v;}
@@ -990,7 +991,7 @@ function applyHomeBg(){applyBgAll(roomBg(curSection));}
 /* ROOM選択：番号・パラメータ・ジオラマを1スライドにまとめ、丸ごと左右スワイプ */
 let _roomScrollT=null,_listMode=false;
 /* 単語一覧モード：ROOMメニューが上へスライドし、下に単語一覧。横スワイプで隣のROOMの一覧へ */
-const LIFT_MAX=210; // ROOMメニューが最上部に達するまでの移動量
+const LIFT_MAX=180; // ROOMメニューが最上部に達するまでの移動量（slide-innerを30px上げたぶん減らし、一覧モードの位置は従来どおり）
 function setLift(px){ // ピル上昇量(px)とヘッダー/写真用の進捗(--p)を同時に設定
   const w=document.getElementById("homewrap");if(!w)return;
   w.style.setProperty("--lift",px+"px");
@@ -1214,7 +1215,7 @@ function renderHome(){
   document.getElementById("hv-xpval").textContent=`${xp.cur}/${xp.next}`;
   document.getElementById("hv-xpfill").style.width=Math.min(100,Math.round(xp.cur/xp.next*100))+"%";
   const pw=pwrOverallExact();
-  document.getElementById("hv-pwrval").textContent=pw.toFixed(3)+"%";
+  document.getElementById("hv-pwrval").textContent=pw.toFixed(2)+"%";
   document.getElementById("hv-pwrfill").style.width=pw+"%";
   buildRoomSlides();
   buildTodayBand();
@@ -1267,7 +1268,10 @@ function buildTodayBand(){
   // 語数が少ないとグループ幅<帯幅でループが破綻するため、8枚になるまで循環リピートして密度を確保
   const list=picks.slice();
   for(let i=0;list.length<8;i++)list.push(picks[i%picks.length]);
-  const cards=list.map(x=>`<div class="tb-card"><div class="tb-ko">${esc(x.w.ko)}</div><div class="tb-ja">${esc(x.w.ja)}</div></div>`).join("");
+  const cards=list.map(x=>{
+    const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[x.w.ko])?`<img class="tb-img" src="${WORD_IMG[x.w.ko]}" loading="lazy" alt="">`:"";
+    return `<div class="tb-card">${img}<div class="tb-ko">${esc(x.w.ko)}</div><div class="tb-ja">${esc(x.w.ja)}</div></div>`;
+  }).join("");
   track.innerHTML=`<div class="tb-group">${cards}</div><div class="tb-group">${cards}</div>`; // 同一グループ2連結
 }
 let _tbKey="";
@@ -2664,7 +2668,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.53.1 (2026-07-19)";
+const APP_VERSION="v2.54 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
