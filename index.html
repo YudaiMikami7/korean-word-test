@@ -2190,7 +2190,7 @@ function submit(status,userAnswer){
   };
   state.results.push(rec);saveAnswer(rec);
   speakKorean(q.word); // 正解・不正解・わからない・時間切れすべてで正解の韓国語音声を再生（学習のため）
-  if(isCorrect&&q.type!=="w")spawnWordDrop(q.word); // 四択正解：単語画像が背景に降り積もる
+  if(isCorrect&&q.type!=="w")spawnWordDrop(q.word,Math.max(0,limit-elapsed)/limit); // 四択正解：単語画像の玉が背景に降り積もる（速答ほど大きい）
   showOverlay(status,q,userAnswer);
 }
 
@@ -2226,17 +2226,19 @@ function showOverlay(status,q,userAnswer){
   }
 }
 /* 四択正解時：単語画像入りの白半透明カプセル玉が落下し、衝突・転がりながらどんどん積もる（簡易物理・背景レイヤー） */
-const QR={balls:[],raf:0,last:0,calm:0,R:48};
-function spawnWordDrop(word){
+const QR={balls:[],raf:0,last:0,calm:0};
+function spawnWordDrop(word,speed){
   try{
     const layer=document.getElementById("q-rain");if(!layer)return;
     const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[word.ko]:null;if(!src)return;
     if(QR.balls.length>=30){const old=QR.balls.shift();old.el.remove();} // 上限超過は古い玉から消す（上の玉は自然に崩れ落ちる）
+    const r=32+Math.round(28*Math.min(1,Math.max(0,speed==null?0.5:speed))); // 速答ほど大きい玉（直径64〜120px）
     const el=document.createElement("div");el.className="qr-ball";
+    el.style.width=el.style.height=(r*2)+"px";
     el.innerHTML=`<img src="${src}" alt="">`;
     layer.appendChild(el);
-    const W=layer.clientWidth||602,R=QR.R;
-    QR.balls.push({x:R+Math.random()*(W-2*R),y:-R-10,vx:(Math.random()*2-1)*120,vy:0,a:0,va:0,el});
+    const W=layer.clientWidth||602;
+    QR.balls.push({x:r+Math.random()*(W-2*r),y:-r-10,vx:(Math.random()*2-1)*120,vy:0,a:0,va:0,r,el});
     QR.calm=0;
     if(!QR.raf){QR.last=0;QR.raf=requestAnimationFrame(qrStep);}
   }catch(e){}
@@ -2247,29 +2249,30 @@ function qrStep(ts){
   if(!layer||!scr||!scr.classList.contains("on")){QR.raf=0;return;} // 出題画面を離れたら停止（次の正解で再開）
   if(!QR.last)QR.last=ts;
   const dt=Math.min(0.032,(ts-QR.last)/1000);QR.last=ts;
-  const W=layer.clientWidth,H=layer.clientHeight,R=QR.R,G=2400,bs=QR.balls;
+  const W=layer.clientWidth,H=layer.clientHeight,G=2400,bs=QR.balls;
   for(const b of bs){
     b.vy+=G*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;b.a+=b.va*dt;
-    if(b.y>H-R){b.y=H-R;if(b.vy>0)b.vy=-b.vy*0.2;if(Math.abs(b.vy)<40)b.vy=0;b.vx*=0.96;b.va=b.vx/R;} // 床：小バウンド＋接地摩擦、回転は移動速度連動（自然な転がり）
-    if(b.x<R){b.x=R;b.vx=-b.vx*0.4;}
-    if(b.x>W-R){b.x=W-R;b.vx=-b.vx*0.4;}
+    if(b.y>H-b.r){b.y=H-b.r;if(b.vy>0)b.vy=-b.vy*0.2;if(Math.abs(b.vy)<40)b.vy=0;b.vx*=0.96;b.va=b.vx/b.r;} // 床：小バウンド＋接地摩擦、回転は移動速度連動（自然な転がり）
+    if(b.x<b.r){b.x=b.r;b.vx=-b.vx*0.4;}
+    if(b.x>W-b.r){b.x=W-b.r;b.vx=-b.vx*0.4;}
   }
   for(let i=0;i<bs.length;i++)for(let j=i+1;j<bs.length;j++){ // 玉同士：位置補正＋弱い反発で押し合いながら積み上がる
     const A=bs[i],B=bs[j];let dx=B.x-A.x,dy=B.y-A.y,d=Math.hypot(dx,dy)||0.01;
-    if(d<2*R){
-      const nx=dx/d,ny=dy/d,ov=(2*R-d)/2;
+    const rr=A.r+B.r;
+    if(d<rr){
+      const nx=dx/d,ny=dy/d,ov=(rr-d)/2;
       A.x-=nx*ov;A.y-=ny*ov;B.x+=nx*ov;B.y+=ny*ov;
       const rel=(B.vx-A.vx)*nx+(B.vy-A.vy)*ny;
       if(rel<0){const imp=-rel*0.55;A.vx-=nx*imp;A.vy-=ny*imp;B.vx+=nx*imp;B.vy+=ny*imp;}
-      A.va=A.vx/R;B.va=B.vx/R;
+      A.va=A.vx/A.r;B.va=B.vx/B.r;
     }
   }
   let moved=0;
   for(const b of bs){
-    b.x=Math.max(R,Math.min(W-R,b.x));b.y=Math.min(b.y,H-R);
+    b.x=Math.max(b.r,Math.min(W-b.r,b.x));b.y=Math.min(b.y,H-b.r);
     moved+=Math.abs(b.x-(b.px!=null?b.px:b.x))+Math.abs(b.y-(b.py!=null?b.py:b.y));
     b.px=b.x;b.py=b.y;
-    b.el.style.transform=`translate(${(b.x-R).toFixed(1)}px,${(b.y-R).toFixed(1)}px) rotate(${b.a.toFixed(3)}rad)`;
+    b.el.style.transform=`translate(${(b.x-b.r).toFixed(1)}px,${(b.y-b.r).toFixed(1)}px) rotate(${b.a.toFixed(3)}rad)`;
   }
   // 静止判定は「実際に動いた距離」ベース（速度の微振動では止まらないため）
   QR.calm=moved<0.6?QR.calm+1:0;
@@ -2733,13 +2736,13 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.57.1 (2026-07-19)";
+const APP_VERSION="v2.57.2 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
 const MONETIZE={
   donateUrl:"https://ko-fi.com/ktango",  // Ko-fi 投げ銭ページ
-  donateLabel:"☕ 応援する（投げ銭）",
+  donateLabel:"☕ 応援する",
   adsenseClient:"ca-pub-7581865183013796",  // YudaiMikami7 / k-tango
   adsenseSlot:"",    // 結果画面など任意枠のスロットID（例: "1234567890"）
   footerSlot:""      // 画面下固定フッター広告のスロットID（審査通過後にAdSenseで作成して設定）
