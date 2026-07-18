@@ -183,28 +183,36 @@ button{font-family:inherit}
 .room-slide{position:relative;flex:0 0 602px;width:602px;height:1178px;scroll-snap-align:start}
 .slide-inner{position:absolute;left:0;top:255px;width:602px;height:686px}
 /* ROOMパラメータ（ラベル/番号・語数/バー/%の間に余白。ランクD,B=36px・A=98pxで下端揃え） */
-.rmenu-bg{position:absolute;left:40px;top:-12px;width:522px;height:174px;background:rgba(255,255,255,.15);border-radius:999px;cursor:pointer}
-.hv-roomlabel{position:absolute;left:83px;top:3px;font-size:32px;letter-spacing:.5px;line-height:1;cursor:pointer}
-.hv-roomno{position:absolute;left:72px;top:42px;font-size:108px;line-height:1;cursor:pointer}
-.hv-learned{position:absolute;left:244px;top:10px;font-size:40px;line-height:1;color:#FFFFFF}
-.hv-roompwr{position:absolute;left:244px;top:76px;font-size:48px;line-height:1;color:#FFFFFF}
-.hv-learned .unit{font-size:24px;margin-left:4px}
-.hv-roompwr .unit{font-size:28px;margin-left:4px}
-.hv-wordsg{left:238px;top:56px;width:89px;height:10px;padding:2px}
-.hv-roomg{left:238px;top:132px;width:89px;height:10px;padding:2px}
+.rmenu-bg{position:absolute;left:40px;top:-12px;width:522px;height:116px;background:rgba(255,255,255,.15);border-radius:999px;cursor:pointer} /* 縦幅=旧174の2/3 */
+.hv-roomlabel{position:absolute;left:83px;top:2px;font-size:21px;letter-spacing:.5px;line-height:1;cursor:pointer}
+.hv-roomno{position:absolute;left:72px;top:28px;font-size:72px;line-height:1;cursor:pointer}
+.hv-learned{position:absolute;left:244px;top:7px;font-size:27px;line-height:1;color:#FFFFFF}
+.hv-roompwr{position:absolute;left:244px;top:51px;font-size:32px;line-height:1;color:#FFFFFF}
+.hv-learned .unit{font-size:16px;margin-left:4px}
+.hv-roompwr .unit{font-size:19px;margin-left:4px}
+.hv-wordsg{left:238px;top:37px;width:89px;height:10px;padding:2px}
+.hv-roomg{left:238px;top:88px;width:89px;height:10px;padding:2px}
 /* ランクの下端(146)を下段バー(132+14=146)・ROOM番号の字面下端と一致させる */
-.rank-s{position:absolute;left:363px;top:110px;width:36px;height:36px;border-radius:50%;background:#555;
-  display:flex;align-items:center;justify-content:center;font-size:24px;line-height:1;z-index:1}
-.rank-s1{left:395px}
-.rank-b{position:absolute;left:422px;top:48px;width:98px;height:98px;border-radius:50%;background:#555;
-  display:flex;align-items:center;justify-content:center;font-size:80px;line-height:1;z-index:2}
+.rank-s{position:absolute;left:363px;top:78px;width:24px;height:24px;border-radius:50%;background:#555;
+  display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;z-index:1}
+.rank-s1{left:385px}
+.rank-b{position:absolute;left:455px;top:37px;width:65px;height:65px;border-radius:50%;background:#555;
+  display:flex;align-items:center;justify-content:center;font-size:53px;line-height:1;z-index:2}
 /* ROOM01の左にある難易度切替スライド */
 .lv-pick{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;gap:26px;width:380px}
 .lvbtn{height:112px;border:none;border-radius:56px;background:rgba(0,0,0,.8);color:#fff;font-size:44px;font-weight:800;cursor:pointer;font-family:inherit}
 .lvbtn:active{background:rgba(0,0,0,.65)}
 .lvbtn.on{box-shadow:0 0 0 4px #fff inset}
 .lv-pick .lv-cap{text-align:center;font-size:22px;color:rgba(255,255,255,.85);letter-spacing:2px}
-.slide-img{position:absolute;left:24px;top:178px;width:554px;height:507px;object-fit:contain}
+.slide-img{position:absolute;left:24px;top:120px;width:554px;height:507px;object-fit:contain} /* メニュー縮小(-58px)ぶん上へ */
+/* 今日学ぶべき単語の帯：スタートボタン上に半透明白、カードが左→右に流れる */
+.today-band{position:absolute;left:0;top:888px;width:602px;height:104px;background:rgba(255,255,255,.35);z-index:1;overflow:hidden;display:flex;align-items:center;pointer-events:none;opacity:1;transition:opacity .3s ease}
+.home-wrap.status .today-band,.home-wrap.hiderail .today-band{opacity:0}
+.tb-track{display:flex;gap:12px;padding-left:12px;animation:tbflow 30s linear infinite;will-change:transform}
+@keyframes tbflow{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+.tb-card{flex:0 0 auto;background:rgba(255,255,255,.92);border-radius:14px;padding:10px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:110px}
+.tb-ko{font-size:26px;font-weight:900;color:#222;line-height:1.15}
+.tb-ja{font-size:14px;font-weight:700;color:#666;margin-top:2px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* 単語一覧モード：スワイプ連動（--lift/--pはhome-wrapに設定） */
 .home-wrap .slide-inner{transform:translateY(var(--lift,0px));transition:transform .35s ease}
 #calendar-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
@@ -561,6 +569,7 @@ button{font-family:inherit}
       <div id="hv-pwrdown"></div>
       </div>
       <div class="room-scroll" id="hv-rooms"></div>
+      <div class="today-band" id="today-band"><div class="tb-track" id="tb-track"></div></div>
       <button class="home-side-btn hsb-left" onclick="renderRoomCurve()" aria-label="忘却曲線"><img src="images-thumb/0912.webp" alt="忘却曲線"></button>
       <button class="start-button" onclick="startTest()">スタート</button>
       <button class="home-side-btn hsb-right" onclick="enterListMode()" aria-label="単語帳"><img src="images-thumb/1290.webp" alt="単語帳"></button>
@@ -1200,11 +1209,29 @@ function renderHome(){
   document.getElementById("hv-pwrval").textContent=pw.toFixed(3)+"%";
   document.getElementById("hv-pwrfill").style.width=pw+"%";
   buildRoomSlides();
+  buildTodayBand();
   applyHomeBg();
   scaleHome();
   updatePresent();
   checkAchievements();
   updatePwrFine();
+}
+
+/* 今日学ぶべき単語の帯：忘却が進みPWR回復効率が高い語（urgent/review）を優先度順に12語流す */
+function buildTodayBand(){
+  const band=document.getElementById("today-band"),track=document.getElementById("tb-track");
+  if(!band||!track)return;
+  const stats=loadStats(),now=Date.now();
+  const cands=Object.keys(stats).map(id=>{
+    const w=WORD_BY_ID[id];if(!w)return null;
+    const st=getStat(id,stats);
+    return{w,st,state:wordState(st,now),ps:priorityScore(w,st,now)};
+  }).filter(Boolean).filter(x=>x.state==="urgent"||x.state==="review")
+    .sort((a,b)=>b.ps-a.ps).slice(0,12);
+  if(!cands.length){band.style.display="none";return;}
+  band.style.display="flex";
+  const cards=cands.map(x=>`<div class="tb-card"><div class="tb-ko">${esc(x.w.ko)}</div><div class="tb-ja">${esc(x.w.ja)}</div></div>`).join("");
+  track.innerHTML=cards+cards; // 同一内容を2周並べてシームレスループ
 }
 
 /* ============================================================ 韓国語単語タイプ診断（4軸16タイプ） ============================================================ */
@@ -2595,7 +2622,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.51.1 (2026-07-19)";
+const APP_VERSION="v2.52 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
