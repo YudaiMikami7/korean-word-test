@@ -217,8 +217,8 @@ button{font-family:inherit}
 .tb-group{display:flex;gap:12px;padding:0 6px;flex:0 0 auto} /* 同一グループ2連結で-50%＝ちょうど1周＝つなぎ目ゼロ */
 @keyframes tbflow{from{transform:translateX(0)}to{transform:translateX(-50%)}} /* 右→左 */
 .tb-card{position:relative;flex:0 0 auto;background:rgba(255,255,255,.92);border-radius:14px;padding:8px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:118px;pointer-events:auto;cursor:pointer}
-.tb-imgspace{width:60px;height:60px;flex:0 0 auto} /* カードサイズは従来どおり（旧60px画像ぶんの席だけ確保） */
-.tb-img{position:absolute;top:-52px;left:50%;transform:translateX(-50%);width:120px;height:120px;object-fit:contain;display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,.2))} /* 2倍サイズ・カード上部からはみ出すポップアウト */
+.tb-imgspace{width:60px;height:12px;flex:0 0 auto} /* 白座布団は上から40%(48px)削減。画像・下部テキストの画面上の位置は不変 */
+.tb-img{position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:120px;height:120px;object-fit:contain;display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,.2))} /* 2倍サイズ・カード上部からはみ出すポップアウト */
 .tb-ko{font-size:21px;font-weight:900;color:#222;line-height:1.15}
 .tb-ja{font-size:12px;font-weight:700;color:#666;margin-top:1px;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* 単語一覧モード：スワイプ連動（--lift/--pはhome-wrapに設定） */
@@ -2670,7 +2670,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.54.1 (2026-07-19)";
+const APP_VERSION="v2.54.2 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
