@@ -2348,8 +2348,8 @@ function finishTest(){
       <button class="btn dark full" onclick="shareResult()" style="border:1px solid var(--gold);color:var(--gold)">&#120143; 結果をシェアして友達に挑戦</button>
       <button class="btn dark" onclick="startTest()">もう一度挑戦する</button>
       <button class="btn dark" onclick="show('s-home')">ホームに戻る</button>
-      <button class="btn line full" onclick="renderRoomCurve()">PWRメータを見る</button>
-      ${donateBtnHTML('btn line full')}
+      <button class="btn line" onclick="renderRoomCurve()">PWRメータを見る</button>
+      ${donateBtnHTML('btn line')}
       ${installBtnHTML()}
     </div>
     ${adSlotHTML()}
@@ -2673,7 +2673,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.55.1 (2026-07-19)";
+const APP_VERSION="v2.55.2 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
