@@ -94,10 +94,10 @@ button{font-family:inherit}
 #s-quiz{position:relative}
 #s-quiz .qbar,#s-quiz .tbar,#s-quiz .qstage{position:relative;z-index:1} /* 出題UIは常に降下レイヤーより前面 */
 .q-rain{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-.qr-img{position:absolute;top:-140px;left:var(--x);width:110px;height:110px;object-fit:contain;will-change:transform;
-  animation:qrfall .9s cubic-bezier(.45,.05,.8,.5) forwards,qrroll .5s .9s ease-out forwards}
-@keyframes qrfall{from{transform:translateY(0) rotate(0deg)}to{transform:translateY(var(--fy)) rotate(var(--r1))}}
-@keyframes qrroll{from{transform:translateY(var(--fy)) rotate(var(--r1))}to{transform:translateY(var(--fy)) translateX(var(--dx)) rotate(var(--r2))}}
+.qr-ball{position:absolute;left:0;top:0;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.55);
+  box-shadow:inset 0 -6px 12px rgba(0,0,0,.08),0 4px 10px rgba(0,0,0,.15);
+  display:flex;align-items:center;justify-content:center;will-change:transform} /* 白半透明の丸カプセル */
+.qr-ball img{width:72%;height:72%;object-fit:contain;pointer-events:none}
 
 /* unknown btn */
 .unknown{display:block;margin:0 auto;background:rgba(0,0,0,.8);border:none;color:#fff;
@@ -2024,7 +2024,7 @@ function startTest(reviewIds){
   state={questions:qs,idx:0,results:[],testId:"t-"+Date.now().toString(36),userId:getUserId(),
     cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level};
   sfxStart();
-  const qr=document.getElementById("q-rain");if(qr)qr.innerHTML=""; // 前回の積もりをリセット
+  qrClear(); // 前回の積もりをリセット
   show("s-quiz");
   showCountdown(()=>renderQuestion());
 }
@@ -2225,24 +2225,56 @@ function showOverlay(status,q,userAnswer){
     ovTimer=setTimeout(()=>{ov.remove();afterAnswer();},isCorrect?1000:2000);
   }
 }
-/* 四択正解時：その単語の画像が上から降り、下端に積もって着地後ひと転がりする（背景レイヤー） */
+/* 四択正解時：単語画像入りの白半透明カプセル玉が落下し、衝突・転がりながらどんどん積もる（簡易物理・背景レイヤー） */
+const QR={balls:[],raf:0,last:0,calm:0,R:48};
 function spawnWordDrop(word){
   try{
     const layer=document.getElementById("q-rain");if(!layer)return;
     const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[word.ko]:null;if(!src)return;
-    while(layer.children.length>=30)layer.removeChild(layer.firstChild); // 積もりすぎ防止（古いものから消す）
-    const el=document.createElement("img");
-    el.className="qr-img";el.src=src;el.alt="";
-    const h=layer.clientHeight||window.innerHeight;
-    const dir=Math.random()<0.5?-1:1;
-    const r1=Math.round(Math.random()*40-20);
-    el.style.setProperty("--x",(4+Math.random()*72)+"%");
-    el.style.setProperty("--fy",Math.round(h+140-108-Math.random()*26)+"px"); // 下端に少しばらけて積もる
-    el.style.setProperty("--r1",r1+"deg");
-    el.style.setProperty("--r2",(r1+dir*(45+Math.round(Math.random()*30)))+"deg");
-    el.style.setProperty("--dx",dir*Math.round(14+Math.random()*22)+"px");
+    if(QR.balls.length>=30){const old=QR.balls.shift();old.el.remove();} // 上限超過は古い玉から消す（上の玉は自然に崩れ落ちる）
+    const el=document.createElement("div");el.className="qr-ball";
+    el.innerHTML=`<img src="${src}" alt="">`;
     layer.appendChild(el);
+    const W=layer.clientWidth||602,R=QR.R;
+    QR.balls.push({x:R+Math.random()*(W-2*R),y:-R-10,vx:(Math.random()*2-1)*120,vy:0,a:0,va:0,el});
+    QR.calm=0;
+    if(!QR.raf){QR.last=0;QR.raf=requestAnimationFrame(qrStep);}
   }catch(e){}
+}
+function qrClear(){QR.balls.forEach(b=>b.el.remove());QR.balls=[];if(QR.raf){cancelAnimationFrame(QR.raf);QR.raf=0;}}
+function qrStep(ts){
+  const layer=document.getElementById("q-rain"),scr=document.getElementById("s-quiz");
+  if(!layer||!scr||!scr.classList.contains("on")){QR.raf=0;return;} // 出題画面を離れたら停止（次の正解で再開）
+  if(!QR.last)QR.last=ts;
+  const dt=Math.min(0.032,(ts-QR.last)/1000);QR.last=ts;
+  const W=layer.clientWidth,H=layer.clientHeight,R=QR.R,G=2400,bs=QR.balls;
+  for(const b of bs){
+    b.vy+=G*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;b.a+=b.va*dt;
+    if(b.y>H-R){b.y=H-R;if(b.vy>0)b.vy=-b.vy*0.2;if(Math.abs(b.vy)<40)b.vy=0;b.vx*=0.96;b.va=b.vx/R;} // 床：小バウンド＋接地摩擦、回転は移動速度連動（自然な転がり）
+    if(b.x<R){b.x=R;b.vx=-b.vx*0.4;}
+    if(b.x>W-R){b.x=W-R;b.vx=-b.vx*0.4;}
+  }
+  for(let i=0;i<bs.length;i++)for(let j=i+1;j<bs.length;j++){ // 玉同士：位置補正＋弱い反発で押し合いながら積み上がる
+    const A=bs[i],B=bs[j];let dx=B.x-A.x,dy=B.y-A.y,d=Math.hypot(dx,dy)||0.01;
+    if(d<2*R){
+      const nx=dx/d,ny=dy/d,ov=(2*R-d)/2;
+      A.x-=nx*ov;A.y-=ny*ov;B.x+=nx*ov;B.y+=ny*ov;
+      const rel=(B.vx-A.vx)*nx+(B.vy-A.vy)*ny;
+      if(rel<0){const imp=-rel*0.55;A.vx-=nx*imp;A.vy-=ny*imp;B.vx+=nx*imp;B.vy+=ny*imp;}
+      A.va=A.vx/R;B.va=B.vx/R;
+    }
+  }
+  let moved=0;
+  for(const b of bs){
+    b.x=Math.max(R,Math.min(W-R,b.x));b.y=Math.min(b.y,H-R);
+    moved+=Math.abs(b.x-(b.px!=null?b.px:b.x))+Math.abs(b.y-(b.py!=null?b.py:b.y));
+    b.px=b.x;b.py=b.y;
+    b.el.style.transform=`translate(${(b.x-R).toFixed(1)}px,${(b.y-R).toFixed(1)}px) rotate(${b.a.toFixed(3)}rad)`;
+  }
+  // 静止判定は「実際に動いた距離」ベース（速度の微振動では止まらないため）
+  QR.calm=moved<0.6?QR.calm+1:0;
+  if(QR.calm>45){QR.raf=0;return;} // 全体が静止したらループ停止（省電力）
+  QR.raf=requestAnimationFrame(qrStep);
 }
 
 /* 回答後（タップで次へ設定時）用：選択肢右端の音声マークと、選択肢の韓国語読み上げ */
@@ -2701,7 +2733,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.57 (2026-07-19)";
+const APP_VERSION="v2.57.1 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
