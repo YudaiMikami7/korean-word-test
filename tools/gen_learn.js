@@ -84,7 +84,8 @@ for (let s = 2; s <= 27; s++) {
   rooms.push({ level: "中級", lv: "middle", n: s, words: MIDDLE.filter(w => w.sec === s) });
 }
 const nn = n => String(n).padStart(2, "0");
-rooms.forEach(r => { r.file = `${r.lv}-${nn(r.n)}.html`; r.title = `${r.level}ROOM${nn(r.n)}`; });
+// Cloudflare Pagesは .html を除去したURLへ308リダイレクトするため、リンク/canonicalは拡張子なしで統一
+rooms.forEach(r => { r.file = `${r.lv}-${nn(r.n)}.html`; r.slug = `${r.lv}-${nn(r.n)}`; r.title = `${r.level}ROOM${nn(r.n)}`; });
 
 function stats(words) {
   const suru = words.filter(w => w.ko.endsWith("하다")).length;
@@ -177,7 +178,7 @@ rooms.forEach((r, i) => {
     : "TOPIK（韓国語能力試験）II（3〜4級）レベルで頻出する中級語彙";
   const title = `韓国語${r.level}単語一覧 ${r.title}（全${st.total}語・カナ読み付き）| k-tango単語帳`;
   const desc = `${levelDesc}のうち${r.title}に収録された${st.total}語を、カナ読みガイド・日本語訳付きで一覧掲載。${sampleTxt.replace(/「|」/g, "").slice(0, 60)}などを収録。無料の単語テストアプリk-tangoと連動。`;
-  const url = `${SITE}/learn/${r.file}`;
+  const url = `${SITE}/learn/${r.slug}`;
   const prev = rooms[i - 1], next = rooms[i + 1];
   const rows = r.words.map((w, j) =>
     `<tr><td class="num">${j + 1}</td><td class="ko" lang="ko">${w.ko}</td><td class="kana">${toKana(w.ko)}</td><td>${w.ja}</td></tr>`).join("\n");
@@ -199,13 +200,13 @@ ${rows}
   </table>
   <div class="note">読みガイドはカタカナによる目安です。パッチム（終声）や連音化により、実際の発音とは異なる場合があります。正確な発音は音声付き辞書もあわせてご確認ください。</div>
   <nav class="pn">
-    <span>${prev ? `<a href="${prev.file}">← ${prev.title}</a>` : ""}</span>
-    <span>${next ? `<a href="${next.file}">${next.title} →</a>` : ""}</span>
+    <span>${prev ? `<a href="${prev.slug}">← ${prev.title}</a>` : ""}</span>
+    <span>${next ? `<a href="${next.slug}">${next.title} →</a>` : ""}</span>
   </nav>
 </div>`;
   fs.writeFileSync(path.join(outDir, r.file), pageHTML({
     title, desc, url, body,
-    breadcrumbs: [["k-tango", "/"], ["単語帳一覧", "/learn/"], [r.title, "/learn/" + r.file]]
+    breadcrumbs: [["k-tango", "/"], ["単語帳一覧", "/learn/"], [r.title, "/learn/" + r.slug]]
   }));
 });
 
@@ -216,7 +217,7 @@ const midTotal = totalWords - begTotal;
 function roomLi(r) {
   const st = stats(r.words);
   const ex = r.words.slice(0, 2).map(w => w.ko).join("・");
-  return `<li><a href="${r.file}">${r.title}（${st.total}語）<span>${ex} など</span></a></li>`;
+  return `<li><a href="${r.slug}">${r.title}（${st.total}語）<span>${ex} など</span></a></li>`;
 }
 const idxBody = `
 <header class="site"><a href="../">k-tango</a><span>›</span><span>単語帳一覧</span></header>
@@ -253,8 +254,8 @@ fs.writeFileSync(path.join(outDir, "index.html"), pageHTML({
 /* ---------- sitemap.xml ---------- */
 const today = new Date().toISOString().slice(0, 10);
 const urls = [
-  ["/", "1.0"], ["/about.html", "0.7"], ["/privacy.html", "0.3"], ["/learn/", "0.9"],
-  ...rooms.map(r => ["/learn/" + r.file, "0.8"])
+  ["/", "1.0"], ["/about", "0.7"], ["/privacy", "0.3"], ["/learn/", "0.9"],
+  ...rooms.map(r => ["/learn/" + r.slug, "0.8"])
 ];
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
