@@ -94,7 +94,7 @@ button{font-family:inherit}
 #s-quiz{position:relative}
 #s-quiz .qbar,#s-quiz .tbar,#s-quiz .qstage{position:relative;z-index:1} /* 出題UIは常に降下レイヤーより前面 */
 .q-rain{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-#home-rain{transition:opacity .3s ease} /* ホームの玉レイヤー：一覧/ステータスモード中は隠すだけで山は保持 */
+#home-rain{top:-225px;height:1178px;transition:opacity .3s ease} /* ホームの玉レイヤー：現在ROOMのslide-inner最背面に挿入（ROOM画像より後ろ・背景色より前）。床は画面下端 */
 .home-wrap.status #home-rain,.home-wrap.hiderail #home-rain{opacity:0}
 .qr-ball{position:absolute;left:0;top:0;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.55);
   box-shadow:inset 0 -6px 12px rgba(0,0,0,.08),0 4px 10px rgba(0,0,0,.15);
@@ -609,7 +609,6 @@ button{font-family:inherit}
       <div id="hv-pwrdown"></div>
       </div>
       <div class="room-scroll" id="hv-rooms"></div>
-      <div class="q-rain" id="home-rain"></div><!-- ホーム用の玉レイヤー：ROOM背景の上・UI(帯/ボタン)の下 -->
       <div class="today-band" id="today-band" style="display:none"><div class="tb-clip"><div class="tb-track" id="tb-track"></div></div></div><!-- 中身が入るまで非表示（空の白帯チラ見え防止） -->
       <button class="home-side-btn hsb-left" onclick="renderRoomCurve()" aria-label="忘却曲線"><img src="images-thumb/0912.webp" alt="忘却曲線"></button>
       <button class="start-button" onclick="startTest()">スタート</button>
@@ -1233,7 +1232,7 @@ function buildRoomSlides(){
       clearTimeout(_roomScrollT);
       _roomScrollT=setTimeout(()=>{
         const n=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count);
-        if(n>=1&&n!==curSection){curSection=n;applyHomeBg();saveLastRoom();}
+        if(n>=1&&n!==curSection){curSection=n;applyHomeBg();saveLastRoom();attachHomeRain();} // 玉の山も新しいROOMスライドへ移す
       },120);
     });
   }
@@ -1275,6 +1274,8 @@ function renderHome(){
   document.getElementById("hv-pwrval").textContent=pw.toFixed(2)+"%";
   document.getElementById("hv-pwrfill").style.width=pw+"%";
   buildRoomSlides();
+  attachHomeRain(); // スライド再構築後に玉レイヤーを差し直し（玉は保持）
+  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();} // 起動時：過去7日の正解玉を一斉降下
   buildTodayBand();
   applyHomeBg();
   scaleHome();
@@ -2303,8 +2304,33 @@ function spawnBallRaw(src,r,bg,layerId){
 }
 function qrClearLayer(layerId){QR.balls=QR.balls.filter(b=>{if(b.layer===layerId){b.el.remove();return false;}return true;});}
 function qrStopRain(){if(QR.rainTimer){clearInterval(QR.rainTimer);QR.rainTimer=0;}}
+/* ホームの玉レイヤーは現在ROOMスライドのslide-inner最背面に挿し込む（ROOM画像の後ろに積もる）。再構築・ROOM切替で差し直しても玉DOMは保持 */
+function attachHomeRain(){
+  if(!QR.homeEl){QR.homeEl=document.createElement("div");QR.homeEl.className="q-rain";QR.homeEl.id="home-rain";}
+  const host=document.querySelector(`.room-slide[data-n="${curSection}"] .slide-inner`);
+  if(host&&QR.homeEl.parentNode!==host)host.insertBefore(QR.homeEl,host.firstChild);
+}
+/* 起動時：過去7日間に正解した単語（直近30件）を玉として積み直す＝ホームの山は7日間保持 */
+let _bootRained=false;
+function bootBallLog(){
+  if(_bootRained)return;_bootRained=true;
+  try{
+    const cutoff=Date.now()-7*86400000,m=secOfWord();
+    loadHistory().filter(r=>r.isCorrect&&new Date(r.answeredAt).getTime()>=cutoff).slice(-30).forEach(r=>{
+      const w=WORD_BY_ID[r.wordId];if(!w)return;
+      const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[w.ko]:null;if(!src)return;
+      const limit=r.answerType==="writing"?20:10;
+      const sec=r.responseTimeSec!=null?r.responseTimeSec:limit;
+      const rr=32+Math.round(28*Math.min(1,Math.max(0,(limit-sec)/limit)));
+      const key=m[r.wordId],sn=key?parseInt(key.split("-")[1],10):curSection;
+      _ballLog.push({src,r:rr,bg:roomBg(sn||curSection)});
+    });
+    if(_ballLog.length>36)_ballLog=_ballLog.slice(-36);
+  }catch(e){}
+}
 /* ホーム帰還時：未降下の玉（複数テストぶん含む）を0.1秒間隔でホーム背景レイヤーに一斉降下。既存の山の上に積み増す */
 function homeRain(){
+  attachHomeRain();
   if(!_ballLog.length||QR.rainTimer)return;
   QR.active="home-rain";
   const q=_ballLog.slice();_ballLog=[];
@@ -2843,7 +2869,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.60.1 (2026-07-19)";
+const APP_VERSION="v2.61 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
