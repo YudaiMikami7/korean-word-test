@@ -183,6 +183,7 @@ button{font-family:inherit}
 .hv-code{position:absolute;right:47px;top:39px;font-size:40px;letter-spacing:1px;line-height:1;cursor:pointer;z-index:2;display:flex;align-items:center;gap:5px} /* 数字上端がLv.数字(top44)と揃う位置：39+(50-40)/2=44 */
 .streak-fire{width:50px;height:50px;object-fit:contain;display:block}
 #hv-pwrdown{position:absolute;left:166px;top:153px;width:403px;text-align:center;font-size:16px;font-weight:700;color:#fff;z-index:2;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+#hv-nextrev{position:absolute;left:166px;top:176px;width:403px;text-align:center;font-size:13px;font-weight:800;color:rgba(255,255,255,.92);z-index:2;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .home-side-btn img{width:74%;height:74%;object-fit:contain;pointer-events:none;display:block;margin:auto}
 .status-panel{position:absolute;left:166px;top:83px;width:403px;height:64px;border-radius:32px;background:rgba(0,0,0,.8);z-index:1;cursor:pointer}
 .hv-lab,.hv-xpg,.hv-pwrg{pointer-events:none}
@@ -335,6 +336,24 @@ button{font-family:inherit}
 .wbh-ko{font-size:18px}
 .wbh-ja{font-size:12px;color:#666;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wbh-room{font-size:11px;color:#999}
+.ov-detail{position:absolute;right:16px;bottom:13.5%;background:rgba(0,0,0,.7);color:#fff;font-size:13px;font-weight:800;padding:9px 14px;border-radius:999px;pointer-events:auto;cursor:pointer}
+.wd-nav{position:absolute;top:46%;transform:translateY(-50%);z-index:5;width:44px;height:64px;border:none;border-radius:12px;background:rgba(0,0,0,.35);color:#fff;font-size:26px;font-weight:900;cursor:pointer}
+.wd-prev{left:6px}.wd-next{right:6px}
+/* 文字サイズ 大 モード */
+body.bigtext .choice{font-size:25px}
+body.bigtext .qword{font-size:1.15em}
+body.bigtext .rtab{font-size:15px}
+body.bigtext .rtab td.ko{font-size:18px}
+body.bigtext .tb-ko{font-size:25px}
+body.bigtext .wb-ko{font-size:31px}
+body.bigtext .set-t{font-size:17px}
+body.bigtext .set-d{font-size:13.5px}
+/* OSの「動きを減らす」設定では常時アニメーションを止める */
+@media (prefers-reduced-motion: reduce){
+  .tb-track{animation:none}
+  .wb-img{animation:none}
+  .wb-card{animation:none}
+}
 /* 過去履歴モーダル（ランク円タップで表示・白透明の表） */
 #history-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45)}
 #history-modal.on{display:flex}
@@ -645,6 +664,7 @@ button{font-family:inherit}
       <div class="gauge hv-pwrg"><div class="gfill" id="hv-pwrfill" style="background:#00FF37"></div></div>
       <div class="hv-lab hv-pwrval" id="hv-pwrval">0%</div>
       <div id="hv-pwrdown"></div>
+      <div id="hv-nextrev"></div>
       </div>
       <div class="room-scroll" id="hv-rooms"></div>
       <div id="wb-search"><input id="wb-q" type="search" placeholder="単語をさがす（韓国語・日本語）" oninput="wbSearch(this.value)"><div id="wb-hits"></div></div>
@@ -659,7 +679,7 @@ button{font-family:inherit}
 
   <!-- QUIZ -->
   <div class="screen" id="s-quiz">
-    <div class="qbar"><button class="qhome" onclick="quitTest()">‹</button><span class="prog" id="prog">1 / 12</span><button class="qadv" id="qadv" onclick="toggleAdvMode()"><span>タップで次へ</span><span class="qsw" id="qsw"><i></i></span></button><span class="time" id="time">10.0</span></div>
+    <div class="qbar"><button class="qhome" onclick="confirmQuit()">‹</button><span class="prog" id="prog">1 / 12</span><button class="qadv" id="qadv" onclick="toggleAdvMode()"><span>タップで次へ</span><span class="qsw" id="qsw"><i></i></span></button><span class="time" id="time">10.0</span></div>
     <div class="tbar"><div class="tfill" id="tfill"></div></div>
     <div class="qstage" id="qstage"></div>
   </div>
@@ -1171,20 +1191,25 @@ function wbSearch(q){
   q=(q||"").trim();
   if(!q){box.innerHTML="";return;}
   const m=secOfWord();
-  const hits=levelAllWords().filter(w=>w.ko.indexOf(q)>=0||(w.ja||"").indexOf(q)>=0).slice(0,20);
+  const pool=BEGINNER_WORDS.concat(WORDS,MIDDLE_WORDS); // 初級・中級を横断検索
+  const hits=pool.filter(w=>w.ko.indexOf(q)>=0||(w.ja||"").indexOf(q)>=0).slice(0,20);
   box.innerHTML=hits.length?hits.map(w=>{
     const key=m[w.id],rn=key?key.split("-")[1]:"";
-    return `<div class="wbh-row" onclick="renderWordDetail(${w.id},'room')"><span class="wbh-ko">${esc(w.ko)}</span><span class="wbh-ja">${esc(w.ja)}</span><span class="wbh-room">${rn?"ROOM "+rn:""}</span></div>`;
+    const lv=key?(key.indexOf("beginner")===0?"初級":"中級"):"";
+    return `<div class="wbh-row" onclick="renderWordDetail(${w.id},'room')"><span class="wbh-ko">${esc(w.ko)}</span><span class="wbh-ja">${esc(w.ja)}</span><span class="wbh-room">${lv}${rn?" ROOM "+rn:""}</span></div>`;
   }).join(""):'<div class="wbh-row" style="cursor:default;color:#888">見つかりませんでした</div>';
 }
 /* 初回だけジェスチャー案内を表示 */
-function maybeCoach(){
-  if(localStorage.getItem("kwt_coach_v1"))return;
-  localStorage.setItem("kwt_coach_v1","1");
+function showCoach(){
   const el=document.createElement("div");el.className="coach";
   el.innerHTML=`<div class="coach-in">つかいかた<br>⬆️ 上スワイプ / ROOM番号タップ … 単語帳<br>⬇️ 下スワイプ / Lv.タップ … ステータス<br>↔️ 左右スワイプ … ROOM切替<br>🅰️ ランク円タップ … テスト履歴<div class="coach-ok">OK</div></div>`;
   el.onclick=()=>el.remove();
   document.body.appendChild(el);
+}
+function maybeCoach(){
+  if(localStorage.getItem("kwt_coach_v1"))return;
+  localStorage.setItem("kwt_coach_v1","1");
+  showCoach();
 }
 function roomInfoFor(n){
   const ids=LEVEL_SECTIONS[curLevel][n]||[],s=loadStats(),now=Date.now();
@@ -1343,7 +1368,19 @@ function renderHome(){
   checkAchievements();
   calibratePwr(); // ホーム表示のたびに実測し直し、以降は固定速度で減算
   updatePwrFine();
+  const nr=document.getElementById("hv-nextrev");
+  if(nr)nr.textContent=nextReviewInfo(); // 次の復習時刻（リマインダー代替）
   if(_homeNotice){showHomeNotice(_homeNotice);_homeNotice=null;}
+}
+/* 次の復習の目安：期限が来ている語数、なければ最短の復習推奨時刻まで */
+function nextReviewInfo(){
+  try{
+    const s=loadStats(),now=Date.now();let due=0,minT=Infinity;
+    Object.keys(s).forEach(id=>{const st=s[id];if(!st||!st.hasSeen||!st.nextReviewAt)return;const t=new Date(st.nextReviewAt).getTime();if(t<=now)due++;else if(t<minT)minT=t;});
+    if(due>0)return `復習どき：${due}語が待機中`;
+    if(isFinite(minT)){const h=(minT-now)/3600000;return "次の復習まで あと"+(h<1?Math.max(1,Math.round(h*60))+"分":Math.round(h)+"時間");}
+    return "";
+  }catch(e){return "";}
 }
 
 /* テスト後にホームへ戻ったときのお知らせトースト */
@@ -2151,6 +2188,7 @@ function show(id){
 /* ============================================================ テスト進行 ============================================================ */
 let state=null,timer=null,qStart=0,answered=false,ovTimer=null,_roomCurveMode=false;
 
+function confirmQuit(){if(confirm("テストを中断してホームに戻りますか？"))quitTest();} // 誤タップで1テスト分が消えないように
 /* 出題中にホームへ戻る（タイマー・音声・○×表示を止めて中断） */
 function quitTest(){
   clearInterval(timer);clearTimeout(ovTimer);
@@ -2352,6 +2390,7 @@ function showOverlay(status,q,userAnswer){
     highlightChoices(q,status,userAnswer); // 実際の選択肢ボタンを色分け（赤=正解 / 青=選んだ誤答）
   }
   const tap=loadSettings().tapAdvance;
+  if(tap)inner+=`<div class="ov-detail" onclick="event.stopPropagation();ovOpenDetail(${q.word.id})">この単語の詳細 ›</div>`; // 誤答直後の深掘り導線
   if(tap)inner+='<div class="tap-next">タップで次へ ›</div>';
   ov.innerHTML=inner;
   document.body.appendChild(ov);
@@ -2384,6 +2423,7 @@ function spawnWordDrop(word,speed){
   }catch(e){}
 }
 function spawnBallRaw(src,r,bg,layerId){
+  if(loadSettings().balls===false)return; // 玉の演出オフ
   layerId=layerId||"q-rain";
   const layer=document.getElementById(layerId);if(!layer)return;
   const cap=layerId==="home-rain"?84:30; // ホームは7日ぶんを残せるよう多め
@@ -2547,6 +2587,13 @@ function afterAnswer(){
   if(state.idx>=11){finishTest();return;}
   state.idx++;renderQuestion();
 }
+/* 回答オーバーレイから単語詳細へ（テストは中断扱い。各回答は既に保存済み） */
+function ovOpenDetail(wordId){
+  clearInterval(timer);clearTimeout(ovTimer);
+  document.querySelectorAll(".overlay").forEach(e=>e.remove());
+  stopSpeak();answered=true;
+  renderWordDetail(wordId,'room');
+}
 /* 出題画面ヘッダーの「タップで次へ」スイッチ */
 function updateAdvBtn(){const sw=document.getElementById("qsw");if(sw)sw.classList.toggle("on",!!loadSettings().tapAdvance);}
 function toggleAdvMode(){const st=loadSettings();st.tapAdvance=!st.tapAdvance;saveSettings(st);updateAdvBtn();}
@@ -2705,6 +2752,8 @@ function renderWordDetail(wordId,back){
    <div class="page" style="padding-left:0;padding-right:0;position:relative;z-index:1">
     <div class="page-head" style="padding:0 16px"><button class="back" onclick="${_wdBack==='room'?"show('s-home')":"renderRoomCurve()"}">‹</button><h2>単語詳細</h2></div>
     <div class="wd-scroll" id="wd-scroll">${slides}</div>
+    <button class="wd-nav wd-prev" onclick="wdNav(-1)">‹</button>
+    <button class="wd-nav wd-next" onclick="wdNav(1)">›</button>
    </div>`;
   const fill=i=>{if(i<0||i>=ids.length)return;const e=document.getElementById("wd-in-"+i);if(e&&!e.dataset.f){e.dataset.f="1";e.innerHTML=wdSlideHTML(ids[i],i);}};
   fill(idx);fill(idx-1);fill(idx+1);
@@ -2720,6 +2769,7 @@ function renderWordDetail(wordId,back){
     if(String(i)!==sc.dataset.cur){sc.dataset.cur=i;wdRain(ids[i]);} // 単語が切り替わったら玉も入れ替え
   },90);});
 }
+function wdNav(d){const sc=document.getElementById("wd-scroll");if(sc)sc.scrollBy({left:d*sc.clientWidth,behavior:"smooth"});} // 前後の単語へ
 /* 単語詳細ページ：その単語の出題履歴の数だけ玉を降らせる（回答が速かった出題ほど大きい玉） */
 function wdRain(wordId){
   try{
@@ -3001,9 +3051,10 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.66.1 (2026-07-19)";
+const APP_VERSION="v2.67 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
+document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{}); // オフラインキャッシュ（画像はキャッシュ優先・HTML/JSはネット優先）
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
 const MONETIZE={
@@ -3087,7 +3138,8 @@ function promptInstall(){
   document.body.appendChild(ov);
 }
 /* 設定 */
-function loadSettings(){try{return Object.assign({tapAdvance:false,sound:true},JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}"));}catch(e){return{tapAdvance:false,sound:true};}}
+function _reducedMotion(){return !!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);} // OSの「視差効果を減らす」
+function loadSettings(){try{return Object.assign({tapAdvance:false,sound:true,slowTimer:false,balls:!_reducedMotion(),bigText:false},JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}"));}catch(e){return{tapAdvance:false,sound:true,balls:!_reducedMotion()};}}
 function saveSettings(o){localStorage.setItem(LS_SETTINGS,JSON.stringify(o));}
 function openSettings(){if(!document.getElementById("settings-modal").classList.contains("on"))pushNav("modal");
   const st=loadSettings();
@@ -3107,6 +3159,21 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
       <div><div class="set-t">じっくりモード</div><div class="set-d">${st.slowTimer?"制限時間1.5倍":"通常の制限時間"}</div></div>
       <div class="set-sw ${st.slowTimer?'on':''}"><span></span></div>
     </div>
+    <div class="set-row" onclick="toggleSetting('balls')">
+      <div><div class="set-t">玉の演出</div><div class="set-d">${st.balls!==false?"正解の玉が積もる":"オフ（すっきり表示・軽量）"}</div></div>
+      <div class="set-sw ${st.balls!==false?'on':''}"><span></span></div>
+    </div>
+    <div class="set-row" onclick="toggleSetting('bigText')">
+      <div><div class="set-t">文字サイズ 大</div><div class="set-d">${st.bigText?"大きめ表示":"標準"}</div></div>
+      <div class="set-sw ${st.bigText?'on':''}"><span></span></div>
+    </div>
+    <div class="set-row" onclick="showCoach()">
+      <div><div class="set-t">つかいかた</div><div class="set-d">ジェスチャー操作の一覧を見る</div></div>
+      <div style="font-weight:900;color:#888">›</div>
+    </div>
+    ${/iPhone|iPad|iPod/.test(navigator.userAgent)&&!(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)?`<div class="set-row" style="cursor:default">
+      <div><div class="set-t">📲 ホーム画面に追加</div><div class="set-d">Safariの共有ボタン →「ホーム画面に追加」でアプリのように使えます</div></div>
+    </div>`:""}
     <div class="set-row" style="gap:10px">
       <button class="btn ghost" style="padding:10px;font-size:13px" onclick="exportData()">データを書き出す</button>
       <label class="btn ghost" style="padding:10px;font-size:13px;text-align:center;cursor:pointer">データを読み込む<input type="file" accept="application/json" style="display:none" onchange="importData(this)"></label>
@@ -3121,7 +3188,12 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
   m.classList.add("on");
 }
 function closeSettings(){document.getElementById("settings-modal").classList.remove("on");}
-function toggleSetting(key){const st=loadSettings();st[key]=!st[key];saveSettings(st);openSettings();}
+function toggleSetting(key){
+  const st=loadSettings();st[key]=!st[key];saveSettings(st);
+  if(key==="balls"&&!st.balls){qrStopRain();qrClearLayer("home-rain");qrClearLayer("q-rain");qrClearLayer("wd-rain");_ballLog=[];}
+  if(key==="bigText")document.body.classList.toggle("bigtext",st.bigText);
+  openSettings();
+}
 /* 学習データのバックアップ（kwt_*キーをJSONで書き出し/読み込み） */
 function exportData(){
   try{
