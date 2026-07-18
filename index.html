@@ -246,7 +246,10 @@ button{font-family:inherit}
 #calendar-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
 #calendar-modal.on{display:flex}
 .cal-card{width:340px;max-width:88vw;background:#fff;color:#1a1a1a;padding:20px;position:relative}
-.cal-h{font-size:19px;font-weight:900;text-align:center;margin-bottom:12px}
+.cal-h{font-size:19px;font-weight:900;text-align:center;margin-bottom:4px}
+.cal-streak{display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:800;color:#B45A00;margin-bottom:10px}
+.cal-streak img{width:30px;height:30px;object-fit:contain}
+.cal-streak b{font-size:20px}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
 .cal-grid .cd{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;position:relative}
 .cal-grid .wd{font-size:11px;font-weight:800;color:#888;aspect-ratio:auto;padding:2px 0}
@@ -899,6 +902,7 @@ function openCalendar(){if(!document.getElementById("calendar-modal").classList.
   m.innerHTML=`<div class="cal-card">
     <button class="cal-close" onclick="closeCalendar()">×</button>
     <div class="cal-h">${y}年 ${mo+1}月</div>
+    <div class="cal-streak"><img src="images-thumb/0773.webp" alt="">連続ログイン <b>${loginStreak()}</b> 日</div>
     <div class="cal-grid">${wd}${cells}</div>
     <div class="cal-sp" style="color:#888;font-size:12px;margin-top:8px">◎ = 起動した日</div>
     ${spHTML}
@@ -2375,16 +2379,19 @@ function spawnWordDrop(word,speed){
     const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[word.ko]:null;if(!src)return;
     const r=32+Math.round(28*Math.min(1,Math.max(0,speed==null?0.5:speed))); // 速答ほど大きい玉（直径64〜120px）
     const bg=roomBg(curSection); // 玉のカプセル色は出題ROOMの背景色
-    _ballLog.push({src,r,bg});if(_ballLog.length>60)_ballLog.shift();
+    _ballLog.push({src,r,bg});if(_ballLog.length>100)_ballLog.shift();
     spawnBallRaw(src,r,bg);
   }catch(e){}
 }
 function spawnBallRaw(src,r,bg,layerId){
   layerId=layerId||"q-rain";
   const layer=document.getElementById(layerId);if(!layer)return;
-  const cap=layerId==="home-rain"?60:30; // ホームは7日ぶんを残せるよう多め
+  const cap=layerId==="home-rain"?100:30; // ホームは7日ぶんを残せるよう多め
   const inLayer=QR.balls.filter(b=>b.layer===layerId);
-  if(inLayer.length>=cap){const old=inLayer[0];old.el.remove();QR.balls.splice(QR.balls.indexOf(old),1);} // 上限超過は古い玉から消す（上の玉は自然に崩れ落ちる）
+  if(inLayer.length>=cap){
+    const old=inLayer[0];old.el.remove();QR.balls.splice(QR.balls.indexOf(old),1);
+    QR.balls.forEach(b=>{if(b.layer===layerId){b.sleep=false;b.still=0;}}); // 土台が消えるので全員起こして崩れさせる
+  }
   const el=document.createElement("div");el.className="qr-ball";
   el.style.width=el.style.height=(r*2)+"px";
   if(bg)el.style.background=bg+"D9"; // ROOM色85%
@@ -2413,7 +2420,7 @@ function bootBallLog(){
   if(_bootRained)return;_bootRained=true;
   try{
     const cutoff=Date.now()-7*86400000,m=secOfWord();
-    loadHistory().filter(r=>r.isCorrect&&new Date(r.answeredAt).getTime()>=cutoff).slice(-60).forEach(r=>{
+    loadHistory().filter(r=>r.isCorrect&&new Date(r.answeredAt).getTime()>=cutoff).slice(-100).forEach(r=>{
       const w=WORD_BY_ID[r.wordId];if(!w)return;
       const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[w.ko]:null;if(!src)return;
       const limit=r.answerType==="writing"?20:10;
@@ -2422,7 +2429,7 @@ function bootBallLog(){
       const key=m[r.wordId],sn=key?parseInt(key.split("-")[1],10):curSection;
       _ballLog.push({src,r:rr,bg:roomBg(sn||curSection)});
     });
-    if(_ballLog.length>60)_ballLog=_ballLog.slice(-60);
+    if(_ballLog.length>100)_ballLog=_ballLog.slice(-100);
   }catch(e){}
 }
 /* ホーム帰還時：未降下の玉（複数テストぶん含む）を0.1秒間隔でホーム背景レイヤーに一斉降下。既存の山の上に積み増す */
@@ -2456,31 +2463,48 @@ function qrStep(ts){
   const dt=Math.min(0.032,(ts-QR.last)/1000);QR.last=ts;
   const W=layer.clientWidth,H=layer.clientHeight,G=2400,bs=QR.balls.filter(b=>b.layer===QR.active); // 物理はアクティブレイヤーの玉のみ（他レイヤーは凍結保持）
   for(const b of bs){
-    b.vy+=G*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;b.a+=b.va*dt;
-    if(b.y>H-b.r){b.y=H-b.r;if(b.vy>0)b.vy=-b.vy*0.2;if(Math.abs(b.vy)<40)b.vy=0;b.vx*=0.96;b.va=b.vx/b.r;} // 床：小バウンド＋接地摩擦、回転は移動速度連動（自然な転がり）
+    if(b.sleep)continue; // 静止済みの玉は演算スキップ（100個でも軽い）
+    if(!b.supported)b.vy+=G*dt; // 下から支えられている玉に重力を加えない（重力↔押し戻しの永久振動を防ぐresting contact）
+    b.supported=false;
+    b.x+=b.vx*dt;b.y+=b.vy*dt;b.a+=b.va*dt;
+    if(b.y>H-b.r){b.y=H-b.r;if(b.vy>0)b.vy=-b.vy*0.2;if(Math.abs(b.vy)<40)b.vy=0;b.vx*=0.96;b.va=b.vx/b.r;b.supported=true;} // 床：小バウンド＋接地摩擦、回転は移動速度連動（自然な転がり）
     if(b.x<b.r){b.x=b.r;b.vx=-b.vx*0.4;}
     if(b.x>W-b.r){b.x=W-b.r;b.vx=-b.vx*0.4;}
   }
-  for(let i=0;i<bs.length;i++)for(let j=i+1;j<bs.length;j++){ // 玉同士：位置補正＋弱い反発で押し合いながら積み上がる
-    const A=bs[i],B=bs[j];let dx=B.x-A.x,dy=B.y-A.y,d=Math.hypot(dx,dy)||0.01;
-    const rr=A.r+B.r;
-    if(d<rr){
-      const nx=dx/d,ny=dy/d,ov=(rr-d)/2;
-      A.x-=nx*ov;A.y-=ny*ov;B.x+=nx*ov;B.y+=ny*ov;
-      const rel=(B.vx-A.vx)*nx+(B.vy-A.vy)*ny;
-      if(rel<0){const imp=-rel*0.55;A.vx-=nx*imp;A.vy-=ny*imp;B.vx+=nx*imp;B.vy+=ny*imp;}
-      A.va=A.vx/A.r;B.va=B.vx/B.r;
+  // 衝突はx順ソート＋近傍だけ判定するスイープ法（総当たりのO(n^2)を回避）。両方眠っているペアは飛ばす
+  const sx=bs.slice().sort((a,b)=>a.x-b.x);
+  for(let i=0;i<sx.length;i++){
+    const A=sx[i];
+    for(let j=i+1;j<sx.length;j++){
+      const B=sx[j];
+      if(B.x-A.x>A.r+60)break; // 最大半径60px以上離れた右側とは当たらない
+      if(A.sleep&&B.sleep)continue;
+      let dx=B.x-A.x,dy=B.y-A.y,d=Math.hypot(dx,dy)||0.01;
+      const rr=A.r+B.r;
+      if(d<rr){
+        const nx=dx/d,ny=dy/d,ov=(rr-d)/2;
+        A.x-=nx*ov;A.y-=ny*ov;B.x+=nx*ov;B.y+=ny*ov;
+        const rel=(B.vx-A.vx)*nx+(B.vy-A.vy)*ny;
+        if(rel<0){const imp=-rel*0.55;A.vx-=nx*imp;A.vy-=ny*imp;B.vx+=nx*imp;B.vy+=ny*imp;}
+        A.va=A.vx/A.r;B.va=B.vx/B.r;
+        if(ny>0.5){A.supported=true;if(A.vy>0&&Math.abs(rel)<80)A.vy=0;} // AがBの上に載っている
+        if(ny<-0.5){B.supported=true;if(B.vy>0&&Math.abs(rel)<80)B.vy=0;} // BがAの上に載っている
+        if(ov>0.4){A.sleep=false;B.sleep=false;A.still=0;B.still=0;} // しっかり押されたら目を覚ます
+      }
     }
   }
   let moved=0;
   for(const b of bs){
     b.x=Math.max(b.r,Math.min(W-b.r,b.x));b.y=Math.min(b.y,H-b.r);
-    moved+=Math.abs(b.x-(b.px!=null?b.px:b.x))+Math.abs(b.y-(b.py!=null?b.py:b.y));
+    const d=Math.abs(b.x-(b.px!=null?b.px:b.x))+Math.abs(b.y-(b.py!=null?b.py:b.y));
+    moved+=d;
+    if(d<0.25){b.still=(b.still||0)+1;if(b.still>20){b.sleep=true;b.vx=0;b.vy=0;}} // 個別スリープ（大きな山の微振動でも眠れるしきい値）
+    else b.still=0;
     b.px=b.x;b.py=b.y;
-    b.el.style.transform=`translate(${(b.x-b.r).toFixed(1)}px,${(b.y-b.r).toFixed(1)}px) rotate(${b.a.toFixed(3)}rad)`;
+    if(d>0.05||!b.drawn){b.el.style.transform=`translate(${(b.x-b.r).toFixed(1)}px,${(b.y-b.r).toFixed(1)}px) rotate(${b.a.toFixed(3)}rad)`;b.drawn=true;} // 動いた玉だけDOM更新
   }
-  // 静止判定は「実際に動いた距離」ベース（速度の微振動では止まらないため）
-  QR.calm=moved<0.6?QR.calm+1:0;
+  // 静止判定は「実際に動いた距離」ベース（速度の微振動では止まらないため）。100個の山の残留ジッタは許容
+  QR.calm=(moved<3||bs.every(b=>b.sleep))?QR.calm+1:0;
   if(QR.calm>45){QR.raf=0;return;} // 全体が静止したらループ停止（省電力）
   QR.raf=requestAnimationFrame(qrStep);
 }
@@ -2977,7 +3001,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.65.5 (2026-07-19)";
+const APP_VERSION="v2.66 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{}); // オフラインキャッシュ（画像はキャッシュ優先・HTML/JSはネット優先）
