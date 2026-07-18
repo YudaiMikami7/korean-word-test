@@ -205,10 +205,15 @@ button{font-family:inherit}
 .lvbtn.on{box-shadow:0 0 0 4px #fff inset}
 .lv-pick .lv-cap{text-align:center;font-size:22px;color:rgba(255,255,255,.85);letter-spacing:2px}
 .slide-img{position:absolute;left:24px;top:120px;width:554px;height:507px;object-fit:contain} /* メニュー縮小(-58px)ぶん上へ */
+/* テスト後ホームのお知らせトースト */
+.home-toast{position:absolute;left:50%;top:190px;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;font-size:20px;font-weight:800;padding:14px 26px;border-radius:999px;z-index:20;white-space:nowrap;animation:toastin .35s ease;pointer-events:none}
+.home-toast.out{opacity:0;transition:opacity .45s ease}
+@keyframes toastin{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 /* 今日学ぶべき単語の帯：スタートボタン上に半透明白、カードが左→右に流れる */
 .today-band{position:absolute;left:0;top:888px;width:602px;height:104px;background:rgba(255,255,255,.35);z-index:1;overflow:hidden;display:flex;align-items:center;pointer-events:none;opacity:1;transition:opacity .3s ease}
 .home-wrap.status .today-band,.home-wrap.hiderail .today-band{opacity:0}
-.tb-track{display:flex;gap:12px;padding-left:12px;animation:tbflow 30s linear infinite;will-change:transform}
+.tb-track{display:flex;animation:tbflow 30s linear infinite;will-change:transform;backface-visibility:hidden}
+.tb-group{display:flex;gap:12px;padding:0 6px;flex:0 0 auto} /* 同一グループ2連結で-50%＝ちょうど1周＝つなぎ目ゼロ */
 @keyframes tbflow{from{transform:translateX(0)}to{transform:translateX(-50%)}} /* 右→左 */
 .tb-card{flex:0 0 auto;background:rgba(255,255,255,.92);border-radius:14px;padding:10px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:110px}
 .tb-ko{font-size:26px;font-weight:900;color:#222;line-height:1.15}
@@ -938,7 +943,7 @@ function claimPresentItem(btn){
 function pwrOverallExact(){const s=loadStats(),ids=Object.keys(s);if(!ids.length)return 0;const now=Date.now();let t=0;ids.forEach(id=>t+=displayMemoryScore(getStat(id,s),now));return t/ids.length;}
 function pwrOverallAt(ms){const s=loadStats(),ids=Object.keys(s);if(!ids.length)return 0;let t=0;ids.forEach(id=>t+=displayMemoryScore(getStat(id,s),ms));return t/ids.length;}
 /* PWR表示は「1回だけ実測→固定速度で直線減算」の決め打ち方式（毎0.3秒の全単語再計算をやめ計算コスト削減） */
-let _pwrT0=0,_pwrBase=0,_pwrRate=0;
+let _pwrT0=0,_pwrBase=0,_pwrRate=0,_pwrFillLast=-1;
 function calibratePwr(){
   _pwrBase=pwrOverallExact();
   _pwrRate=Math.max(0,(_pwrBase-pwrOverallAt(Date.now()+3600000))/3600); // %/秒（1時間先との差から一定速度を決める）
@@ -949,7 +954,9 @@ function updatePwrFine(){
   if(!_pwrT0)calibratePwr();
   const v=Math.max(0,_pwrBase-_pwrRate*(Date.now()-_pwrT0)/1000);
   num.textContent=v.toFixed(3)+"%";                 // 元のメーターを12.123のように3桁小数で（みるみる減るのが見える）
-  const f=document.getElementById("hv-pwrfill");if(f)f.style.width=v+"%";
+  // ゲージ幅は目に見える差（0.05%以上）のときだけ更新。毎0.3秒のwidth書き換えはtransitionが常時走り、帯アニメ等をカクつかせるため
+  const f=document.getElementById("hv-pwrfill");
+  if(f&&Math.abs(v-_pwrFillLast)>=0.05){f.style.width=v+"%";_pwrFillLast=v;}
   const dn=document.getElementById("hv-pwrdown");
   if(dn){
     if(_pwrRate>0){
@@ -1225,6 +1232,22 @@ function renderHome(){
   checkAchievements();
   calibratePwr(); // ホーム表示のたびに実測し直し、以降は固定速度で減算
   updatePwrFine();
+  if(_homeNotice){showHomeNotice(_homeNotice);_homeNotice=null;}
+}
+
+/* テスト後にホームへ戻ったときのお知らせトースト */
+let _homeNotice=null;
+function showHomeNotice(n){
+  const wrap=document.getElementById("homewrap");if(!wrap)return;
+  const old=document.getElementById("home-toast");if(old)old.remove();
+  let msg;
+  if(n.type==="streak"){
+    const s=loginStreak();
+    msg=s<=1?"🔥 連続ログインボーナスがスタートしました！":`🔥 連続ログインボーナスが${s-1}から${s}になりました！`;
+  }else msg="🎁 プレゼントが届きました";
+  const el=document.createElement("div");el.id="home-toast";el.className="home-toast";el.textContent=msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{el.classList.add("out");setTimeout(()=>el.remove(),450);},3000);
 }
 
 /* 今日学ぶべき単語の帯：忘却が進みPWR回復効率が高い語（urgent/review）を優先度順に12語流す */
@@ -1238,11 +1261,15 @@ function buildTodayBand(){
     return{w,st,state:wordState(st,now),ps:priorityScore(w,st,now)};
   }).filter(Boolean).filter(x=>x.state==="urgent"||x.state==="review")
     .sort((a,b)=>b.ps-a.ps).slice(0,12);
-  if(!cands.length){band.style.display="none";return;}
+  if(!cands.length){band.style.display="none";_tbKey="";return;}
   band.style.display="flex";
+  const key=cands.map(x=>x.w.id).join(",");
+  if(key===_tbKey&&track.childElementCount)return; // 内容が同じなら作り直さない（アニメーションを途切れさせない）
+  _tbKey=key;
   const cards=cands.map(x=>`<div class="tb-card"><div class="tb-ko">${esc(x.w.ko)}</div><div class="tb-ja">${esc(x.w.ja)}</div></div>`).join("");
-  track.innerHTML=cards+cards; // 同一内容を2周並べてシームレスループ
+  track.innerHTML=`<div class="tb-group">${cards}</div><div class="tb-group">${cards}</div>`; // 同一グループ2連結
 }
+let _tbKey="";
 
 /* ============================================================ 韓国語単語タイプ診断（4軸16タイプ） ============================================================ */
 /* 軸カラー設定（変更可能） 上辺=軸1 F/U, 右辺=軸2 M/C, 下辺=軸3 P/S, 左辺=軸4 Q/D */
@@ -2280,14 +2307,18 @@ function finishTest(){
   const SYM={correct:["○","#FF3B3B"],incorrect:["×","#2F6FE0"],unknown:["－","rgba(255,255,255,.75)"],timeout:["△","#DFB10F"]};
   const rows=R.map(r=>{
     const sy=SYM[r.answerStatus]||["−",""];
-    const hb=r.isHintProvided?'<span class="hint-badge">ヒント</span>':"";
+    const syc=r.isHintProvided?"#FFD84D":sy[1]; // ヒントありは記号を黄色に（「ヒント」表記は出さない）
     const dAfter=(r.displayMemoryScoreAfter!=null?r.displayMemoryScoreAfter:(r.displayMemoryScoreAfterDecay!=null?r.displayMemoryScoreAfterDecay:r.memoryScoreAfter))||0;
     const dBefore=(r.displayMemoryScoreBefore!=null?r.displayMemoryScoreBefore:r.memoryScoreBefore)||0;
     const dlt=Math.round(dAfter-dBefore);
-    return `<tr><td class="no">${r.questionNumber}</td><td class="ko">${esc(r.korean)}</td><td>${esc(r.japanese)}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}${hb}</td><td class="num" style="color:${dlt>=0?"#1FAD62":"#FF6B6B"};font-weight:800">${dlt>0?"+":""}${dlt}</td></tr>`;
+    return `<tr><td class="no">${r.questionNumber}</td><td class="ko">${esc(r.korean)}</td><td>${esc(r.japanese)}</td><td style="color:${syc};font-weight:900">${sy[0]}</td><td class="num" style="color:${dlt>=0?"#1FAD62":"#FF6B6B"};font-weight:800">${dlt>0?"+":""}${dlt}</td></tr>`;
   }).join("");
   const _ri=roomInfoFor(curSection),pwrAfter=_ri.pwr,pwrBefore=(state.roomPwrBefore!=null?state.roomPwrBefore:0),pwrDelta=pwrAfter-pwrBefore; // そのROOMのPWR
   enqueuePresent(rank,pwrDelta); // このテストのプレゼント（レベル/ランク/PWR/レインボー）を1個追加
+  // ホーム復帰時のお知らせ：その日初テストなら連続ログインボーナス、それ以外はプレゼント到着
+  const _tday=dayKey(Date.now());
+  _homeNotice=(localStorage.getItem("kwt_lasttestday_v1")!==_tday)?{type:"streak"}:{type:"present"};
+  localStorage.setItem("kwt_lasttestday_v1",_tday);
   checkAchievements();
   document.getElementById("s-result").innerHTML=`
    <div class="res">
@@ -2309,8 +2340,8 @@ function finishTest(){
     <div class="res-btns">
       <button class="btn dark full" onclick="shareResult()" style="border:1px solid var(--gold);color:var(--gold)">&#120143; 結果をシェアして友達に挑戦</button>
       <button class="btn dark" onclick="startTest()">もう一度挑戦する</button>
-      <button class="btn dark" onclick="renderRoomCurve()">PWRメータを見る</button>
-      <button class="btn line full" onclick="show('s-home')">ホームに戻る</button>
+      <button class="btn dark" onclick="show('s-home')">ホームに戻る</button>
+      <button class="btn line full" onclick="renderRoomCurve()">PWRメータを見る</button>
       ${donateBtnHTML('btn line full')}
       ${installBtnHTML()}
     </div>
@@ -2599,11 +2630,11 @@ function renderPastResult(testId){
   const SYM={correct:["○","#FF3B3B"],incorrect:["×","#2F6FE0"],unknown:["－","rgba(255,255,255,.75)"],timeout:["△","#DFB10F"]};
   const rows=R.map((r,i)=>{
     const sy=SYM[r.answerStatus]||["－",""];
-    const hb=r.isHintProvided?'<span class="hint-badge">ヒント</span>':"";
+    const syc=r.isHintProvided?"#FFD84D":sy[1]; // ヒントありは記号を黄色に（「ヒント」表記は出さない）
     const dAfter=(r.displayMemoryScoreAfter!=null?r.displayMemoryScoreAfter:(r.displayMemoryScoreAfterDecay!=null?r.displayMemoryScoreAfterDecay:r.memoryScoreAfter))||0;
     const dBefore=(r.displayMemoryScoreBefore!=null?r.displayMemoryScoreBefore:r.memoryScoreBefore)||0;
     const dlt=Math.round(dAfter-dBefore);
-    return `<tr><td class="no">${r.questionNumber||i+1}</td><td class="ko">${esc(r.korean)}</td><td>${esc(r.japanese)}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}${hb}</td><td class="num" style="color:${dlt>=0?"#1FAD62":"#FF6B6B"};font-weight:800">${dlt>0?"+":""}${dlt}</td></tr>`;
+    return `<tr><td class="no">${r.questionNumber||i+1}</td><td class="ko">${esc(r.korean)}</td><td>${esc(r.japanese)}</td><td style="color:${syc};font-weight:900">${sy[0]}</td><td class="num" style="color:${dlt>=0?"#1FAD62":"#FF6B6B"};font-weight:800">${dlt>0?"+":""}${dlt}</td></tr>`;
   }).join("");
   document.getElementById("s-result").innerHTML=`
    <div class="res">
@@ -2632,7 +2663,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.52.1 (2026-07-19)";
+const APP_VERSION="v2.53 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
