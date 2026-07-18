@@ -295,20 +295,35 @@ button{font-family:inherit}
 .home-head>*{pointer-events:auto}
 .slide-img,.room-ph{opacity:calc(1 - var(--p,0));transition:opacity .35s ease,transform .35s ease} /* 写真はフェードアウト */
 .home-wrap.dragging .slide-inner,.home-wrap.dragging .home-head,.home-wrap.dragging .slide-img,.home-wrap.dragging .room-ph,.home-wrap.dragging .room-scroll,.home-wrap.dragging .start-button{transition:none}
-.slide-list{position:absolute;left:0;top:110px;width:602px;height:985px;overflow-y:auto;background:transparent;scrollbar-width:none;
+.slide-list{position:absolute;left:0;top:166px;width:602px;height:929px;overflow-y:auto;background:transparent;scrollbar-width:none;
   opacity:var(--p,1);transition:opacity .35s ease} /* ROOMメニュー直下から下端まで・全幅・背景なし。入場はJSでフェードイン */
 /* 単語帳の流れる帯（ホームの帯と同デザイン系・番号/枚数/％付き） */
-.wb-band{position:relative;height:162px;margin:2px 0;background:transparent;overflow-x:auto;overflow-y:hidden;display:flex;align-items:flex-end;scrollbar-width:none;-webkit-overflow-scrolling:touch} /* 背景なし・全幅で端から端まで流れる */
+.wb-band{position:relative;height:510px;margin:2px 0;background:transparent;overflow-x:auto;overflow-y:hidden;display:flex;align-items:flex-end;scrollbar-width:none;-webkit-overflow-scrolling:touch} /* 背景なし・全幅で端から端まで流れる（カード3倍化に伴い縦は上下スクロール前提） */
 .wb-band::-webkit-scrollbar{display:none}
-.wb-track{display:flex;gap:12px;padding:66px 8px 8px;align-items:flex-end}
-.wb-card{position:relative;flex:0 0 auto;background:rgba(255,255,255,.95);border-radius:14px;padding:6px 12px;min-width:126px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a}
-.wb-imgspace{width:60px;height:12px;flex:0 0 auto}
-.wb-img{position:absolute;top:-56px;left:50%;transform:translateX(-50%);width:104px;height:104px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.18))}
+.wb-track{display:flex;gap:36px;padding:180px 20px 12px;align-items:flex-end}
+.wb-card{position:relative;flex:0 0 auto;background:rgba(255,255,255,.95);border-radius:42px;padding:18px 36px;min-width:378px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a}
+.wb-imgspace{width:180px;height:126px;flex:0 0 auto} /* 画像の下半分ぶんの席を確保（韓国語と重ならない） */
+.wb-img{position:absolute;top:-168px;left:50%;transform:translateX(-50%);width:312px;height:312px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 5px 10px rgba(0,0,0,.18))}
 .wb-img.sil{filter:brightness(0) opacity(.5)} /* 未獲得はシルエット */
-.wb-ko{font-size:21px;font-weight:900;line-height:1.15}
-.wb-ja{font-size:13px;font-weight:700;color:#666;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wb-info{display:flex;gap:7px;font-size:12px;font-weight:800;color:#888;margin-top:2px;line-height:1}
+.wb-ko{font-size:63px;font-weight:900;line-height:1.15}
+.wb-ja{font-size:32px;font-weight:700;color:#666;max-width:450px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb-info{display:flex;gap:20px;font-size:30px;font-weight:800;color:#888;margin-top:6px;line-height:1}
 .wb-rate.ms-stable{color:#1FAD62}.wb-rate.ms-review{color:#C79A00}.wb-rate.ms-urgent{color:#E0433B}
+.mutehint{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;font-size:13px;font-weight:800;padding:8px 16px;border-radius:999px;z-index:500;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.mutehint.on{opacity:1}
+/* 初回コーチマーク（ジェスチャー案内） */
+.coach{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.coach-in{background:rgba(255,255,255,.95);color:#1a1a1a;border-radius:18px;padding:24px 28px;font-size:16px;font-weight:800;line-height:2;text-align:left}
+.coach-ok{margin-top:14px;background:#1a1a1a;color:#fff;text-align:center;border-radius:999px;padding:10px}
+/* 単語検索（一覧モード上部） */
+#wb-search{position:absolute;left:12px;right:12px;top:155px;z-index:6;display:none}
+.home-wrap.hiderail #wb-search{display:block}
+#wb-search input{width:100%;border:none;border-radius:999px;padding:12px 18px;font-size:15px;font-weight:700;background:rgba(255,255,255,.92);color:#1a1a1a;outline:none;box-sizing:border-box}
+#wb-hits{margin-top:6px;background:rgba(255,255,255,.94);border-radius:14px;max-height:420px;overflow-y:auto;color:#1a1a1a}
+.wbh-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(0,0,0,.08);cursor:pointer;font-weight:800}
+.wbh-ko{font-size:18px}
+.wbh-ja{font-size:12px;color:#666;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wbh-room{font-size:11px;color:#999}
 /* 過去履歴モーダル（ランク円タップで表示・白透明の表） */
 #history-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45)}
 #history-modal.on{display:flex}
@@ -471,7 +486,7 @@ button{font-family:inherit}
 
 /* ===== result (fixed, only list scrolls) ===== */
 .res{flex:1 1 auto;min-height:0;width:100%;display:flex;flex-direction:column;padding:14px 18px calc(10px + env(safe-area-inset-bottom))} /* 100dvh固定をやめ画面領域内に収める（ページスクロール撲滅） */
-.res-head{flex:0 0 auto;text-align:center}
+.res-head{flex:0 0 auto;text-align:center;background:rgba(255,255,255,.28);border-radius:14px;padding:10px 8px} /* 背後の玉と干渉しないよう白下敷き */
 .res-top{display:flex;align-items:center;justify-content:center;gap:18px}
 .rank-c{width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:54px;font-weight:900;color:#fff}
 .res-score{font-size:36px;font-weight:900}
@@ -504,7 +519,7 @@ button{font-family:inherit}
 .rtab td.ko{font-weight:700;font-size:15px}
 .rtab .r-ok{color:var(--green)}.rtab .r-ng{color:var(--blue)}.rtab .r-un{color:var(--mute)}.rtab .r-to{color:var(--gold)}
 .hint-badge{display:inline-block;margin-left:6px;padding:1px 6px;border:1px solid var(--line);color:var(--gold);font-size:10px;font-weight:700;vertical-align:middle}
-.res-btns{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.res-btns{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;gap:9px;background:rgba(255,255,255,.28);border-radius:14px;padding:8px}
 .res-btns .btn{padding:14px;font-size:14px}
 .res-btns .full{grid-column:1/3}
 
@@ -621,6 +636,7 @@ button{font-family:inherit}
       <div id="hv-pwrdown"></div>
       </div>
       <div class="room-scroll" id="hv-rooms"></div>
+      <div id="wb-search"><input id="wb-q" type="search" placeholder="単語をさがす（韓国語・日本語）" oninput="wbSearch(this.value)"><div id="wb-hits"></div></div>
       <div class="today-band" id="today-band" style="display:none"><div class="tb-clip"><div class="tb-track" id="tb-track"></div></div></div><!-- 中身が入るまで非表示（空の白帯チラ見え防止） -->
       <button class="home-side-btn hsb-left" onclick="renderRoomCurve()" aria-label="忘却曲線"><img src="images-thumb/0912.webp" alt="忘却曲線"></button>
       <button class="start-button" onclick="startTest()">スタート</button>
@@ -858,7 +874,7 @@ function launchedDays(){try{return JSON.parse(localStorage.getItem(LS_LAUNCH)||"
 function markLaunch(){const a=launchedDays(),tk=dayKey(Date.now());if(!a.includes(tk)){a.push(tk);localStorage.setItem(LS_LAUNCH,JSON.stringify(a));}}
 /* 連続ログイン日数：今日を起点に起動記録(kwt_launch_v1)が連続している日数 */
 function loginStreak(){const s=new Set(launchedDays());let n=0;const d=new Date();for(;;){if(!s.has(dayKey(d.getTime())))break;n++;d.setDate(d.getDate()-1);}return n||1;}
-function openCalendar(){
+function openCalendar(){if(!document.getElementById("calendar-modal").classList.contains("on"))pushNav("modal");
   const m=document.getElementById("calendar-modal");
   const now=new Date(),y=now.getFullYear(),mo=now.getMonth();
   const set=new Set(launchedDays());
@@ -938,7 +954,7 @@ function updatePresent(){
 function _bonusRow(label,v,cls){return v>0?`<div class="pm-line"><span>${label}</span><span class="${cls||''}">+${v}</span></div>`:"";}
 let _presCat="rank";
 function _presItemLabel(r){return r.kind==="achv"?(r.title||"達成ボーナス"):("RANK "+r.rank+" のごほうび");}
-function openPresent(cat){
+function openPresent(cat){if(!document.getElementById("present-modal").classList.contains("on"))pushNav("modal");
   _presCat=cat||"rank";
   const m=document.getElementById("present-modal");
   const q=_presentState().queue.filter(x=>x.cat===_presCat);
@@ -1045,6 +1061,7 @@ function setLift(px){ // ピル上昇量(px)とヘッダー/写真用の進捗(-
 }
 function enterListMode(){
   if(_listMode)return;
+  pushNav("list"); // OSバックで一覧を閉じられるように
   document.getElementById("homewrap").classList.add("hiderail");
   setLift(-LIFT_MAX); // ROOMメニューが最上部へ・ヘッダー退場・写真フェード
   setTimeout(()=>{
@@ -1090,7 +1107,7 @@ function roomMidHTML(n){
 }
 
 /* ROOMメニューのランク円タップ：そのROOMの過去履歴一覧（whローデザイン・白透明モーダル） */
-function openRoomHistory(n){
+function openRoomHistory(n){if(!document.getElementById("history-modal").classList.contains("on"))pushNav("modal");
   const ids=new Set(LEVEL_SECTIONS[curLevel][n]||[]),byTest={};
   loadHistory().forEach(r=>{if(r.testId&&ids.has(r.wordId))(byTest[r.testId]=byTest[r.testId]||[]).push(r);});
   const tests=Object.entries(byTest).map(([tid,a])=>({tid,at:a[a.length-1].answeredAt,total:a.reduce((x,r)=>x+(r.score||0),0),n:a.length,ok:a.filter(r=>r.isCorrect).length}))
@@ -1117,7 +1134,7 @@ function wbCardHTML(id,i,st,cards,now){
   const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[w.ko]:null;
   const img=src?`<span class="wb-imgspace"></span><img class="wb-img${ownedC?"":" sil"}" src="${src}" loading="lazy" alt="">`:"";
   let rateHTML='<span class="wb-rate">—</span>';
-  if(ownedC){const rate=Math.round(displayScore(getStat(id,st),now)),ms=memState(rate);rateHTML=`<span class="wb-rate ${ms.cls}">${rate}%</span>`;}
+  if(ownedC){const rate=Math.round(displayScore(getStat(id,st),now)),ms=memState(rate);rateHTML=`<span class="wb-rate ${ms.cls}">${rate}%・${ms.label.charAt(0)}</span>`;} // 色+1文字ラベルで色覚多様性に配慮
   return `<div class="wb-card" onclick="renderWordDetail(${id},'room')">
     ${img}
     <div class="wb-ko">${esc(w.ko)}</div>
@@ -1137,6 +1154,27 @@ function roomListHTML(n){
   return `<div class="slide-list wb-list">
     <div class="zk-sum">単語帳 <b>${owned}</b> / ${ids.length}　カード <b>${totalCnt}</b>枚</div>
     ${bands.join("")}</div>`;
+}
+/* 単語検索：現在レベルの全語からkoまたは訳の部分一致（最大20件）。タップで単語詳細へ */
+function wbSearch(q){
+  const box=document.getElementById("wb-hits");if(!box)return;
+  q=(q||"").trim();
+  if(!q){box.innerHTML="";return;}
+  const m=secOfWord();
+  const hits=levelAllWords().filter(w=>w.ko.indexOf(q)>=0||(w.ja||"").indexOf(q)>=0).slice(0,20);
+  box.innerHTML=hits.length?hits.map(w=>{
+    const key=m[w.id],rn=key?key.split("-")[1]:"";
+    return `<div class="wbh-row" onclick="renderWordDetail(${w.id},'room')"><span class="wbh-ko">${esc(w.ko)}</span><span class="wbh-ja">${esc(w.ja)}</span><span class="wbh-room">${rn?"ROOM "+rn:""}</span></div>`;
+  }).join(""):'<div class="wbh-row" style="cursor:default;color:#888">見つかりませんでした</div>';
+}
+/* 初回だけジェスチャー案内を表示 */
+function maybeCoach(){
+  if(localStorage.getItem("kwt_coach_v1"))return;
+  localStorage.setItem("kwt_coach_v1","1");
+  const el=document.createElement("div");el.className="coach";
+  el.innerHTML=`<div class="coach-in">つかいかた<br>⬆️ 上スワイプ / ROOM番号タップ … 単語帳<br>⬇️ 下スワイプ / Lv.タップ … ステータス<br>↔️ 左右スワイプ … ROOM切替<br>🅰️ ランク円タップ … テスト履歴<div class="coach-ok">OK</div></div>`;
+  el.onclick=()=>el.remove();
+  document.body.appendChild(el);
 }
 /* 帯のオートスクロール：一覧モード中、現在ROOMの帯を左右交互に流す。指で触れている帯は停止し、離して1.5秒後に再開 */
 let _wbRaf=0,_wbLast=0;
@@ -1309,7 +1347,7 @@ function renderHome(){
   document.getElementById("hv-pwrfill").style.width=pw+"%";
   buildRoomSlides();
   attachHomeRain(); // スライド再構築後に玉レイヤーを差し直し（玉は保持）
-  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();} // 起動時：過去7日の正解玉を一斉降下
+  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();setTimeout(maybeCoach,900);} // 起動時：過去7日の正解玉を一斉降下＋初回コーチ
   buildTodayBand();
   applyHomeBg();
   scaleHome();
@@ -1871,13 +1909,20 @@ function speakKorean(word){
     _speakTTS(word?word.ko:"");
   }catch(e){}
 }
+function showMuteHint(){
+  let el=document.getElementById("mutehint");
+  if(!el){el=document.createElement("div");el.id="mutehint";el.className="mutehint";el.textContent="🔇 音声を再生できません";document.body.appendChild(el);}
+  el.classList.add("on");setTimeout(()=>el.classList.remove("on"),1800);
+}
 function _speakTTS(text){
   try{
     if(loadSettings().sound===false)return; // 音声オフ設定
-    if(!('speechSynthesis' in window)||!text)return;
+    if(!text)return;
+    if(!('speechSynthesis' in window)){showMuteHint();return;} // 再生不可は視覚で知らせる
     if(!_koVoice)_pickKoVoice();
     const u=new SpeechSynthesisUtterance(text);
     u.lang="ko-KR";u.rate=0.9;u.pitch=1.0;
+    u.onerror=()=>showMuteHint();
     if(_koVoice)u.voice=_koVoice;
     window.speechSynthesis.speak(u);
   }catch(e){}
@@ -2076,7 +2121,31 @@ function scoreFor(type,isCorrect,t,isHint){
 function rankFor(s){if(s===100)return"S";if(s<=50)return"D";if(s<=70)return"C";if(s<=80)return"B";return"A";}
 
 /* ============================================================ 画面遷移 ============================================================ */
+/* ============ OSの「戻る」対応：モーダル/一覧・ステータス/画面遷移をhistoryに積み、バックで1段ずつ戻す ============ */
+let _fromPop=false;
+function pushNav(tag){if(_fromPop)return;try{history.pushState({tag},"");}catch(e){}}
+window.addEventListener("popstate",()=>{
+  _fromPop=true;
+  try{
+    // 1) 開いているモーダルを閉じる
+    for(const id of ["present-modal","calendar-modal","settings-modal","history-modal"]){
+      const m=document.getElementById(id);
+      if(m&&m.classList.contains("on")){m.classList.remove("on");return;}
+    }
+    const home=document.getElementById("s-home");
+    // 2) ホームの一覧/ステータスモードを解除
+    if(home.classList.contains("on")){
+      if(_listMode){exitListMode();return;}
+      if(_statusMode){exitStatusMode();return;}
+      return; // ホーム最上位はそのまま（これ以上戻ればブラウザ既定の離脱）
+    }
+    // 3) 出題中は中断、それ以外の画面はホームへ
+    if(document.getElementById("s-quiz").classList.contains("on")){quitTest();return;}
+    show("s-home");
+  }finally{_fromPop=false;}
+});
 function show(id){
+  if(id!=="s-home")pushNav(id); // ホーム以外へ進むときは履歴を1段積む
   document.querySelectorAll(".screen").forEach(e=>e.classList.remove("on"));
   document.getElementById(id).classList.add("on");window.scrollTo(0,0);
   // 背景色: 全体PWRメータ/タイプ詳細はグレー固定、ROOM別PWRはそのROOMの色、他は現在ROOMの色
@@ -2134,7 +2203,7 @@ function showCountdown(cb){
   },500); // 3・2・1は0.5秒間隔（元の1秒の2倍速）
 }
 
-function curLimit(){return state.questions[state.idx].type==="w"?20:10;}
+function curLimit(){const base=state.questions[state.idx].type==="w"?20:10;return Math.round(base*(loadSettings().slowTimer?1.5:1));} // じっくりモードは1.5倍
 
 function startTimer(){
   qStart=performance.now();answered=false;
@@ -2187,7 +2256,7 @@ function pick(v){const q=state.questions[state.idx];submit(v===q.correct?"correc
 /* 回答送信（二重送信防止） */
 function submit(status,userAnswer){
   if(answered)return;answered=true;clearInterval(timer);
-  const q=state.questions[state.idx],limit=q.type==="w"?20:10;
+  const q=state.questions[state.idx],limit=curLimit();
   let elapsed=(performance.now()-qStart)/1000;
   if(status==="timeout")elapsed=limit; else if(elapsed>limit){elapsed=limit;status= status==="correct"?"timeout":status;}
   const isCorrect=status==="correct";
@@ -2719,6 +2788,7 @@ function updateStatusOverlay(){
 }
 function enterStatusMode(){
   if(_statusMode||_listMode)return;
+  pushNav("status"); // OSバックでステータスを閉じられるように
   _statusMode=true;
   updateStatusOverlay();
   const w=document.getElementById("homewrap");
@@ -2911,9 +2981,10 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.63 (2026-07-19)";
+const APP_VERSION="v2.64 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
+if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{}); // オフラインキャッシュ（画像はキャッシュ優先・HTML/JSはネット優先）
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
 const MONETIZE={
   donateUrl:"https://ko-fi.com/ktango",  // Ko-fi 投げ銭ページ
@@ -2998,7 +3069,7 @@ function promptInstall(){
 /* 設定 */
 function loadSettings(){try{return Object.assign({tapAdvance:false,sound:true},JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}"));}catch(e){return{tapAdvance:false,sound:true};}}
 function saveSettings(o){localStorage.setItem(LS_SETTINGS,JSON.stringify(o));}
-function openSettings(){
+function openSettings(){if(!document.getElementById("settings-modal").classList.contains("on"))pushNav("modal");
   const st=loadSettings();
   const m=document.getElementById("settings-modal");
   m.innerHTML=`<div class="set-card">
@@ -3012,6 +3083,14 @@ function openSettings(){
       <div><div class="set-t">音声読み上げ</div><div class="set-d">${st.sound!==false?"オン":"オフ"}</div></div>
       <div class="set-sw ${st.sound!==false?'on':''}"><span></span></div>
     </div>
+    <div class="set-row" onclick="toggleSetting('slowTimer')">
+      <div><div class="set-t">じっくりモード</div><div class="set-d">${st.slowTimer?"制限時間1.5倍":"通常の制限時間"}</div></div>
+      <div class="set-sw ${st.slowTimer?'on':''}"><span></span></div>
+    </div>
+    <div class="set-row" style="gap:10px">
+      <button class="btn ghost" style="padding:10px;font-size:13px" onclick="exportData()">データを書き出す</button>
+      <label class="btn ghost" style="padding:10px;font-size:13px;text-align:center;cursor:pointer">データを読み込む<input type="file" accept="application/json" style="display:none" onchange="importData(this)"></label>
+    </div>
     ${MONETIZE.donateUrl?`<div class="set-row" style="justify-content:center;border-top:1px solid #eee">${donateBtnHTML('btn dark full')}</div>`:""}
     <div class="set-row" style="justify-content:center;gap:18px;border-top:1px solid #eee;font-size:13px;font-weight:700">
       <a href="learn/" style="color:#666;text-decoration:none">単語帳一覧</a>
@@ -3023,6 +3102,26 @@ function openSettings(){
 }
 function closeSettings(){document.getElementById("settings-modal").classList.remove("on");}
 function toggleSetting(key){const st=loadSettings();st[key]=!st[key];saveSettings(st);openSettings();}
+/* 学習データのバックアップ（kwt_*キーをJSONで書き出し/読み込み） */
+function exportData(){
+  try{
+    const data={};
+    for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf("kwt_")===0)data[k]=localStorage.getItem(k);}
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:"application/json"}));
+    a.download="k-tango-backup-"+dayKey(Date.now())+".json";a.click();
+  }catch(e){alert("書き出しに失敗しました");}
+}
+function importData(inp){
+  const f=inp.files&&inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{
+    const d=JSON.parse(r.result);let n=0;
+    Object.keys(d).forEach(k=>{if(k.indexOf("kwt_")===0){localStorage.setItem(k,d[k]);n++;}});
+    alert(n+"件のデータを読み込みました。再読み込みします。");location.reload();
+  }catch(e){alert("読み込みに失敗しました（ファイル形式を確認してください）");}};
+  r.readAsText(f);
+}
 /* 前回開いていたROOMを起動時に復元 */
 function saveLastRoom(){try{localStorage.setItem(LS_LASTROOM,JSON.stringify({level:curLevel,section:curSection}));}catch(e){}}
 (function restoreLastRoom(){
