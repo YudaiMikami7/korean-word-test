@@ -2375,15 +2375,16 @@ function spawnWordDrop(word,speed){
     const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[word.ko]:null;if(!src)return;
     const r=32+Math.round(28*Math.min(1,Math.max(0,speed==null?0.5:speed))); // 速答ほど大きい玉（直径64〜120px）
     const bg=roomBg(curSection); // 玉のカプセル色は出題ROOMの背景色
-    _ballLog.push({src,r,bg});if(_ballLog.length>36)_ballLog.shift();
+    _ballLog.push({src,r,bg});if(_ballLog.length>60)_ballLog.shift();
     spawnBallRaw(src,r,bg);
   }catch(e){}
 }
 function spawnBallRaw(src,r,bg,layerId){
   layerId=layerId||"q-rain";
   const layer=document.getElementById(layerId);if(!layer)return;
+  const cap=layerId==="home-rain"?60:30; // ホームは7日ぶんを残せるよう多め
   const inLayer=QR.balls.filter(b=>b.layer===layerId);
-  if(inLayer.length>=30){const old=inLayer[0];old.el.remove();QR.balls.splice(QR.balls.indexOf(old),1);} // 上限超過は古い玉から消す（上の玉は自然に崩れ落ちる）
+  if(inLayer.length>=cap){const old=inLayer[0];old.el.remove();QR.balls.splice(QR.balls.indexOf(old),1);} // 上限超過は古い玉から消す（上の玉は自然に崩れ落ちる）
   const el=document.createElement("div");el.className="qr-ball";
   el.style.width=el.style.height=(r*2)+"px";
   if(bg)el.style.background=bg+"D9"; // ROOM色85%
@@ -2412,7 +2413,7 @@ function bootBallLog(){
   if(_bootRained)return;_bootRained=true;
   try{
     const cutoff=Date.now()-7*86400000,m=secOfWord();
-    loadHistory().filter(r=>r.isCorrect&&new Date(r.answeredAt).getTime()>=cutoff).slice(-30).forEach(r=>{
+    loadHistory().filter(r=>r.isCorrect&&new Date(r.answeredAt).getTime()>=cutoff).slice(-60).forEach(r=>{
       const w=WORD_BY_ID[r.wordId];if(!w)return;
       const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[w.ko]:null;if(!src)return;
       const limit=r.answerType==="writing"?20:10;
@@ -2421,7 +2422,7 @@ function bootBallLog(){
       const key=m[r.wordId],sn=key?parseInt(key.split("-")[1],10):curSection;
       _ballLog.push({src,r:rr,bg:roomBg(sn||curSection)});
     });
-    if(_ballLog.length>36)_ballLog=_ballLog.slice(-36);
+    if(_ballLog.length>60)_ballLog=_ballLog.slice(-60);
   }catch(e){}
 }
 /* ホーム帰還時：未降下の玉（複数テストぶん含む）を0.1秒間隔でホーム背景レイヤーに一斉降下。既存の山の上に積み増す */
@@ -2976,7 +2977,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.65.4 (2026-07-19)";
+const APP_VERSION="v2.65.5 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{}); // オフラインキャッシュ（画像はキャッシュ優先・HTML/JSはネット優先）
