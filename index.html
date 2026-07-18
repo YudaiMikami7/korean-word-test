@@ -210,8 +210,8 @@ button{font-family:inherit}
 .home-toast.out{opacity:0;transition:opacity .45s ease}
 @keyframes toastin{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 /* 今日学ぶべき単語の帯：スタートボタン上に半透明白、カードが左→右に流れる */
-.today-band{position:absolute;left:0;top:858px;width:602px;height:134px;background:rgba(255,255,255,.35);z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease}
-.tb-clip{position:absolute;left:0;top:-52px;width:602px;height:186px;overflow:hidden;display:flex;align-items:flex-end} /* 画像の上はみ出し(52px)ぶん上に広いクリップ層。横は画面幅でクリップ */
+.today-band{position:absolute;left:0;top:905px;width:602px;height:87px;background:rgba(255,255,255,.35);z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease} /* 帯の縦幅もカードに合わせ縮小（カード/画像の画面位置は不変） */
+.tb-clip{position:absolute;left:0;top:-100px;width:602px;height:187px;overflow:hidden;display:flex;align-items:flex-end} /* 画像の上はみ出し(100px)ぶん上に広いクリップ層。横は画面幅でクリップ */
 .home-wrap.status .today-band,.home-wrap.hiderail .today-band{opacity:0}
 .tb-track{display:flex;animation:tbflow 30s linear infinite;will-change:transform;backface-visibility:hidden;margin-bottom:8px}
 .tb-group{display:flex;gap:12px;padding:0 6px;flex:0 0 auto} /* 同一グループ2連結で-50%＝ちょうど1周＝つなぎ目ゼロ */
@@ -236,8 +236,8 @@ button{font-family:inherit}
 .cal-sp{margin-top:14px;text-align:center;font-size:14px;font-weight:800}
 .cal-sp .rbtext{font-weight:900}
 .cal-close{position:absolute;right:10px;top:6px;background:transparent;border:none;font-size:24px;font-weight:900;color:#888;cursor:pointer}
-.reward-rail{position:absolute;right:14px;top:430px;display:flex;flex-direction:column;gap:8px;z-index:5;
-  opacity:1;transition:opacity .3s ease} /* ピルの下・画面右に縦4 */
+.reward-rail{position:absolute;right:14px;top:340px;display:flex;flex-direction:column;gap:8px;z-index:5;
+  opacity:1;transition:opacity .3s ease} /* ROOMメニュー(下端329px)のすぐ下から縦に並ぶ */
 .home-wrap.status .reward-rail,.home-wrap.hiderail .reward-rail,.home-wrap.status .home-side-btn,.home-wrap.hiderail .home-side-btn,.home-wrap.status .start-button,.home-wrap.hiderail .start-button{opacity:0;pointer-events:none}
 .home-side-btn{opacity:1;transition:transform .4s ease,opacity .3s ease}
 .rr-btn{width:68px;height:68px;border:none;background:rgba(255,255,255,.18);border-radius:50%;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;position:relative}
@@ -2548,13 +2548,16 @@ function hoursTo70(st,nowMs){
 }
 function memChart(pts){
   const W=320,H=180,padL=25,padB=26,padT=8,padR=4,innerW=W-padL-padR,innerH=H-padT-padB;
-  const x=i=>padL+innerW*(i/(pts.length-1)),y=r=>padT+innerH*(1-r/100);
+  // 縦軸は常に100ではなく、表示データの最大値に合わせて自動スケール（20刻み切り上げ→目盛りが整数になる）
+  const ymax=Math.min(100,Math.max(20,Math.ceil(Math.max(...pts.map(p=>p.rate),1)/20)*20));
+  const x=i=>padL+innerW*(i/(pts.length-1)),y=r=>padT+innerH*(1-Math.min(r,ymax)/ymax);
   let grid="",lbl="";
-  [0,25,50,75,100].forEach(v=>{const yy=y(v);grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="rgba(255,255,255,.30)" stroke-width="1"/><text x="${padL-4}" y="${yy+3}" fill="rgba(255,255,255,.85)" font-size="8" font-weight="700" text-anchor="end">${v}</text>`;});
+  [0,.25,.5,.75,1].forEach(f=>{const v=Math.round(ymax*f),yy=y(v);grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="rgba(255,255,255,.30)" stroke-width="1"/><text x="${padL-4}" y="${yy+3}" fill="rgba(255,255,255,.85)" font-size="8" font-weight="700" text-anchor="end">${v}</text>`;});
   pts.forEach((p,i)=>{lbl+=`<text x="${x(i)}" y="${H-padB+14}" fill="rgba(255,255,255,.9)" font-size="8" font-weight="700" text-anchor="middle">${p.label}</text>`;});
   const poly=pts.map(p=>`${x(p.i)},${y(p.rate)}`).join(" ");
   let dots="";pts.forEach(p=>{dots+=`<circle cx="${x(p.i)}" cy="${y(p.rate)}" r="2.6" fill="#00E650"/>`;});
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block"><line x1="${padL}" y1="${y(70)}" x2="${W-padR}" y2="${y(70)}" stroke="#FFD84D" stroke-width="1.4" stroke-dasharray="3 3"/>${grid}<polyline class="grow" points="${poly}" fill="none" stroke="#00E650" stroke-width="2.4"/>${dots}${lbl}</svg>`;
+  const th=ymax>=70?`<line x1="${padL}" y1="${y(70)}" x2="${W-padR}" y2="${y(70)}" stroke="#FFD84D" stroke-width="1.4" stroke-dasharray="3 3"/>`:""; // 70%基準線は表示範囲内のときだけ
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${th}${grid}<polyline class="grow" points="${poly}" fill="none" stroke="#00E650" stroke-width="2.4"/>${dots}${lbl}</svg>`;
 }
 
 /* PWRメータ: 左右スワイプで 全体(最左) → ROOM01..NN を移動。各スライドは遅延レンダリング */
@@ -2670,7 +2673,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.54.2 (2026-07-19)";
+const APP_VERSION="v2.55 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
