@@ -2429,14 +2429,12 @@ function curveForecastBlock(now,words){
   const s=loadStats();
   const arr=words.map(w=>({w,h:hoursTo70(getStat(w.id,s),now)})).sort((a,b)=>a.h-b.h);
   const today=arr.filter(a=>a.h<=24).length,tom=arr.filter(a=>a.h>24&&a.h<=48).length,d3c=arr.filter(a=>a.h>48&&a.h<=72).length;
-  const urgent=arr.filter(a=>a.h<=72).slice(0,12).map(a=>a.w.id);
   const cards=`<div class="curve-stats">
       <div class="cstat"><div class="k">今日中に復習</div><div class="v ms-urgent">${today}語</div></div>
       <div class="cstat"><div class="k">明日までに復習</div><div class="v ms-review">${tom}語</div></div>
       <div class="cstat"><div class="k">3日以内に復習</div><div class="v">${d3c}語</div></div>
     </div>`;
-  const btn=urgent.length?`<button class="btn dark" style="margin-top:14px" onclick='startReviewTest(${JSON.stringify(urgent)})'>この${urgent.length}語で復習</button>`:"";
-  return `<div class="tdetail-sec"><div class="h">復習予報</div>${cards}${btn}</div>`;
+  return `<div class="tdetail-sec"><div class="h">復習予報</div>${cards}</div>`;
 }
 function curveSlideHTML(i,now){
   const meter=c=>`<div class="cond pwrline" style="margin:2px 0 12px"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${c}%"></div></div><span class="pwr-val">${c}%</span></div>`;
@@ -2450,8 +2448,7 @@ function curveSlideHTML(i,now){
   const words=(LEVEL_SECTIONS[curLevel][i]||[]).map(id=>WORD_BY_ID[id]);
   const st2=loadStats();let t=0;words.forEach(w=>t+=displayScore(getStat(w.id,st2),now));
   const cond=Math.round(t/Math.max(1,words.length));
-  return `<div class="mpanel"><div class="cs-head">ROOM ${nn}</div>${meter(cond)}</div>${curveOverall(now,words)}${curveForecastBlock(now,words)}
-    <div class="tdetail-sec"><div class="h">単語別</div>${curveWords(now,words)}</div>`;
+  return `<div class="mpanel"><div class="cs-head">ROOM ${nn}</div>${meter(cond)}</div>${curveOverall(now,words)}${curveForecastBlock(now,words)}`;
 }
 function renderCurveCarousel(){
   const N=LEVEL_INFO[curLevel].count;
