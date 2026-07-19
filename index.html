@@ -84,9 +84,10 @@ button{font-family:inherit}
 .qbottom{padding:0 18px calc(18px + env(safe-area-inset-bottom))}
 
 /* choices */
-.choices{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
+.choices{display:flex;flex-direction:column;gap:12px;margin-bottom:14px;touch-action:none} /* ドラッグ選択のためスクロールに奪われない */
 .choice{position:relative;background:rgba(0,0,0,.8);border:none;border-radius:0;padding:18px;font-size:21px;font-weight:700;color:#fff;
-  text-align:center;cursor:pointer;transition:background .12s,transform .08s;min-height:60px}
+  text-align:center;cursor:pointer;transition:background .12s,transform .08s,box-shadow .1s;min-height:60px;user-select:none;-webkit-user-select:none}
+.choice.cand{box-shadow:inset 0 0 0 3px #FFD84D,0 0 18px 3px rgba(255,216,77,.85);background:rgba(0,0,0,.68);z-index:1} /* 指が触れている候補=黄色光彩 */
 .chspk{position:absolute;right:6px;top:50%;transform:translateY(-50%);opacity:.8;pointer-events:none;display:flex}
 .oa-spk{background:rgba(0,0,0,.45);border:none;border-radius:50%;width:42px;height:42px;margin-left:12px;vertical-align:middle;cursor:pointer;display:inline-flex;align-items:center;justify-content:center} /* 書き取り正解表示横の音声ボタン */
 .cdown{display:flex;align-items:center;justify-content:center;height:60vh}
@@ -2451,9 +2452,10 @@ function renderQuestion(){
     stage.innerHTML=`
       <div class="qmain"><div class="qword${q.type==="jk"?" ja":""}">${esc(display)}</div></div>
       <div class="qbottom">
-        <div class="choices">${q.choices.map(c=>`<button class="choice" data-v="${esc(c)}" onclick="pick(this.dataset.v)">${esc(c)}</button>`).join("")}</div>
+        <div class="choices">${q.choices.map(c=>`<button class="choice" data-v="${esc(c)}">${esc(c)}</button>`).join("")}</div>
         <button class="unknown" onclick="submit('unknown','')">わからない</button>
       </div>`;
+    bindChoiceDrag(); // タップ即確定でなく、触れた選択肢が黄色く光り→スライドして離した位置で確定
   }else{
     IME.reset();
     // 成績連動：Q1〜Q10の正解数が7問以下ならヒント付き（先頭1音節を自動表示）、8問以上なら通常
@@ -2473,6 +2475,29 @@ function renderQuestion(){
 }
 
 function pick(v){const q=state.questions[state.idx];submit(v===q.correct?"correct":"incorrect",v);}
+/* ドラッグ選択: 触れた選択肢を黄色く光らせ（候補）、指を滑らせて離した位置の選択肢で確定。選択肢外で離すと取り消し */
+function bindChoiceDrag(){
+  const wrap=document.querySelector("#qstage .choices");if(!wrap)return;
+  let active=false;
+  const choiceAt=(x,y)=>document.elementsFromPoint(x,y).find(el=>el.classList&&el.classList.contains("choice")&&wrap.contains(el));
+  const setCand=btn=>wrap.querySelectorAll(".choice").forEach(b=>b.classList.toggle("cand",b===btn));
+  const clearCand=()=>wrap.querySelectorAll(".choice.cand").forEach(b=>b.classList.remove("cand"));
+  wrap.addEventListener("pointerdown",e=>{
+    if(answered)return;
+    const btn=choiceAt(e.clientX,e.clientY);if(!btn)return;
+    active=true;try{wrap.setPointerCapture(e.pointerId);}catch(_){}
+    setCand(btn);e.preventDefault();
+  });
+  wrap.addEventListener("pointermove",e=>{if(active)setCand(choiceAt(e.clientX,e.clientY));}); // 指の下の選択肢に候補を移動（外れたら候補なし）
+  const finish=e=>{
+    if(!active)return;active=false;
+    const btn=choiceAt(e.clientX,e.clientY);
+    clearCand();
+    if(btn&&!answered)pick(btn.dataset.v); // 離した位置で確定。選択肢外なら何もしない
+  };
+  wrap.addEventListener("pointerup",finish);
+  wrap.addEventListener("pointercancel",()=>{active=false;clearCand();});
+}
 
 /* 回答送信（二重送信防止） */
 function submit(status,userAnswer){
@@ -3280,7 +3305,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.75 (2026-07-19)";
+const APP_VERSION="v2.76 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
