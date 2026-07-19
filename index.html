@@ -1682,6 +1682,24 @@ function phoneticDetail(inp,cor){
   const pri=["tense_aspirated_confusion","compound_vowel_confusion","final_consonant_confusion","vowel_confusion","initial_consonant_confusion"];
   return pri.find(p=>found.includes(p))||null;
 }
+/* ユーザー向け「おしい！」判定: 音節数が同じで、各相違が「終声だけ/母音だけ/濃音・激音の初声だけ」の単一要素ミス(最大2音節)のときのみtrue。
+   編集距離では音が全然違っても近いと誤判定するため、音の近さを厳密に見る */
+function isPhoneticCloseMiss(input,cor){
+  const norm=s=>String(s||"").replace(/[\s~〜・･]/g,"");
+  const A=[...norm(input)],B=[...norm(cor)];
+  if(!A.length||A.length!==B.length)return false; // 音節数が違えば音は合っていない
+  let diff=0;
+  for(let i=0;i<A.length;i++){
+    if(A[i]===B[i])continue;
+    const a=_decompSyl(A[i]),b=_decompSyl(B[i]);
+    if(!a||!b)return false;
+    const dc=a.cho!==b.cho,dv=a.jung!==b.jung,dj=a.jong!==b.jong;
+    const forgivable=(dj&&!dc&&!dv)||(dv&&!dc&&!dj)||(dc&&!dv&&!dj&&_sameTense(a.cho,b.cho)); // 終声のみ/母音のみ/濃音激音の初声のみ
+    if(!forgivable)return false;
+    if(++diff>2)return false;
+  }
+  return diff>=1;
+}
 function classifyWritingError(input,w){
   const norm=s=>String(s||"").replace(/[\s~〜・･]/g,"");
   const inp=norm(input),cor=norm(w.ko);
@@ -2828,9 +2846,8 @@ function writingAnsHTML(status,q,userAnswer){
   if(status==="incorrect"){
     let close="";
     try{
-      const cw=classifyWritingError(userAnswer,q.word);
-      if(cw.type==="phonetic_spelling")close='<div class="oa-close">おしい！音は合っています（表記だけ違う）</div>';
-      else if(cw.type==="semantic_substitution")close='<div class="oa-close">意味の近い別の単語を書いています</div>';
+      if(isPhoneticCloseMiss(userAnswer,q.word.ko))close='<div class="oa-close">おしい！音が合っています</div>';
+      else{const cw=classifyWritingError(userAnswer,q.word);if(cw.type==="semantic_substitution")close='<div class="oa-close">意味の近い別の単語</div>';}
     }catch(e){}
     return `<div class="ovans">${close}
       <div class="oa-row"><div class="oa-lab">入力</div><div class="oa-ko wrong">${esc(userAnswer)||"（無回答）"}</div></div>
@@ -3312,7 +3329,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.77.1 (2026-07-19)";
+const APP_VERSION="v2.78 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
