@@ -739,6 +739,30 @@ body.bigtext .set-d{font-size:13.5px}
 .rm-special{grid-column:1/-1;border:none;border-radius:18px;padding:12px;cursor:pointer;font-family:inherit;font-weight:900;font-size:15px;color:#fff;
   background:linear-gradient(90deg,#ff9ecb,#ff77aa,#c9a8ff,#9ecbff,#ff9ecb);background-size:250% 100%;animation:pqRainbow 9s linear infinite;
   box-shadow:0 4px 0 #e85f92;display:flex;align-items:center;justify-content:center;gap:8px}
+
+/* カルーセル内の特別ルームスライド（通常ROOMのレイアウトを流用しつつプリティー化。位置クラスはそのまま） */
+.pq-slide .rmenu-bg{background:rgba(255,255,255,.55);box-shadow:inset 0 0 0 3px #ffb3d9,0 6px 14px rgba(255,120,170,.25)}
+.pq-slide .hv-roomlabel{color:#ff5fa0;text-shadow:0 2px 0 #fff}
+.pq-slide .hv-roomno{color:#ff5fa0 !important;font-size:40px;top:44px;text-shadow:0 2px 0 #fff,0 3px 8px rgba(255,120,170,.3)}
+.pq-slide .hv-learned,.pq-slide .hv-roompwr{color:#c04ea0}
+.pq-slide .hv-wordsg,.pq-slide .hv-roomg{background:#ffe1ee}
+.pq-slide .hv-wordsg .gfill{background:linear-gradient(90deg,#ff9ecb,#c9a8ff)!important}
+.pq-slide .hv-roomg .gfill{background:linear-gradient(90deg,#ff77aa,#9ecbff)!important}
+.pq-slide .pq-badge{position:absolute;left:363px;top:70px;z-index:2;background:#fff;color:#c04ea0;font-size:12px;font-weight:900;letter-spacing:1px;padding:6px 12px;border-radius:12px;transform:rotate(8deg);box-shadow:0 3px 0 #ffd0ea;border:2px dashed #ffa8d6}
+/* 特別ルームのメイン画像部分（ジオラマの代わりのプリティー・ミニビジュアル） */
+.pq-main{position:absolute;left:24px;top:120px;width:554px;height:507px;border-radius:34px;overflow:hidden;z-index:1;
+  background:linear-gradient(115deg,#ffd6ec,#d9e6ff,#e7d6ff,#ffe0f0,#d6f0ff,#ffd6ec);background-size:200% 200%;animation:pqRainbow 14s linear infinite alternate;
+  box-shadow:inset 0 0 0 4px #fff,0 8px 22px rgba(255,120,170,.25)}
+.pq-main .pq-spot{border-radius:34px}
+.pq-main .pq-sil{width:260px;height:280px}
+.pq-main .pq-ribbon{bottom:26px}
+/* 特別ルーム選択中のスタートボタン（グローバルボタンをプリティーに） */
+.home-wrap.pq-active .start-button{border:none!important;color:#fff!important;
+  background:linear-gradient(90deg,#ff9ecb,#ff77aa,#c9a8ff,#9ecbff,#ff9ecb)!important;background-size:250% 100%!important;animation:pqRainbow 9s linear infinite;
+  box-shadow:0 8px 0 #e85f92,0 16px 26px rgba(232,95,146,.4)!important;border-radius:62px}
+/* 詳細ページのプレビューカードを豪華枠に（白カード＋ゴールド/レインボー枠） */
+.pq-card{background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,#ffd84d,#ff9ecb,#9ecbff,#c9a8ff) border-box;border:3px solid transparent;box-shadow:0 5px 0 rgba(255,175,210,.45),0 10px 20px rgba(255,120,170,.2),inset 0 0 0 2px #fff}
+.pq-card:nth-child(3n+2),.pq-card:nth-child(3n){border:3px solid transparent}
 </style>
 <!-- アクセス解析: Cloudflare Web Analytics（プロキシ経由で自動計測。手動ビーコン不要） -->
 <script src="ga.js?v=2512"></script>
@@ -786,7 +810,7 @@ body.bigtext .set-d{font-size:13.5px}
       <div id="wb-search"><input id="wb-q" type="search" placeholder="単語をさがす（韓国語・日本語）" oninput="wbSearch(this.value)"><div id="wb-hits"></div></div>
       <div class="today-band" id="today-band" style="display:none"><div class="tb-label">最近学んだ単語</div><div class="tb-clip"><div class="tb-track" id="tb-track"></div></div></div><!-- 中身が入るまで非表示（空の白帯チラ見え防止） -->
       <button class="home-side-btn hsb-left" onclick="renderRoomCurve()" aria-label="忘却曲線"><img src="images-thumb/0912.webp" alt="忘却曲線"></button>
-      <button class="start-button" onclick="startTest()">スタート</button>
+      <button class="start-button" onclick="onStartBtn()">スタート</button>
       <button class="home-side-btn hsb-right" onclick="enterListMode()" aria-label="単語帳"><img src="images-thumb/1290.webp" alt="単語帳"></button>
       <div id="status-ov"></div>
       <div class="hv-ver" id="appver"></div>
@@ -1254,6 +1278,7 @@ function setLift(px){ // ピル上昇量(px)とヘッダー/写真用の進捗(-
 }
 function enterListMode(){
   if(_listMode)return;
+  if(_onSpecial){openPriQQ();return;} // 特別ルーム選択中は専用ページへ（通常の単語帳ではなくプリQQ）
   pushNav("list"); // OSバックで一覧を閉じられるように
   document.getElementById("homewrap").classList.add("hiderail");
   setLift(-LIFT_MAX); // ROOMメニューが最上部へ・ヘッダー退場・写真フェード
@@ -1361,9 +1386,12 @@ function closeRoomMap(){document.getElementById("map-modal").classList.remove("o
 function jumpRoom(n){
   closeRoomMap();
   curSection=n;saveLastRoom();applyHomeBg();
-  const hv=document.getElementById("hv-rooms");if(hv)hv.scrollLeft=n*602;
+  const hv=document.getElementById("hv-rooms");if(hv)hv.scrollLeft=(n+1)*602; // 特別スライドぶんのオフセット
+  document.getElementById("homewrap").classList.remove("pq-active");_onSpecial=false;
   attachHomeRain();
 }
+let _onSpecial=false; // 特別ルーム プリQQ のスライドが選択中か
+function onStartBtn(){_onSpecial?startPriQQ():startTest();} // 特別ルーム選択中はプリQQを開始
 
 /* ============================================================ 特別ルーム「プリQQ」（専用テーマ画面。単語データは後で差し替え） ============================================================ */
 const PRIQQ={
@@ -1379,23 +1407,24 @@ const PRIQQ={
     {ko:"???",ja:"青春",st:"🌈"},{ko:"???",ja:"プリクラ",st:"💫"}
   ]
 };
-/* メインビジュアル（抽象コンポジション＝実在アーティストの複製ではない） */
-function pqHeroSVG(){
+/* 装飾のみ（スポット/放射光/星/ハート/シルエット）。実在アーティストの複製ではない抽象コンポジション */
+function pqDecoSVG(){
   const stars=[[40,60,18],[520,80,22],[90,180,14],[470,200,16],[300,40,12],[200,70,10],[560,150,12],[30,120,12]]
     .map((s,i)=>`<div class="pq-star" style="left:${s[0]/6}%;top:${s[1]/3}px;font-size:${s[2]}px;animation-delay:${i*0.3}s;color:${i%2?'#ffd84d':'#fff'}">✦</div>`).join("");
   const hearts=[[70,120,'#ff9ecb'],[500,120,'#c9a8ff'],[150,220,'#9ecbff']]
     .map((h,i)=>`<div class="pq-heart-f" style="left:${h[0]/6}%;top:${h[1]/3}px;color:${h[2]};font-size:16px;animation-delay:${i*0.5}s">♥</div>`).join("");
-  // 抽象的な「きらきらガーリー」モチーフ：星＋ハート＋王冠のシルエット
   const sil=`<svg class="pq-sil" viewBox="0 0 200 220" aria-hidden="true">
     <defs><linearGradient id="pqg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#ffd9ec"/></linearGradient></defs>
     <path d="M100 30 L112 66 L150 66 L120 90 L132 128 L100 104 L68 128 L80 90 L50 66 L88 66 Z" fill="url(#pqg)" opacity=".95"/>
     <path d="M100 120 C100 108 84 104 84 120 C84 134 100 146 100 146 C100 146 116 134 116 120 C116 104 100 108 100 120 Z" fill="#ff8fbf"/>
     <path d="M70 20 l8 14 14-6 -6 15 14 8 -16 3 2 16 -12 -10 -12 10 2 -16 -16 -3 14 -8 -6 -15 14 6 z" fill="#ffd84d" opacity=".9" transform="translate(30 0) scale(.6)"/>
   </svg>`;
-  return `<div class="pq-spot"></div><div class="pq-rays"></div>${stars}${hearts}${sil}
-    <div class="pq-special">★ ${esc(PRIQQ.label)} <span class="pq-sparkle">✧</span></div>
-    <div class="pq-ribbon">${esc(PRIQQ.name)}</div>`;
+  return `<div class="pq-spot"></div><div class="pq-rays"></div>${stars}${hearts}${sil}`;
 }
+/* メインビジュアル（詳細ページ用＝装飾＋SPECIAL＋リボン名） */
+function pqHeroSVG(){return pqDecoSVG()+`
+    <div class="pq-special">★ ${esc(PRIQQ.label)} <span class="pq-sparkle">✧</span></div>
+    <div class="pq-ribbon">${esc(PRIQQ.name)}</div>`;}
 function renderPriQQ(){
   const rate=PRIQQ.total?Math.round(PRIQQ.learned/PRIQQ.total*100):0;
   const previews=PRIQQ.preview.map(w=>`<div class="pq-card"><div class="pq-shine"></div><span class="pq-sticker">${w.st||"💗"}</span><div class="pq-ko">${esc(w.ko)}</div><div class="pq-ja">${esc(w.ja)}</div></div>`).join("");
@@ -1536,7 +1565,22 @@ function buildRoomSlides(){
       <button class="lvbtn ${curLevel==="middle"?"on":""}" onclick="switchLevel('middle')">中級</button>
     </div>
   </div>`;
-  el.innerHTML=levelSlide+Array.from({length:count},(_,i)=>{
+  // ROOM01の左（難易度スライドの右）に特別ルーム プリQQ。通常ROOMのレイアウトを流用しプリティー化
+  const pqrate=PRIQQ.total?Math.round(PRIQQ.learned/PRIQQ.total*100):0;
+  const specialSlide=`<div class="room-slide pq-slide" data-n="s" style="background:#ffe3f1">
+    <div class="slide-inner">
+      <div class="rmenu-bg" onclick="openPriQQ()"></div>
+      <div class="hv-roomlabel" onclick="openPriQQ()">ルーム</div>
+      <div class="hv-roomno" onclick="openPriQQ()" style="left:60px">プリQQ</div>
+      <div class="hv-learned">${PRIQQ.learned}<span class="unit">語</span></div>
+      <div class="gauge hv-wordsg"><div class="gfill" style="width:${pqrate}%"></div></div>
+      <div class="hv-roompwr">${pqrate}<span class="unit">%</span></div>
+      <div class="gauge hv-roomg"><div class="gfill" style="width:${pqrate}%"></div></div>
+      <div class="pq-badge">★ SPECIAL</div>
+      <div class="pq-main" onclick="openPriQQ()">${pqDecoSVG()}<div class="pq-ribbon">${esc(PRIQQ.name)}</div></div>
+    </div>
+  </div>`;
+  el.innerHTML=levelSlide+specialSlide+Array.from({length:count},(_,i)=>{
     const n=i+1,nn=String(n).padStart(2,"0"),ri=roomInfoFor(n);
     const circ=(cls,rank)=>rank?`<div class="${cls}" style="background:${RANK_COLORS[rank]||"#555"};cursor:pointer" onclick="openRoomHistory(${n})">${rank}</div>`:""; // ランク円タップ=過去履歴一覧
     // 直近=右の大きい丸 / 1つ前=真ん中(小) / 2つ前=左(小)
@@ -1614,17 +1658,19 @@ function buildRoomSlides(){
       });
     }
     el.addEventListener("scroll",()=>{
-      // スワイプ中も上下端の色を支配的なスライドへ即時追従（index0=難易度切替スライド）
-      const idx=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count);
-      applyBgAll(idx===0?LEVEL_SLIDE_BG:roomBg(idx));
+      // スライド順: idx0=難易度 / idx1=特別ルーム プリQQ / idx>=2=ROOM(idx-1)
+      const idx=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count+1);
+      const onSp=idx===1;_onSpecial=onSp;
+      document.getElementById("homewrap").classList.toggle("pq-active",onSp);
+      applyBgAll(idx===0?LEVEL_SLIDE_BG:(onSp?"#ffe3f1":roomBg(idx-1)));
       clearTimeout(_roomScrollT);
       _roomScrollT=setTimeout(()=>{
-        const n=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count);
-        if(n>=1&&n!==curSection){curSection=n;applyHomeBg();saveLastRoom();attachHomeRain();fillNearbyRoomLists();} // 玉の山も新ROOMへ移す＋近傍の単語帳を実描画
+        const i=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count+1);
+        if(i>=2){const n=i-1;if(n!==curSection){curSection=n;applyHomeBg();saveLastRoom();attachHomeRain();fillNearbyRoomLists();}} // 玉の山も新ROOMへ移す＋近傍の単語帳を実描画
       },120);
     });
   }
-  el.scrollLeft=curSection*602; // 先頭の難易度切替スライド分、index=curSection
+  el.scrollLeft=(curSection+1)*602; // 難易度+特別スライドぶん右へ（ROOM n の実index=n+1）
 }
 /* 602px基準で比例スケール（PCは等倍上限・中央寄せ） */
 function scaleHome(){
@@ -3339,7 +3385,7 @@ function updateStatusOverlay(){
     const n=Math.max(1,Math.min(N,Math.round(sc.scrollLeft/602)+1));
     if(n!==curSection){
       curSection=n;
-      const hv=document.getElementById("hv-rooms");if(hv)hv.scrollLeft=n*602;saveLastRoom(); // ホーム側も同じROOMへ同期
+      const hv=document.getElementById("hv-rooms");if(hv)hv.scrollLeft=(n+1)*602;saveLastRoom(); // ホーム側も同じROOMへ同期（特別スライドぶんのオフセット）
     }
     applyBgAll(roomBg(n));
     fill(n);fill(Math.max(1,n-1));fill(Math.min(N,n+1));
@@ -3540,7 +3586,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.85 (2026-07-20)";
+const APP_VERSION="v2.86 (2026-07-20)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -3730,7 +3776,7 @@ function saveLastRoom(){try{localStorage.setItem(LS_LASTROOM,JSON.stringify({lev
     if(v&&LEVEL_INFO[v.level]&&v.section>=1&&v.section<=LEVEL_INFO[v.level].count){
       curLevel=v.level;curSection=v.section;
       renderHome();
-      requestAnimationFrame(()=>{const el=document.getElementById("hv-rooms");if(el)el.scrollLeft=curSection*602;});
+      requestAnimationFrame(()=>{const el=document.getElementById("hv-rooms");if(el)el.scrollLeft=(curSection+1)*602;});
     }
   }catch(e){}
 })();
