@@ -2395,14 +2395,16 @@ function show(id){
 
 /* ============================================================ テスト進行 ============================================================ */
 let state=null,timer=null,qStart=0,answered=false,ovTimer=null,_roomCurveMode=false,_counting=false;
-/* 通知確認や画面ロック中はタイマーを進めない（復帰時に離席ぶんを差し戻す） */
+/* 通知確認・画面ロック・アプリ切替中はタイマーを完全停止し、裏で時間切れにしない（復帰時に離席ぶんを差し戻して再開） */
 let _hiddenAt=0;
+function _inActiveQuestion(){const q=document.getElementById("s-quiz");return !!(q&&q.classList.contains("on")&&!answered&&state&&!_counting);}
 document.addEventListener("visibilitychange",()=>{
-  if(document.hidden){_hiddenAt=performance.now();}
-  else if(_hiddenAt){
+  if(document.hidden){
+    _hiddenAt=performance.now();
+    if(_inActiveQuestion())clearInterval(timer); // 離席中はカウントを止める（throttleされたtickが裏で時間切れを撃つのを防ぐ）
+  }else if(_hiddenAt){
     const d=performance.now()-_hiddenAt;_hiddenAt=0;
-    const q=document.getElementById("s-quiz");
-    if(q&&q.classList.contains("on")&&!answered&&state)qStart+=d;
+    if(_inActiveQuestion()){qStart+=d;resumeTimer();} // 停止分を差し戻して計時再開
   }
 });
 
@@ -3339,7 +3341,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.80 (2026-07-19)";
+const APP_VERSION="v2.81 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
