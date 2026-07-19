@@ -330,8 +330,7 @@ button{font-family:inherit}
 /* 単語検索（一覧モード上部） */
 .wb-back{position:absolute;left:12px;top:150px;z-index:8;display:none;width:50px;height:50px;border:none;border-radius:50%;background:#fff;color:#333;font-size:26px;font-weight:900;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.18);line-height:1;padding:0}
 .home-wrap.hiderail .wb-back{display:block}
-#pull-hint{position:absolute;left:50%;top:120px;transform:translateX(-50%);z-index:9;display:block;background:rgba(0,0,0,.72);color:#fff;font-size:14px;font-weight:800;padding:9px 18px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s ease}
-.home-wrap.status #pull-hint{display:none}
+#pull-hint{position:absolute;left:50%;top:120px;transform:translateX(-50%);z-index:60;display:block;background:rgba(0,0,0,.72);color:#fff;font-size:14px;font-weight:800;padding:9px 18px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s ease}
 #wb-search{position:absolute;left:74px;right:12px;top:155px;z-index:6;display:none}
 .home-wrap.hiderail #wb-search{display:block}
 #wb-search input{width:100%;border:none;border-radius:999px;padding:12px 18px;font-size:15px;font-weight:700;background:rgba(255,255,255,.92);color:#1a1a1a;outline:none;box-sizing:border-box}
@@ -1445,18 +1444,23 @@ function buildRoomSlides(){
       else if(_homeDir){const go=_pullVal>=90,dir=_homeDir;hidePullHint();if(go){dir==="up"?enterListMode():enterStatusMode();}}
       _ty=null;_plBase=null;_plList=null;_homeDir=null;
     });
-    // ステータス中: 上スワイプでホームへ戻る（ROOMメニュー以下は下から再入場）
+    // ステータス中: 上に引っ張るとホームへ戻る（引っ張り式・90px超で発動）
     const hw=document.getElementById("homewrap");
     if(hw&&!hw.dataset.gbound){
       hw.dataset.gbound="1";
-      let sy=null,sx=null;
-      hw.addEventListener("touchstart",e=>{sy=e.touches[0].clientY;sx=e.touches[0].clientX;},{passive:true});
+      let sy=null,sx=null,sPull=false;
+      hw.addEventListener("touchstart",e=>{sy=e.touches[0].clientY;sx=e.touches[0].clientX;sPull=false;},{passive:true});
       hw.addEventListener("touchmove",e=>{
         if(sy==null||!_statusMode)return;
         const dy=e.touches[0].clientY-sy,dx=e.touches[0].clientX-sx;
-        if(dy<-40&&Math.abs(dy)>Math.abs(dx)*1.2){sy=null;exitStatusMode();}
+        if(dy<0&&Math.abs(dy)>Math.abs(dx)*1.2&&Math.abs(dy)>10){
+          sPull=true;showPullHint(-dy,"↑ さらに引くとホームへ","↑ 離してホームへ","bottom");
+        }else if(sPull){sPull=false;hidePullHint();}
       },{passive:true});
-      hw.addEventListener("touchend",()=>{sy=null;});
+      hw.addEventListener("touchend",()=>{
+        if(sPull){const go=_pullVal>=90;hidePullHint();if(go)exitStatusMode();}
+        sy=null;sPull=false;
+      });
     }
     el.addEventListener("scroll",()=>{
       // スワイプ中も上下端の色を支配的なスライドへ即時追従（index0=難易度切替スライド）
@@ -3274,7 +3278,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.73 (2026-07-19)";
+const APP_VERSION="v2.74 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
