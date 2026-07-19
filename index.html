@@ -2357,7 +2357,7 @@ function show(id){
 }
 
 /* ============================================================ テスト進行 ============================================================ */
-let state=null,timer=null,qStart=0,answered=false,ovTimer=null,_roomCurveMode=false;
+let state=null,timer=null,qStart=0,answered=false,ovTimer=null,_roomCurveMode=false,_counting=false;
 /* 通知確認や画面ロック中はタイマーを進めない（復帰時に離席ぶんを差し戻す） */
 let _hiddenAt=0;
 document.addEventListener("visibilitychange",()=>{
@@ -2370,6 +2370,7 @@ document.addEventListener("visibilitychange",()=>{
 });
 
 function confirmQuit(){
+  if(_counting){quitTest();return;} // カウントダウン中はまだ問題が始まっていないので確認なしで即ホームへ
   const t0=performance.now(); // ダイアログ表示中はタイマーを止める
   const m=document.createElement("div");m.className="appconfirm";
   m.innerHTML=`<div class="ac-card"><div class="ac-t">テストを中断して<br>ホームに戻りますか？</div>
@@ -2382,7 +2383,7 @@ function confirmQuit(){
 }
 /* 出題中にホームへ戻る（タイマー・音声・○×表示を止めて中断） */
 function quitTest(){
-  clearInterval(timer);clearTimeout(ovTimer);
+  clearInterval(timer);clearTimeout(ovTimer);_counting=false;
   document.querySelectorAll(".overlay").forEach(e=>e.remove());
   stopSpeak();answered=true;
   show("s-home");
@@ -2409,14 +2410,14 @@ function showCountdown(cb){
   document.getElementById("time").textContent="";
   const qa=document.getElementById("qadv");if(qa)qa.style.visibility="hidden"; // スイッチは出題番号が出るまで隠す
   const fill=document.getElementById("tfill");if(fill){fill.className="tfill";fill.style.width="100%";}
-  let n=3;
+  let n=3;_counting=true; // カウントダウン中フラグ（この間の戻るは確認なしで即ホームへ）
   const draw=()=>{stage.innerHTML=`<div class="cdown"><span class="cnum">${n}</span></div>`;};
   draw();
   clearInterval(timer);
   timer=setInterval(()=>{
-    if(!document.getElementById("s-quiz").classList.contains("on")){clearInterval(timer);return;}
+    if(!document.getElementById("s-quiz").classList.contains("on")){clearInterval(timer);_counting=false;return;}
     n--;
-    if(n<=0){clearInterval(timer);cb();return;}
+    if(n<=0){clearInterval(timer);_counting=false;cb();return;}
     draw();
   },500); // 3・2・1は0.5秒間隔（元の1秒の2倍速）
 }
@@ -2438,6 +2439,7 @@ function startTimer(){
 }
 
 function renderQuestion(){
+  _counting=false; // 実際の問題に入ったのでカウントダウン中フラグを解除（以後の戻るは確認ダイアログ）
   // 遷移時に音声を止めない（長い単語が途中で切れないよう最後まで再生させる）。
   // 重複防止は次の正解時に speakKorean() 側の stopSpeak() が担う。
   const q=state.questions[state.idx];
@@ -3278,7 +3280,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.74 (2026-07-19)";
+const APP_VERSION="v2.75 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
