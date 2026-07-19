@@ -101,7 +101,7 @@ button{font-family:inherit}
 #s-quiz{position:relative}
 #s-quiz .qbar,#s-quiz .tbar,#s-quiz .qstage{position:relative;z-index:1} /* 出題UIは常に降下レイヤーより前面 */
 .q-rain{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-#home-rain{top:-225px;height:1178px;transition:opacity .3s ease} /* ホームの玉レイヤー：現在ROOMのslide-inner最背面に挿入（ROOM画像より後ろ・背景色より前）。床は画面下端 */
+#home-rain{top:-225px;height:1178px;z-index:0;transition:opacity .3s ease} /* ホームの玉レイヤー：現在ROOMのslide-inner最背面に挿入（ROOM画像より後ろ・背景色より前）。床は画面下端 */
 .home-wrap.status #home-rain,.home-wrap.hiderail #home-rain{opacity:0}
 .qr-ball{position:absolute;left:0;top:0;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.55);
   box-shadow:inset 0 -6px 12px rgba(0,0,0,.08),0 4px 10px rgba(0,0,0,.15);
@@ -224,7 +224,7 @@ button{font-family:inherit}
 .lvbtn:active{background:rgba(0,0,0,.65)}
 .lvbtn.on{box-shadow:0 0 0 4px #fff inset}
 .lv-pick .lv-cap{text-align:center;font-size:22px;color:rgba(255,255,255,.85);letter-spacing:2px}
-.slide-img{position:absolute;left:24px;top:120px;width:554px;height:507px;object-fit:contain} /* メニュー縮小(-58px)ぶん上へ */
+.slide-img{position:absolute;left:24px;top:120px;width:554px;height:507px;object-fit:contain;z-index:1} /* メニュー縮小(-58px)ぶん上へ。玉レイヤー(z0)より前面＝中央画像が玉に隠れない */
 /* テスト後ホームのお知らせトースト */
 .home-toast{position:absolute;left:50%;top:190px;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;font-size:20px;font-weight:800;padding:14px 26px;border-radius:999px;z-index:20;white-space:nowrap;animation:toastin .35s ease;pointer-events:none}
 .home-toast.out{opacity:0;transition:opacity .45s ease}
@@ -328,7 +328,9 @@ button{font-family:inherit}
 .coach-in{background:rgba(255,255,255,.95);color:#1a1a1a;border-radius:18px;padding:24px 28px;font-size:16px;font-weight:800;line-height:2;text-align:left}
 .coach-ok{margin-top:14px;background:#1a1a1a;color:#fff;text-align:center;border-radius:999px;padding:10px}
 /* 単語検索（一覧モード上部） */
-#wb-search{position:absolute;left:12px;right:12px;top:155px;z-index:6;display:none}
+.wb-back{position:absolute;left:12px;top:150px;z-index:8;display:none;width:50px;height:50px;border:none;border-radius:50%;background:#fff;color:#333;font-size:26px;font-weight:900;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.18);line-height:1;padding:0}
+.home-wrap.hiderail .wb-back{display:block}
+#wb-search{position:absolute;left:74px;right:12px;top:155px;z-index:6;display:none}
 .home-wrap.hiderail #wb-search{display:block}
 #wb-search input{width:100%;border:none;border-radius:999px;padding:12px 18px;font-size:15px;font-weight:700;background:rgba(255,255,255,.92);color:#1a1a1a;outline:none;box-sizing:border-box}
 #wb-hits{margin-top:6px;background:rgba(255,255,255,.94);border-radius:14px;max-height:420px;overflow-y:auto;color:#1a1a1a}
@@ -422,7 +424,7 @@ body.bigtext .set-d{font-size:13.5px}
 .zk-lock .zk-ko,.zk-lock .zk-ja{color:rgba(0,0,0,.45)}
 .zk-sil{filter:brightness(0) opacity(.78)} /* 黒シルエット */
 .zk-q{font-size:44px;font-weight:900;color:rgba(0,0,0,.4)}
-.room-ph{position:absolute;left:24px;top:178px;width:554px;height:507px;display:flex;align-items:center;justify-content:center;font-size:130px;color:rgba(255,255,255,.32);font-weight:800}
+.room-ph{position:absolute;left:24px;top:178px;width:554px;height:507px;display:flex;align-items:center;justify-content:center;font-size:130px;color:rgba(255,255,255,.32);font-weight:800;z-index:1}
 .start-button{position:absolute;left:50%;transform:translate(-50%,calc(var(--down,0px)*2.2));top:1004px;width:320px;height:123px;border:4px solid #FFC400;border-radius:62px;
   background:rgba(0,0,0,.8);color:#FFFFFF;font-size:54px;font-weight:900;cursor:pointer;font-family:inherit;z-index:2;
   animation:glowpulse 1.8s ease-in-out infinite;transition:transform .4s ease,opacity .3s ease}
@@ -695,6 +697,7 @@ body.bigtext .set-d{font-size:13.5px}
       <div id="hv-nextrev" onclick="startDueReview()"></div>
       </div>
       <div class="room-scroll" id="hv-rooms"></div>
+      <button class="wb-back" id="wb-back" onclick="exitListMode()" aria-label="ホームに戻る">‹</button>
       <div id="wb-search"><input id="wb-q" type="search" placeholder="単語をさがす（韓国語・日本語）" oninput="wbSearch(this.value)"><div id="wb-hits"></div></div>
       <div class="today-band" id="today-band" style="display:none"><div class="tb-label">最近学んだ単語</div><div class="tb-clip"><div class="tb-track" id="tb-track"></div></div></div><!-- 中身が入るまで非表示（空の白帯チラ見え防止） -->
       <button class="home-side-btn hsb-left" onclick="renderRoomCurve()" aria-label="忘却曲線"><img src="images-thumb/0912.webp" alt="忘却曲線"></button>
@@ -1390,41 +1393,15 @@ function buildRoomSlides(){
   }).join("");
   if(!el.dataset.bound){
     el.dataset.bound="1";
-    // 上スワイプ: ROOMメニューがスワイプに連動して上部へ移動し、到達で単語一覧を表示
-    let _ty=null,_tx=null,_vdrag=false,_dragDown=false;
-    el.addEventListener("touchstart",e=>{_ty=e.touches[0].clientY;_tx=e.touches[0].clientX;_vdrag=false;_dragDown=false;},{passive:true});
+    // 下スワイプでステータスへ。単語帳へのスワイプ遷移は廃止（レンダリング負荷対策・単語帳は右下ボタンから／戻るは左上ボタン）
+    let _ty=null,_tx=null;
+    el.addEventListener("touchstart",e=>{_ty=e.touches[0].clientY;_tx=e.touches[0].clientX;},{passive:true});
     el.addEventListener("touchmove",e=>{
-      if(_ty==null||_statusMode)return;
+      if(_ty==null||_statusMode||_listMode)return; // 一覧モード中は縦ドラッグ無効＝単語帳の縦スクロールを最優先
       const dy=e.touches[0].clientY-_ty,dx=e.touches[0].clientX-_tx;
-      if(!_vdrag){
-        if(!_listMode&&dy>12&&Math.abs(dy)>Math.abs(dx)*1.2){
-          _ty=null;enterStatusMode();return; // 下スクロールを少しでもしたら即ステータスへ
-        }else if(!_listMode&&dy<-12&&Math.abs(dy)>Math.abs(dx)*1.2){
-          _vdrag=true;document.getElementById("homewrap").classList.add("dragging");
-        }else if(_listMode&&dy>12&&Math.abs(dy)>Math.abs(dx)*1.2){
-          // 一覧モード中の下スワイプ: 単語帳が最上部のときだけ「戻る」。途中ならリストのスクロールを優先
-          const sl=el.querySelector(`.room-slide[data-n="${curSection}"] .slide-list`);
-          if(sl&&sl.scrollTop<=0){_vdrag=true;_dragDown=true;document.getElementById("homewrap").classList.add("dragging");}
-          else return;
-        }else return;
-      }
-      e.preventDefault();
-      if(_dragDown)setLift(Math.max(-LIFT_MAX,Math.min(0,-LIFT_MAX+dy)));
-      else setLift(Math.max(-LIFT_MAX,Math.min(0,dy)));
-    },{passive:false});
-    el.addEventListener("touchend",()=>{
-      if(_vdrag){
-        const w=document.getElementById("homewrap");w.classList.remove("dragging");
-        const cur=parseFloat(w.style.getPropertyValue("--lift"))||0;
-        if(_dragDown){
-          if(cur>=-LIFT_MAX+80){exitListMode();} // 下スワイプで元に戻る（写真はフェードイン）
-          else setLift(-LIFT_MAX);
-        }else{
-          if(cur<=-80)enterListMode();else setLift(0);
-        }
-      }
-      _ty=null;_vdrag=false;_dragDown=false;
-    });
+      if(dy>12&&Math.abs(dy)>Math.abs(dx)*1.2){_ty=null;enterStatusMode();} // 下スワイプで即ステータスへ
+    },{passive:true});
+    el.addEventListener("touchend",()=>{_ty=null;});
     // ステータス中: 上スワイプでホームへ戻る（ROOMメニュー以下は下から再入場）
     const hw=document.getElementById("homewrap");
     if(hw&&!hw.dataset.gbound){
@@ -2623,7 +2600,7 @@ function spawnBallRaw(src,r,bg,layerId){
   layer.appendChild(el);
   const W=layer.clientWidth||602;
   QR.balls.push({x:r+Math.random()*(W-2*r),y:-r-10,vx:(Math.random()*2-1)*120,vy:0,a:0,va:0,r,el,layer:layerId});
-  QR.active=layerId;QR.calm=0;
+  QR.active=layerId;QR.calm=0;QR.sinceSpawn=0; // 新規落下があれば確定停止カウンタをリセット
   if(!QR.raf){QR.last=0;QR.raf=requestAnimationFrame(qrStep);}
 }
 function qrClearLayer(layerId){QR.balls=QR.balls.filter(b=>{if(b.layer===layerId){b.el.remove();return false;}return true;});}
@@ -2633,8 +2610,8 @@ function attachHomeRain(){
   if(!QR.homeEl){QR.homeEl=document.createElement("div");QR.homeEl.className="q-rain";QR.homeEl.id="home-rain";}
   const host=document.querySelector(`.room-slide[data-n="${curSection}"] .slide-inner`);
   if(host&&QR.homeEl.parentNode!==host)host.insertBefore(QR.homeEl,host.firstChild);
-  // レイヤー剥がれ等で物理ループが死んでいたら再開（静止済みならすぐ自動停止する）
-  if(!QR.raf&&QR.balls.some(b=>b.layer==="home-rain")&&document.getElementById("s-home").classList.contains("on")){
+  // レイヤー剥がれ等で物理ループが死んでいたら再開。ただし全玉が既に眠っていれば再開しない（無駄なピクピク再燃を防ぐ）
+  if(!QR.raf&&QR.balls.some(b=>b.layer==="home-rain"&&!b.sleep)&&document.getElementById("s-home").classList.contains("on")){
     QR.active="home-rain";QR.calm=0;QR.last=0;QR.raf=requestAnimationFrame(qrStep);
   }
 }
@@ -2690,6 +2667,7 @@ function qrStep(ts){
     if(b.sleep)continue; // 静止済みの玉は演算スキップ（100個でも軽い）
     if(!b.supported)b.vy+=G*dt; // 下から支えられている玉に重力を加えない（重力↔押し戻しの永久振動を防ぐresting contact）
     b.supported=false;
+    b.vx*=0.985;b.vy*=0.992; // エネルギー減衰（密集した山が早く静まる）
     b.x+=b.vx*dt;b.y+=b.vy*dt;b.a+=b.va*dt;
     if(b.y>H-b.r){b.y=H-b.r;if(b.vy>0)b.vy=-b.vy*0.2;if(Math.abs(b.vy)<40)b.vy=0;b.vx*=0.96;b.va=b.vx/b.r;b.supported=true;} // 床：小バウンド＋接地摩擦、回転は移動速度連動（自然な転がり）
     if(b.x<b.r){b.x=b.r;b.vx=-b.vx*0.4;}
@@ -2705,15 +2683,20 @@ function qrStep(ts){
       if(A.sleep&&B.sleep)continue;
       let dx=B.x-A.x,dy=B.y-A.y,d=Math.hypot(dx,dy)||0.01;
       const rr=A.r+B.r;
-      if(d<rr){
-        const nx=dx/d,ny=dy/d,ov=(rr-d)/2;
-        A.x-=nx*ov;A.y-=ny*ov;B.x+=nx*ov;B.y+=ny*ov;
-        const rel=(B.vx-A.vx)*nx+(B.vy-A.vy)*ny;
-        if(rel<0){const imp=-rel*0.55;A.vx-=nx*imp;A.vy-=ny*imp;B.vx+=nx*imp;B.vy+=ny*imp;}
-        A.va=A.vx/A.r;B.va=B.vx/B.r;
-        if(ny>0.5){A.supported=true;if(A.vy>0&&Math.abs(rel)<80)A.vy=0;} // AがBの上に載っている
-        if(ny<-0.5){B.supported=true;if(B.vy>0&&Math.abs(rel)<80)B.vy=0;} // BがAの上に載っている
-        if(ov>0.4){A.sleep=false;B.sleep=false;A.still=0;B.still=0;} // しっかり押されたら目を覚ます
+      const pen=rr-d; // めり込み量
+      if(pen>0){
+        const nx=dx/d,ny=dy/d;
+        // 支え判定（上に載っているか）は接触した時点で常に更新
+        if(ny>0.5)A.supported=true;
+        if(ny<-0.5)B.supported=true;
+        if(pen>0.6){ // 0.6pxのスロップ内は補正しない＝残留ジッタを出さない
+          const corr=(pen-0.6)*0.4; // 部分補正（Baumgarte）でオーバーシュート振動を防ぐ
+          A.x-=nx*corr;A.y-=ny*corr;B.x+=nx*corr;B.y+=ny*corr;
+          const rel=(B.vx-A.vx)*nx+(B.vy-A.vy)*ny;
+          if(rel<0){const imp=-rel*0.4;A.vx-=nx*imp;A.vy-=ny*imp;B.vx+=nx*imp;B.vy+=ny*imp;}
+          A.va=A.vx/A.r;B.va=B.vx/B.r;
+          if(pen>4){A.sleep=false;B.sleep=false;A.still=0;B.still=0;} // 大きくめり込んだ時だけ起こす（微小重なりでは起こさない）
+        }
       }
     }
   }
@@ -2722,14 +2705,17 @@ function qrStep(ts){
     b.x=Math.max(b.r,Math.min(W-b.r,b.x));b.y=Math.min(b.y,H-b.r);
     const d=Math.abs(b.x-(b.px!=null?b.px:b.x))+Math.abs(b.y-(b.py!=null?b.py:b.y));
     moved+=d;
-    if(d<0.25){b.still=(b.still||0)+1;if(b.still>20){b.sleep=true;b.vx=0;b.vy=0;}} // 個別スリープ（大きな山の微振動でも眠れるしきい値）
+    const slow=Math.abs(b.vx)+Math.abs(b.vy)<8; // ほぼ停止
+    if(d<0.4&&slow){b.still=(b.still||0)+1;if(b.still>12){b.sleep=true;b.vx=0;b.vy=0;b.va=0;}} // 個別スリープ
     else b.still=0;
     b.px=b.x;b.py=b.y;
-    if(d>0.05||!b.drawn){b.el.style.transform=`translate(${(b.x-b.r).toFixed(1)}px,${(b.y-b.r).toFixed(1)}px) rotate(${b.a.toFixed(3)}rad)`;b.drawn=true;} // 動いた玉だけDOM更新
+    if(d>0.15||!b.drawn){b.el.style.transform=`translate(${Math.round(b.x-b.r)}px,${Math.round(b.y-b.r)}px) rotate(${b.a.toFixed(2)}rad)`;b.drawn=true;} // 0.15px以上動いた玉のみ整数座標で描画（サブピクセルのピクピク抑制）
   }
-  // 静止判定は「実際に動いた距離」ベース（速度の微振動では止まらないため）。100個の山の残留ジッタは許容
-  QR.calm=(moved<3||bs.every(b=>b.sleep))?QR.calm+1:0;
-  if(QR.calm>45){QR.raf=0;return;} // 全体が静止したらループ停止（省電力）
+  // 全体が十分静まったらループ停止（残留ジッタで回り続けないよう緩めのしきい値）
+  QR.calm=(moved<bs.length*0.3||bs.every(b=>b.sleep))?QR.calm+1:0;
+  QR.sinceSpawn=(QR.sinceSpawn||0)+1;
+  // 確定停止：静まった or 最後の落下から約3.5秒(210フレーム)経過。密集でjamしても必ずピクピクを止める
+  if(QR.calm>30||QR.sinceSpawn>210){bs.forEach(b=>{b.sleep=true;b.vx=0;b.vy=0;b.va=0;});QR.raf=0;return;}
   QR.raf=requestAnimationFrame(qrStep);
 }
 
@@ -3243,7 +3229,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.69.2 (2026-07-19)";
+const APP_VERSION="v2.70 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
