@@ -330,8 +330,8 @@ button{font-family:inherit}
 /* 単語検索（一覧モード上部） */
 .wb-back{position:absolute;left:12px;top:150px;z-index:8;display:none;width:50px;height:50px;border:none;border-radius:50%;background:#fff;color:#333;font-size:26px;font-weight:900;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.18);line-height:1;padding:0}
 .home-wrap.hiderail .wb-back{display:block}
-#pull-hint{position:absolute;left:50%;top:120px;transform:translateX(-50%);z-index:9;display:none;background:rgba(0,0,0,.72);color:#fff;font-size:14px;font-weight:800;padding:9px 18px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s ease}
-.home-wrap.hiderail #pull-hint{display:block}
+#pull-hint{position:absolute;left:50%;top:120px;transform:translateX(-50%);z-index:9;display:block;background:rgba(0,0,0,.72);color:#fff;font-size:14px;font-weight:800;padding:9px 18px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s ease}
+.home-wrap.status #pull-hint{display:none}
 #wb-search{position:absolute;left:74px;right:12px;top:155px;z-index:6;display:none}
 .home-wrap.hiderail #wb-search{display:block}
 #wb-search input{width:100%;border:none;border-radius:999px;padding:12px 18px;font-size:15px;font-weight:700;background:rgba(255,255,255,.92);color:#1a1a1a;outline:none;box-sizing:border-box}
@@ -1195,16 +1195,18 @@ function exitListMode(){
     ph.forEach(e=>e.style.opacity="");
   },360);
 }
-/* 単語帳を最上部からさらに引っ張ったときの「ホームに戻る」ヒント */
+/* 引っ張り式ジェスチャーのヒント（上下どちらの引きにも対応）。90px超で発動可 */
 let _pullVal=0;
-function showPullHint(px){
+function showPullHint(px,near,ready,pos){
   _pullVal=Math.max(0,Math.min(160,px));
   const h=document.getElementById("pull-hint");if(!h)return;
   h.style.opacity=Math.min(1,_pullVal/70);
-  h.style.transform=`translateX(-50%) translateY(${Math.min(60,_pullVal*0.5)}px)`;
-  h.textContent=_pullVal>=90?"↓ 離してホームに戻る":"↓ さらに引くとホームに戻る";
+  const t=Math.min(60,_pullVal*0.5);
+  if(pos==="bottom"){h.style.top="auto";h.style.bottom="150px";h.style.transform=`translateX(-50%) translateY(${-t}px)`;}
+  else{h.style.bottom="auto";h.style.top="120px";h.style.transform=`translateX(-50%) translateY(${t}px)`;}
+  h.textContent=_pullVal>=90?ready:near;
 }
-function hidePullHint(){_pullVal=0;const h=document.getElementById("pull-hint");if(h){h.style.opacity="0";h.style.transform="translateX(-50%) translateY(0)";}}
+function hidePullHint(){_pullVal=0;const h=document.getElementById("pull-hint");if(h)h.style.opacity="0";}
 function roomMenuTap(n){_listMode?exitListMode():enterListMode();} // 押下=上スワイプと同じ
 /* 一覧モード: ROOMメニュー下・単語表上の帯（左40%=PWRメータボタン / 右60%=テスト履歴3件） */
 function roomMidHTML(n){
@@ -1414,28 +1416,34 @@ function buildRoomSlides(){
   }).join("");
   if(!el.dataset.bound){
     el.dataset.bound="1";
-    // 下スワイプでステータスへ。単語帳へのスワイプ遷移は廃止（負荷対策）。単語帳は最上部からさらに引っ張ると「ホームに戻る」
-    let _ty=null,_tx=null,_plList=null,_plBase=null;
+    // ホーム: 一定量引くと発動するプルダウン式（上引き=単語帳 / 下引き=ステータス）。単語帳内: 最上部からの下引きでホームへ戻る
+    let _ty=null,_tx=null,_plList=null,_plBase=null,_homeDir=null;
     el.addEventListener("touchstart",e=>{
-      _ty=e.touches[0].clientY;_tx=e.touches[0].clientX;_plBase=null;
+      _ty=e.touches[0].clientY;_tx=e.touches[0].clientX;_plBase=null;_homeDir=null;
       _plList=_listMode?el.querySelector(`.room-slide[data-n="${curSection}"] .slide-list`):null;
     },{passive:true});
     el.addEventListener("touchmove",e=>{
       if(_ty==null||_statusMode)return;
       const y=e.touches[0].clientY,dy=y-_ty,dx=e.touches[0].clientX-_tx;
       if(_listMode){
-        // 単語帳の縦スクロールが最上部(scrollTop<=0)のとき、下方向の引っ張りで戻るヒントを表示
+        // 単語帳の縦スクロールが最上部(scrollTop<=0)のとき、下方向の引っ張りで戻るヒント
         if(_plList&&_plList.scrollTop<=0&&dy>0&&Math.abs(dy)>Math.abs(dx)){
-          if(_plBase==null){_plBase=y;return;} // 上端に着いた瞬間を基準化
-          showPullHint(y-_plBase);
+          if(_plBase==null){_plBase=y;return;}
+          showPullHint(y-_plBase,"↓ さらに引くとホームに戻る","↓ 離してホームに戻る","top");
         }else{_plBase=null;hidePullHint();}
         return;
       }
-      if(dy>12&&Math.abs(dy)>Math.abs(dx)*1.2){_ty=null;enterStatusMode();} // 下スワイプで即ステータスへ
+      // ホーム: 縦引きでヒントを育てる（横スクロールと区別。一定量で発動）
+      if(Math.abs(dy)>Math.abs(dx)*1.2&&Math.abs(dy)>10){
+        _homeDir=dy<0?"up":"down";
+        if(_homeDir==="up")showPullHint(-dy,"↑ さらに引くと単語帳","↑ 離して単語帳へ","bottom");
+        else showPullHint(dy,"↓ さらに引くとステータス","↓ 離してステータスへ","top");
+      }else{_homeDir=null;hidePullHint();}
     },{passive:true});
     el.addEventListener("touchend",()=>{
-      if(_listMode&&_plBase!=null){const go=_pullVal>=90;hidePullHint();if(go)exitListMode();}
-      _ty=null;_plBase=null;_plList=null;
+      if(_listMode){if(_plBase!=null){const go=_pullVal>=90;hidePullHint();if(go)exitListMode();}}
+      else if(_homeDir){const go=_pullVal>=90,dir=_homeDir;hidePullHint();if(go){dir==="up"?enterListMode():enterStatusMode();}}
+      _ty=null;_plBase=null;_plList=null;_homeDir=null;
     });
     // ステータス中: 上スワイプでホームへ戻る（ROOMメニュー以下は下から再入場）
     const hw=document.getElementById("homewrap");
@@ -3266,7 +3274,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.72 (2026-07-19)";
+const APP_VERSION="v2.73 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -3447,6 +3455,11 @@ function saveLastRoom(){try{localStorage.setItem(LS_LASTROOM,JSON.stringify({lev
 })();
 updateDiagnosis();   // 起動時に診断を初期化
 renderHome();        // ホーム描画＋スケール適用
+// 初期起動時はモバイルのツールバー分だけ表示高さが未確定で下端が見切れることがあるため、確定後に再スケール
+[80,250,500,1000].forEach(t=>setTimeout(scaleHome,t));
+window.addEventListener("load",scaleHome);
+window.addEventListener("orientationchange",()=>setTimeout(scaleHome,150));
+window.addEventListener("pageshow",scaleHome);
 </script>
 </body>
 </html>
