@@ -391,7 +391,8 @@ body.bigtext .set-d{font-size:13.5px}
 .ac-t{font-size:16px;font-weight:900;line-height:1.7;margin-bottom:16px}
 .ac-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .ac-btns .btn{padding:12px;font-size:14px;border-radius:999px}
-.ac-btns .ac-stop{background:#fff;color:#1a1a1a;border:1px solid rgba(0,0,0,.25);font-weight:900} /* 中断=白座布団に黒文字（.btnより詳細度を上げる） */
+.ac-btns .ac-stop{background:#fff;color:#1a1a1a;border:1px solid rgba(0,0,0,.08);font-weight:900;box-shadow:0 2px 6px rgba(0,0,0,.22)} /* 中断=白カード上でも浮いて見える白座布団に黒文字 */
+.ac-card{background:#f3f4f6} /* カードを淡グレーにして白の中断ボタンをくっきり見せる */
 /* 横向き案内（非ブロッキング） */
 #rotate-hint{display:none;position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:700;background:rgba(0,0,0,.8);color:#fff;font-size:13px;font-weight:800;padding:9px 16px;border-radius:999px;pointer-events:none}
 @media (orientation:landscape) and (max-height:540px){#rotate-hint{display:block}}
@@ -3341,7 +3342,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.79.1 (2026-07-19)";
+const APP_VERSION="v2.79.2 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
