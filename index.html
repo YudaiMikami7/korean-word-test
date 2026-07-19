@@ -370,6 +370,8 @@ body.bigtext .set-d{font-size:13.5px}
 .hist-close{position:absolute;right:10px;top:6px;background:transparent;border:none;font-size:24px;font-weight:900;color:#888;cursor:pointer}
 .oa-close{display:inline-block;background:rgba(255,216,77,.95);color:#5a4300;font-size:14px;font-weight:900;padding:7px 14px;border-radius:999px;margin-bottom:10px} /* 書き取りのおしい表示 */
 .res-cheer{font-size:12.5px;font-weight:800;color:rgba(255,255,255,.95);margin-top:6px}
+.res-first{flex:0 0 auto;background:rgba(255,255,255,.92);color:#1a1a1a;border-radius:14px;padding:12px 14px;margin-bottom:8px;font-size:13px;font-weight:800;line-height:1.7;text-align:center} /* 初回完走の報酬予告 */
+.res-first b{color:#C24A00}
 .wb-tabs{display:flex;gap:8px;padding:10px 12px 0}
 .wb-tab{flex:1;border:none;border-radius:999px;padding:9px 4px;font-weight:800;font-size:13px;background:rgba(0,0,0,.35);color:#fff;cursor:pointer;font-family:inherit}
 .wb-tab.on{background:#fff;color:#1a1a1a}
@@ -664,6 +666,10 @@ body.bigtext .set-d{font-size:13.5px}
 .wd-img{display:block;width:min(62vw,300px);height:auto;margin:6px auto 2px}
 .wd-ko2{text-align:center;font-size:40px;font-weight:800;line-height:1.15;margin-top:4px}
 .wd-ja2{text-align:center;font-size:20px;font-weight:800;color:rgba(255,255,255,.92);margin-top:2px}
+.wd-spk{background:rgba(0,0,0,.35);border:none;border-radius:50%;width:38px;height:38px;font-size:18px;margin-left:10px;vertical-align:middle;cursor:pointer;color:#fff}
+.wd-ex{margin:10px 16px 0;background:rgba(255,255,255,.14);border-radius:12px;padding:10px 14px;text-align:center}
+.wd-ex-ko{font-size:19px;font-weight:800}
+.wd-ex-ja{font-size:13px;font-weight:700;color:rgba(255,255,255,.85);margin-top:3px}
 .wdetail-head{margin-bottom:6px}
 .wd-line{display:flex;justify-content:space-between;align-items:baseline;gap:12px} /* 韓国語=左端 / 日本語=右端 */
 .wd-line .ja{text-align:right}
@@ -920,7 +926,7 @@ const RANK_COLORS={S:"#FFC400",A:"#FF572F",B:"#1688FF",C:"#A05BD6",D:"#00924A"};
 /* XPは履歴の得点累計（減らない）。レベルLからL+1には L×100 XP 必要 */
 function loadBonus(){return parseInt(localStorage.getItem(LS_BONUS)||"0",10)||0;}
 function loadCards(){try{return JSON.parse(localStorage.getItem(LS_CARDS)||"{}")||{};}catch(e){return{};}}
-function addCards(wordId,n){if(n<=0)return;const c=loadCards();c[wordId]=(c[wordId]||0)+n;localStorage.setItem(LS_CARDS,JSON.stringify(c));}
+function addCards(wordId,n){if(n<=0)return;const c=loadCards();c[wordId]=(c[wordId]||0)+n;_lsSet(LS_CARDS,JSON.stringify(c));}
 function totalCards(){const c=loadCards();return Object.values(c).reduce((a,b)=>a+b,0);}
 function addBonus(n){localStorage.setItem(LS_BONUS,String(loadBonus()+n));}
 function xpInfo(){
@@ -1000,7 +1006,7 @@ function _presentState(){
   });
   return o;
 }
-function _savePresent(o){localStorage.setItem(LS_PRESENT,JSON.stringify(o));}
+function _savePresent(o){_lsSet(LS_PRESENT,JSON.stringify(o));}
 function totalTests(){const set=new Set();loadHistory().forEach(r=>{if(r.testId)set.add(r.testId);});let pruned=0;try{pruned=(JSON.parse(localStorage.getItem("kwt_histmeta_v1")||"{}").prunedTests)||0;}catch(e){}return set.size+pruned;}
 /* 回答履歴の間引き：90日より古い明細を削除（テスト数だけメタに繰入れ）。localStorage肥大と全走査の劣化を防ぐ */
 function pruneHistory(){
@@ -1983,7 +1989,25 @@ const LS_HIST="kwt_history_v1", LS_PERFECT="kwt_perfect_v1", LS_USER="kwt_user_v
       LS_BONUS="kwt_bonus_v1", LS_PRESENT="kwt_present_v1", LS_CARDS="kwt_cards_v1", LS_LAUNCH="kwt_launch_v1", LS_LASTROOM="kwt_lastroom_v1", LS_SETTINGS="kwt_settings_v1";
 function getUserId(){let u=localStorage.getItem(LS_USER);if(!u){u="u-"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);localStorage.setItem(LS_USER,u);}return u;}
 function loadHistory(){try{return JSON.parse(localStorage.getItem(LS_HIST)||"[]");}catch(e){return[];}}
-function saveAnswer(rec){const h=loadHistory();h.push(rec);localStorage.setItem(LS_HIST,JSON.stringify(h));_histIdxCache=null;}
+/* 保存の安全弁: 容量オーバー時は再生成可能な診断履歴を捨て→古い回答明細を強めに間引いて再試行し、学習の核(stats/cards)が静かに失われるのを防ぐ */
+function _lsSet(key,value){
+  try{localStorage.setItem(key,value);return true;}
+  catch(e){
+    try{localStorage.removeItem(LS_DIAG);}catch(_){} // 診断履歴は再生成可能
+    try{
+      const h=JSON.parse(localStorage.getItem(LS_HIST)||"[]");
+      if(h.length>500){
+        const meta=JSON.parse(localStorage.getItem("kwt_histmeta_v1")||"{}");
+        const keep=h.slice(-500);
+        meta.prunedTests=(meta.prunedTests||0)+new Set(h.slice(0,h.length-500).map(r=>r.testId)).size;
+        localStorage.setItem("kwt_histmeta_v1",JSON.stringify(meta));
+        localStorage.setItem(LS_HIST,JSON.stringify(keep));_histIdxCache=null;
+      }
+    }catch(_){}
+    try{localStorage.setItem(key,value);return true;}catch(e2){return false;}
+  }
+}
+function saveAnswer(rec){const h=loadHistory();h.push(rec);if(h.length>5000)h.splice(0,h.length-5000);_lsSet(LS_HIST,JSON.stringify(h));_histIdxCache=null;} // 回答明細も上限を設けて無制限成長を防ぐ
 function getPerfectCount(){return parseInt(localStorage.getItem(LS_PERFECT)||"0",10);}
 function incPerfectCount(){const n=getPerfectCount()+1;localStorage.setItem(LS_PERFECT,String(n));return n;}
 
@@ -2008,7 +2032,7 @@ const MEMORY_CONFIG={
 const DEFAULT_SCORE=0; // 互換: 未学習語の初期記憶スコア
 function clampN(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
 function loadStats(){try{return JSON.parse(localStorage.getItem(LS_STATS)||"{}");}catch(e){return{};}}
-function saveStats(s){localStorage.setItem(LS_STATS,JSON.stringify(s));}
+function saveStats(s){_lsSet(LS_STATS,JSON.stringify(s));}
 function defaultStat(){const C=MEMORY_CONFIG;return{
   hasSeen:false,hasEverCorrect:false,
   memoryScore:C.initialMemoryScore,formingScore:C.initialFormingScore,
@@ -2093,7 +2117,7 @@ function _progAll(){
   return all;
 }
 function loadProgress(){return _progAll()[secId(curSection)]||{cycleNumber:1,served:[],lastTestIds:[],prevTestIds:[]};}
-function saveProgress(p){const all=_progAll();all[secId(curSection)]=p;localStorage.setItem(LS_PROG,JSON.stringify(all));}
+function saveProgress(p){const all=_progAll();all[secId(curSection)]=p;_lsSet(LS_PROG,JSON.stringify(all));}
 
 /* --- 直近セッションの変化（今回の変化タブ用） --- */
 function loadSession(){try{return JSON.parse(localStorage.getItem(LS_SESS)||"null");}catch(e){return null;}}
@@ -2446,6 +2470,7 @@ function startTest(reviewIds){
   state={questions:qs,idx:0,results:[],testId:"t-"+Date.now().toString(36),userId:getUserId(),
     cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level};
   sfxStart();
+  if(typeof track==="function")track("quiz_start",{review:!!(reviewIds&&reviewIds.length)}); // ファネル起点（GA_ID設定時のみ）
   qrStopRain();qrClearLayer("q-rain");QR.active="q-rain"; // クイズ側の積もりをリセット（ホームの山は保持）
   updateAdvBtn();
   show("s-quiz");
@@ -2485,6 +2510,7 @@ function resumeTimer(){clearInterval(timer);_tick();timer=setInterval(_tick,100)
 
 function renderQuestion(){
   _counting=false; // 実際の問題に入ったのでカウントダウン中フラグを解除（以後の戻るは確認ダイアログ）
+  if(typeof track==="function"){if(state.idx===0)track("q1_shown");else if(state.idx===5)track("q6_reached");} // 離脱ファネル計測（GA_ID設定時のみ有効）
   // 遷移時に音声を止めない（長い単語が途中で切れないよう最後まで再生させる）。
   // 重複防止は次の正解時に speakKorean() 側の stopSpeak() が担う。
   const q=state.questions[state.idx];
@@ -2972,8 +2998,10 @@ function finishTest(){
   _homeNotice=(localStorage.getItem("kwt_lasttestday_v1")!==_tday)?{type:"streak"}:{type:"present"};
   localStorage.setItem("kwt_lasttestday_v1",_tday);
   checkAchievements();
+  const _firstEver=!localStorage.getItem("kwt_firstdone_v1"); if(_firstEver)_lsSet("kwt_firstdone_v1","1"); // 初回完走
+  const firstBanner=_firstEver?`<div class="res-first">🎉 初テストおつかれさま！<br>続けるほど<b>部屋が育ち</b>、正解した単語が<b>カードとして集まり</b>、<b>忘れる前に自動で復習</b>に出ます。まずは毎日1回！</div>`:"";
   document.getElementById("s-result").innerHTML=`
-   <div class="res">
+   <div class="res">${firstBanner}
     <div class="res-head">
       <div class="res-top">
         <div class="rank-c" style="background:${RANK_COLORS[rank]||"#555"}">${rank}</div>
@@ -2996,7 +3024,7 @@ function finishTest(){
     </div>
     <div class="res-btns">
       <button class="btn dark full" onclick="shareResult()" style="border:1px solid var(--gold);color:var(--gold)">&#120143; 結果をシェアして友達に挑戦</button>
-      <button class="btn dark" onclick="startTest()">もう一度挑戦する</button>
+      <button class="btn dark" onclick="if(typeof track==='function')track('retry');startTest()">もう一度挑戦する</button>
       <button class="btn dark" onclick="show('s-home')">ホームに戻る</button>
       <button class="btn wt" onclick="renderRoomCurve()">PWRメータを見る</button>
       ${donateBtnHTML('btn wt')}
@@ -3018,6 +3046,21 @@ function fmtDate(iso){const d=new Date(iso);const p=n=>String(n).padStart(2,"0")
 function fmtDateShort(iso){const d=new Date(iso),p=n=>String(n).padStart(2,"0");const md=`${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`;return d.getFullYear()!==new Date().getFullYear()?`${d.getFullYear()}/${md}`:md;}
 function rateClass(r){return r<0.5?"rate-bad":r<0.8?"rate-mid":"rate-good";}
 
+/* 例文（正確性を確認した標準的な短文のみ。全語ぶんは別途データ整備が必要。存在する単語だけ表示） */
+const WORD_EX={
+ "물":["물을 마셔요.","水を飲みます。"],
+ "책":["책을 읽어요.","本を読みます。"],
+ "학교":["학교에 가요.","学校に行きます。"],
+ "밥":["밥을 먹어요.","ご飯を食べます。"],
+ "집":["집에 있어요.","家にいます。"],
+ "시간":["시간이 없어요.","時間がありません。"],
+ "사람":["사람이 많아요.","人が多いです。"],
+ "친구":["친구를 만나요.","友達に会います。"],
+ "학생":["저는 학생이에요.","私は学生です。"],
+ "사랑":["사랑해요.","愛しています。"],
+ "물건":["물건을 사요.","品物を買います。"],
+ "시계":["시계를 봐요.","時計を見ます。"]
+};
 /* 単語詳細: カード型（上=No./記憶率/枚数、中央=大イラスト、下=韓日→履歴）。左右スワイプで前後の単語へ */
 let _wdBack="room";
 function wdHistRows(wordId){
@@ -3039,11 +3082,15 @@ function wdSlideHTML(id,i){
   const no=String(i+1).padStart(3,"0");
   const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko])?`<img class="wd-img" src="${WORD_IMG[w.ko]}" alt="">`:"";
   const note=w.n?`<div class="note">⚠️ ${esc(w.n)}</div>`:"";
+  // 発音再生ボタン（word.audioがあれば録音、無ければTTS）＋例文（データがある単語のみ表示）
+  const spk=`<button class="wd-spk" aria-label="発音を聞く" onclick="speakSmart('${esc(w.ko).replace(/'/g,"")}')">🔊</button>`;
+  const ex=(typeof WORD_EX!=="undefined"&&WORD_EX[w.ko])?`<div class="wd-ex"><div class="wd-ex-ko">${esc(WORD_EX[w.ko][0])}</div><div class="wd-ex-ja">${esc(WORD_EX[w.ko][1])}</div></div>`:"";
   return `
     <div class="wd-top"><span>No.${no}</span><span class="${ms.cls}">${rate}%</span><span>×${cnt}</span></div>
     ${img}
-    <div class="wd-ko2">${esc(w.ko)}</div>
+    <div class="wd-ko2">${esc(w.ko)}${spk}</div>
     <div class="wd-ja2">${esc(w.ja)}</div>
+    ${ex}
     ${note}
     <div class="st-graphpanel" style="margin-top:12px">${memChart(chartPoints(Date.now(),[w]))}</div>
     <div class="tdetail-sec"><div class="h">学習履歴</div>
@@ -3364,7 +3411,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.83 (2026-07-19)";
+const APP_VERSION="v2.84 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -3456,7 +3503,19 @@ function promptInstall(){
 /* 設定 */
 function _reducedMotion(){return !!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);} // OSの「視差効果を減らす」
 function loadSettings(){try{return Object.assign({tapAdvance:false,sound:true,slowTimer:false,balls:!_reducedMotion(),bigText:false},JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}"));}catch(e){return{tapAdvance:false,sound:true,balls:!_reducedMotion()};}}
-function saveSettings(o){localStorage.setItem(LS_SETTINGS,JSON.stringify(o));}
+function saveSettings(o){_lsSet(LS_SETTINGS,JSON.stringify(o));}
+/* 復習リマインダー: 通知許可を取得して設定を保存（実際の定期送信は配信サーバが必要。ここは許可取得と受け皿まで） */
+function toggleReminder(){
+  const st=loadSettings();
+  if(st.notify){st.notify=false;saveSettings(st);openSettings();return;}
+  if(typeof Notification==="undefined"){alert("この端末は通知に対応していません");return;}
+  Notification.requestPermission().then(p=>{
+    st.notify=(p==="granted");saveSettings(st);
+    if(p==="granted"){try{navigator.serviceWorker&&navigator.serviceWorker.ready.then(r=>r.showNotification("k-tango",{body:"復習どきになったらお知らせします📚",icon:"images-thumb/0773.webp"}));}catch(e){}}
+    else if(p==="denied")alert("端末の設定で通知が拒否されています。ブラウザ設定から許可してください。");
+    openSettings();
+  }).catch(()=>{});
+}
 function openSettings(){if(!document.getElementById("settings-modal").classList.contains("on"))pushNav("modal");
   const st=loadSettings();
   const m=document.getElementById("settings-modal");
@@ -3473,6 +3532,10 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
     <div class="set-row" onclick="toggleSetting('slowTimer')">
       <div><div class="set-t">じっくりモード</div><div class="set-d">${st.slowTimer?"制限時間1.5倍":"通常の制限時間"}</div></div>
       <div class="set-sw ${st.slowTimer?'on':''}"><span></span></div>
+    </div>
+    <div class="set-row" onclick="toggleReminder()">
+      <div><div class="set-t">復習リマインダー</div><div class="set-d">${st.notify&&(typeof Notification!=='undefined'&&Notification.permission==='granted')?"通知オン":"復習どきに通知（要許可）"}</div></div>
+      <div class="set-sw ${st.notify&&(typeof Notification!=='undefined'&&Notification.permission==='granted')?'on':''}"><span></span></div>
     </div>
     <div class="set-row" onclick="toggleSetting('balls')">
       <div><div class="set-t">玉の演出</div><div class="set-d">${st.balls!==false?"正解の玉が積もる":"オフ（すっきり表示・軽量）"}</div></div>
