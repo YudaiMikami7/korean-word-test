@@ -50,7 +50,7 @@ body{display:flex;justify-content:center}
 .app{width:100%;max-width:602px;min-height:100dvh;display:flex;flex-direction:column;position:relative;background:var(--bg);
   padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)} /* ノッチ/ホームバー回避 */
 
-button{font-family:inherit}
+button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)とダブルタップズームを抑制 */
 .hidden{display:none!important}
 
 /* ===== screens ===== */
@@ -953,6 +953,7 @@ function launchedDays(){try{return JSON.parse(localStorage.getItem(LS_LAUNCH)||"
 function markLaunch(){const a=launchedDays(),tk=dayKey(Date.now());if(!a.includes(tk)){a.push(tk);if(a.length>420)a.splice(0,a.length-400);localStorage.setItem(LS_LAUNCH,JSON.stringify(a));}} // 400日ぶんだけ保持
 /* 連続ログイン日数：今日を起点に起動記録(kwt_launch_v1)が連続している日数 */
 function loginStreak(){
+  markLaunch(); // 当日を先に記録（renderHomeがcheckAchievementsより先にloginStreakを呼ぶため、日付変更後の初回で今日が抜けて連続日数が誤るのを防ぐ）
   const s=new Set(launchedDays());let n=0,grace=false;const d=new Date();
   for(;;){
     if(s.has(dayKey(d.getTime()))){n++;d.setDate(d.getDate()-1);continue;}
@@ -1340,14 +1341,16 @@ function wbSearch(q){
   q=(q||"").trim();
   if(!q){box.innerHTML="";return;}
   const m=secOfWord();
-  const pool=BEGINNER_WORDS.concat(WORDS,MIDDLE_WORDS); // 初級・中級を横断検索
+  const seen=new Set();
+  const pool=BEGINNER_WORDS.concat(WORDS,MIDDLE_WORDS).filter(w=>{if(seen.has(w.id))return false;seen.add(w.id);return true;}); // 初級・中級を横断検索（WORDSとMIDDLE_WORDSの重複をid単位で排除）
   const hits=pool.filter(w=>w.ko.indexOf(q)>=0||(w.ja||"").indexOf(q)>=0).slice(0,20);
   box.innerHTML=hits.length?hits.map(w=>{
     const key=m[w.id],rn=key?key.split("-")[1]:"";
     const lv=key?(key.indexOf("beginner")===0?"初級":"中級"):"";
-    return `<div class="wbh-row" onclick="renderWordDetail(${w.id},'room')"><span class="wbh-ko">${esc(w.ko)}</span><span class="wbh-ja">${esc(w.ja)}</span><span class="wbh-room">${lv}${rn?" ROOM "+rn:""}</span></div>`;
+    return `<div class="wbh-row" onclick="wbPickHit(${w.id})"><span class="wbh-ko">${esc(w.ko)}</span><span class="wbh-ja">${esc(w.ja)}</span><span class="wbh-room">${lv}${rn?" ROOM "+rn:""}</span></div>`;
   }).join(""):'<div class="wbh-row" style="cursor:default;color:#888">見つかりませんでした</div>';
 }
+function wbPickHit(id){const q=document.getElementById("wb-q");if(q)q.value="";const b=document.getElementById("wb-hits");if(b)b.innerHTML="";renderWordDetail(id,'room');} // 検索候補を選んだら検索欄と候補を消してから詳細へ（戻ったとき単語帳に被らない）
 /* 初回だけジェスチャー案内を表示 */
 function showCoach(){
   const el=document.createElement("div");el.className="coach";
@@ -2113,6 +2116,7 @@ function _tone(ctx,freq,t0,dur,vol,type){const o=ctx.createOscillator(),g=ctx.cr
 function sfxStart(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime; _tone(c,880,t,0.08,0.18,"square");_tone(c,880,t+0.12,0.14,0.2,"square");} // 「ピ・ピー」の開始音
 function sfxCorrect(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime; _tone(c,784,t,0.09,0.15,"triangle");_tone(c,1175,t+0.08,0.18,0.15,"triangle");} // 正解: 明るい2音上昇（読み上げより小さめ）
 function sfxIncorrect(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime; _tone(c,320,t,0.14,0.14,"sawtooth");_tone(c,220,t+0.1,0.2,0.14,"sawtooth");} // 不正解: 低い2音下降
+function sfxNeutral(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime; _tone(c,520,t,0.14,0.12,"sine");} // わからない: やわらかい単音（失敗音にしない）
 function sfxClaim(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;[523,659,784,1047].forEach((f,i)=>_tone(c,f,t+i*0.07,0.3,0.2,"triangle"));_tone(c,1568,t+0.3,0.45,0.1,"sine");}
 let _koVoice=null,_curAudio=null;
 function _pickKoVoice(){
@@ -2396,7 +2400,7 @@ function show(id){
 }
 
 /* ============================================================ テスト進行 ============================================================ */
-let state=null,timer=null,qStart=0,answered=false,ovTimer=null,_roomCurveMode=false,_counting=false;
+let state=null,timer=null,qStart=0,answered=false,ovTimer=null,_roomCurveMode=false,_counting=false,_ovAdvance=null;
 /* 通知確認・画面ロック・アプリ切替中はタイマーを完全停止し、裏で時間切れにしない（復帰時に離席ぶんを差し戻して再開） */
 let _hiddenAt=0;
 function _inActiveQuestion(){const q=document.getElementById("s-quiz");return !!(q&&q.classList.contains("on")&&!answered&&state&&!_counting);}
@@ -2404,9 +2408,12 @@ document.addEventListener("visibilitychange",()=>{
   if(document.hidden){
     _hiddenAt=performance.now();
     if(_inActiveQuestion())clearInterval(timer); // 離席中はカウントを止める（throttleされたtickが裏で時間切れを撃つのを防ぐ）
+    if(_ovAdvance)clearTimeout(ovTimer); // 自動送りも止める（裏で勝手に次へ進まない）
   }else if(_hiddenAt){
     const d=performance.now()-_hiddenAt;_hiddenAt=0;
     if(_inActiveQuestion()){qStart+=d;resumeTimer();} // 停止分を差し戻して計時再開
+    if(_ovAdvance&&document.querySelector(".overlay"))ovTimer=setTimeout(_ovAdvance,700); // 復帰後に自動送りを短い間で再開
+    else _ovAdvance=null;
   }
 });
 
@@ -2489,7 +2496,7 @@ function renderQuestion(){
     stage.innerHTML=`
       <div class="qmain"><div class="qword${q.type==="jk"?" ja":""}">${esc(display)}</div></div>
       <div class="qbottom">
-        <div class="choices">${q.choices.map(c=>`<button class="choice" data-v="${esc(c)}">${esc(c)}</button>`).join("")}</div>
+        <div class="choices">${q.choices.map(c=>`<button class="choice" data-v="${esc(c)}" onclick="if(!answered)pick(this.dataset.v)">${esc(c)}</button>`).join("")}</div>
         <button class="unknown" onclick="submit('unknown','')">わからない</button>
       </div>`;
     bindChoiceDrag(); // タップ即確定でなく、触れた選択肢が黄色く光り→スライドして離した位置で確定
@@ -2516,7 +2523,14 @@ function pick(v){const q=state.questions[state.idx];submit(v===q.correct?"correc
 function bindChoiceDrag(){
   const wrap=document.querySelector("#qstage .choices");if(!wrap)return;
   let active=false;
-  const choiceAt=(x,y)=>document.elementsFromPoint(x,y).find(el=>el.classList&&el.classList.contains("choice")&&wrap.contains(el));
+  const choices=[...wrap.querySelectorAll(".choice")];
+  // 指の直下の選択肢。無ければ縦位置が最も近い選択肢（隙間12pxを押しても選べるように）
+  const choiceAt=(x,y)=>{
+    const hit=document.elementsFromPoint(x,y).find(el=>el.classList&&el.classList.contains("choice")&&wrap.contains(el));
+    if(hit)return hit;
+    let best=null,bd=1e9;choices.forEach(b=>{const r=b.getBoundingClientRect();const d=y<r.top?r.top-y:(y>r.bottom?y-r.bottom:0);if(d<bd&&d<24){bd=d;best=b;}});
+    return best;
+  };
   const setCand=btn=>wrap.querySelectorAll(".choice").forEach(b=>b.classList.toggle("cand",b===btn));
   const clearCand=()=>wrap.querySelectorAll(".choice.cand").forEach(b=>b.classList.remove("cand"));
   wrap.addEventListener("pointerdown",e=>{
@@ -2628,7 +2642,7 @@ function submit(status,userAnswer){
     displayMemoryScoreAfterDecay:Math.round(dispAfter) // 互換
   };
   state.results.push(rec);saveAnswer(rec);
-  isCorrect?sfxCorrect():sfxIncorrect(); // 正解音／不正解音（読み上げより小さめ）
+  if(isCorrect)sfxCorrect();else if(status==="unknown")sfxNeutral();else sfxIncorrect(); // 正解=正解音／わからない=中立音／不正解・時間切れ=不正解音
   speakKorean(q.word); // 正解・不正解・わからない・時間切れすべてで正解の韓国語音声を再生（学習のため）
   if(isCorrect)spawnWordDrop(q.word,Math.max(0,limit-elapsed)/limit); // 正解（四択・書き取りとも）：単語玉が背景に降り積もる（速答ほど大きい）
   showOverlay(status,q,userAnswer);
@@ -2651,7 +2665,7 @@ function showOverlay(status,q,userAnswer){
   if(tap)inner+='<div class="tap-next">タップで次へ ›</div>';
   ov.innerHTML=inner;
   document.body.appendChild(ov);
-  const advance=()=>{if(ov._done)return;ov._done=true;ov.remove();afterAnswer();};
+  const advance=()=>{if(ov._done)return;ov._done=true;_ovAdvance=null;ov.remove();afterAnswer();};
   // 回答後のどの状態（タップ待ち/自動送り待ち/切替直後）でも1つのハンドラで処理する
   ov.addEventListener("click",(e)=>{
     if(ov._done)return;
@@ -2683,7 +2697,7 @@ function showOverlay(status,q,userAnswer){
     ov.style.cursor="pointer";
     if(q.type!=="w")addChoiceSpeakers(); // 各選択肢の右端に音声マーク
   }else{
-    ovTimer=setTimeout(advance,isCorrect?1000:2000);
+    _ovAdvance=advance;ovTimer=setTimeout(advance,isCorrect?1000:2000); // 自動送り（タブ離脱中は止め、復帰後に再開）
   }
 }
 /* 四択正解時：単語画像入りの白半透明カプセル玉が落下し、衝突・転がりながらどんどん積もる（簡易物理・背景レイヤー） */
@@ -2758,7 +2772,10 @@ function homeRain(){
   let i=0;
   QR.rainTimer=setInterval(()=>{
     const home=document.getElementById("s-home");
-    if(!home||!home.classList.contains("on"))return; // ホームを離れている間は待機し、戻ったら続きから降る
+    if(!home||!home.classList.contains("on")){ // ホーム離脱: 残りを_ballLogに戻してタイマー停止（空回り＆後続homeRainのブロックを防ぐ。戻ったら続きから降る）
+      if(i<q.length)_ballLog.unshift(...q.slice(i));
+      qrStopRain();return;
+    }
     if(i>=q.length){qrStopRain();return;}
     const b=q[i++];spawnBallRaw(b.src,b.r,b.bg,"home-rain");
   },100);
@@ -3011,7 +3028,9 @@ function wdHistRows(wordId){
     const dir=(r.answerType==="writing"?IC("270d"):(r.direction==="kr_to_jp"?IC("1f1f0-1f1f7"):IC("1f1ef-1f1f5")))+(r.isHintProvided?IC("1f4a1"):"");
     const mem=(r.displayMemoryScoreAfterDecay!=null)?r.displayMemoryScoreAfterDecay:"—";
     const sy=SYM[r.answerStatus]||["－",""];
-    return `<tr><td>${fmtDate(r.answeredAt)}</td><td>${dir}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}</td><td class="num">${(r.responseTimeMs/1000).toFixed(1)}</td><td class="num">${r.score}</td><td class="num">${mem}</td></tr>`;
+    const secs=(r.responseTimeMs!=null?r.responseTimeMs/1000:(r.responseTimeSec!=null?r.responseTimeSec:null)); // 旧データ等でms欠損でもNaNにしない
+    const secTxt=secs!=null?secs.toFixed(1):"—";
+    return `<tr><td>${fmtDate(r.answeredAt)}</td><td>${dir}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}</td><td class="num">${secTxt}</td><td class="num">${r.score}</td><td class="num">${mem}</td></tr>`;
   }).join("");
 }
 function wdSlideHTML(id,i){
@@ -3345,7 +3364,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.82 (2026-07-19)";
+const APP_VERSION="v2.83 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
