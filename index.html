@@ -311,7 +311,7 @@ button{font-family:inherit}
 /* 単語帳: 3列グリッド（縦スクロール）＋動的演出（カスケード出現・画像のゆらぎ） */
 .wb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:92px 10px;padding:96px 10px 24px} /* 長い単語でも3列とも同幅・画面からはみ出さない */
 .wb-card{min-width:0;max-width:100%}
-.wb-card{position:relative;background:rgba(255,255,255,.95);border-radius:18px;padding:8px 10px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a;animation:wbin .5s ease backwards;content-visibility:auto;contain-intrinsic-size:auto 150px} /* 画面外カードの描画をブラウザがスキップ（100カードでも軽い） */
+.wb-card{position:relative;background:rgba(255,255,255,.95);border-radius:18px;padding:8px 10px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a;animation:wbin .5s ease backwards} /* content-visibilityはpaint封じ込めでポップアウト画像が切れるため不使用（軽量化は現在ROOM±1のみ描画で担保） */
 @keyframes wbin{from{opacity:0;transform:translateY(18px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
 .wb-imgspace{width:90px;height:60px;flex:0 0 auto} /* 画像の下半分ぶんの席を確保（韓国語と重ならない） */
 .wb-img{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:150px;height:150px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18));animation:wbbob 3.2s ease-in-out infinite}
@@ -3239,7 +3239,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.71 (2026-07-19)";
+const APP_VERSION="v2.71.1 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
