@@ -105,7 +105,7 @@ button{font-family:inherit}
 .home-wrap.status #home-rain,.home-wrap.hiderail #home-rain{opacity:0}
 .qr-ball{position:absolute;left:0;top:0;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.55);
   box-shadow:inset 0 -6px 12px rgba(0,0,0,.08),0 4px 10px rgba(0,0,0,.15);
-  display:flex;align-items:center;justify-content:center;will-change:transform} /* 白半透明の丸カプセル */
+  display:flex;align-items:center;justify-content:center} /* 白半透明の丸カプセル（will-changeはJSで落下中のみ付与） */
 .qr-ball img{width:72%;height:72%;object-fit:contain;pointer-events:none}
 
 /* unknown btn */
@@ -311,7 +311,7 @@ button{font-family:inherit}
 /* 単語帳: 3列グリッド（縦スクロール）＋動的演出（カスケード出現・画像のゆらぎ） */
 .wb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:92px 10px;padding:96px 10px 24px} /* 長い単語でも3列とも同幅・画面からはみ出さない */
 .wb-card{min-width:0;max-width:100%}
-.wb-card{position:relative;background:rgba(255,255,255,.95);border-radius:18px;padding:8px 10px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a;animation:wbin .5s ease backwards}
+.wb-card{position:relative;background:rgba(255,255,255,.95);border-radius:18px;padding:8px 10px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a;animation:wbin .5s ease backwards;content-visibility:auto;contain-intrinsic-size:auto 150px} /* 画面外カードの描画をブラウザがスキップ（100カードでも軽い） */
 @keyframes wbin{from{opacity:0;transform:translateY(18px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
 .wb-imgspace{width:90px;height:60px;flex:0 0 auto} /* 画像の下半分ぶんの席を確保（韓国語と重ならない） */
 .wb-img{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:150px;height:150px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18));animation:wbbob 3.2s ease-in-out infinite}
@@ -1087,7 +1087,7 @@ function claimAllPresents(){
   st.queue=st.queue.filter(x=>x.cat!==_presCat);
   _savePresent(st);
   sfxClaim();addBonus(sum);
-  updatePresent();renderHome();
+  updatePresent();updateHomeStats(); // XP等だけ更新（ROOMスライドは再構築しない）
   openPresent(_presCat); // 空になったカードに切替（モーダルは開いたまま）
 }
 function claimPresentItem(btn){
@@ -1103,7 +1103,7 @@ function claimPresentItem(btn){
   btn.classList.add("claimed");
   btn.querySelector(".amt").textContent="受け取り済み";
   updatePresent();
-  renderHome(); // XP表示更新（モーダルは開いたまま）
+  updateHomeStats(); // XP表示だけ更新（ROOMスライド再構築なし・モーダルは開いたまま）
   const title=document.querySelector("#present-modal .pm-title");
   const n=presentsAvailable(_presCat);
   if(title)title.textContent=PRES_LABEL[_presCat]+(n>0?`が ${n} 個`:" 完了！");
@@ -1125,7 +1125,7 @@ function updatePwrFine(){
   const dn=document.getElementById("hv-pwrdown");
   if(dn)dn.textContent=v>0?`PWRが0.01%減るまで あと${Math.ceil(10-el%10)}秒`:"";
 }
-setInterval(()=>{const h=document.getElementById("s-home");if(h&&h.classList.contains("on"))updatePwrFine();},300);
+setInterval(()=>{if(document.hidden)return;const h=document.getElementById("s-home");if(h&&h.classList.contains("on"))updatePwrFine();},300); // タブ非表示中は動かさない
 function pwrOverall(){
   const s=loadStats(),ids=Object.keys(s);
   if(!ids.length)return 0;
@@ -1271,7 +1271,7 @@ function wbCardHTML(id,i,st,cards,now){
   const ownedC=cnt>0;
   const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[w.ko]:null;
   const bobDelay=(i*137)%1600; // 画像のゆらぎ位相をカードごとにずらす
-  const img=src?`<span class="wb-imgspace"></span><img class="wb-img${ownedC?"":" sil"}" style="animation-delay:${bobDelay}ms" src="${src}" loading="lazy" alt="">`:"";
+  const img=src?`<span class="wb-imgspace"></span><img class="wb-img${ownedC?"":" sil"}" style="animation-delay:${bobDelay}ms" src="${src}" loading="lazy" decoding="async" alt="">`:"";
   let rateHTML='<span class="wb-rate">—</span>';
   if(ownedC){const rate=Math.round(displayScore(getStat(id,st),now)),ms=memState(rate);rateHTML=`<span class="wb-rate ${ms.cls}">${rate}%・${ms.label.charAt(0)}</span>`;} // 色+1文字ラベルで色覚多様性に配慮
   return `<div class="wb-card" style="animation-delay:${(i%12)*45}ms" onclick="renderWordDetail(${id},'room')">
@@ -1282,7 +1282,15 @@ function wbCardHTML(id,i,st,cards,now){
   </div>`;
 }
 let _wbFilter="all";
-function wbSetFilter(f){_wbFilter=f;buildRoomSlides();attachHomeRain();}
+function wbSetFilter(f){_wbFilter=f;buildRoomSlides();attachHomeRain();fillNearbyRoomLists();}
+/* 遅延単語帳: 未描画(data-lazy)の該当ROOMだけ実描画する。全ROOM×100カード同時生成を避ける */
+function fillRoomList(n){
+  const ph=document.querySelector(`.room-slide[data-n="${n}"] .slide-list[data-lazy]`);
+  if(!ph)return;
+  const tmp=document.createElement("div");tmp.innerHTML=roomListHTML(n);
+  const built=tmp.firstElementChild;if(built)ph.replaceWith(built);
+}
+function fillNearbyRoomLists(){if(!_listMode)return;[curSection-1,curSection,curSection+1].forEach(fillRoomList);}
 function roomListHTML(n){
   const ids=LEVEL_SECTIONS[curLevel][n]||[],st=loadStats(),cards=loadCards(),now=Date.now();
   let owned=0,totalCnt=0;
@@ -1384,8 +1392,8 @@ function buildRoomSlides(){
       ${rPrev2?circ("rank-s",rPrev2):""}
       ${rPrev1?circ("rank-s rank-s1",rPrev1):""}
       ${big}
-      ${_listMode?roomListHTML(n):`<div class="room-ph">${nn}</div>
-      <img class="slide-img" src="rooms/${curLevel}-${nn}.webp" alt="" loading="lazy"
+      ${_listMode?(Math.abs(n-curSection)<=1?roomListHTML(n):`<div class="slide-list wb-list" data-lazy="${n}"></div>`):`<div class="room-ph">${nn}</div>
+      <img class="slide-img" src="rooms/${curLevel}-${nn}.webp" alt="" loading="lazy" decoding="async"
         onload="this.previousElementSibling.style.display='none'"
         onerror="this.style.display='none'">`}
       </div>
@@ -1422,7 +1430,7 @@ function buildRoomSlides(){
       clearTimeout(_roomScrollT);
       _roomScrollT=setTimeout(()=>{
         const n=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count);
-        if(n>=1&&n!==curSection){curSection=n;applyHomeBg();saveLastRoom();attachHomeRain();} // 玉の山も新しいROOMスライドへ移す
+        if(n>=1&&n!==curSection){curSection=n;applyHomeBg();saveLastRoom();attachHomeRain();fillNearbyRoomLists();} // 玉の山も新ROOMへ移す＋近傍の単語帳を実描画
       },120);
     });
   }
@@ -1449,13 +1457,10 @@ function scaleHome(){
 }
 window.addEventListener("resize",scaleHome);
 if(window.visualViewport)window.visualViewport.addEventListener("resize",scaleHome); // ツールバー出入りに追従
-function renderHome(){
-  const d=computeDiagnosis();
-  // 1軸でも判定できたら即コード表示（テストごとに更新される）
-  // 連続ログイン日数（炎アイコン=生成画像0773 불 + 日数）。タイプコード表示は廃止
-  const codeEl=document.getElementById("hv-code");
-  codeEl.innerHTML=`<img class="streak-fire" src="images-thumb/0773.webp" alt="連続ログイン">`+`<span class="ctext">${loginStreak()}</span>`;
-  document.getElementById("hv-char").src=charPathFor(d);
+/* ヘッダーの軽い数値だけ更新（XP/PWR/連続日数/次回復習）。ROOMスライド再構築を伴わないのでプレゼント受取等の高頻度呼び出しに使う */
+function updateHomeStats(){
+  const codeEl=document.getElementById("hv-code");if(!codeEl)return;
+  codeEl.innerHTML=`<img class="streak-fire" src="images-thumb/0773.webp" alt="連続ログイン"><span class="ctext">${loginStreak()}</span>`;
   const xp=xpInfo();
   document.getElementById("hv-level").innerHTML=`Lv.<span>${xp.level}</span>`;
   document.getElementById("hv-xpval").textContent=`${xp.cur}/${xp.next}`;
@@ -1463,6 +1468,12 @@ function renderHome(){
   const pw=pwrOverallExact();
   document.getElementById("hv-pwrval").textContent=pw.toFixed(2)+"%";
   document.getElementById("hv-pwrfill").style.width=pw+"%";
+  const nr=document.getElementById("hv-nextrev");if(nr)nr.textContent=nextReviewInfo();
+}
+function renderHome(){
+  const d=computeDiagnosis();
+  document.getElementById("hv-char").src=charPathFor(d);
+  updateHomeStats();
   buildRoomSlides();
   attachHomeRain(); // スライド再構築後に玉レイヤーを差し直し（玉は保持）
   if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();setTimeout(maybeCoach,900);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋初回コーチ＋バックアップ提案
@@ -1473,8 +1484,6 @@ function renderHome(){
   checkAchievements();
   calibratePwr(); // ホーム表示のたびに実測し直し、以降は固定速度で減算
   updatePwrFine();
-  const nr=document.getElementById("hv-nextrev");
-  if(nr)nr.textContent=nextReviewInfo(); // 次の復習時刻（リマインダー代替）
   if(_homeNotice){showHomeNotice(_homeNotice);_homeNotice=null;}
 }
 /* 「復習どき」タップ：期限が来ている単語だけで復習テストを開始（優先度順に12語） */
@@ -2595,6 +2604,7 @@ function spawnBallRaw(src,r,bg,layerId){
   }
   const el=document.createElement("div");el.className="qr-ball";
   el.style.width=el.style.height=(r*2)+"px";
+  el.style.willChange="transform"; // 落下中のみGPU昇格（停止時にautoへ戻す）
   if(bg)el.style.background=bg+"D9"; // ROOM色85%
   el.innerHTML=src?`<img src="${src}" alt="">`:""; // 画像なし単語は無地カプセル
   layer.appendChild(el);
@@ -2715,7 +2725,7 @@ function qrStep(ts){
   QR.calm=(moved<bs.length*0.3||bs.every(b=>b.sleep))?QR.calm+1:0;
   QR.sinceSpawn=(QR.sinceSpawn||0)+1;
   // 確定停止：静まった or 最後の落下から約3.5秒(210フレーム)経過。密集でjamしても必ずピクピクを止める
-  if(QR.calm>30||QR.sinceSpawn>210){bs.forEach(b=>{b.sleep=true;b.vx=0;b.vy=0;b.va=0;});QR.raf=0;return;}
+  if(QR.calm>30||QR.sinceSpawn>210){bs.forEach(b=>{b.sleep=true;b.vx=0;b.vy=0;b.va=0;b.el.style.willChange="auto";});QR.raf=0;return;} // 停止時はwill-changeを解除しGPUメモリを返す
   QR.raf=requestAnimationFrame(qrStep);
 }
 
@@ -3229,7 +3239,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.70 (2026-07-19)";
+const APP_VERSION="v2.71 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
