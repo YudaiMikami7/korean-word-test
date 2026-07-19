@@ -2408,12 +2408,13 @@ document.addEventListener("visibilitychange",()=>{
 
 function confirmQuit(){
   if(_counting){quitTest();return;} // カウントダウン中はまだ問題が始まっていないので確認なしで即ホームへ
-  const t0=performance.now(); // ダイアログ表示中はタイマーを止める
+  const t0=performance.now();
+  clearInterval(timer); // ダイアログ表示中はタイマーを完全停止（裏で時間切れにならないように）
   const m=document.createElement("div");m.className="appconfirm";
   m.innerHTML=`<div class="ac-card"><div class="ac-t">テストを中断して<br>ホームに戻りますか？</div>
     <div class="ac-btns"><button class="btn ac-stop" id="ac-yes">中断</button><button class="btn ghost" id="ac-no">続ける</button></div></div>`;
   document.body.appendChild(m);
-  const resume=()=>{if(!answered)qStart+=performance.now()-t0;m.remove();};
+  const resume=()=>{if(!answered){qStart+=performance.now()-t0;resumeTimer();}m.remove();}; // 停止していた分を差し戻して計時再開
   m.querySelector("#ac-no").onclick=resume;
   m.querySelector("#ac-yes").onclick=()=>{m.remove();quitTest();};
   m.onclick=e=>{if(e.target===m)resume();};
@@ -2461,19 +2462,15 @@ function showCountdown(cb){
 
 function curLimit(){const base=state.questions[state.idx].type==="w"?20:10;return Math.round(base*(loadSettings().slowTimer?1.5:1));} // じっくりモードは1.5倍
 
-function startTimer(){
-  qStart=performance.now();answered=false;
+function _tick(){
   const limit=curLimit(),fill=document.getElementById("tfill"),tt=document.getElementById("time");
-  clearInterval(timer);
-  const tick=()=>{
-    const el=(performance.now()-qStart)/1000, remain=Math.max(0,limit-el);
-    fill.style.width=(remain/limit*100)+"%";
-    fill.className="tfill"+(remain<=limit*0.3?" warn":"");
-    tt.textContent=remain.toFixed(1);
-    if(remain<=0){clearInterval(timer);if(!answered)submit("timeout","");}
-  };
-  tick();timer=setInterval(tick,100);
+  const el=(performance.now()-qStart)/1000, remain=Math.max(0,limit-el);
+  if(fill){fill.style.width=(remain/limit*100)+"%";fill.className="tfill"+(remain<=limit*0.3?" warn":"");}
+  if(tt)tt.textContent=remain.toFixed(1);
+  if(remain<=0){clearInterval(timer);if(!answered)submit("timeout","");}
 }
+function startTimer(){qStart=performance.now();answered=false;clearInterval(timer);_tick();timer=setInterval(_tick,100);}
+function resumeTimer(){clearInterval(timer);_tick();timer=setInterval(_tick,100);} // qStart/answeredは保持したまま計時だけ再開（中断ダイアログからの復帰用）
 
 function renderQuestion(){
   _counting=false; // 実際の問題に入ったのでカウントダウン中フラグを解除（以後の戻るは確認ダイアログ）
@@ -3342,7 +3339,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.79.2 (2026-07-19)";
+const APP_VERSION="v2.80 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
