@@ -470,10 +470,12 @@ body.bigtext .set-d{font-size:13.5px}
   opacity:var(--p,1);transition:opacity .35s ease}
 .home-wrap.dragging .wl-mid{transition:none}
 .wl-hist{flex:1;background:rgba(0,0,0,.35);overflow:hidden}
-.wh-date{font-size:13px;font-weight:700;color:rgba(255,255,255,.75);width:158px;flex:0 0 auto}
-.wh-row{display:flex;align-items:center;gap:10px;height:50px;padding:0 12px;font-size:22px;font-weight:900;cursor:pointer;border-bottom:1px solid var(--line)}
-.wh-rank{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:23px;font-weight:900;flex:0 0 auto}
-.wh-score{width:54px;text-align:right}
+.wh-date{font-size:13px;font-weight:700;color:rgba(255,255,255,.75);flex:0 0 auto;white-space:nowrap}
+.wh-row{display:flex;align-items:center;gap:8px;height:50px;padding:0 12px;font-size:22px;font-weight:900;cursor:pointer;border-bottom:1px solid var(--line)}
+.wh-rank{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:23px;font-weight:900;flex:0 0 auto;color:#fff} /* ランクは白文字 */
+.wh-score{margin-left:auto;width:66px;text-align:right;font-variant-numeric:tabular-nums} /* 点数は右揃え固定幅で桁数によらず右端が揃う */
+.wh-pt{font-size:.55em;font-weight:800;margin-left:1px}
+.wh-oc{width:44px;text-align:right;font-variant-numeric:tabular-nums;flex:0 0 auto}
 .wh-empty{color:rgba(255,255,255,.85);font-size:14px;font-weight:700;padding:12px}
 .rm-scale{transform-origin:top left;width:602px}
 .rm-inner{position:relative;width:602px;height:176px;margin-top:14px}
@@ -1217,10 +1219,10 @@ function roomMidHTML(n){
   const rows=tests.length?tests.map(t=>{
     const full=t.n>=12,tt=Math.ceil(t.total),rk=full?rankFor(tt):null;
     return `<div class="wh-row" onclick="renderPastResult('${t.tid}')">
-      <span class="wh-date">${fmtDate(t.at)}</span>
+      <span class="wh-date">${fmtDateShort(t.at)}</span>
       <span class="wh-rank" style="background:${rk?(RANK_COLORS[rk]||"#555"):"rgba(0,0,0,.22)"}">${rk||"-"}</span>
-      <span class="wh-score">${tt}</span>
-      <span style="color:#FF3B3B">○${t.ok}</span><span style="color:#2F6FE0">×${t.n-t.ok}</span></div>`;
+      <span class="wh-score">${tt}<span class="wh-pt">点</span></span>
+      <span class="wh-oc" style="color:#FF3B3B">○${t.ok}</span><span class="wh-oc" style="color:#2F6FE0">×${t.n-t.ok}</span></div>`;
   }).join(""):'<div class="wh-empty">まだテスト履歴がありません</div>';
   return `<div class="wl-mid">
     <div class="wl-hist">${rows}</div>
@@ -1236,10 +1238,10 @@ function openRoomHistory(n){if(!document.getElementById("history-modal").classLi
   const rows=tests.length?tests.map(t=>{
     const full=t.n>=12,tt=Math.ceil(t.total),rk=full?rankFor(tt):null;
     return `<div class="wh-row" onclick="closeRoomHistory();renderPastResult('${t.tid}')">
-      <span class="wh-date">${fmtDate(t.at)}</span>
+      <span class="wh-date">${fmtDateShort(t.at)}</span>
       <span class="wh-rank" style="background:${rk?(RANK_COLORS[rk]||"#555"):"rgba(0,0,0,.22)"}">${rk||"-"}</span>
-      <span class="wh-score">${tt}</span>
-      <span style="color:#FF3B3B">○${t.ok}</span><span style="color:#2F6FE0">×${t.n-t.ok}</span></div>`;
+      <span class="wh-score">${tt}<span class="wh-pt">点</span></span>
+      <span class="wh-oc" style="color:#FF3B3B">○${t.ok}</span><span class="wh-oc" style="color:#2F6FE0">×${t.n-t.ok}</span></div>`;
   }).join(""):'<div class="wh-empty">まだテスト履歴がありません</div>';
   const m=document.getElementById("history-modal");
   m.innerHTML=`<div class="hist-card"><button class="hist-close" onclick="closeRoomHistory()">×</button><div class="hist-h">ROOM ${String(n).padStart(2,"0")}　テスト履歴</div>${rows}</div>`;
@@ -2959,6 +2961,8 @@ function finishTest(){
 /* 学習履歴ページは廃止（単語の履歴はROOMメニュー→単語詳細で確認） */
 const STATUS_JA={correct:"正解",incorrect:"不正解",unknown:"わからない",timeout:"時間切れ"};
 function fmtDate(iso){const d=new Date(iso);const p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;}
+/* 履歴用の短い日時: 通常は M/D HH:MM、別の年のものだけ年を前置（履歴は90日で間引くため通常は年不要） */
+function fmtDateShort(iso){const d=new Date(iso),p=n=>String(n).padStart(2,"0");const md=`${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`;return d.getFullYear()!==new Date().getFullYear()?`${d.getFullYear()}/${md}`:md;}
 function rateClass(r){return r<0.5?"rate-bad":r<0.8?"rate-mid":"rate-good";}
 
 /* 単語詳細: カード型（上=No./記憶率/枚数、中央=大イラスト、下=韓日→履歴）。左右スワイプで前後の単語へ */
@@ -3305,7 +3309,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.76 (2026-07-19)";
+const APP_VERSION="v2.77 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
