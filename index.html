@@ -756,6 +756,8 @@ body.bigtext .set-d{font-size:13.5px}
 .pq-main .pq-spot{border-radius:34px}
 .pq-main .pq-sil{width:260px;height:280px}
 .pq-main .pq-ribbon{bottom:26px}
+.pq-cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:30px} /* 差し替え画像（ジャケット風フレーム内） */
+.pq-hero .pq-cover{border-radius:0 0 34px 34px}
 /* 特別ルーム選択中のスタートボタン（グローバルボタンをプリティーに） */
 .home-wrap.pq-active .start-button{border:none!important;color:#fff!important;
   background:linear-gradient(90deg,#ff9ecb,#ff77aa,#c9a8ff,#9ecbff,#ff9ecb)!important;background-size:250% 100%!important;animation:pqRainbow 9s linear infinite;
@@ -1398,15 +1400,24 @@ const PRIQQ={
   name:"ルーム プリQQ",
   label:"SPECIAL",
   desc:"放課後のプリクラみたいに、キラキラかわいく単語を集めよ♡ かわいくなりたい気持ちで青春の語彙をGET！",
-  total:20,            // 進捗の分母（後で実データに差し替え）
-  learned:0,           // 進捗の分子（後で実データに差し替え）
-  ids:[],              // 出題語のwordId配列（あとで指定）。空なら準備中
-  preview:[            // 単語プレビュー（初回はダミー。あとで差し替えやすい形）
-    {ko:"???",ja:"かわいい",st:"💖"},{ko:"???",ja:"きらきら",st:"⭐"},
-    {ko:"???",ja:"放課後",st:"🎀"},{ko:"???",ja:"ともだち",st:"✨"},
-    {ko:"???",ja:"青春",st:"🌈"},{ko:"???",ja:"プリクラ",st:"💫"}
-  ]
+  image:"",            // メイン画像。権利上OKな画像ファイルのパスを入れると差し替わる（未設定なら自作のジャケット風ビジュアル）
+  ids:[],              // 出題語のwordId配列（既存データにひも付ける場合。空ならpreviewの語で準備中トースト）
+  preview:[            // プリQQの語彙（韓国語＋和訳。プレビュー＆将来の出題データ）
+    {ko:"프리큐큐",ja:"プリキュキュ",st:"💖"},{ko:"귀여워",ja:"かわいい",st:"🩷"},
+    {ko:"반짝반짝",ja:"きらきら",st:"✨"},{ko:"앞머리",ja:"前髪",st:"💇"},
+    {ko:"자존심",ja:"プライド・自尊心",st:"👑"},{ko:"용기",ja:"勇気",st:"🔥"},
+    {ko:"친구",ja:"友だち",st:"🫶"},{ko:"입술",ja:"くちびる",st:"💋"},
+    {ko:"탱글탱글",ja:"ぷるぷる",st:"🫧"},{ko:"바짝바짝",ja:"ぐいぐい",st:"💫"},
+    {ko:"매일",ja:"毎日",st:"📅"},{ko:"순간",ja:"瞬間",st:"⏳"},
+    {ko:"지금",ja:"今",st:"⭐"},{ko:"큐티",ja:"キューティー",st:"🎀"},
+    {ko:"가보자구",ja:"行こう！",st:"🚀"},{ko:"얼굴",ja:"顔",st:"😊"},
+    {ko:"무적",ja:"無敵",st:"🛡️"}
+  ],
+  get total(){return this.preview.length;},
+  learned:0
 };
+/* メインビジュアルの中身: 画像があればジャケット風フレームで表示、無ければ自作の抽象キラキラ */
+function pqMainInner(){return PRIQQ.image?`<img class="pq-cover" src="${esc(PRIQQ.image)}" alt="">`:pqDecoSVG();}
 /* 装飾のみ（スポット/放射光/星/ハート/シルエット）。実在アーティストの複製ではない抽象コンポジション */
 function pqDecoSVG(){
   const stars=[[40,60,18],[520,80,22],[90,180,14],[470,200,16],[300,40,12],[200,70,10],[560,150,12],[30,120,12]]
@@ -1421,8 +1432,8 @@ function pqDecoSVG(){
   </svg>`;
   return `<div class="pq-spot"></div><div class="pq-rays"></div>${stars}${hearts}${sil}`;
 }
-/* メインビジュアル（詳細ページ用＝装飾＋SPECIAL＋リボン名） */
-function pqHeroSVG(){return pqDecoSVG()+`
+/* メインビジュアル（詳細ページ用＝画像 or 装飾 ＋SPECIAL＋リボン名） */
+function pqHeroSVG(){return pqMainInner()+`
     <div class="pq-special">★ ${esc(PRIQQ.label)} <span class="pq-sparkle">✧</span></div>
     <div class="pq-ribbon">${esc(PRIQQ.name)}</div>`;}
 function renderPriQQ(){
@@ -1577,7 +1588,7 @@ function buildRoomSlides(){
       <div class="hv-roompwr">${pqrate}<span class="unit">%</span></div>
       <div class="gauge hv-roomg"><div class="gfill" style="width:${pqrate}%"></div></div>
       <div class="pq-badge">★ SPECIAL</div>
-      <div class="pq-main" onclick="openPriQQ()">${pqDecoSVG()}<div class="pq-ribbon">${esc(PRIQQ.name)}</div></div>
+      <div class="pq-main" onclick="openPriQQ()">${pqMainInner()}<div class="pq-ribbon">${esc(PRIQQ.name)}</div></div>
     </div>
   </div>`;
   el.innerHTML=levelSlide+specialSlide+Array.from({length:count},(_,i)=>{
@@ -3586,7 +3597,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.86 (2026-07-20)";
+const APP_VERSION="v2.87 (2026-07-20)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
