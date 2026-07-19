@@ -675,6 +675,70 @@ body.bigtext .set-d{font-size:13.5px}
 .wd-line .ja{text-align:right}
 .wdetail-head .ko{font-size:26px;font-weight:800}
 .wdetail-head .ja{color:#FFFFFF;font-size:26px;font-weight:800;margin-top:2px}
+
+/* ============================================================ 特別ルーム「プリQQ」専用テーマ（#s-priqq配下だけ・通常ルームに影響なし。フォントは変更しない） ============================================================ */
+#s-priqq{background:linear-gradient(180deg,#ffe3f1 0%,#ffeaf5 30%,#eef4ff 70%,#f3ecff 100%);color:#6a3d63;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 calc(24px + env(safe-area-inset-bottom))}
+#s-priqq *{box-sizing:border-box}
+@keyframes pqRainbow{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes pqTwinkle{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+@keyframes pqFloat{0%,100%{transform:translateY(0) rotate(var(--rot,0deg))}50%{transform:translateY(-8px) rotate(var(--rot,0deg))}}
+@keyframes pqShine{0%{transform:translateX(-120%) skewX(-20deg)}60%,100%{transform:translateX(220%) skewX(-20deg)}}
+@keyframes pqPop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+/* 戻る（ぷっくり丸ボタン） */
+.pq-back{position:absolute;left:14px;top:14px;z-index:6;width:46px;height:46px;border:none;border-radius:50%;background:#fff;color:#ff77aa;font-size:22px;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #ffcfe3,0 6px 12px rgba(255,120,170,.3);line-height:1}
+.pq-back:active{transform:translateY(2px);box-shadow:0 2px 0 #ffcfe3}
+/* メインビジュアル（ガーリー・アーティストビジュアル風。実在アーティストの複製ではない抽象コンポジション） */
+.pq-hero{position:relative;height:290px;margin:0;overflow:hidden;border-radius:0 0 34px 34px;
+  background:linear-gradient(115deg,#ffd6ec,#d9e6ff,#e7d6ff,#ffe0f0,#d6f0ff,#ffd6ec);background-size:200% 200%;animation:pqRainbow 14s linear infinite alternate}
+.pq-hero .pq-spot{position:absolute;left:50%;top:-40%;width:120%;height:150%;transform:translateX(-50%);
+  background:radial-gradient(ellipse at center,rgba(255,255,255,.85),rgba(255,255,255,0) 60%)}
+.pq-hero .pq-rays{position:absolute;left:50%;top:44%;width:520px;height:520px;transform:translate(-50%,-50%);
+  background:conic-gradient(from 0deg,rgba(255,255,255,.55) 0 6deg,rgba(255,255,255,0) 6deg 30deg);opacity:.5;border-radius:50%;animation:pqRainbow 30s linear infinite}
+.pq-star,.pq-heart-f{position:absolute;animation:pqTwinkle 2.4s ease-in-out infinite}
+.pq-sil{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);width:230px;height:250px;filter:drop-shadow(0 6px 14px rgba(255,120,170,.35))}
+.pq-ribbon{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:3;background:linear-gradient(90deg,#ff8fbf,#ff77aa);color:#fff;
+  padding:9px 26px;border-radius:999px;font-size:22px;font-weight:900;letter-spacing:1px;white-space:nowrap;box-shadow:0 5px 0 #e85f92,0 10px 18px rgba(232,95,146,.4);text-shadow:0 1px 2px rgba(0,0,0,.15)}
+.pq-ribbon::before,.pq-ribbon::after{content:"";position:absolute;top:50%;width:16px;height:22px;background:#ff77aa;transform:translateY(-50%);z-index:-1}
+.pq-ribbon::before{left:-8px;clip-path:polygon(100% 0,0 50%,100% 100%)}
+.pq-ribbon::after{right:-8px;clip-path:polygon(0 0,100% 50%,0 100%)}
+.pq-special{position:absolute;right:18px;top:16px;z-index:4;background:#fff;color:#c04ea0;font-size:12px;font-weight:900;letter-spacing:2px;
+  padding:6px 12px;border-radius:12px;transform:rotate(8deg);box-shadow:0 3px 0 #ffd0ea,0 6px 12px rgba(192,78,160,.3);border:2px dashed #ffa8d6}
+.pq-special .pq-sparkle{color:#ffcf3f}
+/* 本文 */
+.pq-body{padding:16px 18px 0;position:relative}
+.pq-title{text-align:center;font-size:26px;font-weight:900;color:#ff5fa0;text-shadow:0 2px 0 #fff,0 3px 6px rgba(255,120,170,.25);margin-top:6px}
+.pq-desc{text-align:center;font-size:13.5px;font-weight:700;color:#8a6a86;line-height:1.8;margin:8px 14px 0}
+/* 進捗（ハート入りぷっくりバー） */
+.pq-prog{margin:16px auto 0;max-width:420px;background:rgba(255,255,255,.7);border-radius:20px;padding:12px 16px;box-shadow:0 4px 0 rgba(255,175,210,.4),inset 0 0 0 2px #fff}
+.pq-prog-top{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:900;color:#c04ea0}
+.pq-prog-bar{margin-top:8px;height:16px;border-radius:999px;background:#ffe1ee;overflow:hidden;position:relative;box-shadow:inset 0 2px 4px rgba(232,95,146,.15)}
+.pq-prog-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#ff9ecb,#c9a8ff,#9ecbff);background-size:200% 100%;animation:pqRainbow 8s linear infinite alternate}
+/* 単語プレビュー（ステッカー風・ぷっくりカード） */
+.pq-sec-h{display:flex;align-items:center;gap:8px;justify-content:center;margin:20px 0 10px;font-size:15px;font-weight:900;color:#b34d94}
+.pq-preview{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:460px;margin:0 auto}
+.pq-card{position:relative;background:#fff;border-radius:22px;padding:14px 14px 12px;text-align:center;overflow:hidden;
+  box-shadow:0 5px 0 rgba(255,175,210,.45),0 10px 18px rgba(255,120,170,.18);border:2px solid #ffe3f1}
+.pq-card:nth-child(3n+2){border-color:#dce8ff}
+.pq-card:nth-child(3n){border-color:#e9def9}
+.pq-card .pq-sticker{position:absolute;top:6px;right:8px;font-size:16px;animation:pqFloat 3.2s ease-in-out infinite}
+.pq-card .pq-ko{font-size:24px;font-weight:900;color:#5b3f57;line-height:1.2}
+.pq-card .pq-ja{font-size:12.5px;font-weight:800;color:#a07fa0;margin-top:3px}
+.pq-card .pq-shine{position:absolute;top:0;left:0;width:40%;height:100%;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.7),rgba(255,255,255,0));animation:pqShine 5.5s ease-in-out infinite}
+/* ボタン（大きくぷっくり） */
+.pq-btns{max-width:460px;margin:22px auto 0;display:flex;flex-direction:column;gap:12px;padding:0 4px}
+.pq-btn{border:none;border-radius:26px;padding:18px;font-size:19px;font-weight:900;cursor:pointer;letter-spacing:1px;position:relative;overflow:hidden}
+.pq-btn.start{color:#fff;background:linear-gradient(90deg,#ff9ecb,#ff77aa,#c9a8ff,#9ecbff,#ff9ecb);background-size:250% 100%;animation:pqRainbow 9s linear infinite;box-shadow:0 6px 0 #e85f92,0 12px 22px rgba(232,95,146,.4)}
+.pq-btn.start:active{transform:translateY(3px);box-shadow:0 3px 0 #e85f92}
+.pq-btn.review{color:#8a5bd0;background:#fff;box-shadow:0 5px 0 #e3d6ff,0 10px 18px rgba(150,120,230,.25);border:2px solid #e3d6ff}
+.pq-btn.review:active{transform:translateY(2px);box-shadow:0 2px 0 #e3d6ff}
+.pq-btn .pq-shine{position:absolute;top:0;left:0;width:35%;height:100%;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.6),rgba(255,255,255,0));animation:pqShine 4.5s ease-in-out infinite}
+/* トースト */
+.pq-toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);z-index:500;background:#fff;color:#ff5fa0;font-size:14px;font-weight:900;
+  padding:12px 22px;border-radius:999px;box-shadow:0 6px 16px rgba(255,120,170,.4);border:2px solid #ffd0ea;animation:pqPop .3s ease}
+/* ROOM一覧マップの特別エントリ */
+.rm-special{grid-column:1/-1;border:none;border-radius:18px;padding:12px;cursor:pointer;font-family:inherit;font-weight:900;font-size:15px;color:#fff;
+  background:linear-gradient(90deg,#ff9ecb,#ff77aa,#c9a8ff,#9ecbff,#ff9ecb);background-size:250% 100%;animation:pqRainbow 9s linear infinite;
+  box-shadow:0 4px 0 #e85f92;display:flex;align-items:center;justify-content:center;gap:8px}
 </style>
 <!-- アクセス解析: Cloudflare Web Analytics（プロキシ経由で自動計測。手動ビーコン不要） -->
 <script src="ga.js?v=2512"></script>
@@ -744,6 +808,8 @@ body.bigtext .set-d{font-size:13.5px}
   <div class="screen" id="s-curve"></div>
   <!-- TYPE DETAIL -->
   <div class="screen" id="s-type"></div>
+  <!-- SPECIAL ROOM: プリQQ -->
+  <div class="screen" id="s-priqq"></div>
 </div>
 <div id="present-modal"></div>
 <div id="calendar-modal"></div>
@@ -1287,7 +1353,7 @@ function openRoomMap(){
       <button class="rm-lvbtn ${curLevel==="beginner"?"on":""}" onclick="mapSwitchLevel('beginner')">初級</button>
       <button class="rm-lvbtn ${curLevel==="middle"?"on":""}" onclick="mapSwitchLevel('middle')">中級</button>
     </div>
-    <div class="rm-grid">${cells}</div></div>`;
+    <div class="rm-grid"><button class="rm-special" onclick="closeRoomMap();openPriQQ()">✨ SPECIAL ルーム プリQQ ✨</button>${cells}</div></div>`;
   m.classList.add("on");
   m.onclick=e=>{if(e.target===m)closeRoomMap();};
 }
@@ -1297,6 +1363,69 @@ function jumpRoom(n){
   curSection=n;saveLastRoom();applyHomeBg();
   const hv=document.getElementById("hv-rooms");if(hv)hv.scrollLeft=n*602;
   attachHomeRain();
+}
+
+/* ============================================================ 特別ルーム「プリQQ」（専用テーマ画面。単語データは後で差し替え） ============================================================ */
+const PRIQQ={
+  name:"ルーム プリQQ",
+  label:"SPECIAL",
+  desc:"放課後のプリクラみたいに、キラキラかわいく単語を集めよ♡ かわいくなりたい気持ちで青春の語彙をGET！",
+  total:20,            // 進捗の分母（後で実データに差し替え）
+  learned:0,           // 進捗の分子（後で実データに差し替え）
+  ids:[],              // 出題語のwordId配列（あとで指定）。空なら準備中
+  preview:[            // 単語プレビュー（初回はダミー。あとで差し替えやすい形）
+    {ko:"???",ja:"かわいい",st:"💖"},{ko:"???",ja:"きらきら",st:"⭐"},
+    {ko:"???",ja:"放課後",st:"🎀"},{ko:"???",ja:"ともだち",st:"✨"},
+    {ko:"???",ja:"青春",st:"🌈"},{ko:"???",ja:"プリクラ",st:"💫"}
+  ]
+};
+/* メインビジュアル（抽象コンポジション＝実在アーティストの複製ではない） */
+function pqHeroSVG(){
+  const stars=[[40,60,18],[520,80,22],[90,180,14],[470,200,16],[300,40,12],[200,70,10],[560,150,12],[30,120,12]]
+    .map((s,i)=>`<div class="pq-star" style="left:${s[0]/6}%;top:${s[1]/3}px;font-size:${s[2]}px;animation-delay:${i*0.3}s;color:${i%2?'#ffd84d':'#fff'}">✦</div>`).join("");
+  const hearts=[[70,120,'#ff9ecb'],[500,120,'#c9a8ff'],[150,220,'#9ecbff']]
+    .map((h,i)=>`<div class="pq-heart-f" style="left:${h[0]/6}%;top:${h[1]/3}px;color:${h[2]};font-size:16px;animation-delay:${i*0.5}s">♥</div>`).join("");
+  // 抽象的な「きらきらガーリー」モチーフ：星＋ハート＋王冠のシルエット
+  const sil=`<svg class="pq-sil" viewBox="0 0 200 220" aria-hidden="true">
+    <defs><linearGradient id="pqg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#ffd9ec"/></linearGradient></defs>
+    <path d="M100 30 L112 66 L150 66 L120 90 L132 128 L100 104 L68 128 L80 90 L50 66 L88 66 Z" fill="url(#pqg)" opacity=".95"/>
+    <path d="M100 120 C100 108 84 104 84 120 C84 134 100 146 100 146 C100 146 116 134 116 120 C116 104 100 108 100 120 Z" fill="#ff8fbf"/>
+    <path d="M70 20 l8 14 14-6 -6 15 14 8 -16 3 2 16 -12 -10 -12 10 2 -16 -16 -3 14 -8 -6 -15 14 6 z" fill="#ffd84d" opacity=".9" transform="translate(30 0) scale(.6)"/>
+  </svg>`;
+  return `<div class="pq-spot"></div><div class="pq-rays"></div>${stars}${hearts}${sil}
+    <div class="pq-special">★ ${esc(PRIQQ.label)} <span class="pq-sparkle">✧</span></div>
+    <div class="pq-ribbon">${esc(PRIQQ.name)}</div>`;
+}
+function renderPriQQ(){
+  const rate=PRIQQ.total?Math.round(PRIQQ.learned/PRIQQ.total*100):0;
+  const previews=PRIQQ.preview.map(w=>`<div class="pq-card"><div class="pq-shine"></div><span class="pq-sticker">${w.st||"💗"}</span><div class="pq-ko">${esc(w.ko)}</div><div class="pq-ja">${esc(w.ja)}</div></div>`).join("");
+  document.getElementById("s-priqq").innerHTML=`
+    <button class="pq-back" onclick="show('s-home')" aria-label="ホームに戻る">‹</button>
+    <div class="pq-hero">${pqHeroSVG()}</div>
+    <div class="pq-body">
+      <div class="pq-title">${esc(PRIQQ.name)}</div>
+      <div class="pq-desc">${esc(PRIQQ.desc)}</div>
+      <div class="pq-prog">
+        <div class="pq-prog-top"><span>💗 あつめた単語</span><span>${PRIQQ.learned} / ${PRIQQ.total} 語</span></div>
+        <div class="pq-prog-bar"><div class="pq-prog-fill" style="width:${rate}%"></div></div>
+      </div>
+      <div class="pq-sec-h">🎀 単語プレビュー 🎀</div>
+      <div class="pq-preview">${previews}</div>
+      <div class="pq-btns">
+        <button class="pq-btn start" onclick="startPriQQ()"><span class="pq-shine"></span>★ スタート ★</button>
+        <button class="pq-btn review" onclick="reviewPriQQ()">💫 復習する</button>
+      </div>
+    </div>`;
+}
+function openPriQQ(){renderPriQQ();show("s-priqq");applyBgAll("#ffe3f1");} // 専用テーマ背景（通常ルーム色は使わない）
+function pqToast(msg){const t=document.createElement("div");t.className="pq-toast";t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2200);}
+function startPriQQ(){ // 単語データ接続後はPRIQQ.idsで出題（既存の出題ロジックをそのまま利用）
+  if(PRIQQ.ids&&PRIQQ.ids.length){startTest(PRIQQ.ids);return;}
+  pqToast("単語データは準備中だよ♡ もうすこし待っててね");
+}
+function reviewPriQQ(){
+  if(PRIQQ.ids&&PRIQQ.ids.length){startTest(PRIQQ.ids);return;} // 後で復習ロジックに接続
+  pqToast("復習はまだ準備中♡");
 }
 
 /* スライド内の単語帳：ホームの帯と同デザインの流れる帯×5（20語ずつ・交互方向・手動スクロール可） */
@@ -3411,7 +3540,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.84 (2026-07-19)";
+const APP_VERSION="v2.85 (2026-07-20)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
