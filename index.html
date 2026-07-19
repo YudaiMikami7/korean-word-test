@@ -124,6 +124,8 @@ button{font-family:inherit}
 .ovsym{font-size:54vw;line-height:1;font-weight:600;opacity:.6;transform:translateY(-15vh);pointer-events:none} /* 装飾記号がボタン等のタップを遮らないように */
 .ovsym.o{color:var(--red);-webkit-text-stroke:1.68vw var(--red);text-stroke:1.68vw var(--red)}
 .ovsym.x{color:var(--blue);font-weight:400;-webkit-text-stroke:1.44vw var(--blue);text-stroke:1.44vw var(--blue)}
+.ovsym.u{color:rgba(255,255,255,.9);font-weight:400;-webkit-text-stroke:1.2vw rgba(255,255,255,.9);text-stroke:1.2vw rgba(255,255,255,.9)} /* わからない=－ */
+.ovsym.t{color:#DFB10F;font-weight:400;-webkit-text-stroke:1.44vw #DFB10F;text-stroke:1.44vw #DFB10F} /* 時間切れ=△ */
 /* 書き取りの正誤比較：入力=青文字 / 正解=赤文字。問題と選択肢の間（画面中央）に配置 */
 .ovans{position:absolute;left:0;right:0;top:30%;transform:translateY(-50%);text-align:center;padding:0 18px;pointer-events:none}
 .ovans .oa-spk{pointer-events:auto} /* 音声ボタンだけタップ可能（親はpointer-events:none） */
@@ -2637,7 +2639,9 @@ function showOverlay(status,q,userAnswer){
   const isCorrect=status==="correct";
   const ov=document.createElement("div");
   ov.className="overlay"+(q.type==="w"?" backdrop":"");
-  let inner=`<div class="ovsym ${isCorrect?"o":"x"}">${isCorrect?"○":"×"}</div>`;
+  const OVSYM={correct:["o","○"],incorrect:["x","×"],unknown:["u","－"],timeout:["t","△"]};
+  const os=OVSYM[status]||["x","×"]; // わからない=－ / 時間切れ=△ を正しく出す（結果・履歴表と統一）
+  let inner=`<div class="ovsym ${os[0]}">${os[1]}</div>`;
   if(q.type==="w"){
     inner+=writingAnsHTML(status,q,userAnswer);
   }else{
@@ -3341,7 +3345,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.81 (2026-07-19)";
+const APP_VERSION="v2.82 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
