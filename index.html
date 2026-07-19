@@ -443,9 +443,12 @@ body.bigtext .set-d{font-size:13.5px}
 .hv-ver{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:11px;color:rgba(255,255,255,.5);z-index:2}
 #settings-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
 #settings-modal.on{display:flex}
-.set-card{width:340px;max-width:88vw;background:#fff;color:#1a1a1a;padding:22px;position:relative;border-radius:12px}
-.set-h{font-size:20px;font-weight:900;text-align:center;margin-bottom:16px}
-.set-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 4px;cursor:pointer;border-top:1px solid #eee}
+.set-card{width:360px;max-width:90vw;max-height:88vh;overflow-y:auto;background:#fff;color:#1a1a1a;padding:0 20px calc(18px + env(safe-area-inset-bottom));position:relative;border-radius:16px;-webkit-overflow-scrolling:touch}
+.set-head{position:sticky;top:0;background:#fff;display:flex;align-items:center;justify-content:center;padding:15px 0 11px;margin:0 -20px 2px;border-bottom:1px solid #eee;z-index:3}
+.set-h{font-size:19px;font-weight:900}
+.set-close{position:absolute;right:12px;top:9px;background:transparent;border:none;font-size:26px;font-weight:900;color:#999;cursor:pointer;line-height:1}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 2px;cursor:pointer;border-top:1px solid #eee}
+.set-row:first-of-type{border-top:none}
 .set-t{font-size:15px;font-weight:800}
 .set-d{font-size:12px;font-weight:700;color:#888;margin-top:2px}
 .set-sw{width:52px;height:30px;border-radius:999px;background:#ccc;position:relative;flex:0 0 auto;transition:background .2s}
@@ -2094,11 +2097,19 @@ function saveSession(s){localStorage.setItem(LS_SESS,JSON.stringify(s));}
 /* 効果音（WebAudio合成）。スタート時とプレゼント受け取り時 */
 let _sfxCtx=null;
 function _sfx(){try{_sfxCtx=_sfxCtx||new (window.AudioContext||window.webkitAudioContext)();if(_sfxCtx.state==="suspended")_sfxCtx.resume();return _sfxCtx;}catch(e){return null;}}
+/* 起動直後は自動再生ポリシーでAudioContextがsuspendedのまま→最初の効果音が鳴らない。最初のユーザー操作で一度だけ解錠する */
+(function(){
+  const unlock=()=>{try{const c=_sfx();if(c&&c.state!=="suspended"){const g=c.createGain();g.gain.value=0;g.connect(c.destination);const o=c.createOscillator();o.connect(g);o.start();o.stop(c.currentTime+0.01);}}catch(e){}
+    ["pointerdown","touchstart","keydown"].forEach(ev=>document.removeEventListener(ev,unlock,true));};
+  ["pointerdown","touchstart","keydown"].forEach(ev=>document.addEventListener(ev,unlock,true));
+})();
 function _tone(ctx,freq,t0,dur,vol,type){const o=ctx.createOscillator(),g=ctx.createGain();o.type=type||"sine";o.frequency.value=freq;
   g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
   o.connect(g);g.connect(ctx.destination);o.start(t0);o.stop(t0+dur+0.05);}
-function sfxStart(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime; _tone(c,440,t,0.09,0.22,"sawtooth");_tone(c,660,t+0.07,0.09,0.22,"sawtooth");_tone(c,990,t+0.14,0.26,0.24,"triangle");} // 出発の3音上昇
-function sfxClaim(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;[523,659,784,1047].forEach((f,i)=>_tone(c,f,t+i*0.07,0.3,0.22,"triangle"));_tone(c,1568,t+0.3,0.45,0.12,"sine");}
+function sfxStart(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime; _tone(c,880,t,0.08,0.18,"square");_tone(c,880,t+0.12,0.14,0.2,"square");} // 「ピ・ピー」の開始音
+function sfxCorrect(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime; _tone(c,784,t,0.09,0.15,"triangle");_tone(c,1175,t+0.08,0.18,0.15,"triangle");} // 正解: 明るい2音上昇（読み上げより小さめ）
+function sfxIncorrect(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime; _tone(c,320,t,0.14,0.14,"sawtooth");_tone(c,220,t+0.1,0.2,0.14,"sawtooth");} // 不正解: 低い2音下降
+function sfxClaim(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;[523,659,784,1047].forEach((f,i)=>_tone(c,f,t+i*0.07,0.3,0.2,"triangle"));_tone(c,1568,t+0.3,0.45,0.1,"sine");}
 let _koVoice=null,_curAudio=null;
 function _pickKoVoice(){
   if(!('speechSynthesis' in window))return;
@@ -2398,7 +2409,7 @@ function confirmQuit(){
   const t0=performance.now(); // ダイアログ表示中はタイマーを止める
   const m=document.createElement("div");m.className="appconfirm";
   m.innerHTML=`<div class="ac-card"><div class="ac-t">テストを中断して<br>ホームに戻りますか？</div>
-    <div class="ac-btns"><button class="btn ghost" id="ac-no">つづける</button><button class="btn dark" id="ac-yes">中断する</button></div></div>`;
+    <div class="ac-btns"><button class="btn dark" id="ac-yes">中断</button><button class="btn ghost" id="ac-no">続ける</button></div></div>`;
   document.body.appendChild(m);
   const resume=()=>{if(!answered)qStart+=performance.now()-t0;m.remove();};
   m.querySelector("#ac-no").onclick=resume;
@@ -2443,7 +2454,7 @@ function showCountdown(cb){
     n--;
     if(n<=0){clearInterval(timer);_counting=false;cb();return;}
     draw();
-  },500); // 3・2・1は0.5秒間隔（元の1秒の2倍速）
+  },625); // 3・2・1は0.625秒間隔（従来500msの1.25倍ゆっくり）
 }
 
 function curLimit(){const base=state.questions[state.idx].type==="w"?20:10;return Math.round(base*(loadSettings().slowTimer?1.5:1));} // じっくりモードは1.5倍
@@ -2614,6 +2625,7 @@ function submit(status,userAnswer){
     displayMemoryScoreAfterDecay:Math.round(dispAfter) // 互換
   };
   state.results.push(rec);saveAnswer(rec);
+  isCorrect?sfxCorrect():sfxIncorrect(); // 正解音／不正解音（読み上げより小さめ）
   speakKorean(q.word); // 正解・不正解・わからない・時間切れすべてで正解の韓国語音声を再生（学習のため）
   if(isCorrect)spawnWordDrop(q.word,Math.max(0,limit-elapsed)/limit); // 正解（四択・書き取りとも）：単語玉が背景に降り積もる（速答ほど大きい）
   showOverlay(status,q,userAnswer);
@@ -2846,9 +2858,8 @@ function writingAnsHTML(status,q,userAnswer){
   if(status==="incorrect"){
     let close="";
     try{
-      if(isPhoneticCloseMiss(userAnswer,q.word.ko))close='<div class="oa-close">おしい！音が合っています</div>';
-      else{const cw=classifyWritingError(userAnswer,q.word);if(cw.type==="semantic_substitution")close='<div class="oa-close">意味の近い別の単語</div>';}
-    }catch(e){}
+      if(!isPhoneticCloseMiss(userAnswer,q.word.ko)){const cw=classifyWritingError(userAnswer,q.word);if(cw.type==="semantic_substitution")close='<div class="oa-close">意味の近い別の単語</div>';}
+    }catch(e){} // 音の近さのヒント文言は出さない（意味近似のみ表示）
     return `<div class="ovans">${close}
       <div class="oa-row"><div class="oa-lab">入力</div><div class="oa-ko wrong">${esc(userAnswer)||"（無回答）"}</div></div>
       <div class="oa-row"><div class="oa-lab">正解</div><div class="oa-ko correct">${ko}${spk}</div></div>
@@ -3329,7 +3340,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.78 (2026-07-19)";
+const APP_VERSION="v2.79 (2026-07-19)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -3426,8 +3437,7 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
   const st=loadSettings();
   const m=document.getElementById("settings-modal");
   m.innerHTML=`<div class="set-card">
-    <button class="pm-close" onclick="closeSettings()">×</button>
-    <div class="set-h">設定</div>
+    <div class="set-head"><div class="set-h">設定</div><button class="set-close" onclick="closeSettings()" aria-label="閉じる">×</button></div>
     <div class="set-row" onclick="toggleSetting('tapAdvance')">
       <div><div class="set-t">回答後の進み方</div><div class="set-d">${st.tapAdvance?"タップで次へ":"自動で次へ"}</div></div>
       <div class="set-sw ${st.tapAdvance?'on':''}"><span></span></div>
