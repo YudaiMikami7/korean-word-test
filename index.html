@@ -703,7 +703,34 @@ body.bigtext .set-d{font-size:13.5px}
 .res-head{flex:0 0 auto;text-align:center;background:rgba(255,255,255,.28);border-radius:14px;padding:10px 8px} /* 背後の玉と干渉しないよう白下敷き */
 .res-top{display:flex;align-items:center;justify-content:center;gap:18px}
 .rank-c{width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:54px;font-weight:900;color:#fff}
+/* ランクをメダル風に：金リング＋光沢、登場時に回転しながらポップ */
+.rank-medal{position:relative;box-shadow:0 0 0 4px rgba(255,255,255,.85),0 0 0 7px rgba(255,196,0,.9),0 6px 16px rgba(0,0,0,.35)}
+.rank-medal::after{content:"";position:absolute;inset:6px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%);pointer-events:none}
+.rank-medal.in{animation:medalpop .7s cubic-bezier(.34,1.6,.5,1)}
+@keyframes medalpop{0%{transform:scale(.2) rotate(-220deg);opacity:0}60%{opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
 .res-score{font-size:36px;font-weight:900}
+.res-score b{font-weight:900}
+/* 結果ボタン：枠線が360度色変化。強調強度 e1(もう一度)＞e2(シェア)＞e3(PWR)＞e4(ホーム) */
+@property --bspin{syntax:"<angle>";inherits:false;initial-value:0deg}
+.res-btns .btn.emph{position:relative;z-index:0;isolation:isolate}
+.res-btns .btn.emph::before{content:"";position:absolute;border-radius:inherit;z-index:-1;background:conic-gradient(from var(--bspin),#ff5f6d,#ffc371,#5ee7df,#b490ca,#ff5f6d);animation:bspin var(--spd,4s) linear infinite}
+@keyframes bspin{to{--bspin:360deg}}
+.res-btns .btn.e1{--spd:1.8s}.res-btns .btn.e1::before{inset:-4px}
+.res-btns .btn.e2{--spd:2.8s}.res-btns .btn.e2::before{inset:-3px}
+.res-btns .btn.e3{--spd:4.2s}.res-btns .btn.e3::before{inset:-2px;filter:saturate(.7)}
+.res-btns .btn.e4{--spd:6s}.res-btns .btn.e4::before{inset:-1.5px;filter:saturate(.45) opacity(.8)}
+.res-btns .btn.e1{box-shadow:0 0 14px rgba(255,150,60,.6)}
+/* 単語カード獲得演出 */
+.cardget{position:fixed;inset:0;z-index:550;background:rgba(0,0,0,.78);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;opacity:0;transition:opacity .3s ease}
+.cardget.on{opacity:1}
+.cg-title{color:#fff;font-size:21px;font-weight:900;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+.cg-skip{color:rgba(255,255,255,.7);font-size:13px;font-weight:800}
+.cg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;max-width:420px;padding:0 16px;box-sizing:border-box}
+.cg-card{aspect-ratio:3/4;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.4);transform:rotateY(90deg) scale(.6);opacity:0;animation:cgflip .5s cubic-bezier(.34,1.5,.5,1) forwards}
+.cg-card img{width:76%;height:58%;object-fit:contain}
+.cg-noimg{font-size:32px}
+.cg-ko{font-size:14px;font-weight:900;color:#333;margin-top:3px;white-space:nowrap;overflow:hidden;max-width:92%;text-overflow:ellipsis}
+@keyframes cgflip{to{transform:rotateY(0) scale(1);opacity:1}}
 .res-score span{font-size:16px;color:var(--faint);font-weight:800}
 .res-params{display:flex;justify-content:center;gap:28px;margin-top:10px}
 .rp{display:flex;flex-direction:column;align-items:center;gap:4px}
@@ -3592,9 +3619,9 @@ function finishTest(){
    <div class="res">${firstBanner}
     <div class="res-head">
       <div class="res-top">
-        <div class="rank-c" style="background:${RANK_COLORS[rank]||"#555"}">${rank}</div>
+        <div class="rank-c rank-medal" style="background:${RANK_COLORS[rank]||"#555"}">${rank}</div>
         <div class="res-right">
-          <div class="res-score">${totalDisp}<span> / 100</span></div>
+          <div class="res-score"><b id="res-score-n" data-to="${totalDisp}">0</b><span> / 100</span></div>
           <div class="res-counts"><span style="color:#FF3B3B">○ ${nCorrect}</span><span style="color:#2F6FE0">× ${nWrong}</span></div>
         </div>
       </div>
@@ -3607,10 +3634,10 @@ function finishTest(){
       <tbody>${rows}</tbody></table>
     </div>
     <div class="res-btns">
-      <button class="btn dark full" onclick="shareResult()" style="border:1px solid var(--gold);color:var(--gold)">&#120143; 結果をシェアして友達に挑戦</button>
-      <button class="btn dark" onclick="if(typeof track==='function')track('retry');startTest()">もう一度挑戦する</button>
-      <button class="btn dark" onclick="show('s-home')">ホームに戻る</button>
-      <button class="btn wt" onclick="renderRoomCurve()">PWRメータを見る</button>
+      <button class="btn dark full emph e2" onclick="shareResult()" style="border:1px solid var(--gold);color:var(--gold)">&#120143; 結果をシェアして友達に挑戦</button>
+      <button class="btn dark emph e1" onclick="if(typeof track==='function')track('retry');startTest()">もう一度挑戦する</button>
+      <button class="btn dark emph e4" onclick="show('s-home')">ホームに戻る</button>
+      <button class="btn wt emph e3" onclick="renderRoomCurve()">PWRメータを見る</button>
       ${donateBtnHTML('btn wt')}
       ${installBtnHTML()}
     </div>
@@ -3618,9 +3645,31 @@ function finishTest(){
    </div>`;
   show("s-result");
   activateAds(document.getElementById("s-result"));
-  // PWRが増える演出（前値→後値へフィルがアニメーション）
-  const pf=document.getElementById("res-pwrfill");
-  if(pf)setTimeout(()=>{pf.style.width=pwrAfter+"%";},150);
+  // 結果表示の前に「単語カード獲得」演出を全面オーバーレイで見せ、閉じたら結果のアニメを開始
+  const cgWords=R.map(r=>({ko:r.korean,ja:r.japanese}));
+  showCardGetSequence(cgWords,()=>startResultAnims(pwrAfter));
+}
+/* 結果画面の入場アニメ：点数カウントアップ・ランクメダル・PWRフィル */
+function startResultAnims(pwrAfter){
+  const n=document.getElementById("res-score-n");
+  if(n){const to=parseInt(n.dataset.to||"0",10);let c=0;const step=Math.max(1,Math.ceil(to/28));
+    const t=setInterval(()=>{c=Math.min(to,c+step);n.textContent=c;if(c>=to)clearInterval(t);},28);}
+  const md=document.querySelector("#s-result .rank-medal");if(md){md.classList.remove("in");void md.offsetWidth;md.classList.add("in");}
+  const pf=document.getElementById("res-pwrfill");if(pf)setTimeout(()=>{pf.style.width=pwrAfter+"%";},150);
+}
+/* 出題された単語を「カード獲得」演出で1枚ずつ回転表示（結果表示の手前・タップでスキップ） */
+function showCardGetSequence(words,done){
+  const old=document.querySelector(".cardget");if(old)old.remove();
+  const ov=document.createElement("div");ov.className="cardget";
+  ov.innerHTML=`<div class="cg-title">獲得した単語カード</div><div class="cg-grid">${words.map((w,i)=>{
+    const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko])?`<img src="${WORD_IMG[w.ko]}" alt="">`:`<div class="cg-noimg">🃏</div>`;
+    return `<div class="cg-card" style="animation-delay:${(i*0.08).toFixed(2)}s">${img}<div class="cg-ko">${esc(w.ko)}</div></div>`;
+  }).join("")}</div><div class="cg-skip">タップで結果へ</div>`;
+  document.body.appendChild(ov);
+  requestAnimationFrame(()=>ov.classList.add("on"));
+  const fin=()=>{if(ov._t)clearTimeout(ov._t);ov.classList.remove("on");setTimeout(()=>{ov.remove();done&&done();},300);};
+  ov._t=setTimeout(fin,Math.min(2800,words.length*80+1500));
+  ov.onclick=fin; // タップでスキップ
 }
 
 /* 学習履歴ページは廃止（単語の履歴はROOMメニュー→単語詳細で確認） */
@@ -4021,7 +4070,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.101 (2026-07-21)";
+const APP_VERSION="v2.102 (2026-07-21)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

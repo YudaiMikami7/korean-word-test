@@ -56,8 +56,8 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check('設定が画面内に収まる', await page.evaluate(() => { const c = document.querySelector('.set-card'); const r = c.getBoundingClientRect(); return r.top >= -1 && r.bottom <= window.innerHeight + 1; }));
   await page.evaluate(() => closeSettings());
 
-  // 中断ダイアログ（連続学習の豪華演出が出ていたら閉じる）
-  await page.evaluate(() => { const ov = document.querySelector('.streak-cel'); if (ov) ov.remove(); });
+  // 中断ダイアログ（連続学習の豪華演出・カード獲得演出が出ていたら閉じる）
+  await page.evaluate(() => { document.querySelectorAll('.streak-cel,.cardget').forEach(o => o.remove()); });
   await page.evaluate(() => { startTest(); clearInterval(timer); renderQuestion(); });
   await page.waitForTimeout(200);
   await page.click('.qhome');
