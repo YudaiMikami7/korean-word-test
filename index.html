@@ -537,6 +537,13 @@ body.bigtext .set-d{font-size:13.5px}
 .sb-bubble{position:absolute;left:50%;top:-16px;transform:translate(-50%,-100%) scale(.6);background:#fff;color:#333;font-size:21px;font-weight:900;padding:11px 17px;border-radius:18px;white-space:nowrap;box-shadow:0 8px 20px rgba(0,0,0,.32);opacity:0;pointer-events:none;transition:transform .32s cubic-bezier(.34,1.6,.6,1),opacity .3s ease;z-index:6}
 .sb-bubble::after{content:"";position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);border:10px solid transparent;border-top-color:#fff;border-bottom:0}
 .sb-bubble.on{opacity:1;transform:translate(-50%,-100%) scale(1)}
+/* スタート文字を1文字ずつ順番にY軸回転（波のように繰り返す） */
+.sb-txt{display:inline-flex}
+.sb-txt span{display:inline-block;animation:sbchar 3s ease-in-out infinite;backface-visibility:hidden}
+.sb-txt span:nth-child(2){animation-delay:.15s}
+.sb-txt span:nth-child(3){animation-delay:.3s}
+.sb-txt span:nth-child(4){animation-delay:.45s}
+@keyframes sbchar{0%,72%,100%{transform:rotateY(0)}36%{transform:rotateY(360deg)}}
 .home-side-btn{position:absolute;top:1009px;width:113px;height:113px;border:none;border-radius:50%;background:#fff;color:#333;
   box-shadow:0 5px 14px rgba(0,0,0,.28);overflow:hidden;
   font-family:inherit;font-weight:900;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;text-align:center;
@@ -580,6 +587,12 @@ body.bigtext .set-d{font-size:13.5px}
 .t-code{font-size:42px;font-weight:900;letter-spacing:9px;text-indent:9px}
 .t-char{display:block;margin:14px auto 0;width:116px;height:116px}
 .t-job{font-size:17px;font-weight:800;margin-top:4px}
+/* タイプ詳細ヘッダー：アイコン左・右にMBTIコードと職業 */
+.typebox.tb-row{display:flex;align-items:center;justify-content:center;gap:20px;text-align:left;padding:6px 0}
+.typebox.tb-row .t-char{margin:0;flex:0 0 auto}
+.typebox.tb-row .tb-info{display:flex;flex-direction:column;gap:2px}
+.typebox.tb-row .t-code{letter-spacing:6px;text-indent:6px}
+.typebox.tb-row .t-job{margin-top:0}
 /* 外枠は廃止（タイプカラーは4軸バー等で使用。applyFrameColorsは要素なしのため何もしない） */
 /* タイプ詳細 */
 .axrow{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:11px;font-weight:700;color:var(--mute);cursor:pointer}
@@ -622,7 +635,7 @@ body.bigtext .set-d{font-size:13.5px}
 .ax2l{font-size:34px;font-weight:800;width:36px;text-align:center;flex:0 0 auto}
 /* 軸の説明：F＝… ではなく、左のアルファベットの真下に左の名前・右のアルファベットの真下に右の名前 */
 .st-axdesc{position:relative;height:15px;margin:0 0 2px}
-.st-axdesc .ad-l,.st-axdesc .ad-r{position:absolute;top:0;width:90px;text-align:center;font-size:12.5px;font-weight:800;line-height:1}
+.st-axdesc .ad-l,.st-axdesc .ad-r{position:absolute;top:0;width:90px;text-align:center;font-size:12.5px;font-weight:800;line-height:1;color:#fff}
 .st-axdesc .ad-l{left:0}
 .st-axdesc .ad-r{right:0}
 /* 16TYPE 詳細 › を右上へ */
@@ -954,7 +967,7 @@ body.bigtext .set-d{font-size:13.5px}
       <div id="wb-search"><input id="wb-q" type="search" placeholder="単語をさがす（韓国語・日本語）" oninput="wbSearch(this.value)"><div id="wb-hits"></div></div>
       <div class="today-band" id="today-band" style="display:none"><div class="tb-label">最近学んだ単語</div><div class="tb-clip"><div class="tb-track" id="tb-track"></div></div></div><!-- 中身が入るまで非表示（空の白帯チラ見え防止） -->
       <button class="home-side-btn hsb-left" onclick="renderRoomCurve()" aria-label="忘却曲線"><img src="images-thumb/0912.webp" alt=""><span class="hsb-txt">忘却曲線</span></button>
-      <button class="start-button" onclick="onStartBtn()"><span class="sb-bubble" id="sb-bubble"></span>スタート</button>
+      <button class="start-button" onclick="onStartBtn()"><span class="sb-bubble" id="sb-bubble"></span><span class="sb-txt"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span></button>
       <button class="home-side-btn hsb-right" onclick="enterListMode()" aria-label="単語帳"><img src="images-thumb/1290.webp" alt=""><span class="hsb-txt">単語帳</span></button>
       <div id="status-ov"></div>
       <div class="hv-ver" id="appver"></div>
@@ -2374,6 +2387,10 @@ function togglePeek(code){
   renderTypeDetail();
   const pb2=document.querySelector("#s-type .page-body");if(pb2)pb2.scrollTop=st;
 }
+/* 軸説明文の（F：…）（U：…）等の括弧書き部分を軸カラーで着色 */
+function colorAxisParen(desc){
+  return esc(desc).replace(/（([FUMCPSQD])：([^）]*)）/g,(m,l,b)=>`<span style="color:${AXIS_COLORS[l]||'inherit'};font-weight:800">（${l}：${b}）</span>`);
+}
 function renderTypeDetail(){
   const d=computeDiagnosis();
   const any=d.axes.some(a=>a.code);
@@ -2391,8 +2408,9 @@ function renderTypeDetail(){
       <span class="ax2l">${ax.R}</span>
       <span class="ax2dot" style="background:${AXIS_COLORS[ax.R]}"></span>
     </div>
-    <div class="ax2desc"><b>${ax.L}＝${esc(ax.ln)}　／　${ax.R}＝${esc(ax.rn)}</b><br>${esc(ax.desc)}</div>`;
-  }).join(""); // 各メータの説明はタップ切替をやめ常時表示
+    <div class="st-axdesc"><span class="ad-l">${esc(ax.ln)}</span><span class="ad-r">${esc(ax.rn)}</span></div>
+    <div class="ax2desc">${colorAxisParen(ax.desc)}</div>`;
+  }).join(""); // ステータス画面と同じ設計：ラベルは白、説明文の括弧書きは軸カラー
   // タイプ説明（選択中＝既定は自分）
   const pk=_typePeek;
   const peek=`<div class="tpeek" id="tpeek-main"><img src="characters/${pk.toLowerCase()}.svg" alt="">
@@ -2405,10 +2423,9 @@ function renderTypeDetail(){
    <div class="page">
     <div class="page-head"><button class="back" onclick="backToStatus()">‹</button><h2>タイプ詳細</h2></div>
     <div class="page-body">
-      <div class="typebox" style="cursor:default">
-        <div class="t-code">${any?d.code:"分析中"}</div>
-        <div class="t-job">${any?esc((TYPE_INFO[fullCode]||[""])[0]):""}</div>
+      <div class="typebox tb-row" style="cursor:default">
         <img class="t-char" src="${charPathFor(d)}" alt="">
+        <div class="tb-info"><div class="t-code">${any?d.code:"分析中"}</div><div class="t-job">${any?esc((TYPE_INFO[fullCode]||[""])[0]):""}</div></div>
       </div>
       <div class="tdetail-sec" style="margin-top:24px"><div class="ax2panel">${bars}</div></div>
       <div class="tdetail-sec">${peek}<div class="tlist">${list}</div></div>
@@ -3734,7 +3751,7 @@ function statusMbtiHTML(){ // UI.pdf準拠: 白15%パネル・職業名・目盛
       <span class="ax2l">${ax.R}</span>
       <span class="ax2dot" style="background:${AXIS_COLORS[ax.R]}"></span>
     </div>
-    <div class="st-axdesc"><span class="ad-l" style="color:${AXIS_COLORS[ax.L]}">${esc(ax.ln)}</span><span class="ad-r" style="color:${AXIS_COLORS[ax.R]}">${esc(ax.rn)}</span></div>`;
+    <div class="st-axdesc"><span class="ad-l">${esc(ax.ln)}</span><span class="ad-r">${esc(ax.rn)}</span></div>`;
   }).join("");
   return `<div class="t16link t16top" onclick="renderTypeDetail()">16TYPE 詳細 <b>›</b></div>
     <div class="st-job">${any?esc((TYPE_INFO[fullCode]||[""])[0]):"分析中"}</div>
@@ -3972,7 +3989,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.99 (2026-07-21)";
+const APP_VERSION="v2.100 (2026-07-21)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
