@@ -1280,7 +1280,6 @@ function setLift(px){ // ピル上昇量(px)とヘッダー/写真用の進捗(-
 }
 function enterListMode(){
   if(_listMode)return;
-  if(_onSpecial){openPriQQ();return;} // 特別ルーム選択中は専用ページへ（通常の単語帳ではなくプリQQ）
   pushNav("list"); // OSバックで一覧を閉じられるように
   document.getElementById("homewrap").classList.add("hiderail");
   setLift(-LIFT_MAX); // ROOMメニューが最上部へ・ヘッダー退場・写真フェード
@@ -1416,6 +1415,9 @@ const PRIQQ={
   get total(){return this.preview.length;},
   learned:0
 };
+/* プリQQの語を既存の出題エンジンで使えるよう WORD_BY_ID に登録し、出題ID配列を確定（既存IDと衝突しない高い番号帯） */
+PRIQQ.preview.forEach((w,i)=>{if(w.id==null)w.id=990001+i;if(!WORD_BY_ID[w.id])WORD_BY_ID[w.id]={id:w.id,ko:w.ko,ja:w.ja};});
+PRIQQ.ids=PRIQQ.preview.map(w=>w.id);
 /* メインビジュアルの中身: 画像があればジャケット風フレームで表示、無ければ自作の抽象キラキラ */
 function pqMainInner(){return PRIQQ.image?`<img class="pq-cover" src="${esc(PRIQQ.image)}" alt="">`:pqDecoSVG();}
 /* 装飾のみ（スポット/放射光/星/ハート/シルエット）。実在アーティストの複製ではない抽象コンポジション */
@@ -1494,8 +1496,9 @@ function fillRoomList(n){
   const built=tmp.firstElementChild;if(built)ph.replaceWith(built);
 }
 function fillNearbyRoomLists(){if(!_listMode)return;[curSection-1,curSection,curSection+1].forEach(fillRoomList);}
-function roomListHTML(n){
-  const ids=LEVEL_SECTIONS[curLevel][n]||[],st=loadStats(),cards=loadCards(),now=Date.now();
+function roomListHTML(n){return roomListHTMLFromIds(LEVEL_SECTIONS[curLevel][n]||[]);}
+function roomListHTMLFromIds(ids){
+  const st=loadStats(),cards=loadCards(),now=Date.now();
   let owned=0,totalCnt=0;
   ids.forEach(id=>{const c=cards[id]||0;if(c>0){owned++;totalCnt+=c;}});
   let pairs=ids.map((id,i)=>({id,i})); // 番号は常に元の通し番号を維持
@@ -1578,17 +1581,18 @@ function buildRoomSlides(){
   </div>`;
   // ROOM01の左（難易度スライドの右）に特別ルーム プリQQ。通常ROOMのレイアウトを流用しプリティー化
   const pqrate=PRIQQ.total?Math.round(PRIQQ.learned/PRIQQ.total*100):0;
-  const specialSlide=`<div class="room-slide pq-slide" data-n="s" style="background:#ffe3f1">
+  const pqlearned=PRIQQ.ids.filter(id=>(loadCards()[id]||0)>0).length;
+  const specialSlide=`<div class="room-slide pq-slide" data-n="pq" style="background:#ffe3f1">
     <div class="slide-inner">
-      <div class="rmenu-bg" onclick="openPriQQ()"></div>
-      <div class="hv-roomlabel" onclick="openPriQQ()">ルーム</div>
-      <div class="hv-roomno" onclick="openPriQQ()" style="left:60px">プリQQ</div>
-      <div class="hv-learned">${PRIQQ.learned}<span class="unit">語</span></div>
-      <div class="gauge hv-wordsg"><div class="gfill" style="width:${pqrate}%"></div></div>
+      <div class="rmenu-bg" onclick="roomMenuTap('pq')"></div>
+      <div class="hv-roomlabel" onclick="roomMenuTap('pq')">ルーム</div>
+      <div class="hv-roomno" onclick="roomMenuTap('pq')" style="left:60px">プリQQ</div>
+      <div class="hv-learned">${pqlearned}<span class="unit">語</span></div>
+      <div class="gauge hv-wordsg"><div class="gfill" style="width:${Math.round(pqlearned/PRIQQ.total*100)}%"></div></div>
       <div class="hv-roompwr">${pqrate}<span class="unit">%</span></div>
       <div class="gauge hv-roomg"><div class="gfill" style="width:${pqrate}%"></div></div>
       <div class="pq-badge">★ SPECIAL</div>
-      <div class="pq-main" onclick="openPriQQ()">${pqMainInner()}<div class="pq-ribbon">${esc(PRIQQ.name)}</div></div>
+      ${_listMode?roomListHTMLFromIds(PRIQQ.ids):`<div class="pq-main" onclick="roomMenuTap('pq')">${pqMainInner()}<div class="pq-ribbon">${esc(PRIQQ.name)}</div></div>`}
     </div>
   </div>`;
   el.innerHTML=levelSlide+specialSlide+Array.from({length:count},(_,i)=>{
@@ -1625,7 +1629,7 @@ function buildRoomSlides(){
     let _ty=null,_tx=null,_plList=null,_plBase=null,_homeDir=null;
     el.addEventListener("touchstart",e=>{
       _ty=e.touches[0].clientY;_tx=e.touches[0].clientX;_plBase=null;_homeDir=null;
-      _plList=_listMode?el.querySelector(`.room-slide[data-n="${curSection}"] .slide-list`):null;
+      _plList=_listMode?(_onSpecial?el.querySelector(".pq-slide .slide-list"):el.querySelector(`.room-slide[data-n="${curSection}"] .slide-list`)):null;
     },{passive:true});
     el.addEventListener("touchmove",e=>{
       if(_ty==null||_statusMode)return;
@@ -1681,7 +1685,7 @@ function buildRoomSlides(){
       },120);
     });
   }
-  el.scrollLeft=(curSection+1)*602; // 難易度+特別スライドぶん右へ（ROOM n の実index=n+1）
+  el.scrollLeft=_onSpecial?602:(curSection+1)*602; // 特別ルーム選択中は特別スライド(index1=602)、通常はROOM n(index n+1)
 }
 /* 602px基準で比例スケール（PCは等倍上限・中央寄せ） */
 function scaleHome(){
@@ -2633,7 +2637,7 @@ function confirmQuit(){
   clearInterval(timer); // ダイアログ表示中はタイマーを完全停止（裏で時間切れにならないように）
   const m=document.createElement("div");m.className="appconfirm";
   m.innerHTML=`<div class="ac-card"><div class="ac-t">テストを中断して<br>ホームに戻りますか？</div>
-    <div class="ac-btns"><button class="btn ac-stop" id="ac-yes">中断</button><button class="btn ghost" id="ac-no">続ける</button></div></div>`;
+    <div class="ac-btns"><button class="btn ac-stop" id="ac-yes">はい</button><button class="btn ghost" id="ac-no">いいえ</button></div></div>`;
   document.body.appendChild(m);
   const resume=()=>{if(!answered){qStart+=performance.now()-t0;resumeTimer();}m.remove();}; // 停止していた分を差し戻して計時再開
   m.querySelector("#ac-no").onclick=resume;
@@ -3597,7 +3601,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.87 (2026-07-20)";
+const APP_VERSION="v2.88 (2026-07-20)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
