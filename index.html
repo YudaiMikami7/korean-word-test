@@ -573,9 +573,38 @@ body.bigtext .set-d{font-size:13.5px}
 }
 .start-button:active{background:rgba(0,0,0,.65)}
 .hv-ver{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:11px;color:rgba(255,255,255,.5);z-index:2}
-#settings-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
+#settings-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.42)}
 #settings-modal.on{display:flex}
-.set-card{width:360px;max-width:90vw;max-height:88vh;overflow-y:auto;background:#fff;color:#1a1a1a;padding:0 20px calc(18px + env(safe-area-inset-bottom));position:relative;border-radius:16px;-webkit-overflow-scrolling:touch}
+/* iPhoneコントロールセンター風の設定パネル */
+.set-card.cc-card{width:376px;max-width:92vw;max-height:88vh;overflow-y:auto;color:#fff;padding:0 16px calc(18px + env(safe-area-inset-bottom));position:relative;border-radius:30px;-webkit-overflow-scrolling:touch;
+  background:rgba(28,28,32,.66);backdrop-filter:blur(30px) saturate(1.6);-webkit-backdrop-filter:blur(30px) saturate(1.6);box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.12)}
+.cc-head{position:sticky;top:0;display:flex;align-items:center;justify-content:center;padding:14px 0 10px;z-index:3;background:transparent}
+.cc-grab{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:40px;height:5px;border-radius:3px;background:rgba(255,255,255,.4)}
+.cc-head .set-h{font-size:18px;font-weight:900;color:#fff}
+.cc-head .set-close{position:absolute;right:6px;top:8px;background:rgba(255,255,255,.16);border:none;width:32px;height:32px;border-radius:50%;font-size:20px;font-weight:900;color:#fff;cursor:pointer;line-height:1}
+.cc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+.cc-tile{background:rgba(255,255,255,.13);border-radius:20px;padding:14px 16px;min-height:92px;cursor:pointer;display:flex;flex-direction:column;gap:8px;justify-content:center;transition:background .2s ease,transform .08s ease;-webkit-tap-highlight-color:transparent}
+.cc-tile:active{transform:scale(.96)}
+.cc-ico{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:21px;transition:background .2s ease}
+.cc-lab{font-size:14.5px;font-weight:800;color:#fff}
+.cc-state{font-size:11px;font-weight:700;color:rgba(255,255,255,.62)}
+.cc-tile.on .cc-state{color:rgba(255,255,255,.95)}
+.cc-tile.on .cc-ico{background:rgba(255,255,255,.28)}
+.cc-tile.on.k-tap{background:linear-gradient(160deg,#0a84ff,#0060df)}
+.cc-tile.on.k-snd{background:linear-gradient(160deg,#ff9f0a,#ff7a00)}
+.cc-tile.on.k-slow{background:linear-gradient(160deg,#bf5af2,#8944ab)}
+.cc-tile.on.k-notf{background:linear-gradient(160deg,#ff453a,#d70015)}
+.cc-tile.on.k-ball{background:linear-gradient(160deg,#30d158,#28a745)}
+.cc-tile.on.k-big{background:linear-gradient(160deg,#5e5ce6,#3634a3)}
+.cc-list{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+.cc-item{background:rgba(255,255,255,.13);border-radius:16px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;font-size:14.5px;font-weight:800;color:#fff;cursor:pointer}
+.cc-item .cc-arw{color:rgba(255,255,255,.6);font-weight:900}
+.cc-item.cc-note{cursor:default;font-size:12px;font-weight:700;color:rgba(255,255,255,.75);line-height:1.5}
+.cc-item.cc-2btn{gap:10px;background:transparent;padding:0}
+.cc-item.cc-2btn button,.cc-item.cc-2btn label{flex:1;background:rgba(255,255,255,.13);border:none;border-radius:16px;padding:14px;font-size:13.5px;font-weight:800;color:#fff;cursor:pointer;text-align:center;font-family:inherit}
+.cc-links{display:flex;justify-content:center;gap:16px;margin-top:14px;font-size:12px;font-weight:700}
+.cc-links a{color:rgba(255,255,255,.7);text-decoration:none}
+.set-card:not(.cc-card){width:360px;max-width:90vw;max-height:88vh;overflow-y:auto;background:#fff;color:#1a1a1a;padding:0 20px calc(18px + env(safe-area-inset-bottom));position:relative;border-radius:16px;-webkit-overflow-scrolling:touch}
 .set-head{position:sticky;top:0;background:#fff;display:flex;align-items:center;justify-content:center;padding:15px 0 11px;margin:0 -20px 2px;border-bottom:1px solid #eee;z-index:3}
 .set-h{font-size:19px;font-weight:900}
 .set-close{position:absolute;right:12px;top:9px;background:transparent;border:none;font-size:26px;font-weight:900;color:#999;cursor:pointer;line-height:1}
@@ -4070,7 +4099,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.102 (2026-07-21)";
+const APP_VERSION="v2.103 (2026-07-21)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -4178,49 +4207,26 @@ function toggleReminder(){
 function openSettings(){if(!document.getElementById("settings-modal").classList.contains("on"))pushNav("modal");
   const st=loadSettings();
   const m=document.getElementById("settings-modal");
-  m.innerHTML=`<div class="set-card">
-    <div class="set-head"><div class="set-h">設定</div><button class="set-close" onclick="closeSettings()" aria-label="閉じる">×</button></div>
-    <div class="set-row" onclick="toggleSetting('tapAdvance')">
-      <div><div class="set-t">回答後の進み方</div><div class="set-d">${st.tapAdvance?"タップで次へ":"自動で次へ"}</div></div>
-      <div class="set-sw ${st.tapAdvance?'on':''}"><span></span></div>
+  const notifyOn=st.notify&&(typeof Notification!=='undefined'&&Notification.permission==='granted');
+  const tile=(cls,ico,lab,on,onTxt,offTxt,handler)=>`<div class="cc-tile ${cls} ${on?'on':''}" onclick="${handler}">
+    <div class="cc-ico">${ico}</div><div class="cc-lab">${lab}</div><div class="cc-state">${on?onTxt:offTxt}</div></div>`;
+  m.innerHTML=`<div class="set-card cc-card">
+    <div class="cc-head"><div class="cc-grab"></div><div class="set-h">設定</div><button class="set-close" onclick="closeSettings()" aria-label="閉じる">×</button></div>
+    <div class="cc-grid">
+      ${tile("k-tap","👆","進み方",st.tapAdvance,"タップで次へ","自動で次へ","toggleSetting('tapAdvance')")}
+      ${tile("k-snd","🔊","サウンド",st.sound!==false,"オン","オフ","toggleSetting('sound')")}
+      ${tile("k-slow","⏳","じっくり",st.slowTimer,"制限1.5倍","通常","toggleSetting('slowTimer')")}
+      ${tile("k-notf","🔔","復習通知",notifyOn,"通知オン","要許可","toggleReminder()")}
+      ${tile("k-ball","🫧","玉の演出",st.balls!==false,"積もる","オフ","toggleSetting('balls')")}
+      ${tile("k-big","🔠","文字大",st.bigText,"大きめ","標準","toggleSetting('bigText')")}
     </div>
-    <div class="set-row" onclick="toggleSetting('sound')">
-      <div><div class="set-t">サウンド</div><div class="set-d">${st.sound!==false?"読み上げ・効果音オン":"すべてオフ"}</div></div>
-      <div class="set-sw ${st.sound!==false?'on':''}"><span></span></div>
+    <div class="cc-list">
+      <div class="cc-item" onclick="showCoach()"><span>📖 つかいかた</span><span class="cc-arw">›</span></div>
+      <div class="cc-item cc-2btn"><button onclick="exportData()">⬆ 書き出す</button><label>⬇ 読み込む<input type="file" accept="application/json" style="display:none" onchange="importData(this)"></label></div>
+      ${/iPhone|iPad|iPod/.test(navigator.userAgent)&&!(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)?`<div class="cc-item cc-note">📲 Safariの共有 →「ホーム画面に追加」でアプリのように使えます</div>`:""}
+      ${MONETIZE.donateUrl?`<div class="cc-item" style="justify-content:center">${donateBtnHTML('btn dark full')}</div>`:""}
     </div>
-    <div class="set-row" onclick="toggleSetting('slowTimer')">
-      <div><div class="set-t">じっくりモード</div><div class="set-d">${st.slowTimer?"制限時間1.5倍":"通常の制限時間"}</div></div>
-      <div class="set-sw ${st.slowTimer?'on':''}"><span></span></div>
-    </div>
-    <div class="set-row" onclick="toggleReminder()">
-      <div><div class="set-t">復習リマインダー</div><div class="set-d">${st.notify&&(typeof Notification!=='undefined'&&Notification.permission==='granted')?"通知オン":"復習どきに通知（要許可）"}</div></div>
-      <div class="set-sw ${st.notify&&(typeof Notification!=='undefined'&&Notification.permission==='granted')?'on':''}"><span></span></div>
-    </div>
-    <div class="set-row" onclick="toggleSetting('balls')">
-      <div><div class="set-t">玉の演出</div><div class="set-d">${st.balls!==false?"正解の玉が積もる":"オフ（すっきり表示・軽量）"}</div></div>
-      <div class="set-sw ${st.balls!==false?'on':''}"><span></span></div>
-    </div>
-    <div class="set-row" onclick="toggleSetting('bigText')">
-      <div><div class="set-t">文字サイズ 大</div><div class="set-d">${st.bigText?"大きめ表示":"標準"}</div></div>
-      <div class="set-sw ${st.bigText?'on':''}"><span></span></div>
-    </div>
-    <div class="set-row" onclick="showCoach()">
-      <div><div class="set-t">つかいかた</div><div class="set-d">ジェスチャー操作の一覧を見る</div></div>
-      <div style="font-weight:900;color:#888">›</div>
-    </div>
-    ${/iPhone|iPad|iPod/.test(navigator.userAgent)&&!(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)?`<div class="set-row" style="cursor:default">
-      <div><div class="set-t">📲 ホーム画面に追加</div><div class="set-d">Safariの共有ボタン →「ホーム画面に追加」でアプリのように使えます</div></div>
-    </div>`:""}
-    <div class="set-row" style="gap:10px">
-      <button class="btn ghost" style="padding:10px;font-size:13px" onclick="exportData()">データを書き出す</button>
-      <label class="btn ghost" style="padding:10px;font-size:13px;text-align:center;cursor:pointer">データを読み込む<input type="file" accept="application/json" style="display:none" onchange="importData(this)"></label>
-    </div>
-    ${MONETIZE.donateUrl?`<div class="set-row" style="justify-content:center;border-top:1px solid #eee">${donateBtnHTML('btn dark full')}</div>`:""}
-    <div class="set-row" style="justify-content:center;gap:18px;border-top:1px solid #eee;font-size:13px;font-weight:700">
-      <a href="learn/" style="color:#666;text-decoration:none">単語帳一覧</a>
-      <a href="about.html" style="color:#666;text-decoration:none">このアプリについて</a>
-      <a href="privacy.html" style="color:#666;text-decoration:none">プライバシーポリシー</a>
-    </div>
+    <div class="cc-links"><a href="learn/">単語帳一覧</a><a href="about.html">このアプリについて</a><a href="privacy.html">プライバシー</a></div>
   </div>`;
   m.classList.add("on");
 }
