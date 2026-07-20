@@ -591,7 +591,9 @@ body.bigtext .set-d{font-size:13.5px}
 .cc-head .set-h{font-size:18px;font-weight:900;color:#fff}
 .cc-head .set-close{position:absolute;right:6px;top:8px;background:rgba(255,255,255,.16);border:none;width:32px;height:32px;border-radius:50%;font-size:20px;font-weight:900;color:#fff;cursor:pointer;line-height:1}
 .cc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
-.cc-tile{background:rgba(255,255,255,.13);border-radius:20px;padding:14px 16px;min-height:92px;cursor:pointer;display:flex;flex-direction:column;gap:8px;justify-content:center;transition:background .2s ease,transform .08s ease;-webkit-tap-highlight-color:transparent}
+.cc-tile{background:rgba(255,255,255,.13);border-radius:20px;padding:14px;min-height:72px;cursor:pointer;display:flex;flex-direction:row;align-items:center;gap:12px;transition:background .2s ease,transform .08s ease;-webkit-tap-highlight-color:transparent}
+.cc-txt{display:flex;flex-direction:column;min-width:0}
+.cc-ico{flex:0 0 auto}
 .cc-tile:active{transform:scale(.96)}
 .cc-ico{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:21px;transition:background .2s ease}
 .cc-lab{font-size:14.5px;font-weight:800;color:#fff}
@@ -3412,7 +3414,7 @@ function spawnBallRaw(src,r,bg,layerId){
   const inLayer=QR.balls.filter(b=>b.layer===layerId);
   if(inLayer.length>=cap){
     const old=inLayer[0];old.el.remove();QR.balls.splice(QR.balls.indexOf(old),1);
-    QR.balls.forEach(b=>{if(b.layer===layerId){b.sleep=false;b.still=0;}}); // 土台が消えるので全員起こして崩れさせる
+    // 静止済みの山（約36個）は起こさず固定のまま。新しく降る玉だけが動く（計算を抑える）
   }
   const el=document.createElement("div");el.className="qr-ball";
   el.style.width=el.style.height=(r*2)+"px";
@@ -3515,12 +3517,13 @@ function qrStep(ts){
         if(ny>0.5)A.supported=true;
         if(ny<-0.5)B.supported=true;
         if(pen>0.6){ // 0.6pxのスロップ内は補正しない＝残留ジッタを出さない
-          const corr=(pen-0.6)*0.4; // 部分補正（Baumgarte）でオーバーシュート振動を防ぐ
-          A.x-=nx*corr;A.y-=ny*corr;B.x+=nx*corr;B.y+=ny*corr;
+          // 静止済みの玉は不動（無限質量）として扱い、動いている玉だけを押し戻す＝山は固定・落下玉のみ演算
+          const corr=(pen-0.6)*(A.sleep!==B.sleep?1:0.4); // 片方が固定なら全量を可動側で解消
+          if(!A.sleep){A.x-=nx*corr;A.y-=ny*corr;}
+          if(!B.sleep){B.x+=nx*corr;B.y+=ny*corr;}
           const rel=(B.vx-A.vx)*nx+(B.vy-A.vy)*ny;
-          if(rel<0){const imp=-rel*0.4;A.vx-=nx*imp;A.vy-=ny*imp;B.vx+=nx*imp;B.vy+=ny*imp;}
-          A.va=A.vx/A.r;B.va=B.vx/B.r;
-          if(pen>4){A.sleep=false;B.sleep=false;A.still=0;B.still=0;} // 大きくめり込んだ時だけ起こす（微小重なりでは起こさない）
+          if(rel<0){const imp=-rel*0.4;if(!A.sleep){A.vx-=nx*imp;A.vy-=ny*imp;}if(!B.sleep){B.vx+=nx*imp;B.vy+=ny*imp;}}
+          if(!A.sleep)A.va=A.vx/A.r;if(!B.sleep)B.va=B.vx/B.r;
         }
       }
     }
@@ -4141,7 +4144,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.106 (2026-07-21)";
+const APP_VERSION="v2.107 (2026-07-21)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -4251,7 +4254,7 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
   const m=document.getElementById("settings-modal");
   const notifyOn=st.notify&&(typeof Notification!=='undefined'&&Notification.permission==='granted');
   const tile=(cls,ico,lab,on,onTxt,offTxt,handler)=>`<div class="cc-tile ${cls} ${on?'on':''}" onclick="${handler}">
-    <div class="cc-ico">${ico}</div><div class="cc-lab">${lab}</div><div class="cc-state">${on?onTxt:offTxt}</div></div>`;
+    <div class="cc-ico">${ico}</div><div class="cc-txt"><div class="cc-lab">${lab}</div><div class="cc-state">${on?onTxt:offTxt}</div></div></div>`;
   m.innerHTML=`<div class="set-card cc-card">
     <div class="cc-head"><div class="cc-grab"></div><div class="set-h">設定</div><button class="set-close" onclick="closeSettings()" aria-label="閉じる">×</button></div>
     <div class="cc-grid">
