@@ -491,11 +491,13 @@ body.bigtext .set-d{font-size:13.5px}
   box-shadow:0 5px 14px rgba(0,0,0,.28);overflow:hidden;
   font-family:inherit;font-weight:900;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;text-align:center;
   transform:translateY(calc(var(--down,0px)*2.2));transition:transform .4s ease,opacity .3s ease;line-height:1.25;font-size:16px;padding:0 8px}
-/* アイコンとラベルを一定時間で回転入替（単語帳/忘却曲線） */
-.home-side-btn img{transition:transform .45s ease,opacity .35s ease}
-.home-side-btn .hsb-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:900;color:#333;transform:rotateY(90deg);opacity:0;transition:transform .45s ease,opacity .35s ease;backface-visibility:hidden}
-.home-side-btn.show-label img{transform:rotateY(90deg);opacity:0}
-.home-side-btn.show-label .hsb-txt{transform:rotateY(0);opacity:1}
+/* アイコンとラベルを一定時間で回転入替（単語帳/忘却曲線）：ボタンごとY軸1回転しながら中身をクロスフェード */
+.home-side-btn img,.home-side-btn .hsb-txt{transition:opacity .3s ease}
+.home-side-btn .hsb-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:900;color:#333;opacity:0}
+.home-side-btn.show-label img{opacity:0}
+.home-side-btn.show-label .hsb-txt{opacity:1}
+.home-side-btn.spin{animation:sideSpin .6s ease}
+@keyframes sideSpin{from{transform:translateY(calc(var(--down,0px)*2.2)) perspective(420px) rotateY(0)}to{transform:translateY(calc(var(--down,0px)*2.2)) perspective(420px) rotateY(360deg)}}
 .hsb-left{left:18px}
 .hsb-right{right:18px}
 /* プリQQ選択中：単語帳/忘却曲線ボタンを白背景＋くるくる回りながら小さく出てくる登場アニメ */
@@ -1298,16 +1300,27 @@ function claimPresentItem(btn){
 function pwrOverallExact(){const s=loadStats(),ids=Object.keys(s);if(!ids.length)return 0;const now=Date.now();let t=0;ids.forEach(id=>t+=displayMemoryScore(getStat(id,s),now));return t/ids.length;}
 /* PWR表示は「ホーム表示時に1回実測→以後は10秒ごとに0.01%ずつ必ず減る」決め打ち方式（毎0.3秒の全単語再計算なし） */
 let _pwrT0=0,_pwrBase=0,_pwrFillLast=-1;
-function calibratePwr(){_pwrBase=pwrOverallExact();_pwrT0=Date.now();}
+function calibratePwr(){_pwrBase=pwrOverallExact();_pwrT0=Date.now();_pwrStep=0;}
+/* 10秒ごと（0.01%減算のタイミング）にメータを 0→最大→現在値 とスイープさせる演出 */
+let _pwrStep=0,_pwrSweeping=false;
+function pwrSweep(v){
+  const f=document.getElementById("hv-pwrfill");if(!f)return;
+  _pwrSweeping=true;
+  f.style.width="0%"; // まず0へ（.gfillのtransition .5sで動く）
+  setTimeout(()=>{f.style.width="100%";},520); // 最大まで
+  setTimeout(()=>{f.style.width=v+"%";_pwrFillLast=v;},1060); // 現在値へ戻る（さらに減った状態）
+  setTimeout(()=>{_pwrSweeping=false;},1600);
+}
 function updatePwrFine(){
   const num=document.getElementById("hv-pwrval");if(!num)return;
   if(!_pwrT0)calibratePwr();
   const el=(Date.now()-_pwrT0)/1000;
-  const v=Math.max(0,_pwrBase-0.01*Math.floor(el/10)); // カウントダウンが0になった瞬間に0.01%必ず減る（段階減算）
+  const step=Math.floor(el/10);
+  const v=Math.max(0,_pwrBase-0.01*step); // カウントダウンが0になった瞬間に0.01%必ず減る（段階減算）
   num.textContent=v.toFixed(2)+"%"; // 0.001の位は表示しない
-  // ゲージ幅は目に見える差（0.05%以上）のときだけ更新。毎0.3秒のwidth書き換えはtransitionが常時走り、帯アニメ等をカクつかせるため
   const f=document.getElementById("hv-pwrfill");
-  if(f&&Math.abs(v-_pwrFillLast)>=0.05){f.style.width=v+"%";_pwrFillLast=v;}
+  if(step!==_pwrStep){_pwrStep=step;pwrSweep(v);} // 10秒境界を跨いだらスイープ演出
+  else if(!_pwrSweeping&&f&&Math.abs(v-_pwrFillLast)>=0.05){f.style.width=v+"%";_pwrFillLast=v;} // 通常は目に見える差のときだけ更新
   const dn=document.getElementById("hv-pwrdown");
   if(dn)dn.textContent=v>0?`PWRが0.01%減るまで あと${Math.ceil(10-el%10)}秒`:"";
 }
@@ -1541,20 +1554,21 @@ function _roomTint(n){return (n==="pq")?"#ffe3f1":roomBg(n);} // パネル背景
 function roomRecoTick(){
   if(!document.getElementById("s-home").classList.contains("on")||_listMode||_statusMode){_clearReco();return;} // ホームのルーム表示中のみ
   const si=_curSlideInner();if(!si)return;
-  const key=_onSpecial?"pq":curSection,tint=_roomTint(key);
+  const key=_onSpecial?"pq":curSection;
   _recoFace=(_recoFace+1)%3; // 0=stats/1=word/2=pwr
   si.classList.remove("face-word","face-pwr");
+  // 各面は個別背景なし（透明）。ルームメニュー全体の白透明座布団(.rmenu-bg)がそのまま見える
   if(_recoFace===1){
     const w=pickRecoWord(key);if(!w){_recoFace=0;return;}
     const rr=si.querySelector(".rmenu-reco");if(!rr)return;
-    rr.style.background=tint;rr.innerHTML=`<div class="rr-ko">${esc(w.ko)}</div><div class="rr-ja">${esc(w.ja)}</div>`;
+    rr.innerHTML=`<div class="rr-ko">${esc(w.ko)}</div><div class="rr-ja">${esc(w.ja)}</div>`;
     si.classList.add("face-word");
   }else if(_recoFace===2){
     const rp=si.querySelector(".rmenu-pwr");if(!rp)return;
     const cur=(key==="pq")?(PRIQQ.total?Math.round(PRIQQ.learned/PRIQQ.total*100):0):roomInfoFor(key).pwr;
     let series=roomScoreSeries(key);if(!series.length)series=[cur]; // 履歴が無ければ現在値のみ
     const bars=series.map(v=>`<div class="rmpwr-bar" style="height:${Math.max(6,v)}%"></div>`).join("");
-    rp.style.background=tint;rp.innerHTML=`<div class="rmpwr-top"><span class="rp-lab">PWR</span><b>${cur}%</b></div><div class="rmpwr-bars">${bars}</div>`;
+    rp.innerHTML=`<div class="rmpwr-top"><span class="rp-lab">PWR</span><b>${cur}%</b></div><div class="rmpwr-bars">${bars}</div>`;
     si.classList.add("face-pwr");
   } // face 0 は何も付けず語数/％/ランクへ戻る
 }
@@ -1564,7 +1578,10 @@ function startRoomRecoLoop(){if(_recoTimer)return;_recoTimer=setInterval(roomRec
 let _sideFlipTimer=null;
 function startSideBtnFlip(){if(_sideFlipTimer)return;_sideFlipTimer=setInterval(()=>{
   if(!document.getElementById("s-home").classList.contains("on")||_statusMode)return;
-  document.querySelectorAll(".home-side-btn").forEach(b=>b.classList.toggle("show-label"));
+  document.querySelectorAll(".home-side-btn").forEach(b=>{
+    b.classList.toggle("show-label");
+    b.classList.remove("spin");void b.offsetWidth;b.classList.add("spin"); // Y軸1回転を再生
+  });
 },3600);}
 
 /* スタートボタンからランダムに出る感情吹き出し（学習を続けたくなる声かけ） */
@@ -3837,7 +3854,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.92 (2026-07-21)";
+const APP_VERSION="v2.93 (2026-07-21)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
