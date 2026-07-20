@@ -755,9 +755,12 @@ body.bigtext .set-d{font-size:13.5px}
 .wd-imgwrap{position:relative;width:min(62vw,300px);margin:6px auto 2px}
 .wd-imgwrap .wd-img{width:100%;margin:0}
 .wd-imgwrap .wd-spk{position:absolute;top:6px;right:6px;margin:0;background:rgba(0,0,0,.5)}
-/* 単語詳細 上部ページャー（番号を並べ現在位置を中央に） */
-.rp-pager{flex:0 0 auto;display:flex;gap:10px;align-items:center;overflow-x:auto;scrollbar-width:none;padding:2px 16px 8px}
+/* 単語詳細 上部ページャー（番号＋韓国語を並べ現在位置を中央に。横スクロールのみ） */
+.rp-pager{flex:0 0 auto;display:flex;gap:12px;align-items:flex-end;overflow-x:auto;overflow-y:hidden;touch-action:pan-x;scrollbar-width:none;padding:2px 16px 8px}
 .rp-pager::-webkit-scrollbar{display:none}
+.rp-pager .wd-dot{flex:0 0 auto;flex-direction:column;gap:1px;min-width:auto;height:auto}
+.rp-pager .wd-dn{font-size:12px;font-weight:800;opacity:.85;line-height:1}
+.rp-pager .wd-dk{font-size:16px;font-weight:900;white-space:nowrap;line-height:1.1}
 .wd-ko2{text-align:center;font-size:40px;font-weight:800;line-height:1.15;margin-top:4px}
 .wd-ja2{text-align:center;font-size:20px;font-weight:800;color:rgba(255,255,255,.92);margin-top:2px}
 .wd-spk{background:rgba(0,0,0,.35);border:none;border-radius:50%;width:38px;height:38px;font-size:18px;margin-left:10px;vertical-align:middle;cursor:pointer;color:#fff}
@@ -3548,8 +3551,6 @@ function wordRoomInfo(id){
 function wdSlideHTML(id,i){
   const w=WORD_BY_ID[id],cnt=(loadCards()[id]||0);
   const rate=Math.round(displayScore(getStat(id),Date.now())),ms=memState(rate);
-  const ri=wordRoomInfo(id);
-  const roomTxt=ri.label?`${ri.label}${ri.no?" ・ "+ri.no+"番":""}`:`No.${String(i+1).padStart(3,"0")}`;
   const note=w.n?`<div class="note">⚠️ ${esc(w.n)}</div>`:"";
   // 発音再生ボタン（word.audioがあれば録音、無ければTTS）
   const spk=`<button class="wd-spk" aria-label="発音を聞く" onclick="speakSmart('${esc(w.ko).replace(/'/g,"")}')">🔊</button>`;
@@ -3558,7 +3559,7 @@ function wdSlideHTML(id,i){
   const imgBlock=hasImg?`<div class="wd-imgwrap"><img class="wd-img" src="${WORD_IMG[w.ko]}" alt="">${spk}</div>`:"";
   const ex=(typeof WORD_EX!=="undefined"&&WORD_EX[w.ko])?`<div class="wd-ex"><div class="wd-ex-ko">${esc(WORD_EX[w.ko][0])}</div><div class="wd-ex-ja">${esc(WORD_EX[w.ko][1])}</div></div>`:"";
   return `
-    <div class="wd-top"><span>${roomTxt}</span><span class="${ms.cls}">${rate}%</span><span>×${cnt}</span></div>
+    <div class="wd-top"><span class="${ms.cls}">${rate}%</span><span>×${cnt}</span></div>
     ${imgBlock}
     <div class="wd-ko2">${esc(w.ko)}${hasImg?"":spk}</div>
     <div class="wd-ja2">${esc(w.ja)}</div>
@@ -3587,8 +3588,8 @@ function renderWordDetail(wordId,back){
    </div>`;
   const fill=i=>{if(i<0||i>=ids.length)return;const e=document.getElementById("wd-in-"+i);if(e&&!e.dataset.f){e.dataset.f="1";e.innerHTML=wdSlideHTML(ids[i],i);}};
   fill(idx);fill(idx-1);fill(idx+1);fill(idx-2);fill(idx+2);
-  // タイトル＝「初級 ROOM xx 単語」（所属ROOM＋単語）
-  const wdTitle=i=>{const t=document.getElementById("wd-title"),w=WORD_BY_ID[ids[i]];if(t&&w){const ri=wordRoomInfo(ids[i]);t.textContent=(ri.label?ri.label+" ":"")+w.ko;}};
+  // タイトル＝「初級 ROOM xx No.xxx 単語」（所属ROOM＋室内番号＋単語）
+  const wdTitle=i=>{const t=document.getElementById("wd-title"),w=WORD_BY_ID[ids[i]];if(t&&w){const ri=wordRoomInfo(ids[i]);const noTxt=ri.no?`No.${String(ri.no).padStart(3,"0")} `:"";t.textContent=(ri.label?ri.label+" ":"")+noTxt+w.ko;}};
   wdTitle(idx);
   buildWdPager(ids,idx); // 上部ページャー
   show("s-wdetail");
@@ -3609,7 +3610,7 @@ function wdNav(d){const sc=document.getElementById("wd-scroll");if(sc)sc.scrollB
 /* 単語詳細ページ上部のページャー（番号を並べ、選択中を中央に。タップでその単語へ） */
 function buildWdPager(ids,idx){
   const p=document.getElementById("wd-pager");if(!p)return;
-  p.innerHTML=ids.map((id,i)=>`<div class="rp-dot${i===idx?" cur":""}" data-i="${i}" onclick="wdPagerJump(${i})">${i+1}</div>`).join("");
+  p.innerHTML=ids.map((id,i)=>{const w=WORD_BY_ID[id];return `<div class="rp-dot wd-dot${i===idx?" cur":""}" data-i="${i}" onclick="wdPagerJump(${i})"><span class="wd-dn">${i+1}</span><span class="wd-dk">${esc(w?w.ko:"")}</span></div>`;}).join("");
   requestAnimationFrame(()=>syncWdPager(idx));
 }
 function syncWdPager(idx){
@@ -3900,7 +3901,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.97 (2026-07-21)";
+const APP_VERSION="v2.98 (2026-07-21)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
