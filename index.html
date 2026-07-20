@@ -244,6 +244,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rank-s1{left:389px}
 .rank-b{position:absolute;left:442px;top:24px;width:78px;height:78px;border-radius:50%;background:#555;
   display:flex;align-items:center;justify-content:center;font-size:62px;line-height:1;z-index:2}
+/* ルームメニューのランクを結果と同じメダル風（金リング＋光沢）に。登場時にポップ */
+.rank-b,.rank-s{box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 4px rgba(255,196,0,.9),0 3px 8px rgba(0,0,0,.3);animation:rankmedalpop .6s cubic-bezier(.34,1.6,.5,1)}
+.rank-b::after,.rank-s::after{content:"";position:absolute;inset:3px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%);pointer-events:none}
+@keyframes rankmedalpop{0%{transform:scale(.35) rotate(-160deg);opacity:0}70%{opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
 /* ルームメニュー領域のクリップ：3面ローテのアニメが座布団の外にはみ出て描画されないように（座標は不変） */
 .rmenu-clip{position:absolute;inset:0;z-index:2;clip-path:inset(-12px 40px calc(100% - 104px) 40px round 56px)}
 /* ルームメニューの3面ローテーション：語数/％/ランク(face0) ⇄ おすすめ単語 ⇄ PWRグラフ。左下を軸に回転して入替（座布団なし・背景はroom色・白文字・影なし） */
@@ -259,7 +263,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .room-slide:not(.pq-slide) .hv-wordsg,.room-slide:not(.pq-slide) .hv-roomg{left:200px}
 .room-slide:not(.pq-slide) .rank-s{width:45px;height:45px;font-size:30px;top:60px;left:300px} /* 1,2前のランクを1.5倍に */
 .room-slide:not(.pq-slide) .rank-s1{left:345px}
-.room-slide:not(.pq-slide) .rank-b{left:404px}
+.room-slide:not(.pq-slide) .rank-b{left:390px} /* 1,2前と直近の隙間を詰める */
 .room-slide:not(.pq-slide) .rmenu-reco,.room-slide:not(.pq-slide) .rmenu-pwr{left:182px}
 .slide-inner.face-word .rmenu-reco{transform:rotate(0) scale(1);opacity:1}
 .slide-inner.face-pwr .rmenu-pwr{transform:rotate(0) scale(1);opacity:1}
@@ -764,6 +768,16 @@ body.bigtext .set-d{font-size:13.5px}
 .cg-noimg{font-size:32px}
 .cg-ko{font-size:14px;font-weight:900;color:#333;margin-top:3px;white-space:nowrap;overflow:hidden;max-width:92%;text-overflow:ellipsis}
 @keyframes cgflip{to{transform:rotateY(0) scale(1);opacity:1}}
+/* 結果の単語一覧＝獲得カード風グリッド（正誤記号＋記憶率＋変化つき） */
+.res-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:2px}
+.rc-card{position:relative;aspect-ratio:3/4;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.25);padding:4px;box-sizing:border-box}
+.rc-card img{width:72%;height:46%;object-fit:contain}
+.rc-card .cg-noimg{font-size:26px}
+.rc-sym{position:absolute;top:2px;left:6px;font-size:19px;font-weight:900;text-shadow:0 1px 2px rgba(0,0,0,.15)}
+.rc-ko{font-size:13px;font-weight:900;color:#333;white-space:nowrap;overflow:hidden;max-width:94%;text-overflow:ellipsis;margin-top:3px}
+.rc-foot{display:flex;gap:6px;align-items:baseline;margin-top:1px}
+.rc-rate{font-size:10px;font-weight:800;color:#8a7a5a}
+.rc-dlt{font-size:11px;font-weight:900}
 .res-score span{font-size:16px;color:var(--faint);font-weight:800}
 .res-params{display:flex;justify-content:center;gap:28px;margin-top:10px}
 .rp{display:flex;flex-direction:column;align-items:center;gap:4px}
@@ -3651,13 +3665,20 @@ function finishTest(){
   const typeUpd=(dg.changed&&dg.prevCode&&dg.prevCode!==dg.diag.code)
     ?`<div class="type-upd">WORD TYPE UPDATED　<b>${esc(dg.prevCode)} → ${esc(dg.diag.code)}</b></div>`:"";
   const SYM={correct:["○","#FF3B3B"],incorrect:["×","#2F6FE0"],unknown:["－","rgba(255,255,255,.75)"],timeout:["△","#DFB10F"]};
+  // 結果の単語一覧は「獲得カード」風のグリッド。各カードに正誤記号と記憶率(忘却度)＋変化を載せる
   const rows=R.map(r=>{
     const sy=SYM[r.answerStatus]||["−",""];
-    const syc=r.isHintProvided?"#FFD84D":sy[1]; // ヒントありは記号を黄色に（「ヒント」表記は出さない）
+    const syc=r.isHintProvided?"#FFD84D":sy[1];
     const dAfter=(r.displayMemoryScoreAfter!=null?r.displayMemoryScoreAfter:(r.displayMemoryScoreAfterDecay!=null?r.displayMemoryScoreAfterDecay:r.memoryScoreAfter))||0;
     const dBefore=(r.displayMemoryScoreBefore!=null?r.displayMemoryScoreBefore:r.memoryScoreBefore)||0;
-    const dlt=Math.round(dAfter-dBefore);
-    return `<tr><td class="no">${r.questionNumber}</td><td class="ko">${esc(r.korean)}</td><td>${esc(r.japanese)}</td><td style="color:${syc};font-weight:900">${sy[0]}</td><td class="num" style="color:${dlt>=0?"#1FAD62":"#FF6B6B"};font-weight:800">${dlt>0?"+":""}${dlt}</td></tr>`;
+    const dlt=Math.round(dAfter-dBefore),rateNow=Math.round(dAfter);
+    const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[r.korean])?`<img src="${WORD_IMG[r.korean]}" alt="">`:`<div class="cg-noimg">🃏</div>`;
+    return `<div class="rc-card">
+      <span class="rc-sym" style="color:${syc}">${sy[0]}</span>
+      ${img}
+      <div class="rc-ko">${esc(r.korean)}</div>
+      <div class="rc-foot"><span class="rc-rate">${rateNow}%</span><span class="rc-dlt" style="color:${dlt>=0?"#1FAD62":"#FF6B6B"}">${dlt>0?"+":""}${dlt}</span></div>
+    </div>`;
   }).join("");
   const _ri=roomInfoFor(curSection),pwrAfter=_ri.pwr,pwrBefore=(state.roomPwrBefore!=null?state.roomPwrBefore:0),pwrDelta=pwrAfter-pwrBefore; // そのROOMのPWR
   enqueuePresent(rank,pwrDelta); // このテストのプレゼント（レベル/ランク/PWR/レインボー）を1個追加
@@ -3682,10 +3703,7 @@ function finishTest(){
       <div class="res-cheer">${pickResultCheer(totalDisp,nCorrect,R.filter(r=>(r.displayMemoryScoreBefore||0)===0).length)}</div>
     </div>
     ${typeUpd}
-    <div class="res-listwrap">
-      <table class="rtab"><thead><tr><th class="no">No.</th><th>韓国語</th><th>日本語</th><th>結果</th><th class="num">変化</th></tr></thead>
-      <tbody>${rows}</tbody></table>
-    </div>
+    <div class="res-listwrap"><div class="res-cards">${rows}</div></div>
     <div class="res-btns">
       <button class="btn dark full emph e2" onclick="shareResult()" style="border:1px solid var(--gold);color:var(--gold)">&#120143; 結果をシェアして友達に挑戦</button>
       <button class="btn dark emph e1" onclick="if(typeof track==='function')track('retry');startTest()">もう一度挑戦する</button>
@@ -4123,7 +4141,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.105 (2026-07-21)";
+const APP_VERSION="v2.106 (2026-07-21)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
