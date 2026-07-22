@@ -768,12 +768,21 @@ body.bigtext .set-d{font-size:13.5px}
 .cardget.on{opacity:1}
 .cg-title{color:#fff;font-size:21px;font-weight:900;text-shadow:0 2px 6px rgba(0,0,0,.5)}
 .cg-skip{color:rgba(255,255,255,.7);font-size:13px;font-weight:800}
-.cg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;max-width:420px;padding:0 16px;box-sizing:border-box}
-.cg-card{aspect-ratio:3/4;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.4);transform:rotateY(90deg) scale(.6);opacity:0;animation:cgflip .5s cubic-bezier(.34,1.5,.5,1) forwards}
+.cg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;max-width:420px;padding:0 16px;box-sizing:border-box;perspective:900px}
+/* カード獲得の演出：奥から手前へ勢いよく着地→ゴールドの発光がパッと弾け→表面をシャインが走る（「獲得した！」感を強調） */
+.cg-card{position:relative;aspect-ratio:3/4;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.4);transform:translateY(-46px) rotateX(60deg) scale(.5);opacity:0;overflow:hidden;animation:cgslam .5s cubic-bezier(.2,1.5,.4,1) forwards}
 .cg-card img{width:76%;height:58%;object-fit:contain}
 .cg-noimg{font-size:32px}
 .cg-ko{font-size:14px;font-weight:900;color:#333;margin-top:3px;white-space:nowrap;overflow:hidden;max-width:92%;text-overflow:ellipsis}
-@keyframes cgflip{to{transform:rotateY(0) scale(1);opacity:1}}
+/* 着地の瞬間に走るハイライト（シャイン）。着地アニメの直後に発火するよう遅延を継承させる */
+.cg-card::after{content:"";position:absolute;top:-60%;left:-120%;width:60%;height:220%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.9),transparent);transform:rotate(18deg);opacity:0;animation:cgshine .7s ease-out forwards;animation-delay:inherit}
+@keyframes cgslam{
+  0%{transform:translateY(-46px) rotateX(60deg) scale(.5);opacity:0;box-shadow:0 6px 16px rgba(0,0,0,.4)}
+  55%{opacity:1}
+  70%{transform:translateY(0) rotateX(0) scale(1.12);box-shadow:0 0 0 3px rgba(255,196,0,.9),0 0 26px 6px rgba(255,196,0,.75),0 10px 22px rgba(0,0,0,.45)}
+  100%{transform:translateY(0) rotateX(0) scale(1);opacity:1;box-shadow:0 6px 16px rgba(0,0,0,.4)}
+}
+@keyframes cgshine{0%{opacity:0;left:-120%}45%{opacity:.95}100%{opacity:0;left:160%}}
 /* 結果の単語一覧＝獲得カード風グリッド（正誤記号＋記憶率＋変化つき） */
 .res-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:2px}
 .rc-card{position:relative;aspect-ratio:3/4;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.25);padding:4px;box-sizing:border-box}
@@ -781,9 +790,8 @@ body.bigtext .set-d{font-size:13.5px}
 .rc-card .cg-noimg{font-size:26px}
 .rc-sym{position:absolute;top:2px;left:6px;font-size:19px;font-weight:900;text-shadow:0 1px 2px rgba(0,0,0,.15)}
 .rc-ko{font-size:13px;font-weight:900;color:#333;white-space:nowrap;overflow:hidden;max-width:94%;text-overflow:ellipsis;margin-top:3px}
-.rc-foot{display:flex;gap:6px;align-items:baseline;margin-top:1px}
-.rc-rate{font-size:10px;font-weight:800;color:#8a7a5a}
-.rc-dlt{font-size:11px;font-weight:900}
+.rc-foot{display:flex;gap:6px;align-items:baseline;justify-content:center;margin-top:1px}
+.rc-cards{font-size:11px;font-weight:900;color:#b8862b}
 .res-score span{font-size:16px;color:var(--faint);font-weight:800}
 .res-params{display:flex;justify-content:center;gap:28px;margin-top:10px}
 .rp{display:flex;flex-direction:column;align-items:center;gap:4px}
@@ -1016,7 +1024,7 @@ body.bigtext .set-d{font-size:13.5px}
 .gear-hint{font-size:14px;font-weight:800;color:#fff;text-shadow:0 2px 5px rgba(0,0,0,.5);letter-spacing:.5px;margin-bottom:10px}
 /* 盤面：中央に大きめディスク、日本語は四隅（クロス斜め）。--gsはディスク直径。装飾は最小限で出題画面のトンマナ（白文字+黒影）に統一 */
 .gear-board{position:relative;width:min(96vw,58vh);aspect-ratio:1;--gs:min(60vw,35vh);flex:0 0 auto}
-.gear-ja{position:absolute;color:#fff;font-weight:600;font-size:clamp(16px,4.8vw,21px);line-height:1.3;text-shadow:0 2px 6px rgba(0,0,0,.5),0 0 2px rgba(0,0,0,.4);max-width:42%;z-index:2;pointer-events:none;transition:color .3s ease,text-shadow .3s ease;word-break:break-word}
+.gear-ja{position:absolute;color:#fff;font-weight:600;font-size:clamp(17px,5.2vw,23px);line-height:1.3;text-shadow:0 2px 6px rgba(0,0,0,.5),0 0 2px rgba(0,0,0,.4);max-width:42%;z-index:2;pointer-events:none;transition:color .3s ease,text-shadow .3s ease;word-break:break-word}
 .gear-ja.jne{right:2%;top:5%;text-align:right}
 .gear-ja.jse{right:2%;bottom:5%;text-align:right}
 .gear-ja.jsw{left:2%;bottom:5%;text-align:left}
@@ -1031,7 +1039,7 @@ body.bigtext .set-d{font-size:13.5px}
 .gear-core::before{content:"";position:absolute;inset:7%;border-radius:50%;border:2px dashed rgba(0,0,0,.08)}
 /* 目盛りノッチ（斜め4方向・韓国語の位置を示す控えめな印） */
 .gear-notch{position:absolute;left:50%;top:50%;width:5px;height:14px;margin:-7px 0 0 -2.5px;border-radius:3px;background:rgba(0,0,0,.14)}
-.gear-ko{position:absolute;left:50%;top:50%;width:calc(var(--gs)*.46);margin:calc(var(--gs)*-.05) 0 0 calc(var(--gs)*-.23);text-align:center;font-size:clamp(18px,5.4vw,24px);font-weight:900;color:#333;line-height:1.15;word-break:break-all;transition:transform .5s cubic-bezier(.34,1.4,.5,1);will-change:transform;pointer-events:none}
+.gear-ko{position:absolute;left:50%;top:50%;width:calc(var(--gs)*.46);margin:calc(var(--gs)*-.05) 0 0 calc(var(--gs)*-.23);text-align:center;font-size:clamp(19px,5.8vw,26px);font-weight:900;color:#333;line-height:1.15;word-break:break-all;transition:transform .5s cubic-bezier(.34,1.4,.5,1);will-change:transform;pointer-events:none}
 /* 中央ハブ：黄色の回転つまみ（両方向の回転誘導） */
 .gear-hub{position:absolute;left:50%;top:50%;width:calc(var(--gs)*.24);height:calc(var(--gs)*.24);margin:calc(var(--gs)*-.12) 0 0 calc(var(--gs)*-.12);border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFD84D,#FFC400 62%,#e0a800);box-shadow:inset 0 -3px 7px rgba(0,0,0,.2),0 2px 8px rgba(0,0,0,.24);display:flex;align-items:center;justify-content:center;font-size:calc(var(--gs)*.11);font-weight:900;color:#5a4300;z-index:3;pointer-events:none}
 /* 回答ボタン：スタートボタンと同系の黄枠ピル */
@@ -1052,6 +1060,66 @@ body.bigtext .set-d{font-size:13.5px}
 .gres-cheer{font-size:14px;font-weight:800;color:rgba(255,255,255,.95);text-shadow:0 2px 5px rgba(0,0,0,.45);margin-bottom:22px}
 .gres-btns{width:min(320px,84vw);display:flex;flex-direction:column;gap:10px}
 .gres-btns .btn{border-radius:999px}
+/* ============================================================ スペシャルモード（ミニゲーム集） ============================================================ */
+#special-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.42)}
+#special-modal.on{display:flex}
+.sp-card{width:376px;max-width:92vw;max-height:88vh;overflow-y:auto;color:#fff;padding:0 16px calc(18px + env(safe-area-inset-bottom));position:relative;border-radius:30px;background:linear-gradient(165deg,#2a2140,#191527);-webkit-overflow-scrolling:touch}
+.sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+.sp-tile{background:rgba(255,255,255,.13);border-radius:20px;padding:14px 12px;min-height:98px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;transition:background .2s,transform .08s;-webkit-tap-highlight-color:transparent}
+.sp-tile:active{transform:scale(.95);background:rgba(255,255,255,.22)}
+.sp-tile .sp-ico{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:24px}
+.sp-tile .sp-lab{font-size:14px;font-weight:900}
+.sp-tile .sp-desc{font-size:11px;font-weight:700;color:rgba(255,255,255,.7);line-height:1.2}
+.sp-note{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.6);text-align:center;margin-top:14px;line-height:1.7}
+/* ゲーム全画面オーバーレイ */
+.spov{position:fixed;inset:0;z-index:560;background:linear-gradient(170deg,#241d38,#14111f);display:flex;flex-direction:column;color:#fff;opacity:0;transition:opacity .2s ease;padding:calc(10px + env(safe-area-inset-top)) 16px calc(14px + env(safe-area-inset-bottom))}
+.spov.on{opacity:1}
+.sp-top{flex:0 0 auto;display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sp-top .sp-quit{background:rgba(255,255,255,.14);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;font-weight:900;cursor:pointer;line-height:1}
+.sp-top .sp-title{font-size:16px;font-weight:900;letter-spacing:1px}
+.sp-top .sp-prog{margin-left:auto;font-size:14px;font-weight:900;color:#FFC400}
+.sp-timerbar{flex:0 0 auto;height:6px;border-radius:3px;background:rgba(255,255,255,.15);overflow:hidden;margin-bottom:10px}
+.sp-timerbar i{display:block;height:100%;background:#FFC400;width:100%}
+.sp-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;overflow-y:auto}
+.sp-q{font-size:15px;font-weight:800;color:rgba(255,255,255,.9);text-align:center}
+.sp-big{font-size:34px;font-weight:900;text-align:center;line-height:1.25;word-break:break-all}
+.sp-opts{width:min(360px,90vw);display:flex;flex-direction:column;gap:10px}
+.sp-opt{background:rgba(255,255,255,.12);border:2px solid transparent;border-radius:16px;padding:15px;font-size:17px;font-weight:900;color:#fff;cursor:pointer;text-align:center;font-family:inherit;transition:transform .08s,background .15s}
+.sp-opt:active{transform:scale(.97)}
+.sp-opt.ok{background:rgba(31,173,98,.85);border-color:#37e08a}
+.sp-opt.ng{background:rgba(224,60,60,.8);border-color:#ff6b6b}
+.sp-mem{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;width:min(360px,92vw)}
+.sp-mc{aspect-ratio:3/4;border-radius:12px;background:linear-gradient(160deg,#4a3f6b,#2e2747);display:flex;align-items:center;justify-content:center;padding:4px;font-size:15px;font-weight:900;color:#fff;text-align:center;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.35);transition:transform .18s,background .2s;-webkit-tap-highlight-color:transparent;word-break:break-all}
+.sp-mc.flip{background:linear-gradient(160deg,#fff,#ffe9c2);color:#333}
+.sp-mc.done{background:linear-gradient(160deg,#1FAD62,#0d7a42);color:#fff;pointer-events:none;opacity:.9}
+.sp-mc .sp-mc-back{font-size:22px;opacity:.55}
+.sp-jc{background:rgba(255,255,255,.1);border-radius:20px;padding:22px 18px;width:min(340px,88vw);text-align:center}
+.sp-jc .sp-jc-ko{font-size:36px;font-weight:900}
+.sp-jc .sp-jc-ja{font-size:20px;font-weight:800;margin-top:10px;color:#FFD86B}
+.sp-yn{display:flex;gap:16px;width:min(340px,88vw)}
+.sp-yn button{flex:1;border:none;border-radius:18px;padding:18px;font-size:22px;font-weight:900;cursor:pointer;font-family:inherit}
+.sp-yn .sp-no{background:#2F6FE0;color:#fff}
+.sp-yn .sp-yes{background:#E0454C;color:#fff}
+.sp-bins{display:flex;gap:10px;width:min(360px,92vw)}
+.sp-bin{flex:1;min-height:104px;border:2px dashed rgba(255,255,255,.3);border-radius:16px;padding:8px;display:flex;flex-direction:column;gap:8px;align-items:center;transition:background .15s,border-color .15s}
+.sp-bin.hot{border-color:#FFC400;background:rgba(255,196,0,.14)}
+.sp-bin-lab{font-size:15px;font-weight:900;color:#FFD86B;text-align:center}
+.sp-chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;width:min(360px,92vw)}
+.sp-chip{background:linear-gradient(160deg,#fff,#ffe9c2);color:#333;border-radius:14px;padding:12px 14px;font-size:20px;font-weight:900;cursor:grab;box-shadow:0 3px 8px rgba(0,0,0,.35);touch-action:none;-webkit-tap-highlight-color:transparent}
+.sp-chip.sel{outline:3px solid #FFC400}
+.sp-chip.placed{background:linear-gradient(160deg,#1FAD62,#0d7a42);color:#fff;box-shadow:none}
+.sp-chip.drag{position:fixed;z-index:600;pointer-events:none;opacity:.95;margin:0}
+.sp-res{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center}
+.sp-res-ico{font-size:60px}
+.sp-res-t{font-size:22px;font-weight:900}
+.sp-res-s{font-size:52px;font-weight:900;color:#FFC400;line-height:1.1}
+.sp-res-s small{font-size:22px;color:#fff;opacity:.8}
+.sp-res-c{font-size:14px;font-weight:800;color:rgba(255,255,255,.85);line-height:1.6}
+.sp-res-btns{width:min(320px,86vw);display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.sp-res-btns button{border:none;border-radius:999px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit}
+.sp-res-btns .sp-again{background:#FFC400;color:#3a2c00}
+.sp-res-btns .sp-menu{background:rgba(255,255,255,.16);color:#fff}
+.sp-res-btns .sp-home{background:rgba(255,255,255,.1);color:#fff}
 </style>
 <!-- アクセス解析: Cloudflare Web Analytics（プロキシ経由で自動計測。手動ビーコン不要） -->
 <script src="ga.js?v=2512"></script>
@@ -1078,6 +1146,7 @@ body.bigtext .set-d{font-size:13.5px}
         <button class="rr-btn rr-set" id="set-btn" onclick="openSettings()" aria-label="設定"><img src="icons/settings.webp" alt="設定" onerror="this.replaceWith(document.createTextNode('⚙'))"><span class="rr-txt">設定</span></button>
         <button class="rr-btn rr-map" id="map-btn" onclick="openRoomMap()" aria-label="ROOM一覧"><img src="icons/map.webp" alt="ROOM一覧" onerror="this.replaceWith(document.createTextNode('🗺'))"><span class="rr-txt">ROOM<br>一覧</span></button>
         <button class="rr-btn" id="cal-btn" onclick="openCalendar()"><img src="icons/calendar.webp" alt="カレンダー"><span class="rr-txt">カレンダー</span></button>
+        <button class="rr-btn" id="sp-btn" onclick="openSpecial()" aria-label="スペシャルモード"><img src="icons/game.webp" alt="スペシャル" onerror="this.replaceWith(document.createTextNode('🎮'))"><span class="rr-txt">スペシャル</span></button>
       </div>
       <div class="reward-rail">
         <button class="rr-btn" id="rr-daily" onclick="openPresent('daily')"><img src="icons/bonus-daily.webp" alt="毎日"><span class="rr-txt">毎日</span><span class="rr-badge" id="pb-daily" style="display:none"></span></button>
@@ -1137,6 +1206,7 @@ body.bigtext .set-d{font-size:13.5px}
 <div id="present-modal"></div>
 <div id="calendar-modal"></div>
 <div id="settings-modal"></div>
+<div id="special-modal"></div>
 <div id="history-modal"></div>
 <div id="map-modal"></div>
 <div id="rotate-hint">📱 縦向きでのご利用がおすすめです</div>
@@ -1712,7 +1782,7 @@ function jumpRoom(n){
   attachHomeRain();
 }
 let _onSpecial=false; // 特別ルーム プリQQ のスライドが選択中か
-function onStartBtn(){_onSpecial?startPriQQ():(loadSettings().gearMode?startGearQuiz():startTest());} // 特別ルーム選択中はプリQQ／歯車モードON時は歯車出題
+function onStartBtn(){_onSpecial?startPriQQ():startTest();} // 特別ルーム選択中はプリQQ／それ以外は通常出題（歯車モードはスペシャルモードへ移行）
 
 /* ルーム番号の丸ページャー：左右にルームを並べ、選択中を中央に。切替中だけ表示し復習どき/カウントダウンは一時的にフェードで隠す */
 let _pagerT=null;
@@ -3120,8 +3190,11 @@ function pushNav(tag){if(_fromPop)return;try{history.pushState({tag},"");}catch(
 window.addEventListener("popstate",()=>{
   _fromPop=true;
   try{
+    // 0) スペシャルモードのゲームを終了
+    const _spg=document.getElementById("spov");
+    if(_spg&&_spg.classList.contains("on")){spExitGame();return;}
     // 1) 開いているモーダルを閉じる
-    for(const id of ["present-modal","calendar-modal","settings-modal","history-modal","map-modal"]){
+    for(const id of ["present-modal","calendar-modal","settings-modal","special-modal","history-modal","map-modal"]){
       const m=document.getElementById(id);
       if(m&&m.classList.contains("on")){m.classList.remove("on");return;}
     }
@@ -3271,6 +3344,7 @@ function startGearQuiz(){
 }
 
 const GEAR_ANG=[45,135,225,315]; // 韓国語の配置角（クロス斜め）。日本語は対応する四隅
+const GEAR_OFF=30; // 歯車(韓国語ディスク+ノッチ)の基準を30°ずらして四隅の日本語との重なりを回避
 function renderGearRound(){
   if(!_gearActive)return;
   const words=_gear.rounds[_gear.idx];
@@ -3288,9 +3362,9 @@ function renderGearRound(){
         <div class="gear-dial" id="gear-dial" role="button" aria-label="ダイヤルを回す">
           <div class="gear-body" id="gear-body">
             <div class="gear-core"></div>
-            ${GEAR_ANG.map(a=>`<div class="gear-notch" style="transform:rotate(${a}deg) translateY(calc(var(--gs)*-.44))"></div>`).join("")}
+            ${GEAR_ANG.map(a=>`<div class="gear-notch" style="transform:rotate(${a+GEAR_OFF}deg) translateY(calc(var(--gs)*-.44))"></div>`).join("")}
           </div>
-          ${GEAR_ANG.map((a,t)=>`<div class="gear-ko" id="gko-${t}" style="transform:rotate(${a}deg) translateY(calc(var(--gs)*-.31)) rotate(${-a}deg)">${esc(words[(t+_gear.shift)%4].ko)}</div>`).join("")}
+          ${GEAR_ANG.map((a,t)=>`<div class="gear-ko" id="gko-${t}" style="transform:rotate(${a+GEAR_OFF}deg) translateY(calc(var(--gs)*-.31)) rotate(${-(a+GEAR_OFF)}deg)">${esc(words[(t+_gear.shift)%4].ko)}</div>`).join("")}
           <div class="gear-hub">⟲⟳</div>
         </div>
       </div>
@@ -3307,7 +3381,7 @@ function _gearApplyDeg(){
   const body=document.getElementById("gear-body");if(body)body.style.transform=`rotate(${deg}deg)`;
   for(let t=0;t<4;t++){
     const el=document.getElementById("gko-"+t);if(!el)continue;
-    const a=GEAR_ANG[t]+deg;
+    const a=GEAR_ANG[t]+GEAR_OFF+deg;
     el.style.transform=`rotate(${a}deg) translateY(calc(var(--gs)*-.31)) rotate(${-a}deg)`;
   }
 }
@@ -3411,7 +3485,248 @@ function gearConfirmQuit(){
   document.getElementById("ac-yes").onclick=()=>{m.remove();quitTest();};
   document.getElementById("ac-no").onclick=()=>{if(!_gearAnswered){_gearStart+=performance.now()-t0;_gearStartTimer(true);}m.remove();};
 }
-function updateStartBtnMode(){const b=document.querySelector(".start-button");if(b)b.classList.toggle("gearmode",!!loadSettings().gearMode);}
+function updateStartBtnMode(){const b=document.querySelector(".start-button");if(b)b.classList.remove("gearmode");} // 歯車モードはスペシャルモードへ移行したためスタートボタンは常に通常出題
+
+/* ============================================================ スペシャルモード（ミニゲーム集） ============================================================
+ * 左アイコン群4つ目「スペシャル」から起動。歯車モードもここへ集約。
+ * いずれも記憶エンジン（memoryScore等）を更新しない自己完結ゲーム。出題は現在ROOMの単語プールから。 */
+let _sp={_t:null,_ivs:[]};
+function _spClear(){if(_sp._t){clearTimeout(_sp._t);_sp._t=null;}_sp._ivs.forEach(clearInterval);_sp._ivs=[];}
+function _spTimeout(fn,ms){_sp._t=setTimeout(fn,ms);}
+function _spInterval(fn,ms){const iv=setInterval(fn,ms);_sp._ivs.push(iv);return iv;}
+function _spPool(n){
+  let pool=shuffle(sectionPoolWords().filter(w=>w&&w.ko&&w.ja));
+  if(pool.length<n&&typeof WORD_BY_ID!=="undefined")pool=pool.concat(shuffle(Object.values(WORD_BY_ID).filter(w=>w&&w.ko&&w.ja)));
+  const out=[],seen=new Set();
+  for(const w of pool){if(!seen.has(w.id)){seen.add(w.id);out.push(w);}if(out.length>=n)break;}
+  while(out.length<n&&pool.length)out.push(pool[out.length%pool.length]);
+  return out;
+}
+function _spDistractors(word,n){ // n個の誤答日本語（word.d優先＋他語から補完）
+  let opts=Array.isArray(word.d)?word.d.filter(x=>x&&x!==word.ja).slice():[];
+  const extra=shuffle(_spPool(n*4+8).map(w=>w.ja).filter(j=>j&&j!==word.ja));
+  for(const e of extra){if(opts.length>=n)break;if(!opts.includes(e))opts.push(e);}
+  return opts.slice(0,n);
+}
+function openSpecial(){
+  if(!document.getElementById("special-modal").classList.contains("on"))pushNav("modal");
+  const m=document.getElementById("special-modal");
+  const tile=(g,ico,lab,desc)=>`<div class="sp-tile" onclick="spLaunch('${g}')"><div class="sp-ico">${ico}</div><div class="sp-lab">${lab}</div><div class="sp-desc">${desc}</div></div>`;
+  m.innerHTML=`<div class="sp-card">
+    <div class="cc-head"><div class="cc-grab"></div><div class="set-h">スペシャルモード</div><button class="set-close" onclick="closeSpecial()" aria-label="閉じる">×</button></div>
+    <div class="sp-grid">
+      ${tile('gear','⚙️','歯車モード','回して意味合わせ')}
+      ${tile('memory','🧠','神経衰弱','ペアをさがす')}
+      ${tile('swipe','👆','スワイプ○×','合ってる？')}
+      ${tile('blank','✍️','穴うめ','ハングル完成')}
+      ${tile('listen','🔊','発音マッチ','聞いて選ぶ')}
+      ${tile('chain','⚡','スピード連鎖','30秒で連答')}
+      ${tile('sort','🗂️','仲間分け','ドラッグ振り分け')}
+    </div>
+    <div class="sp-note">記憶スコアには影響しない息ぬきミニゲーム集。<br>出題はいま選んでいるROOMの単語から。</div>
+  </div>`;
+  m.classList.add("on");
+  m.onclick=e=>{if(e.target===m)closeSpecial();};
+}
+function closeSpecial(){document.getElementById("special-modal").classList.remove("on");}
+function spLaunch(g){
+  closeSpecial();
+  if(g==='gear'){startGearQuiz();return;}
+  const fn={memory:spMemory,swipe:spSwipe,blank:spBlank,listen:spListen,chain:spChain,sort:spSort}[g];
+  if(fn)fn();
+}
+function _spOv(){
+  let e=document.getElementById("spov");
+  if(!e){e=document.createElement("div");e.id="spov";e.className="spov";document.body.appendChild(e);}
+  requestAnimationFrame(()=>e.classList.add("on"));
+  return e;
+}
+function spExitGame(){_spClear();try{if('speechSynthesis' in window)window.speechSynthesis.cancel();}catch(e){}const e=document.getElementById("spov");if(e){e.classList.remove("on");setTimeout(()=>{if(e&&e.parentNode)e.remove();},220);}}
+function openSpecialFromGame(){spExitGame();setTimeout(openSpecial,200);}
+function _spTop(title,progHTML){
+  return `<div class="sp-top"><button class="sp-quit" onclick="spExitGame()" aria-label="やめる">×</button><div class="sp-title">${title}</div><div class="sp-prog" id="sp-prog">${progHTML||""}</div></div>`;
+}
+function _spResult(ico,title,scoreHTML,cheer,retry){
+  _spClear();
+  const e=_spOv();
+  e.innerHTML=`<div class="sp-res">
+    <div class="sp-res-ico">${ico}</div>
+    <div class="sp-res-t">${esc(title)}</div>
+    <div class="sp-res-s">${scoreHTML}</div>
+    <div class="sp-res-c">${cheer||""}</div>
+    <div class="sp-res-btns">
+      <button class="sp-again" id="sp-again">もう一度</button>
+      <button class="sp-menu" onclick="openSpecialFromGame()">スペシャル選択へ</button>
+      <button class="sp-home" onclick="spExitGame()">ホームに戻る</button>
+    </div></div>`;
+  document.getElementById("sp-again").onclick=retry;
+  try{sfxClaim();}catch(e){}
+}
+/* 神経衰弱：韓国語⇄日本語のペアを6組そろえる */
+function spMemory(){
+  const N=6,ws=_spPool(N);
+  let cards=[];ws.forEach(w=>{cards.push({k:w.id,t:w.ko});cards.push({k:w.id,t:w.ja});});
+  cards=shuffle(cards);
+  let open=[],matched=0,moves=0,lock=false;
+  const e=_spOv();
+  e.innerHTML=_spTop('🧠 神経衰弱','0/'+N+'組')+`<div class="sp-body"><div class="sp-q">同じ意味の 韓国語⇄日本語 をそろえよう</div><div class="sp-mem" id="sp-mem">${cards.map((c,i)=>`<div class="sp-mc" data-i="${i}"><span class="sp-mc-back">?</span></div>`).join("")}</div></div>`;
+  const prog=()=>{const p=document.getElementById('sp-prog');if(p)p.textContent=matched+'/'+N+'組';};
+  e.querySelectorAll('#sp-mem .sp-mc').forEach(el=>{
+    el.onclick=()=>{
+      if(lock)return;const i=+el.dataset.i,c=cards[i];
+      if(el.classList.contains('flip')||el.classList.contains('done'))return;
+      el.classList.add('flip');el.textContent=c.t;open.push({el,c});
+      if(open.length===2){
+        moves++;
+        if(open[0].c.k===open[1].c.k&&open[0].el!==open[1].el){
+          matched++;open.forEach(o=>{o.el.classList.remove('flip');o.el.classList.add('done');});open=[];prog();try{sfxCorrect();}catch(e){}
+          if(matched===N)_spTimeout(()=>_spResult('🧠','神経衰弱クリア！',moves+'<small>手</small>','ペア'+N+'組そろえた！',spMemory),700);
+        }else{
+          lock=true;try{sfxIncorrect();}catch(e){}
+          _spTimeout(()=>{open.forEach(o=>{o.el.classList.remove('flip');o.el.innerHTML='<span class="sp-mc-back">?</span>';});open=[];lock=false;},800);
+        }
+      }
+    };
+  });
+  prog();
+}
+/* スワイプ○×：韓×日の組み合わせが合っているか○×で判定（10問） */
+function spSwipe(){
+  const N=10,ws=_spPool(N);let idx=0,score=0;const e=_spOv();
+  const round=()=>{
+    if(idx>=N){_spResult('👆','スワイプ○×',score+'<small> / '+N+'</small>',score>=N?'全問正解！':score>=N*0.7?'いい目！':'もう一回いこう',spSwipe);return;}
+    const w=ws[idx],correct=Math.random()<0.5;
+    let shownJa=w.ja;
+    if(!correct){const d=_spDistractors(w,1);if(d[0])shownJa=d[0];}
+    const isTrue=(shownJa===w.ja);
+    e.innerHTML=_spTop('👆 スワイプ○×',(idx+1)+' / '+N)+`<div class="sp-body">
+      <div class="sp-q">この意味で合ってる？</div>
+      <div class="sp-jc"><div class="sp-jc-ko">${esc(w.ko)}</div><div class="sp-jc-ja">${esc(shownJa)}</div></div>
+      <div class="sp-yn"><button class="sp-no" id="sp-no">✕ ちがう</button><button class="sp-yes" id="sp-yes">○ 合ってる</button></div></div>`;
+    const ans=(yes)=>{if(yes===isTrue){score++;try{sfxCorrect();}catch(e){}}else try{sfxIncorrect();}catch(e){}idx++;_spTimeout(round,240);};
+    document.getElementById('sp-yes').onclick=()=>ans(true);
+    document.getElementById('sp-no').onclick=()=>ans(false);
+  };
+  round();
+}
+/* 穴うめ：日本語の意味を見て、ハングル1文字の欠けを4択で埋める（8問） */
+function spBlank(){
+  const N=8,ws=_spPool(N);let idx=0,score=0;const e=_spOv();
+  const round=()=>{
+    if(idx>=N){_spResult('✍️','穴うめ',score+'<small> / '+N+'</small>',score>=N?'完ぺき！':'いい調子！',spBlank);return;}
+    const w=ws[idx],chars=[...w.ko];
+    const cand=chars.map((c,i)=>i).filter(i=>chars[i].trim()&&chars[i]!==' ');
+    const bi=cand.length?cand[Math.floor(Math.random()*cand.length)]:0;
+    const answer=chars[bi],shown=chars.map((c,i)=>i===bi?'◯':c).join('');
+    let opts=[{t:answer,c:1}];
+    const others=shuffle(_spPool(24).map(x=>[...x.ko]).reduce((a,b)=>a.concat(b),[]).filter(ch=>ch.trim()&&ch!==' '&&ch!==answer));
+    for(const ch of others){if(opts.length>=4)break;if(!opts.some(o=>o.t===ch))opts.push({t:ch,c:0});}
+    opts=shuffle(opts);
+    e.innerHTML=_spTop('✍️ 穴うめ',(idx+1)+' / '+N)+`<div class="sp-body">
+      <div class="sp-q">${esc(w.ja)}</div>
+      <div class="sp-big">${esc(shown)}</div>
+      <div class="sp-opts" id="sp-opts">${opts.map(o=>`<button class="sp-opt" data-c="${o.c}">${esc(o.t)}</button>`).join('')}</div></div>`;
+    e.querySelectorAll('#sp-opts .sp-opt').forEach(b=>{
+      b.onclick=()=>{
+        if(b.dataset.c==='1'){b.classList.add('ok');score++;try{sfxCorrect();}catch(e){}}
+        else{b.classList.add('ng');try{sfxIncorrect();}catch(e){}const ok=[...e.querySelectorAll('#sp-opts .sp-opt')].find(x=>x.dataset.c==='1');if(ok)ok.classList.add('ok');}
+        e.querySelectorAll('#sp-opts .sp-opt').forEach(x=>x.style.pointerEvents='none');
+        idx++;_spTimeout(round,700);
+      };
+    });
+  };
+  round();
+}
+/* 発音マッチ：韓国語の読み上げを聞いて意味を4択（8問） */
+function spListen(){
+  const N=8,ws=_spPool(N);let idx=0,score=0;const e=_spOv();
+  const round=()=>{
+    if(idx>=N){_spResult('🔊','発音マッチ',score+'<small> / '+N+'</small>',score>=N?'耳がいい！':'いい調子！',spListen);return;}
+    const w=ws[idx];
+    let opts=[{t:w.ja,c:1}].concat(_spDistractors(w,3).map(t=>({t,c:0})));opts=shuffle(opts);
+    e.innerHTML=_spTop('🔊 発音マッチ',(idx+1)+' / '+N)+`<div class="sp-body">
+      <div class="sp-q">聞こえた韓国語の意味は？</div>
+      <button class="sp-opt" style="width:auto;padding:14px 28px;font-size:26px" id="sp-play">🔊 もう一度きく</button>
+      <div class="sp-opts" id="sp-opts">${opts.map(o=>`<button class="sp-opt" data-c="${o.c}">${esc(o.t)}</button>`).join('')}</div></div>`;
+    const play=()=>{try{speakKorean(w);}catch(e){}};
+    document.getElementById('sp-play').onclick=play;_spTimeout(play,300);
+    e.querySelectorAll('#sp-opts .sp-opt').forEach(b=>{
+      b.onclick=()=>{
+        if(b.dataset.c==='1'){b.classList.add('ok');score++;try{sfxCorrect();}catch(e){}}
+        else{b.classList.add('ng');try{sfxIncorrect();}catch(e){}const ok=[...e.querySelectorAll('#sp-opts .sp-opt')].find(x=>x.dataset.c==='1');if(ok)ok.classList.add('ok');}
+        e.querySelectorAll('#sp-opts .sp-opt').forEach(x=>x.style.pointerEvents='none');
+        idx++;_spTimeout(round,850);
+      };
+    });
+  };
+  round();
+}
+/* スピード連鎖：30秒で韓→日を4択で何問こたえられるか */
+function spChain(){
+  const T=30;let left=T,score=0,combo=0,best=0,run=true,qi=0;
+  const ws=_spPool(80),e=_spOv();
+  e.innerHTML=_spTop('⚡ スピード連鎖','0')+`<div class="sp-timerbar"><i id="sp-tb"></i></div><div class="sp-body" id="sp-cbody"></div>`;
+  const tb=document.getElementById('sp-tb');
+  const endGame=()=>{if(!run)return;run=false;_spClear();_spResult('⚡','スピード連鎖',score+'<small>問正解</small>','最大コンボ '+best+'　'+(score>=15?'神連鎖！':score>=8?'ナイス連鎖！':'次はもっといける'),spChain);};
+  _spInterval(()=>{left-=0.1;if(tb)tb.style.width=Math.max(0,left/T*100)+'%';if(left<=0)endGame();},100);
+  const body=document.getElementById('sp-cbody');
+  const round=()=>{
+    if(!run)return;
+    const w=ws[qi%ws.length];qi++;
+    let opts=[{t:w.ja,c:1}].concat(_spDistractors(w,3).map(t=>({t,c:0})));opts=shuffle(opts);
+    body.innerHTML=`<div class="sp-big">${esc(w.ko)}</div><div class="sp-opts">${opts.map(o=>`<button class="sp-opt" data-c="${o.c}">${esc(o.t)}</button>`).join('')}</div>`;
+    body.querySelectorAll('.sp-opt').forEach(b=>{
+      b.onclick=()=>{
+        if(!run)return;
+        if(b.dataset.c==='1'){score++;combo++;best=Math.max(best,combo);try{sfxCorrect();}catch(e){}const p=document.getElementById('sp-prog');if(p)p.textContent=score;round();}
+        else{combo=0;try{sfxIncorrect();}catch(e){}b.classList.add('ng');_spTimeout(round,300);}
+      };
+    });
+  };
+  round();
+}
+/* 仲間分け：韓国語チップを意味の合う日本語ボックスへドラッグ（タップ選択でも置ける・4組） */
+function spSort(){
+  const N=4,ws=_spPool(N);let placed=0,mistakes=0,sel=null;
+  const e=_spOv();
+  e.innerHTML=_spTop('🗂️ 仲間分け','0/'+N)+`<div class="sp-body">
+    <div class="sp-q">下の韓国語を、意味の合う日本語へ<br>ドラッグ（またはタップで選んで置く）</div>
+    <div class="sp-bins" id="sp-bins">${shuffle(ws.slice()).map(z=>`<div class="sp-bin" data-k="${z.id}"><div class="sp-bin-lab">${esc(z.ja)}</div></div>`).join('')}</div>
+    <div class="sp-chips" id="sp-chips">${shuffle(ws.slice()).map(w=>`<div class="sp-chip" data-k="${w.id}">${esc(w.ko)}</div>`).join('')}</div></div>`;
+  const bins=[...e.querySelectorAll('.sp-bin')];
+  const prog=()=>{const p=document.getElementById('sp-prog');if(p)p.textContent=placed+'/'+N;};
+  const finish=()=>{_spTimeout(()=>_spResult('🗂️','仲間分けクリア！',(mistakes===0?'ノーミス':'ミス'+mistakes+'回'),mistakes===0?'完ぺきな振り分け！':'クリア！ 次はノーミスを狙おう',spSort),550);};
+  const tryPlace=(chip,bin)=>{
+    if(!chip||!bin||chip.classList.contains('placed'))return;
+    if(chip.dataset.k===bin.dataset.k){
+      bin.classList.remove('hot');chip.classList.remove('sel');chip.classList.add('placed');chip.style.cursor='default';
+      bin.appendChild(chip);chip.onpointerdown=null;chip.onclick=null;
+      placed++;prog();try{sfxCorrect();}catch(e){}
+      if(placed===N)finish();
+    }else{mistakes++;try{sfxIncorrect();}catch(e){}bin.classList.remove('hot');chip.classList.remove('sel');if(sel===chip)sel=null;}
+  };
+  e.querySelectorAll('#sp-chips .sp-chip').forEach(chip=>{
+    chip.onclick=()=>{if(chip.classList.contains('placed'))return;if(chip._skip){chip._skip=false;return;}if(sel===chip){chip.classList.remove('sel');sel=null;return;}if(sel)sel.classList.remove('sel');sel=chip;chip.classList.add('sel');};
+    chip.onpointerdown=(ev)=>{
+      if(chip.classList.contains('placed'))return;
+      ev.preventDefault();
+      const r=chip.getBoundingClientRect(),gx=ev.clientX-r.left,gy=ev.clientY-r.top;let moved=false;
+      const ghost=chip.cloneNode(true);ghost.classList.add('drag');ghost.style.width=r.width+'px';ghost.style.left=r.left+'px';ghost.style.top=r.top+'px';document.body.appendChild(ghost);
+      chip.style.visibility='hidden';
+      const move=(m)=>{moved=true;ghost.style.left=(m.clientX-gx)+'px';ghost.style.top=(m.clientY-gy)+'px';const el=document.elementFromPoint(m.clientX,m.clientY),bin=el&&el.closest?el.closest('.sp-bin'):null;bins.forEach(b=>b.classList.toggle('hot',b===bin));};
+      const up=(m)=>{
+        document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);
+        if(ghost.parentNode)ghost.remove();chip.style.visibility='';
+        bins.forEach(b=>b.classList.remove('hot'));
+        const el=document.elementFromPoint(m.clientX,m.clientY),bin=el&&el.closest?el.closest('.sp-bin'):null;
+        if(moved){chip._skip=true;setTimeout(()=>{chip._skip=false;},350);if(bin)tryPlace(chip,bin);}
+      };
+      document.addEventListener('pointermove',move);document.addEventListener('pointerup',up);
+    };
+  });
+  bins.forEach(bin=>{bin.onclick=()=>{if(sel){const c=sel;tryPlace(c,bin);}};});
+  prog();
+}
 
 function curLimit(){const base=state.questions[state.idx].type==="w"?20:10;return Math.round(base*(loadSettings().slowTimer?1.5:1));} // じっくりモードは1.5倍
 
@@ -3923,13 +4238,13 @@ function finishTest(){
     const syc=r.isHintProvided?"#FFD84D":sy[1];
     const dAfter=(r.displayMemoryScoreAfter!=null?r.displayMemoryScoreAfter:(r.displayMemoryScoreAfterDecay!=null?r.displayMemoryScoreAfterDecay:r.memoryScoreAfter))||0;
     const dBefore=(r.displayMemoryScoreBefore!=null?r.displayMemoryScoreBefore:r.memoryScoreBefore)||0;
-    const dlt=Math.round(dAfter-dBefore),rateNow=Math.round(dAfter);
+    const cardsGot=(r.cardsEarned!=null?r.cardsEarned:0); // このカードで獲得した枚数
     const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[r.korean])?`<img src="${WORD_IMG[r.korean]}" alt="">`:`<div class="cg-noimg">🃏</div>`;
     return `<div class="rc-card">
       <span class="rc-sym" style="color:${syc}">${sy[0]}</span>
       ${img}
       <div class="rc-ko">${esc(r.korean)}</div>
-      <div class="rc-foot"><span class="rc-rate">${rateNow}%</span><span class="rc-dlt" style="color:${dlt>=0?"#1FAD62":"#FF6B6B"}">${dlt>0?"+":""}${dlt}</span></div>
+      <div class="rc-foot"><span class="rc-cards">🃏 ${cardsGot}枚</span></div>
     </div>`;
   }).join("");
   const _ri=roomInfoFor(curSection),pwrAfter=_ri.pwr,pwrBefore=(state.roomPwrBefore!=null?state.roomPwrBefore:0),pwrDelta=pwrAfter-pwrBefore; // そのROOMのPWR
@@ -4393,7 +4708,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.114 (2026-07-22)";
+const APP_VERSION="v2.115 (2026-07-22)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -4514,7 +4829,6 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
       ${tile("k-notf","🔔","復習通知",notifyOn,"通知オン","要許可","toggleReminder()")}
       ${tile("k-ball","🫧","玉の演出",st.balls!==false,"積もる","オフ","toggleSetting('balls')")}
       ${tile("k-big","🔠","文字大",st.bigText,"大きめ","標準","toggleSetting('bigText')")}
-      ${tile("k-gear","⚙️","歯車モード",st.gearMode,"歯車で出題","通常出題","toggleSetting('gearMode')")}
     </div>
     <div class="cc-list">
       <div class="cc-item" onclick="showCoach()"><span>📖 つかいかた</span><span class="cc-arw">›</span></div>
