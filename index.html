@@ -1078,7 +1078,7 @@ body.bigtext .set-d{font-size:13.5px}
       <div class="hv-code" id="hv-code" onclick="enterStatusMode()"></div>
       <div class="reward-rail reward-rail-left">
         <button class="rr-btn rr-set" id="set-btn" onclick="openSettings()" aria-label="設定"><img src="icons/settings.webp" alt="設定" onerror="this.replaceWith(document.createTextNode('⚙'))"><span class="rr-txt">設定</span></button>
-        <button class="rr-btn rr-map" id="map-btn" onclick="openRoomMap()" aria-label="ROOM一覧"><img src="icons/map.webp" alt="ROOM一覧" onerror="this.replaceWith(document.createTextNode('🗺'))"><span class="rr-txt">ROOM一覧</span></button>
+        <button class="rr-btn rr-map" id="map-btn" onclick="openRoomMap()" aria-label="ROOM一覧"><img src="icons/map.webp" alt="ROOM一覧" onerror="this.replaceWith(document.createTextNode('🗺'))"><span class="rr-txt">ROOM<br>一覧</span></button>
         <button class="rr-btn" id="cal-btn" onclick="openCalendar()"><img src="icons/calendar.webp" alt="カレンダー"><span class="rr-txt">カレンダー</span></button>
       </div>
       <div class="reward-rail">
@@ -4366,7 +4366,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.109 (2026-07-22)";
+const APP_VERSION="v2.110 (2026-07-22)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
