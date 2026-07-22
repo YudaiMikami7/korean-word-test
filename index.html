@@ -611,6 +611,7 @@ body.bigtext .set-d{font-size:13.5px}
 .cc-tile.on.k-notf{background:linear-gradient(160deg,#ff453a,#d70015)}
 .cc-tile.on.k-ball{background:linear-gradient(160deg,#30d158,#28a745)}
 .cc-tile.on.k-big{background:linear-gradient(160deg,#5e5ce6,#3634a3)}
+.cc-tile.on.k-gear{background:linear-gradient(160deg,#ffb300,#e07800)}
 .cc-list{margin-top:12px;display:flex;flex-direction:column;gap:10px}
 .cc-item{background:rgba(255,255,255,.13);border-radius:16px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;font-size:14.5px;font-weight:800;color:#fff;cursor:pointer}
 .cc-item .cc-arw{color:rgba(255,255,255,.6);font-weight:900}
@@ -1008,6 +1009,51 @@ body.bigtext .set-d{font-size:13.5px}
 /* 詳細ページのプレビューカードを豪華枠に（白カード＋ゴールド/レインボー枠） */
 .pq-card{background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,#ffd84d,#ff9ecb,#9ecbff,#c9a8ff) border-box;border:3px solid transparent;box-shadow:0 5px 0 rgba(255,175,210,.45),0 10px 20px rgba(255,120,170,.2),inset 0 0 0 2px #fff}
 .pq-card:nth-child(3n+2),.pq-card:nth-child(3n){border:3px solid transparent}
+/* ============================================================ 歯車モード ============================================================ */
+/* スタートボタン右端の⚙バッジ（歯車モードON時のみ・ゆっくり回転） */
+.start-button .sb-gear{display:none;position:absolute;right:20px;top:50%;font-size:34px;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4));animation:gearspin 7s linear infinite;pointer-events:none}
+.start-button.gearmode .sb-gear{display:block}
+@keyframes gearspin{from{transform:translateY(-50%) rotate(0)}to{transform:translateY(-50%) rotate(360deg)}}
+.gear-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;padding:0 8px}
+.gear-hint{font-size:14px;font-weight:800;color:#fff;text-shadow:0 2px 5px rgba(0,0,0,.5);letter-spacing:.5px;margin-bottom:10px}
+/* 盤面：中央にダイヤル、上下左右に日本語。--gsは歯車（円）の直径 */
+.gear-board{position:relative;width:min(96vw,58vh);aspect-ratio:1;--gs:min(38vw,24vh);flex:0 0 auto}
+.gear-ja{position:absolute;background:rgba(0,0,0,.8);color:#fff;font-weight:800;font-size:clamp(12px,3.4vw,15px);line-height:1.25;padding:8px 11px;border-radius:16px;max-width:44%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 3px 10px rgba(0,0,0,.3);z-index:2;pointer-events:none;transition:background .3s ease,box-shadow .3s ease;box-sizing:border-box}
+.gear-ja.jt{left:50%;top:0;transform:translateX(-50%)}
+.gear-ja.jr{right:0;top:50%;transform:translateY(-50%)}
+.gear-ja.jb{left:50%;bottom:0;transform:translateX(-50%)}
+.gear-ja.jl{left:0;top:50%;transform:translateY(-50%)}
+/* 左右は横幅が狭いので折り返しを許可（歯車と重ならない幅に制限） */
+.gear-ja.jr,.gear-ja.jl{max-width:23%;white-space:normal;overflow:visible;text-overflow:clip;word-break:break-word}
+.gear-ja.hit{background:#1FAD62;box-shadow:0 0 16px 3px rgba(31,173,98,.75)}
+/* ダイヤル本体（タップで90°ずつ回転） */
+.gear-dial{position:absolute;left:50%;top:50%;width:var(--gs);height:var(--gs);margin:calc(var(--gs)/-2) 0 0 calc(var(--gs)/-2);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.gear-dial:active .gear-body{filter:brightness(.96)}
+.gear-body{position:absolute;inset:0;transition:transform .5s cubic-bezier(.34,1.4,.5,1);will-change:transform}
+.gear-core{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 34% 28%,#fff,#f3f3f3 58%,#dfdfdf);box-shadow:0 6px 18px rgba(0,0,0,.3),inset 0 0 0 4px rgba(0,0,0,.05)}
+/* 歯（4枚）。丸の外へ張り出す座布団に韓国語を載せる */
+.gear-tooth{position:absolute;left:50%;top:50%;width:calc(var(--gs)*.46);height:calc(var(--gs)*.40);margin:calc(var(--gs)*-.20) 0 0 calc(var(--gs)*-.23);border-radius:16px;background:linear-gradient(180deg,#fff,#f0f0f0);box-shadow:0 3px 9px rgba(0,0,0,.16),inset 0 0 0 2px rgba(0,0,0,.04)}
+.gear-ko{position:absolute;left:50%;top:50%;width:calc(var(--gs)*.42);margin:calc(var(--gs)*-.04) 0 0 calc(var(--gs)*-.21);text-align:center;font-size:clamp(12px,3.5vw,15px);font-weight:900;color:#333;line-height:1.15;word-break:break-all;transition:transform .5s cubic-bezier(.34,1.4,.5,1);will-change:transform;pointer-events:none}
+/* 中央ハブ：黄色の回転つまみ（タップ誘導の⟳付き） */
+.gear-hub{position:absolute;left:50%;top:50%;width:calc(var(--gs)*.34);height:calc(var(--gs)*.34);margin:calc(var(--gs)*-.17) 0 0 calc(var(--gs)*-.17);border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFD84D,#FFC400 62%,#e0a800);box-shadow:inset 0 -3px 7px rgba(0,0,0,.2),0 2px 8px rgba(0,0,0,.24);display:flex;align-items:center;justify-content:center;font-size:calc(var(--gs)*.15);font-weight:900;color:#5a4300;z-index:3;pointer-events:none}
+/* 回答ボタン：スタートボタンと同系の黄枠ピル */
+.gear-answer{display:block;margin:16px auto 0;width:min(300px,78vw);background:rgba(0,0,0,.85);border:4px solid #FFC400;border-radius:999px;color:#fff;font-size:20px;font-weight:900;letter-spacing:8px;text-indent:8px;padding:15px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);font-family:inherit;transition:transform .08s ease,opacity .2s ease}
+.gear-answer:active{transform:scale(.96)}
+.gear-answer:disabled{opacity:.45;pointer-events:none}
+.gear-bottom{padding:0 18px calc(18px + env(safe-area-inset-bottom))}
+/* 歯車モード結果 */
+.gres{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+.gres-ico{font-size:66px;line-height:1;animation:gearspin2 9s linear infinite}
+@keyframes gearspin2{to{transform:rotate(360deg)}}
+.gres-t{font-size:20px;font-weight:900;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.5);margin:8px 0 2px;letter-spacing:2px}
+.gres-score{font-size:64px;font-weight:900;color:#fff;text-shadow:0 3px 8px rgba(0,0,0,.5);line-height:1.15}
+.gres-score small{font-size:26px;font-weight:800;opacity:.85}
+.gres-dots{display:flex;gap:10px;margin:10px 0 6px}
+.gres-dots i{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.35);box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.gres-dots i.ok{background:#FFC400;box-shadow:0 0 10px 2px rgba(255,196,0,.7)}
+.gres-cheer{font-size:14px;font-weight:800;color:rgba(255,255,255,.95);text-shadow:0 2px 5px rgba(0,0,0,.45);margin-bottom:22px}
+.gres-btns{width:min(320px,84vw);display:flex;flex-direction:column;gap:10px}
+.gres-btns .btn{border-radius:999px}
 </style>
 <!-- アクセス解析: Cloudflare Web Analytics（プロキシ経由で自動計測。手動ビーコン不要） -->
 <script src="ga.js?v=2512"></script>
@@ -1058,7 +1104,7 @@ body.bigtext .set-d{font-size:13.5px}
       <div id="wb-search"><input id="wb-q" type="search" placeholder="単語をさがす（韓国語・日本語）" oninput="wbSearch(this.value)"><div id="wb-hits"></div></div>
       <div class="today-band" id="today-band" style="display:none"><div class="tb-label">最近学んだ単語</div><div class="tb-clip"><div class="tb-track" id="tb-track"></div></div></div><!-- 中身が入るまで非表示（空の白帯チラ見え防止） -->
       <button class="home-side-btn hsb-left" onclick="renderRoomCurve()" aria-label="忘却曲線"><img src="images-thumb/0912.webp" alt=""><span class="hsb-txt">忘却曲線</span></button>
-      <button class="start-button" onclick="onStartBtn()"><span class="sb-bubble" id="sb-bubble"></span><span class="sb-txt"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span></button>
+      <button class="start-button" onclick="onStartBtn()"><span class="sb-bubble" id="sb-bubble"></span><span class="sb-txt"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span><span class="sb-gear" aria-hidden="true">⚙️</span></button>
       <button class="home-side-btn hsb-right" onclick="enterListMode()" aria-label="単語帳"><img src="images-thumb/1290.webp" alt=""><span class="hsb-txt">単語帳</span></button>
       <div id="status-ov"></div>
       <div class="hv-ver" id="appver"></div>
@@ -1668,7 +1714,7 @@ function jumpRoom(n){
   attachHomeRain();
 }
 let _onSpecial=false; // 特別ルーム プリQQ のスライドが選択中か
-function onStartBtn(){_onSpecial?startPriQQ():startTest();} // 特別ルーム選択中はプリQQを開始
+function onStartBtn(){_onSpecial?startPriQQ():(loadSettings().gearMode?startGearQuiz():startTest());} // 特別ルーム選択中はプリQQ／歯車モードON時は歯車出題
 
 /* ルーム番号の丸ページャー：左右にルームを並べ、選択中を中央に。切替中だけ表示し復習どき/カウントダウンは一時的にフェードで隠す */
 let _pagerT=null;
@@ -1762,12 +1808,19 @@ function roomRecoTick(){
 }
 function startRoomRecoLoop(){if(_recoTimer)return;_recoTimer=setInterval(roomRecoTick,3000);} // 3秒ごとに面を切替
 
-/* 単語帳/忘却曲線ボタンのアイコン⇄ラベル回転入替 */
+/* 単語帳/忘却曲線ボタンのアイコン⇄ラベル回転入替（時間配分はアイコン8割・文字2割） */
 let _sideFlipTimer=null;
-function startSideBtnFlip(){if(_sideFlipTimer)return;_sideFlipTimer=setInterval(()=>{
-  if(!document.getElementById("s-home").classList.contains("on")||_statusMode)return;
-  document.querySelectorAll(".home-side-btn").forEach(b=>b.classList.toggle("show-label")); // 中身のみZ軸回転で切替（丸は固定）
-},3600);}
+function startSideBtnFlip(){if(_sideFlipTimer)return;
+  let showLabel=false;
+  const tick=()=>{
+    if(document.getElementById("s-home").classList.contains("on")&&!_statusMode){
+      showLabel=!showLabel;
+      document.querySelectorAll(".home-side-btn").forEach(b=>b.classList.toggle("show-label",showLabel)); // 中身のみZ軸回転で切替（丸は固定）
+    }
+    _sideFlipTimer=setTimeout(tick,showLabel?1450:5800); // 文字1.45秒・アイコン5.8秒＝2:8
+  };
+  _sideFlipTimer=setTimeout(tick,5800);
+}
 
 /* スタートボタンからランダムに出る感情吹き出し（学習を続けたくなる声かけ） */
 const SB_MSGS=["今日もがんばろう！","サボると忘れちゃうよ…😢","あと1問だけでも！","キミならできる！✨","ずっと待ってたよ🥺","放置するとPWR下がっちゃう…","5分だけ一緒にやろ？","昨日の自分を超えよう🔥","忘却曲線が来ちゃう〜","コツコツが最強！","えらい！その調子！","ちょっと寂しかったな…"];
@@ -1780,14 +1833,15 @@ function showStartBubble(){
 }
 function startBubbleLoop(){if(_bubbleTimer)return;_bubbleTimer=setInterval(()=>{if(Math.random()<0.7)showStartBubble();},7000);setTimeout(showStartBubble,2600);}
 
-/* リールの7ボタンもアイコン⇄日本語ラベルを回転入替。各ボタン独立のランダム間隔でバラバラに */
+/* リールの7ボタンもアイコン⇄日本語ラベルを回転入替。各ボタン独立のランダム間隔でバラバラに（時間配分はアイコン8割・文字2割） */
 let _railFlipStarted=false;
 function startRailFlip(){
   if(_railFlipStarted)return;_railFlipStarted=true;
   document.querySelectorAll(".reward-rail .rr-btn").forEach(b=>{
     const tick=()=>{
       if(document.getElementById("s-home").classList.contains("on")&&!_statusMode&&!_listMode)b.classList.toggle("show-label");
-      setTimeout(tick,2500+Math.random()*4000); // 各ボタン2.5〜6.5秒のランダム間隔
+      const label=b.classList.contains("show-label");
+      setTimeout(tick,label?(1100+Math.random()*700):(4200+Math.random()*3000)); // 文字1.1〜1.8秒／アイコン4.2〜7.2秒＝約2:8
     };
     setTimeout(tick,700+Math.random()*3500); // 初回タイミングもバラバラ
   });
@@ -3129,6 +3183,7 @@ document.addEventListener("visibilitychange",()=>{
 
 function confirmQuit(){
   if(_counting){quitTest();return;} // カウントダウン中はまだ問題が始まっていないので確認なしで即ホームへ
+  if(_gearActive){gearConfirmQuit();return;} // 歯車モードは専用タイマーを止めて確認
   const t0=performance.now();
   clearInterval(timer); // ダイアログ表示中はタイマーを完全停止（裏で時間切れにならないように）
   const m=document.createElement("div");m.className="appconfirm";
@@ -3143,6 +3198,7 @@ function confirmQuit(){
 /* 出題中にホームへ戻る（タイマー・音声・○×表示を止めて中断） */
 function quitTest(){
   clearInterval(timer);clearTimeout(ovTimer);_counting=false;
+  _gearActive=false;clearInterval(_gearTimer);
   document.querySelectorAll(".overlay").forEach(e=>e.remove());
   stopSpeak();answered=true;
   show("s-home");
@@ -3182,6 +3238,153 @@ function showCountdown(cb){
     draw();
   },625); // 3・2・1は0.625秒間隔（従来500msの1.25倍ゆっくり）
 }
+
+/* ============================================================ 歯車モード（設定でONにするとスタートボタンが歯車出題に切替） ============================================================
+ * 中央の4歯ダイヤルに韓国語、上下左右に日本語。タップで90°ずつ回して全対応を合わせ「回答」で判定。
+ * 遊び方が全く別系統のため記憶エンジン（memoryScore等）は更新しない自己完結モード。 */
+const GEAR_ROUNDS=6,GEAR_LIMIT=20;
+let _gearActive=false,_gearTimer=null,_gearStart=0,_gearAnswered=false;
+let _gear={rounds:[],idx:0,score:0,rot:0,shift:0,oks:[]};
+
+function _gearBuildRounds(){
+  // 現在ROOMの単語からラウンドごとに4語ずつ。プールが足りなければシャッフルして継ぎ足す
+  let pool=shuffle(sectionPoolWords().filter(w=>w));
+  while(pool.length<GEAR_ROUNDS*4)pool=pool.concat(shuffle(sectionPoolWords().filter(w=>w)));
+  const rounds=[];
+  for(let i=0;i<GEAR_ROUNDS;i++){
+    const seg=pool.slice(i*4,i*4+4),seen=new Set(),words=[];
+    seg.forEach(w=>{if(!seen.has(w.id)){seen.add(w.id);words.push(w);}});
+    let j=0;while(words.length<4){const w=pool[(GEAR_ROUNDS*4+j++)%pool.length];if(w&&!seen.has(w.id)){seen.add(w.id);words.push(w);}}
+    rounds.push(words);
+  }
+  return rounds;
+}
+
+function startGearQuiz(){
+  _gear={rounds:_gearBuildRounds(),idx:0,score:0,rot:0,shift:0,oks:[]};
+  _gearActive=true;_gearAnswered=false;
+  if(state)state.pq=false; // 直前がプリQQでもピンクテーマを引き継がない
+  sfxStart();
+  if(typeof track==="function")track("quiz_start",{gear:true});
+  qrStopRain();qrClearLayer("q-rain");QR.active="q-rain";
+  show("s-quiz");
+  const qa=document.getElementById("qadv");if(qa)qa.style.visibility="hidden"; // 進み方スイッチは歯車モードでは使わない
+  showCountdown(()=>renderGearRound());
+}
+
+function renderGearRound(){
+  if(!_gearActive)return;
+  const words=_gear.rounds[_gear.idx];
+  _gear.rot=0;_gear.shift=1+Math.floor(Math.random()*3); // 開始時点で必ずズレた状態から
+  _gearAnswered=false;
+  document.getElementById("prog").textContent=(_gear.idx+1)+" / "+GEAR_ROUNDS;
+  const qa=document.getElementById("qadv");if(qa)qa.style.visibility="hidden";
+  const POS=["jt","jr","jb","jl"],ANG=[0,90,180,270];
+  // 歯tooth位置tには words[(t+shift)%4] の韓国語（回転rでshiftと一致したら全対応が揃う）
+  document.getElementById("qstage").innerHTML=`
+    <div class="gear-stage">
+      <div class="gear-hint">⚙️ ダイヤルをタップして回し、意味を合わせよう</div>
+      <div class="gear-board">
+        ${words.map((w,i)=>`<div class="gear-ja ${POS[i]}" id="gja-${i}">${esc(w.ja)}</div>`).join("")}
+        <div class="gear-dial" id="gear-dial" role="button" aria-label="ダイヤルを回す">
+          <div class="gear-body" id="gear-body">
+            <div class="gear-core"></div>
+            ${ANG.map((a,t)=>`<div class="gear-tooth" style="transform:rotate(${a}deg) translateY(calc(var(--gs)*-.5))"></div>`).join("")}
+          </div>
+          ${ANG.map((a,t)=>`<div class="gear-ko" id="gko-${t}" style="transform:rotate(${a}deg) translateY(calc(var(--gs)*-.5)) rotate(${-a}deg)">${esc(words[(t+_gear.shift)%4].ko)}</div>`).join("")}
+          <div class="gear-hub">⟳</div>
+        </div>
+      </div>
+    </div>
+    <div class="gear-bottom"><button class="gear-answer" id="gear-answer">回答</button></div>`;
+  document.getElementById("gear-dial").addEventListener("click",()=>{
+    if(_gearAnswered)return;
+    _gear.rot++;sfxGearTick();_gearApplyRot();
+  });
+  document.getElementById("gear-answer").addEventListener("click",gearSubmit);
+  _gearStartTimer();
+}
+
+/* 回転を描画：歯車本体は回し、韓国語ラベルは軌道上を回りつつ文字は常に正立 */
+function _gearApplyRot(){
+  const deg=_gear.rot*90;
+  const body=document.getElementById("gear-body");if(body)body.style.transform=`rotate(${deg}deg)`;
+  for(let t=0;t<4;t++){
+    const el=document.getElementById("gko-"+t);if(!el)continue;
+    const a=t*90+deg;
+    el.style.transform=`rotate(${a}deg) translateY(calc(var(--gs)*-.5)) rotate(${-a}deg)`;
+  }
+}
+
+function sfxGearTick(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;_tone(c,620,t,0.04,0.09,"square");_tone(c,880,t+0.03,0.05,0.07,"square");} // カチッという回転音
+
+function _gearStartTimer(resume){
+  clearInterval(_gearTimer);
+  const limit=Math.round(GEAR_LIMIT*(loadSettings().slowTimer?1.5:1));
+  if(!resume)_gearStart=performance.now(); // 中断ダイアログ復帰時は計時を引き継ぐ
+  const tick=()=>{
+    const el=(performance.now()-_gearStart)/1000,remain=Math.max(0,limit-el);
+    const fill=document.getElementById("tfill"),tt=document.getElementById("time");
+    if(fill){fill.style.width=(remain/limit*100)+"%";fill.className="tfill"+(remain<=limit*0.3?" warn":"");}
+    if(tt)tt.textContent=remain.toFixed(1);
+    if(remain<=0){clearInterval(_gearTimer);if(!_gearAnswered)gearSubmit(true);}
+  };
+  tick();_gearTimer=setInterval(tick,100);
+}
+
+function gearSubmit(isTimeout){
+  if(_gearAnswered||!_gearActive)return;_gearAnswered=true;clearInterval(_gearTimer);
+  const ok=isTimeout!==true&&(((_gear.rot%4)+4)%4)===_gear.shift;
+  _gear.oks.push(ok);if(ok)_gear.score++;
+  const ans=document.getElementById("gear-answer");if(ans)ans.disabled=true;
+  const flash=(cls,sym)=>{const ov=document.createElement("div");ov.className="overlay";ov.style.pointerEvents="none";ov.innerHTML=`<div class="ovsym ${cls}">${sym}</div>`;document.body.appendChild(ov);setTimeout(()=>ov.remove(),ok?1100:2100);};
+  const markAll=()=>{for(let i=0;i<4;i++){const el=document.getElementById("gja-"+i);if(el)el.classList.add("hit");}};
+  if(ok){
+    sfxCorrect();flash("o","○");markAll();
+    setTimeout(_gearNext,1300);
+  }else{
+    if(isTimeout===true)sfxNeutral();else sfxIncorrect();
+    flash(isTimeout===true?"t":"x",isTimeout===true?"△":"×");
+    // 正解位置まで自動で回して見せる（学習のため正しい対応を提示）
+    setTimeout(()=>{_gear.rot+=(((_gear.shift-_gear.rot)%4)+4)%4;_gearApplyRot();setTimeout(markAll,550);},600);
+    setTimeout(_gearNext,2600);
+  }
+}
+function _gearNext(){
+  if(!_gearActive)return;
+  if(_gear.idx>=GEAR_ROUNDS-1){renderGearResult();return;}
+  _gear.idx++;renderGearRound();
+}
+
+function renderGearResult(){
+  clearInterval(_gearTimer);_gearActive=false; // モード終了（戻るキーで直接ホームへ抜けても残らない）
+  const s=_gear.score;
+  const cheer=s>=GEAR_ROUNDS?"全問クリア！かみ合いは完璧！":s>=GEAR_ROUNDS-1?"あと一歩で全問クリア！":s>=Math.ceil(GEAR_ROUNDS/2)?"いいかみ合わせ！この調子！":"回すほど強くなる。もう一周いこう！";
+  document.getElementById("s-result").innerHTML=`
+    <div class="gres">
+      <div class="gres-ico">⚙️</div>
+      <div class="gres-t">歯車モード</div>
+      <div class="gres-score">${s}<small> / ${GEAR_ROUNDS}</small></div>
+      <div class="gres-dots">${_gear.oks.map(o=>`<i class="${o?"ok":""}"></i>`).join("")}</div>
+      <div class="gres-cheer">${cheer}</div>
+      <div class="gres-btns">
+        <button class="btn dark full" onclick="startGearQuiz()">もう一度まわす</button>
+        <button class="btn wt full" onclick="show('s-home')">ホームへ</button>
+      </div>
+    </div>`;
+  if(s>=GEAR_ROUNDS)sfxClaim();
+  show("s-result");
+}
+function gearConfirmQuit(){
+  const t0=performance.now();clearInterval(_gearTimer);
+  const m=document.createElement("div");m.className="appconfirm";
+  m.innerHTML=`<div class="ac-card"><div class="ac-t">歯車モードを中断して<br>ホームに戻りますか？</div>
+    <div class="ac-btns"><button class="btn ac-stop" id="ac-yes">はい</button><button class="btn ghost" id="ac-no">いいえ</button></div></div>`;
+  document.body.appendChild(m);
+  document.getElementById("ac-yes").onclick=()=>{m.remove();quitTest();};
+  document.getElementById("ac-no").onclick=()=>{if(!_gearAnswered){_gearStart+=performance.now()-t0;_gearStartTimer(true);}m.remove();};
+}
+function updateStartBtnMode(){const b=document.querySelector(".start-button");if(b)b.classList.toggle("gearmode",!!loadSettings().gearMode);}
 
 function curLimit(){const base=state.questions[state.idx].type==="w"?20:10;return Math.round(base*(loadSettings().slowTimer?1.5:1));} // じっくりモードは1.5倍
 
@@ -4163,10 +4366,11 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.108 (2026-07-21)";
+const APP_VERSION="v2.109 (2026-07-22)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
+updateStartBtnMode(); // 歯車モード設定をスタートボタンに反映
 pruneHistory(); // 90日超の履歴を間引き（1日1回）
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{}); // オフラインキャッシュ（画像はキャッシュ優先・HTML/JSはネット優先）
 /* ============================================================ 収益化（投げ銭＋AdSense）。IDを入れるまで何も表示・読込しない ============================================================ */
@@ -4254,7 +4458,7 @@ function promptInstall(){
 }
 /* 設定 */
 function _reducedMotion(){return !!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);} // OSの「視差効果を減らす」
-function loadSettings(){try{return Object.assign({tapAdvance:false,sound:true,slowTimer:false,balls:!_reducedMotion(),bigText:false},JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}"));}catch(e){return{tapAdvance:false,sound:true,balls:!_reducedMotion()};}}
+function loadSettings(){try{return Object.assign({tapAdvance:false,sound:true,slowTimer:false,balls:!_reducedMotion(),bigText:false,gearMode:false},JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}"));}catch(e){return{tapAdvance:false,sound:true,balls:!_reducedMotion()};}}
 function saveSettings(o){_lsSet(LS_SETTINGS,JSON.stringify(o));}
 /* 復習リマインダー: 通知許可を取得して設定を保存（実際の定期送信は配信サーバが必要。ここは許可取得と受け皿まで） */
 function toggleReminder(){
@@ -4283,6 +4487,7 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
       ${tile("k-notf","🔔","復習通知",notifyOn,"通知オン","要許可","toggleReminder()")}
       ${tile("k-ball","🫧","玉の演出",st.balls!==false,"積もる","オフ","toggleSetting('balls')")}
       ${tile("k-big","🔠","文字大",st.bigText,"大きめ","標準","toggleSetting('bigText')")}
+      ${tile("k-gear","⚙️","歯車モード",st.gearMode,"歯車で出題","通常出題","toggleSetting('gearMode')")}
     </div>
     <div class="cc-list">
       <div class="cc-item" onclick="showCoach()"><span>📖 つかいかた</span><span class="cc-arw">›</span></div>
@@ -4299,6 +4504,7 @@ function toggleSetting(key){
   const st=loadSettings();st[key]=!st[key];saveSettings(st);
   if(key==="balls"&&!st.balls){qrStopRain();qrClearLayer("home-rain");qrClearLayer("q-rain");qrClearLayer("wd-rain");_ballLog=[];}
   if(key==="bigText")document.body.classList.toggle("bigtext",st.bigText);
+  if(key==="gearMode")updateStartBtnMode(); // スタートボタンの⚙バッジを即時反映
   openSettings();
 }
 /* 学習データのバックアップ（kwt_*キーをJSONで書き出し/読み込み） */
