@@ -755,20 +755,14 @@ body.bigtext .set-d{font-size:13.5px}
 @keyframes medalpop{0%{transform:scale(.2) rotate(-220deg);opacity:0}60%{opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
 .res-score{font-size:36px;font-weight:900}
 .res-score b{font-weight:900}
-/* 結果ボタン：キラキラ(回転枠)を全廃。白黒の座布団で優先度を明示する。
-   優先度  ①最優先=もう一度挑戦(黒塗り＋周回する惑星) ＞ ②シェア(白抜き枠) ＞ ③PWR/ホーム(淡いゴースト) */
-.res-btns .btn.pri{background:#000;color:#fff;font-weight:900;font-size:16px;padding:17px;position:relative;overflow:visible}
+/* 結果ボタン：アニメーション(惑星)なし。落ち着いた白黒の座布団で優先度だけを静かに示す。
+   優先度  ①最優先=もう一度挑戦(黒塗り) ＞ ②シェア(白抜き枠) ＞ ③PWR/ホーム(淡いゴースト) */
+.res-btns .btn.pri{background:#000;color:#fff;font-weight:900;font-size:16px;padding:17px}
 .res-btns .btn.pri:active{background:#1c1c1c}
 .res-btns .btn.sec{background:#fff;color:#111;border:2px solid #111;font-weight:800}
 .res-btns .btn.sec:active{background:#efefef}
 .res-btns .btn.ter{background:rgba(255,255,255,.55);color:#333;border:1px solid rgba(0,0,0,.18);font-weight:700}
 .res-btns .btn.ter:active{background:rgba(255,255,255,.35)}
-/* 惑星：最優先ボタンの左を色を変えながら周回し、「これが優先」であることを一点だけ示す */
-.res-btns .btn.pri .planet{position:absolute;left:18px;top:50%;width:0;height:0;transform:translateY(-50%);animation:planetOrbit 3.4s linear infinite;pointer-events:none}
-.res-btns .btn.pri .planet i{position:absolute;left:11px;top:-4px;width:8px;height:8px;border-radius:50%;background:#5ee7df;box-shadow:0 0 8px 1px rgba(94,231,223,.85);animation:planetHue 6s linear infinite}
-@keyframes planetOrbit{to{transform:translateY(-50%) rotate(360deg)}}
-@keyframes planetHue{to{filter:hue-rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){.res-btns .btn.pri .planet,.res-btns .btn.pri .planet i{animation:none}}
 /* 単語カード獲得演出 */
 .cardget{position:fixed;inset:0;z-index:550;background:rgba(0,0,0,.78);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;opacity:0;transition:opacity .3s ease}
 .cardget.on{opacity:1}
@@ -1037,7 +1031,7 @@ body.bigtext .set-d{font-size:13.5px}
 .gear-core::before{content:"";position:absolute;inset:7%;border-radius:50%;border:2px dashed rgba(0,0,0,.08)}
 /* 目盛りノッチ（斜め4方向・韓国語の位置を示す控えめな印） */
 .gear-notch{position:absolute;left:50%;top:50%;width:5px;height:14px;margin:-7px 0 0 -2.5px;border-radius:3px;background:rgba(0,0,0,.14)}
-.gear-ko{position:absolute;left:50%;top:50%;width:calc(var(--gs)*.44);margin:calc(var(--gs)*-.05) 0 0 calc(var(--gs)*-.22);text-align:center;font-size:clamp(15px,4.4vw,19px);font-weight:900;color:#333;line-height:1.15;word-break:break-all;transition:transform .5s cubic-bezier(.34,1.4,.5,1);will-change:transform;pointer-events:none}
+.gear-ko{position:absolute;left:50%;top:50%;width:calc(var(--gs)*.46);margin:calc(var(--gs)*-.05) 0 0 calc(var(--gs)*-.23);text-align:center;font-size:clamp(17px,5vw,22px);font-weight:900;color:#333;line-height:1.15;word-break:break-all;transition:transform .5s cubic-bezier(.34,1.4,.5,1);will-change:transform;pointer-events:none}
 /* 中央ハブ：黄色の回転つまみ（両方向の回転誘導） */
 .gear-hub{position:absolute;left:50%;top:50%;width:calc(var(--gs)*.24);height:calc(var(--gs)*.24);margin:calc(var(--gs)*-.12) 0 0 calc(var(--gs)*-.12);border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFD84D,#FFC400 62%,#e0a800);box-shadow:inset 0 -3px 7px rgba(0,0,0,.2),0 2px 8px rgba(0,0,0,.24);display:flex;align-items:center;justify-content:center;font-size:calc(var(--gs)*.11);font-weight:900;color:#5a4300;z-index:3;pointer-events:none}
 /* 回答ボタン：スタートボタンと同系の黄枠ピル */
@@ -3963,7 +3957,7 @@ function finishTest(){
     ${typeUpd}
     <div class="res-listwrap"><div class="res-cards">${rows}</div></div>
     <div class="res-btns">
-      <button class="btn pri full" onclick="if(typeof track==='function')track('retry');startTest()"><span class="planet"><i></i></span>もう一度挑戦する</button>
+      <button class="btn pri full" onclick="if(typeof track==='function')track('retry');startTest()">もう一度挑戦する</button>
       <button class="btn sec full" onclick="shareResult()">&#120143; 結果をシェアして友達に挑戦</button>
       <button class="btn ter" onclick="renderRoomCurve()">PWRメータを見る</button>
       <button class="btn ter" onclick="show('s-home')">ホームに戻る</button>
@@ -4399,7 +4393,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.111 (2026-07-22)";
+const APP_VERSION="v2.113 (2026-07-22)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
