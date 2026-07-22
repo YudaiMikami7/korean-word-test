@@ -755,16 +755,20 @@ body.bigtext .set-d{font-size:13.5px}
 @keyframes medalpop{0%{transform:scale(.2) rotate(-220deg);opacity:0}60%{opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
 .res-score{font-size:36px;font-weight:900}
 .res-score b{font-weight:900}
-/* 結果ボタン：枠線が360度色変化。強調強度 e1(もう一度)＞e2(シェア)＞e3(PWR)＞e4(ホーム) */
-@property --bspin{syntax:"<angle>";inherits:false;initial-value:0deg}
-.res-btns .btn.emph{position:relative;z-index:0;isolation:isolate}
-.res-btns .btn.emph::before{content:"";position:absolute;border-radius:inherit;z-index:-1;background:conic-gradient(from var(--bspin),#ff5f6d,#ffc371,#5ee7df,#b490ca,#ff5f6d);animation:bspin var(--spd,4s) linear infinite}
-@keyframes bspin{to{--bspin:360deg}}
-.res-btns .btn.e1{--spd:1.8s}.res-btns .btn.e1::before{inset:-4px}
-.res-btns .btn.e2{--spd:2.8s}.res-btns .btn.e2::before{inset:-3px}
-.res-btns .btn.e3{--spd:4.2s}.res-btns .btn.e3::before{inset:-2px;filter:saturate(.7)}
-.res-btns .btn.e4{--spd:6s}.res-btns .btn.e4::before{inset:-1.5px;filter:saturate(.45) opacity(.8)}
-.res-btns .btn.e1{box-shadow:0 0 14px rgba(255,150,60,.6)}
+/* 結果ボタン：キラキラ(回転枠)を全廃。白黒の座布団で優先度を明示する。
+   優先度  ①最優先=もう一度挑戦(黒塗り＋周回する惑星) ＞ ②シェア(白抜き枠) ＞ ③PWR/ホーム(淡いゴースト) */
+.res-btns .btn.pri{background:#000;color:#fff;font-weight:900;font-size:16px;padding:17px;position:relative;overflow:visible}
+.res-btns .btn.pri:active{background:#1c1c1c}
+.res-btns .btn.sec{background:#fff;color:#111;border:2px solid #111;font-weight:800}
+.res-btns .btn.sec:active{background:#efefef}
+.res-btns .btn.ter{background:rgba(255,255,255,.55);color:#333;border:1px solid rgba(0,0,0,.18);font-weight:700}
+.res-btns .btn.ter:active{background:rgba(255,255,255,.35)}
+/* 惑星：最優先ボタンの左を色を変えながら周回し、「これが優先」であることを一点だけ示す */
+.res-btns .btn.pri .planet{position:absolute;left:18px;top:50%;width:0;height:0;transform:translateY(-50%);animation:planetOrbit 3.4s linear infinite;pointer-events:none}
+.res-btns .btn.pri .planet i{position:absolute;left:11px;top:-4px;width:8px;height:8px;border-radius:50%;background:#5ee7df;box-shadow:0 0 8px 1px rgba(94,231,223,.85);animation:planetHue 6s linear infinite}
+@keyframes planetOrbit{to{transform:translateY(-50%) rotate(360deg)}}
+@keyframes planetHue{to{filter:hue-rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.res-btns .btn.pri .planet,.res-btns .btn.pri .planet i{animation:none}}
 /* 単語カード獲得演出 */
 .cardget{position:fixed;inset:0;z-index:550;background:rgba(0,0,0,.78);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;opacity:0;transition:opacity .3s ease}
 .cardget.on{opacity:1}
@@ -1001,7 +1005,7 @@ body.bigtext .set-d{font-size:13.5px}
 #s-result.pq .res-score,#s-result.pq .pwr-lab,#s-result.pq .pwr-val{color:#4a2e46}
 #s-result.pq .res-score span{color:#8a6f83}
 #s-result.pq .res-cheer{color:#b23a86;text-shadow:none}
-#s-result.pq .res-btns .btn.line,#s-result.pq .res-btns .btn.wt{background:#3a2b36;color:#fff;border-color:#3a2b36}
+#s-result.pq .res-btns .btn.line,#s-result.pq .res-btns .btn.wt,#s-result.pq .res-btns .btn.sec,#s-result.pq .res-btns .btn.ter{background:#3a2b36;color:#fff;border-color:#3a2b36}
 /* 特別ルーム選択中のスタートボタン（グローバルボタンをプリティーに） */
 .home-wrap.pq-active .start-button{border:none!important;color:#fff!important;
   background:linear-gradient(90deg,#ff9ecb,#ff77aa,#c9a8ff,#9ecbff,#ff9ecb)!important;background-size:250% 100%!important;animation:pqRainbow 9s linear infinite;
@@ -3959,11 +3963,11 @@ function finishTest(){
     ${typeUpd}
     <div class="res-listwrap"><div class="res-cards">${rows}</div></div>
     <div class="res-btns">
-      <button class="btn dark full emph e2" onclick="shareResult()" style="border:1px solid var(--gold);color:var(--gold)">&#120143; 結果をシェアして友達に挑戦</button>
-      <button class="btn dark emph e1" onclick="if(typeof track==='function')track('retry');startTest()">もう一度挑戦する</button>
-      <button class="btn dark emph e4" onclick="show('s-home')">ホームに戻る</button>
-      <button class="btn wt emph e3" onclick="renderRoomCurve()">PWRメータを見る</button>
-      ${donateBtnHTML('btn wt')}
+      <button class="btn pri full" onclick="if(typeof track==='function')track('retry');startTest()"><span class="planet"><i></i></span>もう一度挑戦する</button>
+      <button class="btn sec full" onclick="shareResult()">&#120143; 結果をシェアして友達に挑戦</button>
+      <button class="btn ter" onclick="renderRoomCurve()">PWRメータを見る</button>
+      <button class="btn ter" onclick="show('s-home')">ホームに戻る</button>
+      ${donateBtnHTML('btn ter full')}
       ${installBtnHTML()}
     </div>
     ${adSlotHTML()}
