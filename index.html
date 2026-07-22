@@ -95,6 +95,11 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .cdown{display:flex;align-items:center;justify-content:center;height:60vh}
 .cnum{font-size:170px;font-weight:900;color:#fff;line-height:1;animation:cpop .4s ease}
 @keyframes cpop{from{transform:scale(1.8);opacity:.15}to{transform:scale(1);opacity:1}}
+/* ホーム画面のまま中央画像をおおうカウントダウン層（スタート→ここで3・2・1→終わってからクイズへ遷移） */
+.home-cd{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:7;background:rgba(0,0,0,.32);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);animation:cdfade .22s ease}
+.home-cd .cnum{font-size:210px;text-shadow:0 10px 34px rgba(0,0,0,.5)}
+@keyframes cdfade{from{opacity:0}to{opacity:1}}
+.home-wrap.counting .start-button{z-index:8} /* 戻るボタンはカウントダウン層より前面でタップ可能に */
 .choice:active{transform:scale(.98);background:rgba(0,0,0,.65)}
 /* 回答後のハイライト：正解=赤 / 選んだ誤答=青 / その他=暗い灰色のまま。色は20%薄く(不透明度.8)、視認性は維持 */
 .choice.correct{background:rgba(255,59,59,.8);color:#fff}
@@ -1023,6 +1028,10 @@ body.bigtext .set-d{font-size:13.5px}
 /* スタートボタン右端の⚙バッジ（歯車モードON時のみ・ゆっくり回転） */
 .start-button .sb-gear{display:none;position:absolute;right:20px;top:50%;font-size:34px;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4));animation:gearspin 7s linear infinite;pointer-events:none}
 .start-button.gearmode .sb-gear{display:block}
+/* カウントダウン中はスタートボタンを「戻る」に切り替え（押すとポップアップなしで即キャンセル） */
+.start-button .sb-back{display:none;font-weight:900;letter-spacing:.14em}
+.start-button.as-back .sb-back{display:inline-flex}
+.start-button.as-back .sb-txt,.start-button.as-back .sb-gear,.start-button.as-back .sb-bubble{display:none!important}
 @keyframes gearspin{from{transform:translateY(-50%) rotate(0)}to{transform:translateY(-50%) rotate(360deg)}}
 .gear-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;padding:0 8px}
 .gear-hint{font-size:14px;font-weight:800;color:#fff;text-shadow:0 2px 5px rgba(0,0,0,.5);letter-spacing:.5px;margin-bottom:10px}
@@ -1179,7 +1188,7 @@ body.bigtext .set-d{font-size:13.5px}
       <div id="wb-search"><input id="wb-q" type="search" placeholder="単語をさがす（韓国語・日本語）" oninput="wbSearch(this.value)"><div id="wb-hits"></div></div>
       <div class="today-band" id="today-band" style="display:none"><div class="tb-label">最近学んだ単語</div><div class="tb-clip"><div class="tb-track" id="tb-track"></div></div></div><!-- 中身が入るまで非表示（空の白帯チラ見え防止） -->
       <button class="home-side-btn hsb-left" onclick="renderRoomCurve()" aria-label="忘却曲線"><img src="images-thumb/0912.webp" alt=""><span class="hsb-txt">忘却曲線</span></button>
-      <button class="start-button" onclick="onStartBtn()"><span class="sb-bubble" id="sb-bubble"></span><span class="sb-txt"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span><span class="sb-gear" aria-hidden="true">⚙️</span></button>
+      <button class="start-button" onclick="onStartBtn()"><span class="sb-bubble" id="sb-bubble"></span><span class="sb-txt"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span><span class="sb-gear" aria-hidden="true">⚙️</span><span class="sb-back">戻る</span></button>
       <button class="home-side-btn hsb-right" onclick="enterListMode()" aria-label="単語帳"><img src="images-thumb/1290.webp" alt=""><span class="hsb-txt">単語帳</span></button>
       <div id="status-ov"></div>
       <div class="hv-ver" id="appver"></div>
@@ -1790,7 +1799,38 @@ function jumpRoom(n){
   attachHomeRain();
 }
 let _onSpecial=false; // 特別ルーム プリQQ のスライドが選択中か
-function onStartBtn(){_onSpecial?startPriQQ():startTest();} // 特別ルーム選択中はプリQQ／それ以外は通常出題（歯車モードはスペシャルモードへ移行）
+function onStartBtn(){ // 特別ルーム選択中はプリQQ／それ以外は通常出題
+  if(_counting){cancelHomeCountdown();return;} // カウントダウン中は「戻る」化：ポップアップなしで即キャンセル
+  homeCountdown(()=>{_cdSkip=true;_onSpecial?startPriQQ():startTest();}); // ホームのまま3・2・1→終わってからクイズへ遷移
+}
+/* スタート後、画面遷移せずホーム中央画像の上で3・2・1。終わったらafter()でクイズへ。
+   カウントダウン中はスタートボタンが「戻る」に変わり、押すと下のcancelHomeCountdownで即ホームへ戻る。 */
+let _cdSkip=false,_homeCdTimer=null; // _cdSkip: 直後のstartTestは自前カウントダウンを省く
+function homeCountdown(after){
+  const wrap=document.getElementById("homewrap"),btn=document.querySelector(".start-button");
+  if(!wrap||!btn){after();return;} // 想定外の構造なら従来どおり即開始
+  const old=document.getElementById("home-cd");if(old)old.remove();
+  const ov=document.createElement("div");ov.className="home-cd";ov.id="home-cd";
+  ov.innerHTML='<span class="cnum">3</span>';
+  wrap.appendChild(ov);wrap.classList.add("counting");btn.classList.add("as-back");
+  const num=ov.querySelector(".cnum");
+  let n=3;_counting=true;
+  sfxStart(); // 押した瞬間に開始音（startTest側は_cdSkip時に鳴らさない）
+  clearInterval(_homeCdTimer);
+  _homeCdTimer=setInterval(()=>{
+    if(!document.getElementById("s-home").classList.contains("on")){_homeCleanupCd();return;} // ホームを離れたら中断
+    n--;
+    if(n<=0){_homeCleanupCd();after();return;}
+    num.textContent=n;num.style.animation="none";void num.offsetWidth;num.style.animation="cpop .4s ease";
+  },625); // 3・2・1は0.625秒間隔（クイズ側showCountdownと同じテンポ）
+}
+function _homeCleanupCd(){
+  clearInterval(_homeCdTimer);_homeCdTimer=null;_counting=false;
+  const ov=document.getElementById("home-cd");if(ov)ov.remove();
+  const wrap=document.getElementById("homewrap");if(wrap)wrap.classList.remove("counting");
+  const btn=document.querySelector(".start-button");if(btn)btn.classList.remove("as-back");
+}
+function cancelHomeCountdown(){if(!_counting)return;_homeCleanupCd();stopSpeak();} // ポップアップなしで即ホームへ
 
 /* ルーム番号の丸ページャー：左右にルームを並べ、選択中を中央に。切替中だけ表示し復習どき/カウントダウンは一時的にフェードで隠す */
 let _pagerT=null;
@@ -3284,6 +3324,7 @@ function quitTest(){
 }
 
 function startTest(reviewIds){
+  const skipCd=_cdSkip;_cdSkip=false; // ホームで既にカウントダウン済みなら自前カウントダウン・開始音を省く
   const now=Date.now();
   const conditionBefore=Math.round(overallCondition(now)),reviewBefore=reviewNeedCount(now);
   const qs=reviewIds&&reviewIds.length?buildReviewQuestions(reviewIds):buildQuestions();
@@ -3291,12 +3332,13 @@ function startTest(reviewIds){
   state={questions:qs,idx:0,results:[],testId:"t-"+Date.now().toString(36),userId:getUserId(),
     cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level,pq:_pqQuiz};
   _pqQuiz=false;
-  sfxStart();
+  if(!skipCd)sfxStart(); // ホーム経由時はhomeCountdownで既に開始音を鳴らしている
   if(typeof track==="function")track("quiz_start",{review:!!(reviewIds&&reviewIds.length)}); // ファネル起点（GA_ID設定時のみ）
   qrStopRain();qrClearLayer("q-rain");QR.active="q-rain"; // クイズ側の積もりをリセット（ホームの山は保持）
   updateAdvBtn();
   show("s-quiz");
-  showCountdown(()=>renderQuestion());
+  if(skipCd)renderQuestion(); // カウントダウンはホームで済んでいるので直接1問目へ
+  else showCountdown(()=>renderQuestion());
 }
 
 /* スタート後の3・2・1カウントダウン。timer変数を共用するためquitTestで確実に止まる */
@@ -4827,7 +4869,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.116 (2026-07-23)";
+const APP_VERSION="v2.117 (2026-07-23)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
