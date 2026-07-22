@@ -1016,26 +1016,26 @@ body.bigtext .set-d{font-size:13.5px}
 @keyframes gearspin{from{transform:translateY(-50%) rotate(0)}to{transform:translateY(-50%) rotate(360deg)}}
 .gear-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;padding:0 8px}
 .gear-hint{font-size:14px;font-weight:800;color:#fff;text-shadow:0 2px 5px rgba(0,0,0,.5);letter-spacing:.5px;margin-bottom:10px}
-/* 盤面：中央にダイヤル、上下左右に日本語。--gsは歯車（円）の直径 */
-.gear-board{position:relative;width:min(96vw,58vh);aspect-ratio:1;--gs:min(38vw,24vh);flex:0 0 auto}
-.gear-ja{position:absolute;background:rgba(0,0,0,.8);color:#fff;font-weight:800;font-size:clamp(12px,3.4vw,15px);line-height:1.25;padding:8px 11px;border-radius:16px;max-width:44%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 3px 10px rgba(0,0,0,.3);z-index:2;pointer-events:none;transition:background .3s ease,box-shadow .3s ease;box-sizing:border-box}
-.gear-ja.jt{left:50%;top:0;transform:translateX(-50%)}
-.gear-ja.jr{right:0;top:50%;transform:translateY(-50%)}
-.gear-ja.jb{left:50%;bottom:0;transform:translateX(-50%)}
-.gear-ja.jl{left:0;top:50%;transform:translateY(-50%)}
-/* 左右は横幅が狭いので折り返しを許可（歯車と重ならない幅に制限） */
-.gear-ja.jr,.gear-ja.jl{max-width:23%;white-space:normal;overflow:visible;text-overflow:clip;word-break:break-word}
-.gear-ja.hit{background:#1FAD62;box-shadow:0 0 16px 3px rgba(31,173,98,.75)}
-/* ダイヤル本体（タップで90°ずつ回転） */
-.gear-dial{position:absolute;left:50%;top:50%;width:var(--gs);height:var(--gs);margin:calc(var(--gs)/-2) 0 0 calc(var(--gs)/-2);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.gear-dial:active .gear-body{filter:brightness(.96)}
+/* 盤面：中央に大きめディスク、日本語は四隅（クロス斜め）。--gsはディスク直径。装飾は最小限で出題画面のトンマナ（白文字+黒影）に統一 */
+.gear-board{position:relative;width:min(96vw,58vh);aspect-ratio:1;--gs:min(60vw,35vh);flex:0 0 auto}
+.gear-ja{position:absolute;color:#fff;font-weight:900;font-size:clamp(15px,4.4vw,19px);line-height:1.3;text-shadow:0 2px 6px rgba(0,0,0,.5),0 0 2px rgba(0,0,0,.4);max-width:42%;z-index:2;pointer-events:none;transition:color .3s ease,text-shadow .3s ease;word-break:break-word}
+.gear-ja.jne{right:2%;top:5%;text-align:right}
+.gear-ja.jse{right:2%;bottom:5%;text-align:right}
+.gear-ja.jsw{left:2%;bottom:5%;text-align:left}
+.gear-ja.jnw{left:2%;top:5%;text-align:left}
+.gear-ja.hit{color:#00FF37;text-shadow:0 0 14px rgba(0,255,55,.55),0 2px 6px rgba(0,0,0,.5)}
+/* ダイヤル本体（ドラッグ/スワイプで両方向回転、タップで時計回り90°） */
+.gear-dial{position:absolute;left:50%;top:50%;width:var(--gs);height:var(--gs);margin:calc(var(--gs)/-2) 0 0 calc(var(--gs)/-2);cursor:grab;-webkit-tap-highlight-color:transparent;touch-action:none}
+.gear-dial.dragging{cursor:grabbing}
 .gear-body{position:absolute;inset:0;transition:transform .5s cubic-bezier(.34,1.4,.5,1);will-change:transform}
-.gear-core{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 34% 28%,#fff,#f3f3f3 58%,#dfdfdf);box-shadow:0 6px 18px rgba(0,0,0,.3),inset 0 0 0 4px rgba(0,0,0,.05)}
-/* 歯（4枚）。丸の外へ張り出す座布団に韓国語を載せる */
-.gear-tooth{position:absolute;left:50%;top:50%;width:calc(var(--gs)*.46);height:calc(var(--gs)*.40);margin:calc(var(--gs)*-.20) 0 0 calc(var(--gs)*-.23);border-radius:16px;background:linear-gradient(180deg,#fff,#f0f0f0);box-shadow:0 3px 9px rgba(0,0,0,.16),inset 0 0 0 2px rgba(0,0,0,.04)}
-.gear-ko{position:absolute;left:50%;top:50%;width:calc(var(--gs)*.42);margin:calc(var(--gs)*-.04) 0 0 calc(var(--gs)*-.21);text-align:center;font-size:clamp(12px,3.5vw,15px);font-weight:900;color:#333;line-height:1.15;word-break:break-all;transition:transform .5s cubic-bezier(.34,1.4,.5,1);will-change:transform;pointer-events:none}
-/* 中央ハブ：黄色の回転つまみ（タップ誘導の⟳付き） */
-.gear-hub{position:absolute;left:50%;top:50%;width:calc(var(--gs)*.34);height:calc(var(--gs)*.34);margin:calc(var(--gs)*-.17) 0 0 calc(var(--gs)*-.17);border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFD84D,#FFC400 62%,#e0a800);box-shadow:inset 0 -3px 7px rgba(0,0,0,.2),0 2px 8px rgba(0,0,0,.24);display:flex;align-items:center;justify-content:center;font-size:calc(var(--gs)*.15);font-weight:900;color:#5a4300;z-index:3;pointer-events:none}
+.gear-dial.dragging .gear-body,.gear-dial.dragging .gear-ko{transition:none}
+.gear-core{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 34% 28%,#fff,#f4f4f4 58%,#e3e3e3);box-shadow:0 6px 18px rgba(0,0,0,.3),inset 0 0 0 3px rgba(0,0,0,.04)}
+.gear-core::before{content:"";position:absolute;inset:7%;border-radius:50%;border:2px dashed rgba(0,0,0,.08)}
+/* 目盛りノッチ（斜め4方向・韓国語の位置を示す控えめな印） */
+.gear-notch{position:absolute;left:50%;top:50%;width:5px;height:14px;margin:-7px 0 0 -2.5px;border-radius:3px;background:rgba(0,0,0,.14)}
+.gear-ko{position:absolute;left:50%;top:50%;width:calc(var(--gs)*.44);margin:calc(var(--gs)*-.05) 0 0 calc(var(--gs)*-.22);text-align:center;font-size:clamp(15px,4.4vw,19px);font-weight:900;color:#333;line-height:1.15;word-break:break-all;transition:transform .5s cubic-bezier(.34,1.4,.5,1);will-change:transform;pointer-events:none}
+/* 中央ハブ：黄色の回転つまみ（両方向の回転誘導） */
+.gear-hub{position:absolute;left:50%;top:50%;width:calc(var(--gs)*.24);height:calc(var(--gs)*.24);margin:calc(var(--gs)*-.12) 0 0 calc(var(--gs)*-.12);border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFD84D,#FFC400 62%,#e0a800);box-shadow:inset 0 -3px 7px rgba(0,0,0,.2),0 2px 8px rgba(0,0,0,.24);display:flex;align-items:center;justify-content:center;font-size:calc(var(--gs)*.11);font-weight:900;color:#5a4300;z-index:3;pointer-events:none}
 /* 回答ボタン：スタートボタンと同系の黄枠ピル */
 .gear-answer{display:block;margin:16px auto 0;width:min(300px,78vw);background:rgba(0,0,0,.85);border:4px solid #FFC400;border-radius:999px;color:#fff;font-size:20px;font-weight:900;letter-spacing:8px;text-indent:8px;padding:15px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);font-family:inherit;transition:transform .08s ease,opacity .2s ease}
 .gear-answer:active{transform:scale(.96)}
@@ -3272,48 +3272,76 @@ function startGearQuiz(){
   showCountdown(()=>renderGearRound());
 }
 
+const GEAR_ANG=[45,135,225,315]; // 韓国語の配置角（クロス斜め）。日本語は対応する四隅
 function renderGearRound(){
   if(!_gearActive)return;
   const words=_gear.rounds[_gear.idx];
-  _gear.rot=0;_gear.shift=1+Math.floor(Math.random()*3); // 開始時点で必ずズレた状態から
+  _gear.rot=0;_gear.deg=0;_gear.shift=1+Math.floor(Math.random()*3); // 開始時点で必ずズレた状態から
   _gearAnswered=false;
   document.getElementById("prog").textContent=(_gear.idx+1)+" / "+GEAR_ROUNDS;
   const qa=document.getElementById("qadv");if(qa)qa.style.visibility="hidden";
-  const POS=["jt","jr","jb","jl"],ANG=[0,90,180,270];
-  // 歯tooth位置tには words[(t+shift)%4] の韓国語（回転rでshiftと一致したら全対応が揃う）
+  const POS=["jne","jse","jsw","jnw"];
+  // ディスク位置tには words[(t+shift)%4] の韓国語（回転rでshiftと一致したら全対応が揃う）
   document.getElementById("qstage").innerHTML=`
     <div class="gear-stage">
-      <div class="gear-hint">⚙️ ダイヤルをタップして回し、意味を合わせよう</div>
+      <div class="gear-hint">⚙️ ダイヤルを回して、意味を合わせよう</div>
       <div class="gear-board">
         ${words.map((w,i)=>`<div class="gear-ja ${POS[i]}" id="gja-${i}">${esc(w.ja)}</div>`).join("")}
         <div class="gear-dial" id="gear-dial" role="button" aria-label="ダイヤルを回す">
           <div class="gear-body" id="gear-body">
             <div class="gear-core"></div>
-            ${ANG.map((a,t)=>`<div class="gear-tooth" style="transform:rotate(${a}deg) translateY(calc(var(--gs)*-.5))"></div>`).join("")}
+            ${GEAR_ANG.map(a=>`<div class="gear-notch" style="transform:rotate(${a}deg) translateY(calc(var(--gs)*-.44))"></div>`).join("")}
           </div>
-          ${ANG.map((a,t)=>`<div class="gear-ko" id="gko-${t}" style="transform:rotate(${a}deg) translateY(calc(var(--gs)*-.5)) rotate(${-a}deg)">${esc(words[(t+_gear.shift)%4].ko)}</div>`).join("")}
-          <div class="gear-hub">⟳</div>
+          ${GEAR_ANG.map((a,t)=>`<div class="gear-ko" id="gko-${t}" style="transform:rotate(${a}deg) translateY(calc(var(--gs)*-.31)) rotate(${-a}deg)">${esc(words[(t+_gear.shift)%4].ko)}</div>`).join("")}
+          <div class="gear-hub">⟲⟳</div>
         </div>
       </div>
     </div>
     <div class="gear-bottom"><button class="gear-answer" id="gear-answer">回答</button></div>`;
-  document.getElementById("gear-dial").addEventListener("click",()=>{
-    if(_gearAnswered)return;
-    _gear.rot++;sfxGearTick();_gearApplyRot();
-  });
+  _gearBindDrag(document.getElementById("gear-dial"));
   document.getElementById("gear-answer").addEventListener("click",gearSubmit);
   _gearStartTimer();
 }
 
-/* 回転を描画：歯車本体は回し、韓国語ラベルは軌道上を回りつつ文字は常に正立 */
-function _gearApplyRot(){
-  const deg=_gear.rot*90;
+/* 回転を描画：ディスクを回し、韓国語は軌道上を回りつつ文字は常に正立 */
+function _gearApplyDeg(){
+  const deg=_gear.deg;
   const body=document.getElementById("gear-body");if(body)body.style.transform=`rotate(${deg}deg)`;
   for(let t=0;t<4;t++){
     const el=document.getElementById("gko-"+t);if(!el)continue;
-    const a=t*90+deg;
-    el.style.transform=`rotate(${a}deg) translateY(calc(var(--gs)*-.5)) rotate(${-a}deg)`;
+    const a=GEAR_ANG[t]+deg;
+    el.style.transform=`rotate(${a}deg) translateY(calc(var(--gs)*-.31)) rotate(${-a}deg)`;
   }
+}
+function _gearApplyRot(){_gear.deg=_gear.rot*90;_gearApplyDeg();}
+
+/* ドラッグ/スワイプで両方向に回転。指を離すと最寄りの90°へスナップ。ほぼ動かさなければタップ＝時計回り90° */
+function _gearBindDrag(dial){
+  let dragging=false,lastA=0,startDeg=0,moved=0,pid=null;
+  const center=()=>{const r=dial.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2};};
+  const angleAt=(e)=>{const c=center();return Math.atan2(e.clientY-c.y,e.clientX-c.x)*180/Math.PI;};
+  dial.addEventListener("pointerdown",e=>{
+    if(_gearAnswered)return;
+    dragging=true;pid=e.pointerId;lastA=angleAt(e);startDeg=_gear.deg;moved=0;
+    dial.classList.add("dragging");
+    try{dial.setPointerCapture(e.pointerId);}catch(_){}
+    e.preventDefault();
+  });
+  dial.addEventListener("pointermove",e=>{
+    if(!dragging||e.pointerId!==pid)return;
+    const a=angleAt(e);
+    let d=a-lastA;if(d>180)d-=360;else if(d<-180)d+=360; // 角度の巻き戻りを補正
+    lastA=a;moved+=Math.abs(d);
+    _gear.deg+=d;_gearApplyDeg();
+  });
+  const finish=()=>{
+    if(!dragging)return;dragging=false;dial.classList.remove("dragging");
+    if(moved<8){_gear.deg=startDeg;_gear.rot=Math.round(startDeg/90)+1;} // タップ＝時計回りに1歯
+    else _gear.rot=Math.round(_gear.deg/90); // ドラッグ＝最寄りの位置へスナップ（反回転もそのまま）
+    sfxGearTick();_gearApplyRot();
+  };
+  dial.addEventListener("pointerup",finish);
+  dial.addEventListener("pointercancel",()=>{dragging=false;dial.classList.remove("dragging");_gearApplyRot();});
 }
 
 function sfxGearTick(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;_tone(c,620,t,0.04,0.09,"square");_tone(c,880,t+0.03,0.05,0.07,"square");} // カチッという回転音
@@ -3334,6 +3362,7 @@ function _gearStartTimer(resume){
 
 function gearSubmit(isTimeout){
   if(_gearAnswered||!_gearActive)return;_gearAnswered=true;clearInterval(_gearTimer);
+  _gear.rot=Math.round(_gear.deg/90); // ドラッグ途中でも現在角度から確定
   const ok=isTimeout!==true&&(((_gear.rot%4)+4)%4)===_gear.shift;
   _gear.oks.push(ok);if(ok)_gear.score++;
   const ans=document.getElementById("gear-answer");if(ans)ans.disabled=true;
@@ -4366,7 +4395,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.110 (2026-07-22)";
+const APP_VERSION="v2.111 (2026-07-22)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
