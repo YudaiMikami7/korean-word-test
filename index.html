@@ -748,7 +748,7 @@ body.bigtext .set-d{font-size:13.5px}
 .btn.ghost{background:var(--gray);color:var(--text)}
 .btn.line{background:transparent;border:1px solid var(--line);color:var(--mute)}
 .btn.wt{background:rgba(255,255,255,.6);border:none;color:#1a1a1a} /* 白透明ボタン（結果画面のPWRメータ/応援） */
-/* 応援ボタンをPWRメータ直下（結果ヘッダ内）へ。ヘッダの表示領域がその分ふえる */
+/* （v2.119でヘッダ内の応援ボタンは撤去し、結果ボタン列のPWRメータ隣へ移設。以下は旧スタイルの残置） */
 .res-donate{display:flex;align-items:center;justify-content:center;gap:6px;margin:10px auto 0;width:min(240px,74%);padding:11px 14px;border-radius:999px;background:rgba(255,255,255,.72);color:#1a1a1a;font-size:14.5px;font-weight:900;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .res-donate:active{transform:scale(.97)}
 #s-result.pq .res-donate{background:#3a2b36;color:#fff}
@@ -802,6 +802,7 @@ body.bigtext .set-d{font-size:13.5px}
 .rc-ko{font-size:13px;font-weight:900;color:#333;white-space:nowrap;overflow:hidden;max-width:94%;text-overflow:ellipsis;margin-top:3px}
 .rc-foot{display:flex;gap:6px;align-items:baseline;justify-content:center;margin-top:1px}
 .rc-cards{font-size:11px;font-weight:900;color:#b8862b}
+.rc-delta{font-size:11px;font-weight:900} /* 記憶率の増減（±%）色はインラインで緑/赤 */
 .res-score span{font-size:16px;color:var(--faint);font-weight:800}
 .res-params{display:flex;justify-content:center;gap:28px;margin-top:10px}
 .rp{display:flex;flex-direction:column;align-items:center;gap:4px}
@@ -821,7 +822,7 @@ body.bigtext .set-d{font-size:13.5px}
 .res-sess b{color:var(--text)}
 .btn.dark{background:rgba(0,0,0,.8);color:#fff}
 .btn.dark:active{background:rgba(0,0,0,.65)}
-.res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;margin:10px 0;border-top:1px solid var(--line);border-bottom:none;border-left:none;border-right:none;border-radius:0;-webkit-overflow-scrolling:touch} /* 表とシェアボタンの間の線は無し */
+.res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;margin:10px 0;border:none;border-radius:0;-webkit-overflow-scrolling:touch} /* カードグリッドの上下とも境界線は無し（カード上の黒線を撤去） */
 /* 出題表はコンパクト表示（ボタン群がスクロールなしで見えるよう縦を圧縮） */
 .rtab{width:100%;border-collapse:collapse;font-size:13px;background:rgba(0,0,0,.65)}
 .rtab th,.rtab td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
@@ -4641,12 +4642,13 @@ function finishTest(){
     const dAfter=(r.displayMemoryScoreAfter!=null?r.displayMemoryScoreAfter:(r.displayMemoryScoreAfterDecay!=null?r.displayMemoryScoreAfterDecay:r.memoryScoreAfter))||0;
     const dBefore=(r.displayMemoryScoreBefore!=null?r.displayMemoryScoreBefore:r.memoryScoreBefore)||0;
     const cardsGot=(r.cardsEarned!=null?r.cardsEarned:0); // このカードで獲得した枚数
+    const memDelta=Math.round(dAfter-dBefore); // 記憶率の増減（±）＝テスト前後の記憶率の差
     const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[r.korean])?`<img src="${WORD_IMG[r.korean]}" alt="">`:`<div class="cg-noimg">🃏</div>`;
     return `<div class="rc-card">
       <span class="rc-sym" style="color:${syc}">${sy[0]}</span>
       ${img}
       <div class="rc-ko">${esc(r.korean)}</div>
-      <div class="rc-foot"><span class="rc-cards">🃏 ${cardsGot}枚</span></div>
+      <div class="rc-foot"><span class="rc-cards">🃏 ${cardsGot}枚</span><span class="rc-delta" style="color:${memDelta>=0?'#1FAD62':'#FF6B6B'}">${memDelta>0?'+':''}${memDelta}%</span></div>
     </div>`;
   }).join("");
   const _ri=roomInfoFor(curSection),pwrAfter=_ri.pwr,pwrBefore=(state.roomPwrBefore!=null?state.roomPwrBefore:0),pwrDelta=pwrAfter-pwrBefore; // そのROOMのPWR
@@ -4670,7 +4672,6 @@ function finishTest(){
       </div>
       <div class="res-pwr"><span class="pwr-lab">PWR</span><div class="pwr-g"><div id="res-pwrfill" style="background:#00FF37;width:${pwrBefore}%"></div></div><span class="pwr-val">${pwrAfter}%</span><span class="pwr-delta" style="color:${pwrDelta>=0?"#1FAD62":"#FF6B6B"}">${pwrDelta>0?"+":""}${pwrDelta}</span></div>
       <div class="res-cheer">${pickResultCheer(totalDisp,nCorrect,R.filter(r=>(r.displayMemoryScoreBefore||0)===0).length)}</div>
-      ${donateBtnHTML('res-donate')}
     </div>
     ${typeUpd}
     <div class="res-listwrap"><div class="res-cards">${rows}</div></div>
@@ -4678,6 +4679,7 @@ function finishTest(){
       <button class="btn pri full" onclick="if(typeof track==='function')track('retry');startTest()">もう一度挑戦する</button>
       <button class="btn sec full" onclick="shareResult()">&#120143; 結果をシェアして友達に挑戦</button>
       <button class="btn ter" onclick="renderRoomCurve()">PWRメータを見る</button>
+      ${donateBtnHTML('btn ter')}
       <button class="btn ter" onclick="show('s-home')">ホームに戻る</button>
       ${installBtnHTML()}
     </div>
@@ -5110,7 +5112,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.118 (2026-07-23)";
+const APP_VERSION="v2.119 (2026-07-23)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
