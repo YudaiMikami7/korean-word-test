@@ -459,9 +459,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* 単語帳の検索パネル（body直下・固定。キーボードで押し上げられない） */
 #wb-panel{position:fixed;inset:0;z-index:9;pointer-events:none;display:none}
 #wb-panel.on{display:block}
-#wb-head{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:12px;padding:12px 16px;pointer-events:auto}
-#wb-back2{width:46px;height:46px;flex:0 0 auto;border:none;border-radius:12px;background:#111;color:#fff;font-size:26px;font-weight:900;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.35);line-height:1;padding:0}
-.wb-title{font-size:22px;font-weight:900;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.5)}
+#wb-head{display:none} /* 「単語帳」見出し・戻るボタンは廃止（戻るはカード枚数バー左の.zk-backへ） */
 #wb-searchbar{position:absolute;left:0;right:0;bottom:0;padding:14px 16px calc(14px + env(safe-area-inset-bottom));pointer-events:auto;transition:top .3s ease}
 #wb-searchbar input{width:100%;border:none;border-radius:999px;padding:14px 20px;font-size:16px;font-weight:700;background:rgba(255,255,255,.97);color:#1a1a1a;outline:none;box-sizing:border-box;box-shadow:0 4px 16px rgba(0,0,0,.28)}
 #wb-panel.searching #wb-searchbar{top:58px;bottom:auto}
@@ -542,8 +540,10 @@ body.bigtext .set-d{font-size:13.5px}
 .wl-cnt{flex:0 0 44px;text-align:right;font-size:18px;font-weight:800;color:rgba(255,255,255,.8)}
 .wl-rate{flex:0 0 46px;text-align:right;font-size:20px;font-weight:900}
 /* 単語帳 */
-.zk-sum{position:sticky;top:0;z-index:1;background:rgba(0,0,0,.8);color:#fff;font-size:15px;font-weight:800;padding:9px 12px;letter-spacing:1px}
+.zk-sum{position:sticky;top:0;z-index:1;background:rgba(0,0,0,.8);color:#fff;font-size:15px;font-weight:800;padding:9px 12px;letter-spacing:1px;display:flex;align-items:center;gap:10px}
 .zk-sum b{color:#FFC400;font-size:18px}
+.zk-back{flex:0 0 auto;width:34px;height:34px;border:none;border-radius:8px;background:rgba(255,255,255,.16);color:#fff;font-size:24px;font-weight:900;line-height:1;padding:0 0 3px;cursor:pointer;font-family:inherit}
+.zk-back:active{background:rgba(255,255,255,.3)}
 .zk-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:12px}
 .zk-card{position:relative;background:#FFFFFF;color:#1a1a1a;min-height:268px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;padding:10px 6px 30px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.18);border-radius:12px;overflow:hidden}
 .zk-no{position:absolute;left:7px;top:6px;font-size:11px;font-weight:800;color:#999}
@@ -1180,7 +1180,8 @@ body.bigtext .set-d{font-size:13.5px}
 .sp-memo-ja{font-size:18px;font-weight:800;color:#FFD86B}
 .sp-memo-count{font-size:32px;font-weight:900;color:#FFC400;min-height:38px}
 
-/* ============================================================ 今日の5問テスト（朝の部・夜の部 各1回） ============================================================ */
+/* ============================================================ 今日の5問テスト（朝の部・夜の部 各1回） ============================================================
+ * 配色・角丸はアプリ既存トーン（プレゼント/結果画面）に合わせる: 白地＋#1a1a1a文字＋#FFC400/#E0831A差し色、角丸は最小限 */
 #rr-d5.d5-off{filter:grayscale(1);opacity:.55}
 .rr-badge.d5-b{background:#FF8A00}
 .rr-btn .d5-ico{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;border-radius:50%;
@@ -1188,65 +1189,59 @@ body.bigtext .set-d{font-size:13.5px}
 .rr-btn .d5-ico b{font-size:29px;font-weight:900;line-height:1;text-shadow:0 2px 0 rgba(0,0,0,.18)}
 .rr-btn .d5-ico i{font-style:normal;font-size:11px;font-weight:900;line-height:1;margin-top:2px;letter-spacing:.08em}
 .rr-btn.show-label .d5-ico{transform:rotate(180deg);opacity:0}
+/* --- モーダル（プレゼントモーダルと同じ白地・角丸なし） --- */
 #d5-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
 #d5-modal.on{display:flex}
-.d5-card{width:360px;max-width:92vw;max-height:88vh;overflow-y:auto;color:#fff;border-radius:28px;position:relative;
-  padding:0 18px calc(20px + env(safe-area-inset-bottom));background:linear-gradient(165deg,#20305c,#121a2e);box-shadow:0 18px 50px rgba(0,0,0,.5);-webkit-overflow-scrolling:touch}
-.d5-h{padding:22px 0 4px;text-align:center;font-size:22px;font-weight:900;letter-spacing:.04em}
-.d5-sub{text-align:center;font-size:13px;font-weight:800;color:#9FC0FF;margin-bottom:14px}
-.d5-close{position:absolute;right:10px;top:12px;width:34px;height:34px;border:none;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:20px;font-weight:900;cursor:pointer}
-.d5-slots{display:flex;gap:10px;margin-bottom:14px}
-.d5-slot{flex:1;border-radius:16px;padding:10px 6px;text-align:center;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.12)}
-.d5-slot.now{border-color:#FFC400;background:rgba(255,196,0,.16)}
-.d5-slot .d5-sl{font-size:12px;font-weight:900;color:#cfe0ff;line-height:1.5}
-.d5-slot .d5-sv{font-size:15px;font-weight:900;margin-top:4px}
-.d5-slot .d5-sv.ok{color:#7CE7A6}.d5-slot .d5-sv.no{color:rgba(255,255,255,.55)}
-.d5-rules{background:rgba(255,255,255,.07);border-radius:14px;padding:12px 14px;font-size:13px;font-weight:700;line-height:1.9;color:#dbe6ff;margin-bottom:14px}
-.d5-rules b{color:#FFD84D}
-.d5-go{width:100%;height:58px;border:none;border-radius:29px;background:linear-gradient(180deg,#FFC400,#FF8A00);color:#2b1a00;font-size:19px;font-weight:900;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.28)}
-.d5-go:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.28)}
-.d5-wait{border-radius:18px;background:rgba(255,255,255,.08);padding:14px;text-align:center}
-.d5-wait .d5-wt{font-size:12px;font-weight:800;color:#9FC0FF}
-.d5-wait .d5-wv{font-size:28px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:.02em;margin-top:2px}
-.d5-ghost{width:100%;height:46px;margin-top:10px;border:2px solid rgba(255,255,255,.28);border-radius:23px;background:transparent;color:#fff;font-size:15px;font-weight:900;cursor:pointer}
-/* 回答受付フラッシュ（正誤は出さない） */
+.d5-card{width:320px;max-width:86vw;max-height:88vh;overflow-y:auto;background:#fff;color:#1a1a1a;border-radius:0;position:relative;
+  padding:22px 22px calc(22px + env(safe-area-inset-bottom));text-align:center;-webkit-overflow-scrolling:touch}
+.d5-h{font-size:20px;font-weight:900;letter-spacing:.04em}
+.d5-sub{font-size:12px;font-weight:800;color:#777;margin:4px 0 14px}
+.d5-close{position:absolute;right:8px;top:8px;width:32px;height:32px;border:none;background:rgba(0,0,0,.08);color:#333;font-size:19px;font-weight:900;cursor:pointer;line-height:1;font-family:inherit}
+.d5-slots{display:flex;gap:8px;margin-bottom:12px}
+.d5-slot{flex:1;padding:9px 6px;text-align:center;background:#F2F2F2;border:2px solid #E3E3E3}
+.d5-slot.now{border-color:#FFC400;background:#FFF7E0}
+.d5-slot .d5-sl{font-size:11px;font-weight:900;color:#777;line-height:1.5}
+.d5-slot .d5-sv{font-size:14px;font-weight:900;margin-top:4px;color:#1a1a1a}
+.d5-slot .d5-sv.ok{color:#E0831A}.d5-slot .d5-sv.no{color:#aaa}
+.d5-rules{background:#F6F6F6;padding:11px 13px;font-size:12.5px;font-weight:700;line-height:1.9;color:#333;margin-bottom:12px;text-align:left}
+.d5-rules b{color:#C24A00}
+.d5-go{width:100%;border:none;background:#000;color:#fff;font-size:17px;font-weight:900;padding:16px;cursor:pointer;font-family:inherit}
+.d5-go:active{background:#1c1c1c}
+.d5-wait{background:#F6F6F6;padding:12px;text-align:center}
+.d5-wait .d5-wt{font-size:11px;font-weight:800;color:#777}
+.d5-wait .d5-wv{font-size:26px;font-weight:900;font-variant-numeric:tabular-nums;color:#1a1a1a;margin-top:2px}
+.d5-ghost{width:100%;margin-top:8px;border:2px solid #111;background:#fff;color:#111;font-size:14px;font-weight:800;padding:12px;cursor:pointer;font-family:inherit}
+.d5-ghost:active{background:#efefef}
+/* --- 回答受付フラッシュ（正誤は出さない） --- */
 #qstage .choice.d5-pick{box-shadow:0 0 0 4px #FFC400 inset}
 .d5-ack{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;pointer-events:none}
-.d5-ack span{font-size:24px;font-weight:900;color:#fff;background:rgba(0,0,0,.58);border-radius:999px;padding:12px 30px;animation:d5ack .72s ease forwards}
-@keyframes d5ack{0%{opacity:0;transform:scale(.82)}22%{opacity:1;transform:scale(1)}72%{opacity:1}100%{opacity:0;transform:scale(1.05)}}
-/* 結果画面（1問ずつ○×を判定） */
-#s-d5result{background:linear-gradient(180deg,#16264a,#0a0f1c);overflow-y:auto;-webkit-overflow-scrolling:touch}
-.d5r{padding:26px 18px calc(30px + env(safe-area-inset-bottom));color:#fff;box-sizing:border-box}
-.d5r-h{text-align:center;font-size:12px;font-weight:900;letter-spacing:.22em;color:#9FC0FF}
-.d5r-t{text-align:center;font-size:25px;font-weight:900;margin:4px 0 20px}
-.d5r-list{display:flex;flex-direction:column;gap:10px;max-width:520px;margin:0 auto}
-.d5r-row{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.09);border-radius:16px;padding:12px 14px;
-  opacity:.25;transform:translateY(10px);transition:opacity .3s ease,transform .3s ease,box-shadow .2s ease}
+.d5-ack span{font-size:22px;font-weight:900;color:#fff;background:rgba(0,0,0,.72);padding:11px 26px;animation:d5ack .72s ease forwards}
+@keyframes d5ack{0%{opacity:0;transform:scale(.86)}22%{opacity:1;transform:scale(1)}72%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+/* --- 結果画面（通常の結果画面と同じ骨格・同じ.btnを使う） --- */
+.d5r-phase{display:grid;min-height:74px;align-items:center} /* 判定中→スコアを同じ枠で入れ替え（レイアウトを飛ばさない） */
+.d5r-phase>*{grid-area:1/1}
+.d5r-judging{font-size:15px;font-weight:900;color:var(--faint);transition:opacity .35s ease}
+.d5r-list{flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;justify-content:center;gap:6px;margin-top:10px;-webkit-overflow-scrolling:touch}
+.d5r-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.92);color:#1a1a1a;padding:9px 12px;
+  opacity:.3;transform:translateY(8px);transition:opacity .3s ease,transform .3s ease,box-shadow .2s ease}
 .d5r-row.shown{opacity:1;transform:none}
+.d5r-row.on-now{box-shadow:0 0 0 3px #FFC400}
 .d5r-row .d5r-mid{filter:blur(6px);transition:filter .3s ease} /* 未判定の問題は先読みできないようぼかす */
 .d5r-row.shown .d5r-mid{filter:none}
-.d5r-row.on-now{box-shadow:0 0 0 3px #FFC400}
-.d5r-no{width:28px;flex:0 0 auto;font-size:13px;font-weight:900;color:#9FC0FF}
+.d5r-no{width:26px;flex:0 0 auto;font-size:12px;font-weight:900;color:#999}
 .d5r-mid{flex:1;min-width:0}
-.d5r-q{font-size:18px;font-weight:900;line-height:1.3;word-break:break-word}
-.d5r-a{font-size:12px;font-weight:700;color:#b9caea;margin-top:4px;line-height:1.6;word-break:break-word}
-.d5r-a i{font-style:normal;color:#FFB0B0}
-.d5r-a i.ok{color:#7CE7A6}
-.d5r-a b{color:#fff}
-.d5r-mk{flex:0 0 auto;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;line-height:1;opacity:0;transform:scale(2.4) rotate(-14deg)}
+.d5r-q{font-size:16px;font-weight:900;line-height:1.25;color:#222;word-break:break-word}
+.d5r-a{font-size:11.5px;font-weight:700;color:#777;margin-top:2px;line-height:1.5;word-break:break-word}
+.d5r-a i{font-style:normal;color:#C0392B}
+.d5r-a i.ok{color:#1B8A4B}
+.d5r-a b{color:#333}
+.d5r-mk{flex:0 0 auto;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;line-height:1;opacity:0;transform:scale(2.4) rotate(-14deg)}
 .d5r-row.judged .d5r-mk{animation:d5stamp .42s cubic-bezier(.2,1.5,.4,1) forwards}
 @keyframes d5stamp{0%{opacity:0;transform:scale(2.4) rotate(-14deg)}60%{opacity:1;transform:scale(.88) rotate(3deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
-.d5r-mk.o{color:#FF3B3B}.d5r-mk.x{color:#2F9BFF}.d5r-mk.u{color:rgba(255,255,255,.7)}.d5r-mk.t{color:#DFB10F}
-.d5r-score{max-width:520px;margin:24px auto 0;text-align:center;opacity:0;transform:translateY(8px);transition:opacity .45s ease,transform .45s ease}
+.d5r-mk.o{color:#FF3B3B}.d5r-mk.x{color:#2F6FE0}.d5r-mk.u{color:#8a8a8a}.d5r-mk.t{color:#C79A0C}
+.d5r-score{opacity:0;transform:translateY(6px);transition:opacity .45s ease,transform .45s ease}
 .d5r-score.shown{opacity:1;transform:none}
-.d5r-sn{font-size:56px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
-.d5r-sn span{font-size:24px;color:#9FC0FF;font-weight:900}
-.d5r-cheer{font-size:15px;font-weight:800;margin-top:12px;color:#DDE8FF;line-height:1.7}
-.d5r-btns{max-width:520px;margin:24px auto 0;display:flex;flex-direction:column;gap:10px}
-.d5r-btns button{height:52px;border:none;border-radius:26px;font-size:16px;font-weight:900;cursor:pointer}
-.d5r-btns .d5r-home{background:#fff;color:#16264a}
-.d5r-btns .d5r-sec{background:transparent;border:2px solid rgba(255,255,255,.3);color:#fff}
-/* レア演出 */
+/* --- レア演出 --- */
 .d5-rare{position:fixed;inset:0;z-index:500;pointer-events:none;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .d5-rare .d5-flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 37%,rgba(255,244,200,.95),rgba(255,200,60,.34) 34%,rgba(255,200,60,0) 68%);animation:d5flash 1.35s ease-out forwards}
 @keyframes d5flash{0%{opacity:0;transform:scale(.4)}18%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.5)}}
@@ -1316,7 +1311,7 @@ body.bigtext .set-d{font-size:13.5px}
 
   <!-- 単語帳の検索パネル（body直下＝拡大縮小の影響を受けず、キーボードで押し上げられない） -->
   <div id="wb-panel">
-    <div id="wb-head"><button id="wb-back2" onclick="exitListMode()" aria-label="ホームに戻る">‹</button><span class="wb-title">単語帳</span></div>
+    <div id="wb-head"></div><!-- 「単語帳」見出し・戻るボタンは廃止（戻るはカード枚数バー左の.zk-backへ移設） -->
     <div id="wb-hits2"></div>
     <div id="wb-searchbar"><input id="wb-q2" type="search" placeholder="単語をさがす（韓国語・日本語）" autocomplete="off" oninput="wbSearch2(this.value)" onfocus="wbFocus()" onblur="wbBlur()"></div>
   </div>
@@ -2253,7 +2248,7 @@ function roomListHTMLFromIds(ids){
   const tab=(f,l)=>`<button class="wb-tab${_wbFilter===f?" on":""}" onclick="wbSetFilter('${f}')">${l}</button>`;
   const cells=pairs.map(p=>wbCardHTML(p.id,p.i,st,cards,now)).join("");
   return `<div class="slide-list wb-list">
-    <div class="zk-sum">単語帳 <b>${owned}</b> / ${ids.length}　カード <b>${totalCnt}</b>枚</div>
+    <div class="zk-sum"><button class="zk-back" onclick="event.stopPropagation();exitListMode()" aria-label="ホームに戻る">‹</button><span>単語帳 <b>${owned}</b> / ${ids.length}　カード <b>${totalCnt}</b>枚</span></div>
     <div class="wb-tabs">${tab("all","全部")}${tab("unowned","未獲得")}${tab("review","要復習")}${tab("owned","獲得済み")}</div>
     ${pairs.length?`<div class="wb-grid">${cells}</div>`:'<div class="wb-none">該当する単語はありません</div>'}</div>`;
 }
@@ -3670,22 +3665,27 @@ function d5RenderResult(rec,animate){
       <div class="d5r-mk ${sy[1]}">${sy[0]}</div>
     </div>`;
   }).join("");
-  const d=new Date(rec.finished||Date.now());
-  document.getElementById("s-d5result").innerHTML=`<div class="d5r">
-    <div class="d5r-h">TODAY'S 5 QUESTIONS</div>
-    <div class="d5r-t">${d5SlotLabel(rec.slot)}の結果<br><span style="font-size:14px;color:#9FC0FF">${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}</span></div>
-    <div class="d5r-list">${rows}</div>
-    <div class="d5r-score${animate?"":" shown"}">
-      <div class="d5r-sn">${rec.correct}<span> / ${rec.total} 正解</span></div>
-      <div class="d5r-cheer">${d5PickCheer(rec.correct)}</div>
+  const d=new Date(rec.finished||Date.now()),p=n=>String(n).padStart(2,"0");
+  // 通常の結果画面（.res / .res-head / .btn）と同じ骨格・同じ配色を使う
+  document.getElementById("s-d5result").innerHTML=`<div class="res">
+    <div class="res-head">
+      <div style="font-size:15px;font-weight:900">今日の5問テスト・${d5SlotLabel(rec.slot)}</div>
+      <div style="font-size:12px;font-weight:800;color:var(--faint);margin-top:2px">${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}</div>
+      <div class="d5r-phase">
+        <div class="d5r-judging"${animate?"":' style="opacity:0"'}>判定中…</div>
+        <div class="d5r-score${animate?"":" shown"}">
+          <div class="res-score" style="margin-top:6px"><b>${rec.correct}</b><span> / ${rec.total} 正解</span></div>
+          <div class="res-cheer">${d5PickCheer(rec.correct)}</div>
+        </div>
+      </div>
     </div>
-    <div class="d5r-btns">
-      <button class="d5r-home" onclick="show('s-home')">ホームに戻る</button>
-      <button class="d5r-sec" onclick="show('s-home');openDaily5()">次に挑戦できる時間を見る</button>
+    <div class="d5r-list">${rows}</div>
+    <div class="res-btns">
+      <button class="btn pri full" onclick="show('s-home')">ホームに戻る</button>
+      <button class="btn ter" onclick="show('s-home');openDaily5()">次に挑戦できる時間を見る</button>
     </div>
   </div>`;
   show("s-d5result");
-  applyBgAll("#0a0f1c");
   if(animate)d5Reveal();
 }
 /* 5問ぶんの○×を1問ずつ順に判定表示 → 判定しきったらレア演出 */
@@ -3695,6 +3695,7 @@ function d5Reveal(){
   const step=()=>{
     if(!document.getElementById("s-d5result").classList.contains("on"))return; // 途中で画面を離れたら止める
     if(i>=rows.length){
+      const jd=document.querySelector("#s-d5result .d5r-judging");if(jd)jd.style.opacity="0";
       const sc=document.querySelector("#s-d5result .d5r-score");if(sc)sc.classList.add("shown");
       setTimeout(d5RareBurst,480);
       return;
@@ -5441,7 +5442,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.125 (2026-07-25)";
+const APP_VERSION="v2.126 (2026-07-25)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -5533,7 +5534,16 @@ function promptInstall(){
 }
 /* 設定 */
 function _reducedMotion(){return !!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);} // OSの「視差効果を減らす」
-function loadSettings(){try{return Object.assign({tapAdvance:false,sound:true,slowTimer:false,balls:!_reducedMotion(),bigText:false,gearMode:false},JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}"));}catch(e){return{tapAdvance:false,sound:true,balls:!_reducedMotion()};}}
+/* 背景の玉（正解玉の降下・積み上げ）は既定OFF。すごろくUIへの移行に伴い一旦なしを既定にする（設定画面で個別にONに戻せる） */
+(function _ballsDefaultOff(){ // 既に設定を保存済みのユーザーにも1度だけ既定OFFを適用する
+  try{
+    if(localStorage.getItem("kwt_ballsoff_v1"))return;
+    localStorage.setItem("kwt_ballsoff_v1","1");
+    const s=JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}");
+    s.balls=false;localStorage.setItem(LS_SETTINGS,JSON.stringify(s));
+  }catch(e){}
+})();
+function loadSettings(){try{return Object.assign({tapAdvance:false,sound:true,slowTimer:false,balls:false,bigText:false,gearMode:false},JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}"));}catch(e){return{tapAdvance:false,sound:true,balls:false};}}
 function saveSettings(o){_lsSet(LS_SETTINGS,JSON.stringify(o));}
 /* 復習リマインダー: 通知許可を取得して設定を保存（実際の定期送信は配信サーバが必要。ここは許可取得と受け皿まで） */
 function toggleReminder(){

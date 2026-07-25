@@ -21,6 +21,10 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   await page.waitForTimeout(1000);
   await page.evaluate(() => { document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove()); });
 
+  // --- 背景の玉は既定OFF ---
+  check('玉の演出が既定でOFF', await page.evaluate(() => loadSettings().balls === false));
+  check('玉が生成されない', await page.evaluate(() => { spawnWordDrop(BEGINNER_WORDS[0], 1); return QR.balls.length === 0; }));
+
   // --- 入口 ---
   check('ホームに「今日の5問」ボタンがある', await page.evaluate(() => !!document.getElementById('rr-d5')));
   check('未プレイなら残数バッジが出る', await page.evaluate(() => { renderHome(); return document.getElementById('pb-d5').style.display !== 'none'; }));
@@ -86,7 +90,8 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     const want = [true, false, true, false, true];
     return [...document.querySelectorAll('#s-d5result .d5r-mk')].every((m, i) => m.classList.contains(want[i] ? 'o' : 'x'));
   }));
-  check('スコアが 3 / 5 正解', await page.evaluate(() => /3/.test(document.querySelector('.d5r-sn').textContent) && document.querySelector('.d5r-score').classList.contains('shown')));
+  check('スコアが 3 / 5 正解', await page.evaluate(() => /3\s*\/\s*5/.test(document.querySelector('#s-d5result .res-score').textContent.replace(/\s+/g, ' ')) && document.querySelector('.d5r-score').classList.contains('shown')));
+  check('結果画面が通常結果と同じ骨格(.res/.btn)', await page.evaluate(() => !!document.querySelector('#s-d5result .res .res-head') && !!document.querySelector('#s-d5result .res-btns .btn.pri')));
 
   // --- レア演出（判定しきったあと） ---
   const rare = await page.evaluate(async () => {
@@ -103,6 +108,18 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check('もう一度呼んでも開始できない', await page.evaluate(() => { const before = location.href; startDaily5(); return !document.getElementById('s-quiz').classList.contains('on'); }));
   check('結果を後から見返せる', await page.evaluate(() => { closeDaily5(); d5ShowSaved(); return document.querySelectorAll('#s-d5result .d5r-row.judged').length === 5; }));
   check('ホームのボタンがグレーアウト', await page.evaluate(() => { show('s-home'); return document.getElementById('rr-d5').classList.contains('d5-off'); }));
+  // 単語帳: 見出し/旧戻るボタンを廃止し、カード枚数バー左の戻るへ移設
+  check('単語帳の見出し・旧戻るボタンが無い', await page.evaluate(() => !document.querySelector('.wb-title') && !document.getElementById('wb-back2')));
+  check('カード枚数バー左に戻るボタン', await page.evaluate(async () => {
+    enterListMode(); await new Promise(r => setTimeout(r, 900));
+    const bar = document.querySelector(`.room-slide[data-n="${curSection}"] .zk-sum`);
+    return !!bar && bar.firstElementChild && bar.firstElementChild.classList.contains('zk-back');
+  }));
+  check('その戻るボタンでホームに戻れる', await page.evaluate(async () => {
+    document.querySelector(`.room-slide[data-n="${curSection}"] .zk-back`).click();
+    await new Promise(r => setTimeout(r, 900));
+    return _listMode === false && !document.getElementById('homewrap').classList.contains('hiderail');
+  }));
 
   // --- 枠が変わればまた遊べる ---
   check('別の枠（夜/朝）は未プレイ扱い', await page.evaluate(() => {
