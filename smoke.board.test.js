@@ -214,6 +214,27 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     return on;
   }));
 
+  // --- ランクのメダル表示・レールの切替方式 ---
+  await page.evaluate(() => {
+    const t = {}; for (let i = 1; i <= 3; i++) t[i] = { rank: 'A', score: 90, at: new Date().toISOString() };
+    localStorage.setItem('kwt_board_v1', JSON.stringify({ 'beginner-01': { cleared: 3, tiles: t } }));
+  }).then(() => page.reload()).then(() => page.waitForTimeout(1500));
+  const look = await page.evaluate(() => {
+    const r = document.querySelector('.room-slide[data-n="1"] .sg-rank');
+    const n = document.querySelector('.room-slide[data-n="1"] .sg-num');
+    const cs = r && getComputedStyle(r);
+    return { w: cs && cs.width, fs: cs && cs.fontSize, ring: cs && cs.boxShadow.includes('rgba(255, 196, 0'),
+      numFs: n && getComputedStyle(n).fontSize,
+      dailyTr: getComputedStyle(document.querySelector('#rr-daily .rr-txt')).transform,
+      setTr: getComputedStyle(document.querySelector('#set-btn .rr-txt')).transform,
+      labels: ['rr-daily','rr-rank','rr-level','rr-pwr'].map(id => document.querySelector('#'+id+' .rr-txt').textContent) };
+  });
+  check(`ランクは58px・メダル風 (${look.w} / ${look.fs})`, look.w === '58px' && look.fs === '31px' && look.ring);
+  check(`マス番号が大きい (${look.numFs})`, look.numFs === '40px');
+  check('レールはフェード切替（回転しない）', look.dailyTr === 'none');
+  check('設定マークだけ従来の回転のまま', look.setTr !== 'none');
+  check('右のレールは全部「◯◯ボーナス」', look.labels.join('|') === '毎日ボーナス|ランクボーナス|レベルボーナス|PWRボーナス');
+
   check('コンソールエラー無し', errors.length === 0);
   if (errors.length) console.log(errors);
 

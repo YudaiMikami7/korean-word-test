@@ -405,10 +405,15 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rr-btn img{width:86%;height:86%;object-fit:contain}
 .rr-set{font-size:34px;color:#555;line-height:1} /* 白背景に映る濃色 */
 /* リールの各ボタンもアイコン⇄日本語ラベルを中身のZ軸回転で入替（タイミングはボタンごとにランダム） */
-.rr-btn img,.rr-btn .rr-txt{transition:transform .45s ease,opacity .3s ease}
-.rr-btn .rr-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#333;line-height:1.1;padding:3px;text-align:center;transform:rotate(-180deg);opacity:0;box-sizing:border-box}
-.rr-btn.show-label img{transform:rotate(180deg);opacity:0}
-.rr-btn.show-label .rr-txt{transform:rotate(0deg);opacity:1}
+.rr-btn img,.rr-btn .rr-txt{transition:opacity .35s ease}
+.rr-btn .rr-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:900;color:#333;line-height:1.2;padding:3px;text-align:center;opacity:0;box-sizing:border-box}
+.rr-btn.show-label img{opacity:0}
+.rr-btn.show-label .rr-txt{opacity:1}
+/* 設定マークだけは従来どおり回転で切り替える */
+#set-btn img,#set-btn .rr-txt{transition:transform .45s ease,opacity .3s ease}
+#set-btn .rr-txt{transform:rotate(-180deg)}
+#set-btn.show-label img{transform:rotate(180deg)}
+#set-btn.show-label .rr-txt{transform:rotate(0deg)}
 .rr-btn.rb{animation:rbglow 1.4s linear infinite}
 .rr-btn.bob{animation:bob 1.6s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
@@ -1233,12 +1238,15 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-tile{position:absolute;z-index:1;width:96px;height:96px;margin:-48px 0 0 -48px;border:none;background:transparent;padding:0;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
 .sg-tile:active .sg-img{transform:translateX(-50%) scale(.94)}
 /* 番号は画像の左上、ランクは画像の右上（円盤は置かない） */
-.sg-num{position:absolute;z-index:4;left:-56px;top:-176px;font-size:25px;font-weight:900;color:#fff;
-  text-shadow:0 2px 5px rgba(0,0,0,.6),0 0 4px rgba(0,0,0,.6)}
+.sg-num{position:absolute;z-index:4;left:-58px;top:-186px;font-size:40px;font-weight:900;color:#fff;line-height:1;
+  text-shadow:0 3px 7px rgba(0,0,0,.65),0 0 5px rgba(0,0,0,.65)}
 .sg-img{position:absolute;z-index:3;left:50%;top:-186px;width:236px;height:236px;transform:translateX(-50%);object-fit:contain;transition:transform .08s ease;filter:drop-shadow(0 8px 7px rgba(0,0,0,.3))}
 .sg-noimg{position:absolute;z-index:3;left:50%;top:-120px;transform:translateX(-50%);font-size:112px;pointer-events:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.3))}
 .sg-tile.done .sg-num{color:#DFFBE6}
-.sg-rank{position:absolute;z-index:4;right:-54px;top:-176px;width:36px;height:36px;border-radius:50%;color:#fff;font-size:19px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.38);border:2px solid #fff}
+.sg-rank{position:absolute;z-index:4;right:-58px;top:-186px;width:58px;height:58px;border-radius:50%;color:#fff;font-size:31px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;border:none;
+  box-shadow:0 0 0 3px rgba(255,255,255,.9),0 0 0 6px rgba(255,196,0,.95),0 4px 11px rgba(0,0,0,.4)} /* 結果画面と同じメダル風 */
+.sg-rank::after{content:"";position:absolute;inset:5px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%);pointer-events:none}
 .sg-tile.now .sg-num,.sg-tile.now .sg-rank{animation:sgnow 1.6s ease-in-out infinite}
 .sg-tile.now .sg-img,.sg-tile.now .sg-noimg{animation:sgnowc 1.6s ease-in-out infinite,sgglow 1.9s ease-in-out infinite} /* 画像はtranslateX(-50%)を保ったまま一緒に揺らす＋黄色い光彩 */
 @keyframes sgglow{
@@ -1264,10 +1272,10 @@ body.bigtext .set-d{font-size:13.5px}
 #rr-d5.d5-off{filter:grayscale(1);opacity:.55}
 .rr-badge.d5-b{background:#FF8A00}
 .rr-btn .d5-ico{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;border-radius:50%;
-  background:linear-gradient(160deg,#FFC94D,#FF7A00);color:#fff;transition:transform .45s ease,opacity .3s ease}
+  background:linear-gradient(160deg,#FFC94D,#FF7A00);color:#fff;transition:opacity .35s ease}
 .rr-btn .d5-ico b{font-size:29px;font-weight:900;line-height:1;text-shadow:0 2px 0 rgba(0,0,0,.18)}
 .rr-btn .d5-ico i{font-style:normal;font-size:11px;font-weight:900;line-height:1;margin-top:2px;letter-spacing:.08em}
-.rr-btn.show-label .d5-ico{transform:rotate(180deg);opacity:0}
+.rr-btn.show-label .d5-ico{opacity:0}
 /* --- モーダル（プレゼントモーダルと同じ白地・角丸なし） --- */
 #d5-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
 #d5-modal.on{display:flex}
@@ -1360,10 +1368,10 @@ body.bigtext .set-d{font-size:13.5px}
         <button class="rr-btn" id="rr-d5" onclick="openDaily5()" aria-label="今日の5問テスト"><span class="d5-ico"><b>5</b><i>問</i></span><span class="rr-txt">今日の<br>5問</span><span class="rr-badge d5-b" id="pb-d5" style="display:none">!</span></button>
       </div>
       <div class="reward-rail">
-        <button class="rr-btn" id="rr-daily" onclick="openPresent('daily')"><img src="icons/bonus-daily.webp" alt="毎日"><span class="rr-txt">毎日</span><span class="rr-badge" id="pb-daily" style="display:none"></span></button>
-        <button class="rr-btn" id="rr-rank" onclick="openPresent('rank')"><img src="icons/bonus-rank.webp" alt="ランク"><span class="rr-txt">ランク</span><span class="rr-badge" id="pb-rank" style="display:none"></span></button>
-        <button class="rr-btn" id="rr-level" onclick="openPresent('level')"><img src="icons/bonus-level.webp" alt="レベル"><span class="rr-txt">レベル</span><span class="rr-badge" id="pb-level" style="display:none"></span></button>
-        <button class="rr-btn" id="rr-pwr" onclick="openPresent('pwr')"><img src="icons/bonus-pwr.webp" alt="PWR"><span class="rr-txt">PWR</span><span class="rr-badge" id="pb-pwr" style="display:none"></span></button>
+        <button class="rr-btn" id="rr-daily" onclick="openPresent('daily')"><img src="icons/bonus-daily.webp" alt="毎日"><span class="rr-txt">毎日<br>ボーナス</span><span class="rr-badge" id="pb-daily" style="display:none"></span></button>
+        <button class="rr-btn" id="rr-rank" onclick="openPresent('rank')"><img src="icons/bonus-rank.webp" alt="ランク"><span class="rr-txt">ランク<br>ボーナス</span><span class="rr-badge" id="pb-rank" style="display:none"></span></button>
+        <button class="rr-btn" id="rr-level" onclick="openPresent('level')"><img src="icons/bonus-level.webp" alt="レベル"><span class="rr-txt">レベル<br>ボーナス</span><span class="rr-badge" id="pb-level" style="display:none"></span></button>
+        <button class="rr-btn" id="rr-pwr" onclick="openPresent('pwr')"><img src="icons/bonus-pwr.webp" alt="PWR"><span class="rr-txt">PWR<br>ボーナス</span><span class="rr-badge" id="pb-pwr" style="display:none"></span></button>
       </div>
       <div class="status-panel" onclick="enterStatusMode()"></div>
       <div class="hv-lab hv-xplabel">XP</div>
@@ -5789,7 +5797,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.135 (2026-07-25)";
+const APP_VERSION="v2.136 (2026-07-26)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
