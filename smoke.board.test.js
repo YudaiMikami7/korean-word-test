@@ -1,0 +1,128 @@
+/* k-tango すごろく（1マス=1テスト / 12マスで1周）スモークテスト
+ * 使い方: node smoke.board.test.js
+ * 検証: 1周の網羅（12マスで全語登場）・周の伸長・マスの開放/ロック・テスト連動・画像が常に乗ること
+ */
+const { chromium } = require('playwright');
+const path = require('path');
+
+const results = [];
+function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${cond ? 'PASS' : 'FAIL'}  ${name}`); }
+
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 602, height: 1178 }, hasTouch: true });
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  page.on('dialog', d => d.accept());
+  await page.goto('file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/'));
+  await page.waitForTimeout(900);
+  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); });
+  await page.reload(); await page.waitForTimeout(1300);
+  await page.evaluate(() => document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove()));
+
+  // --- 1周のマス数 ---
+  const laps = await page.evaluate(() => ({
+    b1: boardLapSize('beginner', 1),      // 100語
+    b17: boardLapSize('beginner', 17),    // 71語
+    m27: boardLapSize('middle', 27),      // 62語
+    n1: LEVEL_SECTIONS.beginner[1].length, n17: LEVEL_SECTIONS.beginner[17].length, n27: LEVEL_SECTIONS.middle[27].length,
+  }));
+  check(`100語ROOMは1周12マス (${laps.n1}語→${laps.b1}マス)`, laps.b1 === 12);
+  check(`語数の少ないROOMは短い (初級17: ${laps.n17}語→${laps.b17} / 中級27: ${laps.n27}語→${laps.m27})`, laps.b17 < 12 && laps.m27 < 12);
+
+  // --- 1周で全語が必ず登場する ---
+  const cov = await page.evaluate(() => {
+    const out = {};
+    for (const [lv, sec] of [['beginner', 1], ['beginner', 5], ['beginner', 17], ['middle', 3], ['middle', 27]]) {
+      const L = boardLapSize(lv, sec), ids = LEVEL_SECTIONS[lv][sec], seen = new Set();
+      let dup = 0;
+      for (let i = 0; i < L; i++) boardTileWords(lv, sec, 1, i).forEach(id => { if (seen.has(id)) dup++; seen.add(id); });
+      out[lv + '-' + sec] = { unique: seen.size, total: ids.length, dup };
+    }
+    return out;
+  });
+  const allCovered = Object.values(cov).every(v => v.unique === v.total && v.dup === 0);
+  check('1周で担当語が全語・重複なし ' + JSON.stringify(cov), allCovered);
+
+  // --- 周ごとに並びが変わる ---
+  check('周が変われば担当の並びも変わる', await page.evaluate(() => {
+    const a = boardTileWords('beginner', 1, 1, 0).join(','), b = boardTileWords('beginner', 1, 2, 0).join(',');
+    return a !== b && boardTileWords('beginner', 1, 1, 0).join(',') === a; // 同じ周なら毎回同じ
+  }));
+
+  // --- 初期表示 ---
+  const init = await page.evaluate(() => ({
+    tiles: document.querySelectorAll('.room-slide[data-n="1"] .sg-tile').length,
+    now: document.querySelectorAll('.room-slide[data-n="1"] .sg-tile.now').length,
+    lock: document.querySelectorAll('.room-slide[data-n="1"] .sg-tile.lock').length,
+    imgs: document.querySelectorAll('.room-slide[data-n="1"] .sg-tile .sg-img, .room-slide[data-n="1"] .sg-tile .sg-noimg').length,
+    road: !!document.querySelector('.room-slide[data-n="1"] .sg-road path'),
+    deco: document.querySelectorAll('.room-slide[data-n="1"] .sg-deco').length,
+  }));
+  check(`未着手は12マス表示 (${init.tiles})`, init.tiles === 12);
+  check('マス1が「いまここ」・残り11個がロック', init.now === 1 && init.lock === 11);
+  check(`全マスに画像が乗っている (${init.imgs}/12)`, init.imgs === 12);
+  check('蛇行する道が描かれている', init.road);
+  check(`自然物が配置されている (${init.deco}個)`, init.deco >= 12);
+
+  // --- ロックされたマスは開けない ---
+  check('先のマスはタップしても始まらない', await page.evaluate(async () => {
+    sgTap(1, 5); await new Promise(r => setTimeout(r, 300));
+    const blocked = !document.getElementById('s-quiz').classList.contains('on') && !!document.querySelector('.sg-toast');
+    document.querySelectorAll('.sg-toast').forEach(t => t.remove());
+    return blocked;
+  }));
+
+  // --- マス1をプレイ → クリアされて次が開く ---
+  const played = await page.evaluate(async () => {
+    _boardTile = { level: 'beginner', sec: 1, gidx: 1 };
+    startTest(); clearInterval(timer); renderQuestion();
+    const ids = state.questions.map(q => q.word.id);
+    const assigned = boardTileWords('beginner', 1, 1, 0);
+    const coverIncluded = assigned.every(id => ids.includes(id));
+    for (let i = 0; i < 12; i++) {
+      answered = false; clearInterval(timer); startTimer();
+      const q = state.questions[state.idx];
+      submit('correct', q.type === 'w' ? q.word.ko : q.correct);
+      document.querySelectorAll('.overlay').forEach(o => o.remove()); clearTimeout(ovTimer);
+      afterAnswer();
+    }
+    await new Promise(r => setTimeout(r, 600));
+    document.querySelectorAll('.cardget,.streak-cel').forEach(o => o.remove());
+    return { coverIncluded, qn: ids.length, state: boardState('beginner', 1) };
+  });
+  check(`1マス=12問 (${played.qn}問)`, played.qn === 12);
+  check('そのマスの担当語がすべて出題される', played.coverIncluded);
+  check('クリアするとマスが進む', played.state.cleared === 1 && !!played.state.tiles['1']);
+
+  await page.evaluate(() => show('s-home'));
+  await page.waitForTimeout(900);
+  const after = await page.evaluate(() => ({
+    done: document.querySelectorAll('.room-slide[data-n="1"] .sg-tile.done').length,
+    rank: !!document.querySelector('.room-slide[data-n="1"] .sg-tile.done .sg-rank'),
+    nowIdx: document.querySelector('.room-slide[data-n="1"] .sg-tile.now')?.getAttribute('aria-label'),
+  }));
+  check('クリア済みマスに色とランクが付く', after.done === 1 && after.rank);
+  check('「いまここ」がマス2へ移動', after.nowIdx === 'マス2');
+
+  // --- 1周終わると次の周が伸びる ---
+  const grown = await page.evaluate(async () => {
+    const tiles = {}; for (let i = 1; i <= 12; i++) tiles[i] = { rank: 'B', score: 70, at: new Date().toISOString() };
+    localStorage.setItem('kwt_board_v1', JSON.stringify({ 'beginner-01': { cleared: 12, tiles } }));
+    buildRoomSlides(); await new Promise(r => setTimeout(r, 400));
+    return {
+      visible: boardVisible('beginner', 1),
+      tiles: document.querySelectorAll('.room-slide[data-n="1"] .sg-tile').length,
+      laps: [...document.querySelectorAll('.room-slide[data-n="1"] .sg-lap')].map(e => e.textContent.trim()),
+    };
+  });
+  check(`1周クリアで次の12マスが出現 (${grown.tiles}マス / ${grown.laps.join(',')})`, grown.visible === 24 && grown.tiles === 24 && grown.laps.length === 2);
+
+  check('コンソールエラー無し', errors.length === 0);
+  if (errors.length) console.log(errors);
+
+  await browser.close();
+  const failed = results.filter(r => !r.ok);
+  console.log(`\n${results.length - failed.length}/${results.length} passed`);
+  process.exit(failed.length ? 1 : 0);
+})();

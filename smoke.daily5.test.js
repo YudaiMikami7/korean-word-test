@@ -21,9 +21,25 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   await page.waitForTimeout(1000);
   await page.evaluate(() => { document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove()); });
 
-  // --- 背景の玉は既定OFF ---
-  check('玉の演出が既定でOFF', await page.evaluate(() => loadSettings().balls === false));
-  check('玉が生成されない', await page.evaluate(() => { spawnWordDrop(BEGINNER_WORDS[0], 1); return QR.balls.length === 0; }));
+  // --- 背景の玉: メイン画面=既定OFF / 出題画面=既定ON ---
+  check('玉の既定 メイン=OFF・出題=ON', await page.evaluate(() => loadSettings().ballsHome === false && loadSettings().ballsQuiz === true));
+  check('メイン画面では玉が出ない', await page.evaluate(() => {
+    QR.balls.forEach(b => b.el.remove()); QR.balls = [];
+    spawnBallRaw(WORD_IMG[BEGINNER_WORDS[0].ko], 40, '#fff', 'home-rain');
+    return QR.balls.length === 0;
+  }));
+  check('出題画面では玉が出る', await page.evaluate(() => {
+    QR.balls.forEach(b => b.el.remove()); QR.balls = [];
+    spawnBallRaw(WORD_IMG[BEGINNER_WORDS[0].ko], 40, '#fff', 'q-rain');
+    const n = QR.balls.length; QR.balls.forEach(b => b.el.remove()); QR.balls = [];
+    return n === 1;
+  }));
+  check('設定に玉のトグルが2つある', await page.evaluate(() => {
+    openSettings();
+    const html = document.getElementById('settings-modal').innerHTML;
+    const ok = html.includes('玉（メイン）') && html.includes('玉（出題中）');
+    closeSettings(); return ok;
+  }));
 
   // --- 入口 ---
   check('ホームに「今日の5問」ボタンがある', await page.evaluate(() => !!document.getElementById('rr-d5')));
@@ -125,6 +141,28 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check('別の枠（夜/朝）は未プレイ扱い', await page.evaluate(() => {
     const other = Object.keys(loadD5())[0].endsWith('#am') ? '#pm' : '#am';
     return !loadD5()[dayKey(Date.now()) + other];
+  }));
+  // カレンダー: 今日の5問を実施した日に枠線
+  check('カレンダーの実施日に枠線', await page.evaluate(() => {
+    openCalendar();
+    const cells = [...document.querySelectorAll('#calendar-modal .cd.d5done')];
+    const today = [...document.querySelectorAll('#calendar-modal .cd.today')];
+    const ok = cells.length === 1 && today.length === 1 && cells[0] === today[0]
+      && getComputedStyle(cells[0]).boxShadow.includes('rgb(224, 131, 26)');
+    closeCalendar(); return ok;
+  }));
+  // 出題画面の進捗メータ（山吹色・進むほど伸びる）
+  check('進捗メータが山吹色で伸びる', await page.evaluate(async () => {
+    curLevel = 'beginner'; curSection = 1;
+    _boardTile = { level: 'beginner', sec: 1, gidx: boardState('beginner', 1).cleared + 1 };
+    startTest(); clearInterval(timer); renderQuestion();
+    const pf = document.getElementById('pfill');
+    const c = getComputedStyle(pf).backgroundColor;
+    const w1 = parseFloat(pf.style.width);
+    state.idx = 5; renderQuestion(); clearInterval(timer);
+    const w2 = parseFloat(pf.style.width);
+    quitTest();
+    return c === 'rgb(248, 181, 0)' && Math.abs(w1 - 100 / 12) < 0.5 && Math.abs(w2 - 600 / 12) < 0.5;
   }));
 
   check('コンソールエラー無し', errors.length === 0);

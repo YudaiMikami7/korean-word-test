@@ -69,7 +69,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .qhome{background:rgba(0,0,0,.8);border:none;color:#fff;width:32px;height:32px;font-size:16px;cursor:pointer;flex:0 0 auto}
 .qbar .prog{letter-spacing:.5px}
 .qbar .time{color:#FFFFFF;font-variant-numeric:tabular-nums;margin-left:auto;font-weight:800;font-size:14.3px} /* カウントダウンは1段太く(700→800)・1.1倍(13→14.3px) */
-.tbar{height:14px;margin:8px 18px 0;background:rgba(0,0,0,.55);border:2px solid #000;border-radius:4px;overflow:hidden;box-sizing:border-box} /* 黒枠の中に緑メーターが減る出題バー */
+.pbar{height:14px;margin:8px 18px 0;background:rgba(0,0,0,.55);border:2px solid #000;border-radius:4px;overflow:hidden;box-sizing:border-box} /* 進捗バー：問題が進むほど伸びる */
+.pfill{height:100%;width:0;background:#F8B500;transition:width .45s cubic-bezier(.3,1.2,.4,1)} /* 山吹色 */
+.tbar{height:14px;margin:6px 18px 0;background:rgba(0,0,0,.55);border:2px solid #000;border-radius:4px;overflow:hidden;box-sizing:border-box} /* 黒枠の中に緑メーターが減る出題バー */
 .tfill{height:100%;width:100%;background:#00FF37;transition:width .1s linear} /* 制限時間バーは緑（ホームのトンマナ）・黒枠内で減っていく */
 .tfill.warn{background:#FFC400}
 
@@ -116,7 +118,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 
 /* 正解単語が降り積もる背景レイヤー（UIより背面・操作は透過） */
 #s-quiz{position:relative}
-#s-quiz .qbar,#s-quiz .tbar,#s-quiz .qstage{position:relative;z-index:1} /* 出題UIは常に降下レイヤーより前面 */
+#s-quiz .qbar,#s-quiz .pbar,#s-quiz .tbar,#s-quiz .qstage{position:relative;z-index:1} /* 出題UIは常に降下レイヤーより前面 */
 .q-rain{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
 #home-rain{top:-225px;height:1178px;z-index:0;opacity:.42;transition:opacity .3s ease} /* ホームの玉レイヤー：背景で主張しすぎないよう半透明に。現在ROOMのslide-inner最背面に挿入 */
 .home-wrap.status #home-rain,.home-wrap.hiderail #home-rain{opacity:0}
@@ -368,6 +370,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .cal-grid .lv3{background:#FBAF52;color:#6b3600}
 .cal-grid .lv4{background:#EF8A00;color:#fff}
 .cal-grid .today{box-shadow:0 0 0 2px #E0433b inset}
+.cal-grid .d5done{box-shadow:0 0 0 2.5px #E0831A inset} /* 今日の5問テストを実施した日 */
+.cal-grid .today.d5done{box-shadow:0 0 0 2.5px #E0831A inset,0 0 0 5px rgba(224,67,59,.9) inset}
+.cal-legend .cl-d5{width:13px;height:13px;border-radius:3px;box-shadow:0 0 0 2.5px #E0831A inset;display:block;flex:0 0 auto}
 .cal-grid .sp{color:#E0433b}
 .cal-grid .lv3.sp,.cal-grid .lv4.sp{color:#fff;text-decoration:underline}
 .cal-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:4px}
@@ -379,7 +384,8 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .cal-legend .cl-scale .lv1{background:#FFF0D6}.cal-legend .cl-scale .lv2{background:#FFD79A}.cal-legend .cl-scale .lv3{background:#FBAF52}.cal-legend .cl-scale .lv4{background:#EF8A00}
 .cal-sp{margin-top:14px;text-align:center;font-size:14px;font-weight:800}
 .cal-sp .rbtext{font-weight:900}
-.cal-close{position:absolute;right:10px;top:6px;background:transparent;border:none;font-size:24px;font-weight:900;color:#888;cursor:pointer}
+.cal-close{position:absolute;right:2px;top:2px;width:46px;height:46px;background:transparent;border:none;font-size:26px;font-weight:900;color:#888;cursor:pointer;line-height:1;font-family:inherit;display:flex;align-items:center;justify-content:center}
+.cal-close:active{background:rgba(0,0,0,.07)}
 .reward-rail{position:absolute;right:14px;top:340px;display:flex;flex-direction:column;gap:8px;z-index:5;
   opacity:1;transition:opacity .3s ease} /* ROOMメニュー(下端329px)のすぐ下から縦に並ぶ */
 .reward-rail-left{left:14px;right:auto} /* 設定/マップ/カレンダーは画面左側に */
@@ -425,11 +431,12 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .pm-item.claimed .amt{color:#999;font-size:13px}
 .pm-btn{width:100%;background:rgba(0,0,0,.85);color:#fff;border:none;border-radius:0;font-family:inherit;font-size:18px;font-weight:900;padding:13px;cursor:pointer}
 .pm-btn:active{background:rgba(0,0,0,.7)}
-.pm-close{position:absolute;right:10px;top:6px;background:transparent;border:none;font-size:24px;font-weight:900;color:#888;cursor:pointer}
+.pm-close{position:absolute;right:2px;top:2px;width:46px;height:46px;background:transparent;border:none;font-size:26px;font-weight:900;color:#888;cursor:pointer;line-height:1;font-family:inherit;display:flex;align-items:center;justify-content:center}
+.pm-close:active{background:rgba(0,0,0,.07)}
 .home-head{position:absolute;inset:0;pointer-events:none;z-index:2;
   transform:translateY(calc(var(--p,0)*-190px + var(--down,0px)));transition:transform .35s ease} /* 上スワイプ退場/下スワイプ1x */
 .home-head>*{pointer-events:auto}
-.slide-img,.room-ph{opacity:calc(1 - var(--p,0));transition:opacity .35s ease,transform .35s ease} /* 写真はフェードアウト */
+.slide-img,.room-ph,.sg-wrap{opacity:calc(1 - var(--p,0));transition:opacity .35s ease,transform .35s ease} /* 写真はフェードアウト */
 .home-wrap.dragging .slide-inner,.home-wrap.dragging .home-head,.home-wrap.dragging .slide-img,.home-wrap.dragging .room-ph,.home-wrap.dragging .room-scroll,.home-wrap.dragging .start-button{transition:none}
 .slide-list{position:absolute;left:0;top:166px;width:602px;height:929px;overflow-y:auto;background:transparent;scrollbar-width:none;
   opacity:var(--p,1);transition:opacity .35s ease} /* ROOMメニュー直下から下端まで・全幅・背景なし。入場はJSでフェードイン */
@@ -610,7 +617,10 @@ body.bigtext .set-d{font-size:13.5px}
 .cc-head{position:sticky;top:0;display:flex;align-items:center;justify-content:center;padding:14px 0 10px;z-index:3;background:transparent}
 .cc-grab{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:40px;height:5px;border-radius:3px;background:rgba(255,255,255,.4)}
 .cc-head .set-h{font-size:18px;font-weight:900;color:#fff}
-.cc-head .set-close{position:absolute;right:6px;top:8px;background:rgba(255,255,255,.16);border:none;width:32px;height:32px;border-radius:50%;font-size:20px;font-weight:900;color:#fff;cursor:pointer;line-height:1}
+.cc-head .set-close{position:absolute;right:2px;top:2px;background:rgba(255,255,255,.16);border:none;width:46px;height:46px;border-radius:50%;font-size:24px;font-weight:900;color:#fff;cursor:pointer;line-height:1;font-family:inherit}
+.sp-card .cc-head{background:#fff}
+.sp-card .cc-head .set-h{color:#1a1a1a}
+.sp-card .cc-head .set-close{background:rgba(0,0,0,.07);color:#333}
 .cc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
 .cc-tile{background:rgba(255,255,255,.13);border-radius:20px;padding:14px;min-height:72px;cursor:pointer;display:flex;flex-direction:row;align-items:center;gap:12px;transition:background .2s ease,transform .08s ease;-webkit-tap-highlight-color:transparent}
 .cc-txt{display:flex;flex-direction:column;min-width:0}
@@ -639,7 +649,8 @@ body.bigtext .set-d{font-size:13.5px}
 .set-card:not(.cc-card){width:360px;max-width:90vw;max-height:88vh;overflow-y:auto;background:#fff;color:#1a1a1a;padding:0 20px calc(18px + env(safe-area-inset-bottom));position:relative;border-radius:16px;-webkit-overflow-scrolling:touch}
 .set-head{position:sticky;top:0;background:#fff;display:flex;align-items:center;justify-content:center;padding:15px 0 11px;margin:0 -20px 2px;border-bottom:1px solid #eee;z-index:3}
 .set-h{font-size:19px;font-weight:900}
-.set-close{position:absolute;right:12px;top:9px;background:transparent;border:none;font-size:26px;font-weight:900;color:#999;cursor:pointer;line-height:1}
+.set-close{position:absolute;right:4px;top:2px;width:46px;height:46px;background:transparent;border:none;font-size:28px;font-weight:900;color:#999;cursor:pointer;line-height:1;font-family:inherit;display:flex;align-items:center;justify-content:center}
+.set-close:active{background:rgba(0,0,0,.07)}
 .set-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 2px;cursor:pointer;border-top:1px solid #eee}
 .set-row:first-of-type{border-top:none}
 .set-t{font-size:15px;font-weight:800}
@@ -1085,19 +1096,20 @@ body.bigtext .set-d{font-size:13.5px}
 /* ============================================================ スペシャルモード（ミニゲーム集） ============================================================ */
 #special-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.42)}
 #special-modal.on{display:flex}
-.sp-card{width:376px;max-width:92vw;max-height:88vh;overflow-y:auto;color:#fff;padding:0 16px calc(18px + env(safe-area-inset-bottom));position:relative;border-radius:30px;background:linear-gradient(165deg,#2a2140,#191527);-webkit-overflow-scrolling:touch}
+.sp-card{width:376px;max-width:92vw;max-height:88vh;overflow-y:auto;color:#1a1a1a;padding:0 16px calc(18px + env(safe-area-inset-bottom));position:relative;border-radius:0;background:#fff;-webkit-overflow-scrolling:touch}
 .sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
-.sp-tile{background:rgba(255,255,255,.13);border-radius:20px;padding:14px 12px;min-height:98px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;transition:background .2s,transform .08s;-webkit-tap-highlight-color:transparent}
-.sp-tile:active{transform:scale(.95);background:rgba(255,255,255,.22)}
-.sp-tile .sp-ico{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:24px}
-.sp-tile .sp-lab{font-size:14px;font-weight:900}
-.sp-tile .sp-desc{font-size:11px;font-weight:700;color:rgba(255,255,255,.7);line-height:1.2}
-.sp-note{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.6);text-align:center;margin-top:14px;line-height:1.7}
+.sp-tile{background:#F4F4F4;border:2px solid #E6E6E6;border-radius:0;padding:14px 12px;min-height:98px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;transition:background .2s,transform .08s;-webkit-tap-highlight-color:transparent}
+.sp-tile:active{transform:scale(.96);background:#FFF3D6;border-color:#FFC400}
+.sp-tile .sp-ico{width:48px;height:48px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;font-size:24px}
+.sp-tile .sp-lab{font-size:14px;font-weight:900;color:#1a1a1a}
+.sp-tile .sp-desc{font-size:11px;font-weight:700;color:#888;line-height:1.2}
+.sp-note{font-size:11.5px;font-weight:700;color:#888;text-align:center;margin-top:14px;line-height:1.7}
 /* ゲーム全画面オーバーレイ */
 .spov{position:fixed;inset:0;z-index:560;background:linear-gradient(170deg,#241d38,#14111f);display:flex;flex-direction:column;color:#fff;opacity:0;transition:opacity .2s ease;padding:calc(10px + env(safe-area-inset-top)) 16px calc(14px + env(safe-area-inset-bottom))}
 .spov.on{opacity:1}
 .sp-top{flex:0 0 auto;display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.sp-top .sp-quit{background:rgba(255,255,255,.14);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;font-weight:900;cursor:pointer;line-height:1}
+.sp-top .sp-quit{background:rgba(255,255,255,.14);border:none;color:#fff;width:46px;height:46px;border-radius:50%;font-size:22px;font-weight:900;cursor:pointer;line-height:1;font-family:inherit}
+.sp-top .sp-quit:active{background:rgba(255,255,255,.3)}
 .sp-top .sp-title{font-size:16px;font-weight:900;letter-spacing:1px}
 .sp-top .sp-prog{margin-left:auto;font-size:14px;font-weight:900;color:#FFC400}
 .sp-timerbar{flex:0 0 auto;height:6px;border-radius:3px;background:rgba(255,255,255,.15);overflow:hidden;margin-bottom:10px}
@@ -1180,6 +1192,41 @@ body.bigtext .set-d{font-size:13.5px}
 .sp-memo-ja{font-size:18px;font-weight:800;color:#FFD86B}
 .sp-memo-count{font-size:32px;font-weight:900;color:#FFC400;min-height:38px}
 
+/* ============================================================ すごろく（ROOM中央・縦スクロール） ============================================================
+ * 1マス＝1テスト(12問)。丸いマスが蛇行してつながり、上から下へ進む。マスの上には常に単語画像が乗る。
+ * 1周＝12マス（ROOM末尾など語数の少ない部屋は語数に比例して短くなる）。1周こなすと次の周のマスが下に伸びる。 */
+.sg-wrap{position:absolute;left:24px;top:104px;width:554px;height:506px;z-index:1;overflow:hidden;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 40px,#000 calc(100% - 56px),transparent 100%);
+          mask-image:linear-gradient(180deg,transparent 0,#000 40px,#000 calc(100% - 56px),transparent 100%)}
+.sg-bg{position:absolute;left:0;top:-10px;width:554px;height:507px;object-fit:contain;opacity:.2;pointer-events:none;filter:saturate(.7)} /* ROOMのジオラマを薄く敷いて奥行きを出す */
+.sg-scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.sg-scroll::-webkit-scrollbar{display:none}
+.sg-track{position:relative;width:554px}
+.sg-road{position:absolute;left:0;top:0;pointer-events:none}
+.sg-deco{position:absolute;z-index:0;pointer-events:none;user-select:none;line-height:1;filter:drop-shadow(0 4px 4px rgba(0,0,0,.22))}
+.sg-tile{position:absolute;z-index:1;width:96px;height:96px;margin:-48px 0 0 -48px;border:none;background:transparent;padding:0;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.sg-disc{position:absolute;z-index:0;inset:0;border-radius:50%;background:linear-gradient(180deg,#FFEDB4,#FFC63F);
+  box-shadow:0 9px 0 #C3860F,0 13px 15px rgba(0,0,0,.3),inset 0 5px 10px rgba(255,255,255,.8),inset 0 -8px 12px rgba(0,0,0,.12);transition:transform .08s ease,box-shadow .08s ease}
+.sg-tile:active .sg-disc{transform:translateY(5px);box-shadow:0 4px 0 #C3860F,0 6px 10px rgba(0,0,0,.3),inset 0 5px 10px rgba(255,255,255,.8)}
+.sg-num{position:absolute;z-index:1;left:0;right:0;bottom:11px;text-align:center;font-size:19px;font-weight:900;color:#7A4E00;text-shadow:0 1px 0 rgba(255,255,255,.65)}
+.sg-img{position:absolute;z-index:2;left:50%;top:-42px;width:94px;height:94px;transform:translateX(-50%);object-fit:contain;pointer-events:none;filter:drop-shadow(0 7px 7px rgba(0,0,0,.32))}
+.sg-noimg{position:absolute;z-index:2;left:50%;top:-30px;transform:translateX(-50%);font-size:44px;pointer-events:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.3))}
+.sg-tile.done .sg-disc{background:linear-gradient(180deg,#D6F5DD,#78D398);box-shadow:0 9px 0 #3B8A57,0 13px 15px rgba(0,0,0,.28),inset 0 5px 10px rgba(255,255,255,.75),inset 0 -8px 12px rgba(0,0,0,.1)}
+.sg-tile.done .sg-num{color:#1E5B36}
+.sg-rank{position:absolute;z-index:3;right:-3px;top:-3px;width:34px;height:34px;border-radius:50%;color:#fff;font-size:19px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.38);border:2px solid #fff}
+.sg-tile.now .sg-disc{animation:sgnow 1.6s ease-in-out infinite}
+@keyframes sgnow{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.sg-here{position:absolute;left:50%;top:-76px;transform:translateX(-50%);background:#111;color:#fff;font-size:12px;font-weight:900;padding:5px 12px;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,.35);z-index:2}
+.sg-here::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-top-color:#111;border-bottom:0}
+.sg-tile.lock{cursor:default}
+.sg-tile.lock .sg-disc{background:linear-gradient(180deg,#EDEDED,#BEBEBE);box-shadow:0 8px 0 #8C8C8C,0 10px 12px rgba(0,0,0,.22),inset 0 5px 10px rgba(255,255,255,.6)}
+.sg-tile.lock .sg-img,.sg-tile.lock .sg-noimg{filter:grayscale(1) opacity(.45) drop-shadow(0 4px 5px rgba(0,0,0,.2))}
+.sg-tile.lock .sg-num{color:#7c7c7c}
+.sg-lap{position:absolute;left:0;width:554px;text-align:center;pointer-events:none}
+.sg-lap span{display:inline-block;background:rgba(0,0,0,.4);color:#fff;font-size:12px;font-weight:900;letter-spacing:.14em;padding:4px 14px}
+.sg-toast{position:fixed;left:50%;bottom:24%;transform:translateX(-50%);background:rgba(0,0,0,.84);color:#fff;font-size:14px;font-weight:800;padding:11px 20px;z-index:600;pointer-events:none;animation:d5ack 1.9s ease forwards}
+.home-wrap.status .sg-wrap,.home-wrap.hiderail .sg-wrap{opacity:0;pointer-events:none;transition:opacity .3s ease}
+
 /* ============================================================ 今日の5問テスト（朝の部・夜の部 各1回） ============================================================
  * 配色・角丸はアプリ既存トーン（プレゼント/結果画面）に合わせる: 白地＋#1a1a1a文字＋#FFC400/#E0831A差し色、角丸は最小限 */
 #rr-d5.d5-off{filter:grayscale(1);opacity:.55}
@@ -1196,7 +1243,8 @@ body.bigtext .set-d{font-size:13.5px}
   padding:22px 22px calc(22px + env(safe-area-inset-bottom));text-align:center;-webkit-overflow-scrolling:touch}
 .d5-h{font-size:20px;font-weight:900;letter-spacing:.04em}
 .d5-sub{font-size:12px;font-weight:800;color:#777;margin:4px 0 14px}
-.d5-close{position:absolute;right:8px;top:8px;width:32px;height:32px;border:none;background:rgba(0,0,0,.08);color:#333;font-size:19px;font-weight:900;cursor:pointer;line-height:1;font-family:inherit}
+.d5-close{position:absolute;right:4px;top:4px;width:46px;height:46px;border:none;background:rgba(0,0,0,.07);color:#333;font-size:24px;font-weight:900;cursor:pointer;line-height:1;font-family:inherit;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.d5-close:active{background:rgba(0,0,0,.16)}
 .d5-slots{display:flex;gap:8px;margin-bottom:12px}
 .d5-slot{flex:1;padding:9px 6px;text-align:center;background:#F2F2F2;border:2px solid #E3E3E3}
 .d5-slot.now{border-color:#FFC400;background:#FFF7E0}
@@ -1319,6 +1367,7 @@ body.bigtext .set-d{font-size:13.5px}
   <!-- QUIZ -->
   <div class="screen" id="s-quiz">
     <div class="qbar"><button class="qhome" onclick="confirmQuit()" aria-label="テストを中断">‹</button><span class="prog" id="prog">1 / 12</span><button class="qadv" id="qadv" onclick="toggleAdvMode()" aria-label="回答後の進み方を切り替え"><span>タップで次へ</span><span class="qsw" id="qsw"><i></i></span></button><span class="time" id="time">10.0</span></div>
+    <div class="pbar"><div class="pfill" id="pfill"></div></div>
     <div class="tbar"><div class="tfill" id="tfill"></div></div>
     <div class="qstage" id="qstage"></div>
   </div>
@@ -1581,6 +1630,7 @@ function openCalendar(off){
   const view=new Date(base.getFullYear(),base.getMonth()+_calOffset,1);
   const y=view.getFullYear(),mo=view.getMonth();
   const launched=new Set(launchedDays());const cnt=doneCountByDay();
+  const d5days=new Set(Object.keys(loadD5()).map(k=>k.split("#")[0])); // 今日の5問テストを実施した日
   const first=new Date(y,mo,1).getDay(),days=new Date(y,mo+1,0).getDate();
   const wd=["日","月","火","水","木","金","土"].map(w=>`<div class="cd wd">${w}</div>`).join("");
   const todayK=dayKey(base.getTime());
@@ -1591,7 +1641,7 @@ function openCalendar(off){
     const lv=c>=3?4:c===2?3:c===1?2:(launched.has(k)?1:0); // 0=なし/1=起動のみ/2〜4=学習回数で濃く
     const isToday=(k===todayK);
     const sp=specialBonusFor(new Date(y,mo,d));
-    cells+=`<div class="cd lv${lv}${isToday?" today":""}${sp?" sp":""}">${d}</div>`;
+    cells+=`<div class="cd lv${lv}${isToday?" today":""}${sp?" sp":""}${d5days.has(k)?" d5done":""}"${d5days.has(k)?' title="今日の5問テスト実施"':""}>${d}</div>`;
   }
   const sp=_calOffset===0?specialBonusFor(base):null;
   const spHTML=_calOffset!==0?"":(sp?`<div class="cal-sp"><span class="rbtext">${esc(sp.name)}ボーナス</span> +${sp.amount} XP（プレゼントに追加）</div>`:`<div class="cal-sp" style="color:#888">今日は特別ボーナスはありません</div>`);
@@ -1604,6 +1654,7 @@ function openCalendar(off){
     <div class="cal-streak"><img src="images-thumb/0773.webp" alt="">連続学習 <b>${loginStreak()}</b> 日</div>
     <div class="cal-grid">${wd}${cells}</div>
     <div class="cal-legend"><span class="cl-t">学習回数が多い日ほど濃く</span><span class="cl-scale"><i class="lv1"></i><i class="lv2"></i><i class="lv3"></i><i class="lv4"></i></span></div>
+    <div class="cal-legend"><span class="cl-d5"></span><span class="cl-t">枠線＝今日の5問テストを実施した日</span></div>
     ${spHTML}
   </div>`;
   m.classList.add("on");
@@ -1847,7 +1898,7 @@ function exitListMode(){
     _listMode=false;buildRoomSlides();
     attachHomeRain(); // スライド再構築で玉レイヤーが剥がれるため差し直す（単語帳から戻ると玉が消える問題の修正）
     // 写真はフェードインで再表示
-    const ph=document.querySelectorAll(".slide-img,.room-ph");
+    const ph=document.querySelectorAll(".slide-img,.room-ph,.sg-wrap");
     ph.forEach(e=>e.style.opacity="0");
     void document.body.offsetHeight;
     ph.forEach(e=>e.style.opacity="");
@@ -1943,8 +1994,9 @@ function jumpRoom(n){
   attachHomeRain();
 }
 let _onSpecial=false; // 特別ルーム プリQQ のスライドが選択中か
-function onStartBtn(){ // 特別ルーム選択中はプリQQ／それ以外は通常出題
+function onStartBtn(){ // 特別ルーム選択中はプリQQ／それ以外は現在のすごろくのマス
   if(_counting){cancelHomeCountdown();return;} // カウントダウン中は「戻る」化：ポップアップなしで即キャンセル
+  if(!_onSpecial)_boardTile={level:curLevel,sec:curSection,gidx:boardState(curLevel,curSection).cleared+1};
   homeCountdown(()=>{_cdSkip=true;_onSpecial?startPriQQ():startTest();}); // ホームのまま3・2・1→終わってからクイズへ遷移
 }
 /* スタート後、画面遷移せずホーム中央画像の上で3・2・1。終わったらafter()でクイズへ。
@@ -2379,23 +2431,22 @@ function buildRoomSlides(){
       <div class="rmenu-reco"></div>
       <div class="rmenu-pwr"></div>
       </div>
-      ${_listMode?(Math.abs(n-curSection)<=1?roomListHTML(n):`<div class="slide-list wb-list" data-lazy="${n}"></div>`):`<div class="room-ph">${nn}</div>
-      <img class="slide-img" src="rooms/${curLevel}-${nn}.webp" alt="" loading="lazy" decoding="async"
-        onload="this.previousElementSibling.style.display='none'"
-        onerror="this.style.display='none'">`}
+      ${_listMode?(Math.abs(n-curSection)<=1?roomListHTML(n):`<div class="slide-list wb-list" data-lazy="${n}"></div>`):sgBoardHTML(n)}
       </div>
     </div>`;
   }).join("");
+  if(!_listMode)requestAnimationFrame(()=>sgScrollToCurrent(curSection)); // 現在のマスが見える位置から始める
   if(!el.dataset.bound){
     el.dataset.bound="1";
     // ホーム: 一定量引くと発動するプルダウン式（上引き=単語帳 / 下引き=ステータス）。単語帳内: 最上部からの下引きでホームへ戻る
-    let _ty=null,_tx=null,_plList=null,_plBase=null,_homeDir=null;
+    let _ty=null,_tx=null,_plList=null,_plBase=null,_homeDir=null,_sgDrag=false;
     el.addEventListener("touchstart",e=>{
       _ty=e.touches[0].clientY;_tx=e.touches[0].clientX;_plBase=null;_homeDir=null;
+      _sgDrag=!!(e.target&&e.target.closest&&e.target.closest(".sg-scroll")); // すごろくの中から始まった縦ドラッグは素直に縦スクロールさせる
       _plList=_listMode?(_onSpecial?el.querySelector(".pq-slide .slide-list"):el.querySelector(`.room-slide[data-n="${curSection}"] .slide-list`)):null;
     },{passive:true});
     el.addEventListener("touchmove",e=>{
-      if(_ty==null||_statusMode)return;
+      if(_ty==null||_statusMode||_sgDrag)return;
       const y=e.touches[0].clientY,dy=y-_ty,dx=e.touches[0].clientX-_tx;
       if(_listMode){
         // 単語帳の縦スクロールが最上部(scrollTop<=0)のとき、下方向の引っ張りで戻るヒント
@@ -2415,7 +2466,7 @@ function buildRoomSlides(){
     el.addEventListener("touchend",()=>{
       if(_listMode){if(_plBase!=null){const go=_pullVal>=90;hidePullHint();if(go)exitListMode();}}
       else if(_homeDir){const go=_pullVal>=90,dir=_homeDir;hidePullHint();if(go){dir==="up"?enterListMode():enterStatusMode();}}
-      _ty=null;_plBase=null;_plList=null;_homeDir=null;
+      _ty=null;_plBase=null;_plList=null;_homeDir=null;_sgDrag=false;
     });
     // ステータス中: 上に引っ張るとホームへ戻る（引っ張り式・90px超で発動）
     const hw=document.getElementById("homewrap");
@@ -3319,6 +3370,7 @@ function priorityScore(w,st,nowMs){
   return ps;
 }
 function buildQuestions(){
+  if(_boardTile)return buildBoardQuestions(); // すごろくのマス＝担当語＋復習補充で12問
   const prog=loadProgress(),stats=loadStats(),nowMs=Date.now();
   const POOL_IDS=sectionIds();
   // 直近2回連続で出した単語は3回目を避ける
@@ -3475,6 +3527,7 @@ function quitTest(){
   clearInterval(timer);clearTimeout(ovTimer);_counting=false;
   _gearActive=false;clearInterval(_gearTimer);
   _d5.on=false; // 今日の5問を中断（枠は開始時点で消費済みなのでやり直しはできない）
+  _boardTile=null; // すごろくのマスも解除（クリア扱いにしない）
   document.querySelectorAll(".overlay,.d5-ack").forEach(e=>e.remove());
   stopSpeak();answered=true;
   show("s-home");
@@ -3505,6 +3558,7 @@ function showCountdown(cb){
   document.getElementById("time").textContent="";
   const qa=document.getElementById("qadv");if(qa)qa.style.visibility="hidden"; // スイッチは出題番号が出るまで隠す
   const fill=document.getElementById("tfill");if(fill){fill.className="tfill";fill.style.width="100%";}
+  const pf=document.getElementById("pfill");if(pf)pf.style.width="0%";
   let n=3;_counting=true; // カウントダウン中フラグ（この間の戻るは確認なしで即ホームへ）
   const draw=()=>{stage.innerHTML=`<div class="cdown"><span class="cnum">${n}</span></div>`;};
   draw();
@@ -3727,6 +3781,144 @@ function d5RareBurst(){
   document.body.appendChild(ov);
   sfxRare();
   setTimeout(()=>ov.remove(),1900);
+}
+
+/* ============================================================ すごろく（1マス=1テスト・12マスで1周） ============================================================
+ * 1周の枠数 = 12マス×12問 = 144枠。そのうち100枠をそのROOMの全語（初出枠）、残り44枠を忘却曲線の優先度による復習に充てる。
+ * → 1周こなせば必ず全語が登場する（従来は正答率が低いと一周できなかった）。復習の混ざり方は従来どおり毎回3〜4問。 */
+const LS_BOARD="kwt_board_v1";
+const SG_QPT=12;                                   // 1マスの問題数
+const SG_STEP=134,SG_TOP=92,SG_AMP=148,SG_CX=277;  // マスの間隔・開始y・蛇行の振幅・中心x
+const SG_DECO=["🌲","🌳","🌸","⭐","✨","🍀","🌿","🌼","🪨","🍄"];
+let _boardTile=null,_lastBoardTile=null;
+function boardLapSize(level,sec){ // 100語→12マス（8.33語/マス）。語数に比例して増減
+  const n=((LEVEL_SECTIONS[level]||{})[sec]||[]).length;
+  return Math.max(3,Math.ceil(n*SG_QPT/100));
+}
+function boardKey(level,sec){return level+"-"+String(sec).padStart(2,"0");}
+function loadBoard(){try{return JSON.parse(localStorage.getItem(LS_BOARD)||"{}")||{};}catch(e){return{};}}
+function boardState(level,sec){const b=loadBoard()[boardKey(level,sec)];return{cleared:(b&&b.cleared)||0,tiles:(b&&b.tiles)||{}};}
+function boardVisible(level,sec){const L=boardLapSize(level,sec);return (Math.floor(boardState(level,sec).cleared/L)+1)*L;} // 現在の周ぶんまで表示（1周こなすと次の周が伸びる）
+function boardClear(t,rank,score){
+  const all=loadBoard(),k=boardKey(t.level,t.sec),st=all[k]||{cleared:0,tiles:{}};
+  const prev=st.tiles[t.gidx];
+  if(!prev||RANK_VAL[rank]>=RANK_VAL[prev.rank])st.tiles[t.gidx]={rank,score,at:new Date().toISOString()}; // 再挑戦は最高ランクを保持
+  if(t.gidx===st.cleared+1)st.cleared=t.gidx;
+  all[k]=st;_lsSet(LS_BOARD,JSON.stringify(all));
+}
+/* その周でこのマスが担当する語（周ごとに決定的シャッフルして均等配分＝1周で必ず全語を消化） */
+function boardTileWords(level,sec,lap,idx){
+  const ids=((LEVEL_SECTIONS[level]||{})[sec]||[]);
+  const L=boardLapSize(level,sec),rnd=_d5Rng(_d5Hash("kwt-board|"+level+"|"+sec+"|lap"+lap));
+  const sh=ids.slice();for(let i=sh.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[sh[i],sh[j]]=[sh[j],sh[i]];}
+  const base=Math.floor(sh.length/L),extra=sh.length%L;
+  let start=0;
+  for(let k=0;k<L;k++){const take=base+(k<extra?1:0);if(k===idx)return sh.slice(start,start+take);start+=take;}
+  return [];
+}
+/* すごろく用の出題：担当語（初出枠）＋残りを忘却曲線の優先度で復習補充して12問 */
+function buildBoardQuestions(){
+  const t=_boardTile,L=boardLapSize(t.level,t.sec);
+  const lap=Math.floor((t.gidx-1)/L)+1,idx=(t.gidx-1)%L;
+  const cover=boardTileWords(t.level,t.sec,lap,idx);
+  const stats=loadStats(),now=Date.now(),prog=loadProgress();
+  const last=prog.lastTestIds||[],prev=prog.prevTestIds||[];
+  const blocked=new Set(last.filter(id=>prev.includes(id))); // 3回連続で同じ語を出さない（従来ルール）
+  const used=new Set(cover);
+  const all=((LEVEL_SECTIONS[t.level]||{})[t.sec]||[]);
+  const cand=all.filter(id=>!used.has(id)&&!blocked.has(id))
+    .map(id=>{const st=getStat(id,stats);return{id,seen:st.hasSeen?1:0,ps:priorityScore(WORD_BY_ID[id],st,now)};})
+    .sort((a,b)=>(b.seen-a.seen)||(b.ps-a.ps)); // 既習を優先し、その中で復習優先度順
+  const list=cover.map(id=>({id,source:"new"}));
+  for(const c of cand){if(list.length>=SG_QPT)break;list.push({id:c.id,source:"review"});}
+  if(list.length<SG_QPT){ // それでも足りなければブロック解除で補充
+    const have=new Set(list.map(c=>c.id));
+    for(const id of all){if(list.length>=SG_QPT)break;if(!have.has(id)){list.push({id,source:"review"});have.add(id);}}
+  }
+  const out=shuffle(list).slice(0,SG_QPT);
+  const wr=c=>{const s=wordState(getStat(c.id,stats),now);return s==="stable"?3:s==="stabilizing"?2:0;};
+  out.sort((a,b)=>wr(a)-wr(b)); // 書き取り枠(末尾2問)には定着した語を寄せる（従来と同じ）
+  const p=loadProgress();p.prevTestIds=p.lastTestIds||[];p.lastTestIds=out.map(c=>c.id);
+  const served=new Set(p.served||[]);out.forEach(c=>served.add(c.id));p.served=Array.from(served);saveProgress(p);
+  return makeQuestionsFromIds(out);
+}
+/* ---- 描画 ---- */
+function sgPos(i){return{x:Math.round(SG_CX+SG_AMP*Math.sin(i*0.66)),y:SG_TOP+i*SG_STEP};}
+function sgTileImg(ids,fallbackIds){
+  if(typeof WORD_IMG==="undefined")return null;
+  for(const id of ids){const w=WORD_BY_ID[id];if(w&&WORD_IMG[w.ko])return WORD_IMG[w.ko];}
+  for(const id of (fallbackIds||[])){const w=WORD_BY_ID[id];if(w&&WORD_IMG[w.ko])return WORD_IMG[w.ko];} // マスの上には常に何かが乗るようにする
+  return null;
+}
+function sgRoadPath(pts){
+  let d="";
+  pts.forEach((p,i)=>{
+    if(i===0){d+="M"+p.x+" "+p.y;return;}
+    const a=pts[i-1],my=(a.y+p.y)/2;
+    d+=" C"+a.x+" "+my+" "+p.x+" "+my+" "+p.x+" "+p.y;
+  });
+  return d;
+}
+function sgBoardHTML(n){
+  const level=curLevel,L=boardLapSize(level,n),vis=boardVisible(level,n),st=boardState(level,n);
+  const ids=((LEVEL_SECTIONS[level]||{})[n]||[]);
+  const rnd=_d5Rng(_d5Hash("kwt-sg|"+level+"|"+n));
+  const pts=[],tiles=[],decos=[],laps=[];
+  for(let i=0;i<vis;i++){
+    const g=i+1,p=sgPos(i);pts.push(p);
+    const lap=Math.floor(i/L)+1,idx=i%L;
+    const cover=boardTileWords(level,n,lap,idx);
+    const src=sgTileImg(cover,ids);
+    const done=!!st.tiles[g],now=(g===st.cleared+1),lock=g>st.cleared+1;
+    const rank=done?st.tiles[g].rank:null;
+    tiles.push(`<button class="sg-tile${done?" done":""}${now?" now":""}${lock?" lock":""}" style="left:${p.x}px;top:${p.y}px"
+      onclick="sgTap(${n},${g})" aria-label="マス${g}">
+      ${src?`<img class="sg-img" src="${src}" alt="" loading="lazy" decoding="async">`:`<span class="sg-noimg">🃏</span>`}
+      <span class="sg-disc"></span><span class="sg-num">${g}</span>
+      ${rank?`<span class="sg-rank" style="background:${RANK_COLORS[rank]||"#555"}">${rank}</span>`:""}
+      ${now?`<span class="sg-here">いまここ</span>`:""}
+    </button>`);
+    if(idx===0)laps.push(`<div class="sg-lap" style="top:${p.y-SG_STEP*0.62}px"><span>${lap}周目</span></div>`);
+    // 自然物は道の反対側の外周へ（マス・道・左レールに被らせない）
+    for(let k=0;k<2;k++){
+      const side=p.x<SG_CX?1:-1,e=SG_DECO[Math.floor(rnd()*SG_DECO.length)];
+      const dist=k?(198+rnd()*46):(116+rnd()*54);
+      const x=Math.max(98,Math.min(456,p.x+side*dist));
+      const y=p.y-54+rnd()*112,sz=Math.round(22+rnd()*26);
+      decos.push(`<div class="sg-deco" style="left:${Math.round(x)}px;top:${Math.round(y)}px;font-size:${sz}px;opacity:${(0.6+rnd()*0.34).toFixed(2)}">${e}</div>`);
+    }
+  }
+  const h=SG_TOP+vis*SG_STEP+40;
+  const nn=String(n).padStart(2,"0");
+  return `<div class="sg-wrap">
+    <img class="sg-bg" src="rooms/${level}-${nn}.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'">
+    <div class="sg-scroll" data-n="${n}"><div class="sg-track" style="height:${h}px">
+      <svg class="sg-road" width="554" height="${h}" viewBox="0 0 554 ${h}" fill="none" aria-hidden="true">
+        <path d="${sgRoadPath(pts)}" stroke="rgba(0,0,0,.16)" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="${sgRoadPath(pts)}" stroke="rgba(255,255,255,.6)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="${sgRoadPath(pts)}" stroke="rgba(255,255,255,.9)" stroke-width="6" stroke-dasharray="14 17" stroke-linecap="round"/>
+      </svg>
+      ${laps.join("")}${decos.join("")}${tiles.join("")}
+    </div></div>
+  </div>`;
+}
+function sgScrollToCurrent(n){
+  const sc=document.querySelector(`.room-slide[data-n="${n}"] .sg-scroll`);if(!sc)return;
+  const cur=sc.querySelector(".sg-tile.now")||sc.querySelector(".sg-tile.done:last-of-type");
+  if(cur)sc.scrollTop=Math.max(0,cur.offsetTop-sc.clientHeight*0.52);
+}
+function sgToast(msg){const t=document.createElement("div");t.className="sg-toast";t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),1900);}
+function sgTap(n,gidx){
+  if(_counting){cancelHomeCountdown();return;}
+  const st=boardState(curLevel,n);
+  if(gidx>st.cleared+1){sgToast("前のマスをクリアすると開きます");return;}
+  if(n!==curSection){curSection=n;saveLastRoom();}
+  _boardTile={level:curLevel,sec:n,gidx};
+  homeCountdown(()=>{_cdSkip=true;startTest();});
+}
+function sgRetry(){ // 結果画面の「もう一度挑戦する」：同じマスをやり直す
+  if(_lastBoardTile){_boardTile={..._lastBoardTile};startTest();return;}
+  startTest();
 }
 
 /* ============================================================ 歯車モード（設定でONにするとスタートボタンが歯車出題に切替） ============================================================
@@ -4476,7 +4668,8 @@ function renderQuestion(){
   // 重複防止は次の正解時に speakKorean() 側の stopSpeak() が担う。
   const q=state.questions[state.idx];
   document.getElementById("prog").textContent=(_d5.on?"今日の5問　":"")+(state.idx+1)+" / "+((state.questions&&state.questions.length)||12);
-  const _qa=document.getElementById("qadv");if(_qa)_qa.style.visibility=_d5.on?"hidden":"visible"; // 出題番号と同時にスイッチ表示（今日の5問は正誤表示が無いので隠す）
+  const _qa=document.getElementById("qadv");if(_qa)_qa.style.visibility=_d5.on?"hidden":"visible";
+  const _pf=document.getElementById("pfill");if(_pf)_pf.style.width=((state.idx+1)/((state.questions&&state.questions.length)||12)*100)+"%"; // 進捗バー（山吹色）を伸ばす // 出題番号と同時にスイッチ表示（今日の5問は正誤表示が無いので隠す）
   const stage=document.getElementById("qstage");
   if(q.type==="kj"||q.type==="jk"){
     const display=q.type==="kj"?q.word.ko:q.word.ja;
@@ -4701,8 +4894,9 @@ function spawnWordDrop(word,speed){
   }catch(e){}
 }
 function spawnBallRaw(src,r,bg,layerId){
-  if(loadSettings().balls===false)return; // 玉の演出オフ
   layerId=layerId||"q-rain";
+  const _bs=loadSettings(); // 玉の演出: 出題画面(q-rain)と メイン画面(home-rain/wd-rain) を別々に切替
+  if(layerId==="q-rain"?(_bs.ballsQuiz===false):(_bs.ballsHome===false))return;
   const layer=document.getElementById(layerId);if(!layer)return;
   const cap=layerId==="home-rain"?48:30; // ホームは7日ぶんを残せるよう多め
   const inLayer=QR.balls.filter(b=>b.layer===layerId);
@@ -4953,6 +5147,7 @@ function finishTest(){
   const nCorrect=R.filter(r=>r.isCorrect).length,nWrong=12-nCorrect;
   let perfect=getPerfectCount();if(total===100)perfect=incPerfectCount();
   if(!state.isReview)updateSectionRank(curSection,rank); // 過去最高ランクを上回った場合のみ更新
+  if(_boardTile){boardClear(_boardTile,rank,total);_lastBoardTile={..._boardTile};_boardTile=null;} // すごろく: このマスをクリア（1周ぶん終われば次の周が伸びる）
   // 今回の変化（記憶コンディション・要復習語数・単語別変化）を保存
   const nowMs=Date.now();
   const changes=R.map(r=>({id:r.wordId,ko:r.korean,ja:r.japanese,before:Math.round(r.memoryScoreBefore),after:Math.round(r.memoryScoreAfter)}));
@@ -5007,7 +5202,7 @@ function finishTest(){
     ${typeUpd}
     <div class="res-listwrap"><div class="res-cards">${rows}</div></div>
     <div class="res-btns">
-      <button class="btn pri full" onclick="if(typeof track==='function')track('retry');startTest()">もう一度挑戦する</button>
+      <button class="btn pri full" onclick="if(typeof track==='function')track('retry');sgRetry()">もう一度挑戦する</button>
       <button class="btn sec full" onclick="shareResult()">&#120143; 結果をシェアして友達に挑戦</button>
       ${donateBtnHTML('btn ter')}
       <button class="btn ter" onclick="show('s-home')">ホームに戻る</button>
@@ -5442,7 +5637,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.126 (2026-07-25)";
+const APP_VERSION="v2.127 (2026-07-25)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -5534,16 +5729,17 @@ function promptInstall(){
 }
 /* 設定 */
 function _reducedMotion(){return !!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);} // OSの「視差効果を減らす」
-/* 背景の玉（正解玉の降下・積み上げ）は既定OFF。すごろくUIへの移行に伴い一旦なしを既定にする（設定画面で個別にONに戻せる） */
-(function _ballsDefaultOff(){ // 既に設定を保存済みのユーザーにも1度だけ既定OFFを適用する
+/* 背景の玉（正解玉の降下・積み上げ）はメイン画面/出題画面で別々に切替。既定は メイン=なし（すごろくを見せる）・出題=あり */
+(function _ballsSplit(){ // 旧 balls キーからの移行。既存ユーザーにも1度だけ新既定を適用する
   try{
-    if(localStorage.getItem("kwt_ballsoff_v1"))return;
-    localStorage.setItem("kwt_ballsoff_v1","1");
+    if(localStorage.getItem("kwt_ballsplit_v1"))return;
+    localStorage.setItem("kwt_ballsplit_v1","1");
     const s=JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}");
-    s.balls=false;localStorage.setItem(LS_SETTINGS,JSON.stringify(s));
+    s.ballsHome=false;s.ballsQuiz=true;delete s.balls;
+    localStorage.setItem(LS_SETTINGS,JSON.stringify(s));
   }catch(e){}
 })();
-function loadSettings(){try{return Object.assign({tapAdvance:false,sound:true,slowTimer:false,balls:false,bigText:false,gearMode:false},JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}"));}catch(e){return{tapAdvance:false,sound:true,balls:false};}}
+function loadSettings(){try{return Object.assign({tapAdvance:false,sound:true,slowTimer:false,ballsHome:false,ballsQuiz:true,bigText:false,gearMode:false},JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}"));}catch(e){return{tapAdvance:false,sound:true,ballsHome:false,ballsQuiz:true};}}
 function saveSettings(o){_lsSet(LS_SETTINGS,JSON.stringify(o));}
 /* 復習リマインダー: 通知許可を取得して設定を保存（実際の定期送信は配信サーバが必要。ここは許可取得と受け皿まで） */
 function toggleReminder(){
@@ -5570,7 +5766,8 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
       ${tile("k-snd","🔊","サウンド",st.sound!==false,"オン","オフ","toggleSetting('sound')")}
       ${tile("k-slow","⏳","じっくり",st.slowTimer,"制限1.5倍","通常","toggleSetting('slowTimer')")}
       ${tile("k-notf","🔔","復習通知",notifyOn,"通知オン","要許可","toggleReminder()")}
-      ${tile("k-ball","🫧","玉の演出",st.balls!==false,"積もる","オフ","toggleSetting('balls')")}
+      ${tile("k-ball","🫧","玉（メイン）",st.ballsHome!==false,"積もる","オフ","toggleSetting('ballsHome')")}
+      ${tile("k-ball","🫧","玉（出題中）",st.ballsQuiz!==false,"積もる","オフ","toggleSetting('ballsQuiz')")}
       ${tile("k-big","🔠","文字大",st.bigText,"大きめ","標準","toggleSetting('bigText')")}
     </div>
     <div class="cc-list">
@@ -5593,7 +5790,8 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
 function closeSettings(){document.getElementById("settings-modal").classList.remove("on");}
 function toggleSetting(key){
   const st=loadSettings();st[key]=!st[key];saveSettings(st);
-  if(key==="balls"&&!st.balls){qrStopRain();qrClearLayer("home-rain");qrClearLayer("q-rain");qrClearLayer("wd-rain");_ballLog=[];}
+  if(key==="ballsHome"&&!st.ballsHome){qrStopRain();qrClearLayer("home-rain");qrClearLayer("wd-rain");_ballLog=[];}
+  if(key==="ballsQuiz"&&!st.ballsQuiz){qrClearLayer("q-rain");}
   if(key==="bigText")document.body.classList.toggle("bigtext",st.bigText);
   if(key==="gearMode")updateStartBtnMode(); // スタートボタンの⚙バッジを即時反映
   openSettings();
