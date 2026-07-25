@@ -356,6 +356,56 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     return true;
   }));
 
+  // --- 1周クリアの到達演出・進捗チップ ---
+  const lap = await page.evaluate(async () => {
+    localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1');
+    const t = {}; for (let i = 1; i <= 11; i++) t[i] = { rank: 'B', score: 70, at: new Date().toISOString() };
+    localStorage.setItem('kwt_board_v1', JSON.stringify({ 'beginner-01': { cleared: 11, tiles: t } })); // あと1マスで1周
+    return true;
+  }).then(() => page.reload()).then(() => page.waitForTimeout(1600)).then(() => page.evaluate(async () => {
+    document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove());
+    const chip = document.querySelector('.room-slide[data-n="1"] .sg-prog').textContent.replace(/\s+/g, '');
+    curLevel = 'beginner'; curSection = 1;
+    _boardTile = { level: 'beginner', sec: 1, gidx: 12 };
+    startTest(); clearInterval(timer); renderQuestion();
+    for (let i = 0; i < 12; i++) {
+      answered = false; clearInterval(timer); startTimer();
+      const q = state.questions[state.idx];
+      submit('correct', q.type === 'w' ? q.word.ko : q.correct);
+      document.querySelectorAll('.overlay').forEach(o => o.remove()); clearTimeout(ovTimer); afterAnswer();
+    }
+    await new Promise(r => setTimeout(r, 3600));
+    const ov = document.querySelector('.lapdone');
+    const res = { chip, shown: !!ov, txt: ov ? ov.textContent : '',
+      next: !!(ov && ov.querySelector('.lb-next')),
+      present: _presentState().queue.some(x => (x.title || '').includes('1周達成')),
+      cleared: boardState('beginner', 1).cleared, visible: boardVisible('beginner', 1) };
+    if (ov) closeLapDone();
+    document.querySelectorAll('.cardget,.streak-cel').forEach(o => o.remove());
+    return res;
+  }));
+  check(`進捗チップに周回と位置が出る (${lap.chip})`, /1周目11\/12/.test(lap.chip));
+  check('1周クリアで到達演出が出る', lap.shown && /1周.*達成/.test(lap.txt));
+  check('周回達成のごほうびが届く', lap.present);
+  check('次のROOMへ進む導線がある', lap.next);
+  check(`1周クリアで次の周が伸びる (${lap.cleared}マス消化 → ${lap.visible}マス表示)`, lap.cleared === 12 && lap.visible === 24);
+
+  // --- 今日の5問の連続記録 ---
+  check('今日の5問の連続日数を数える', await page.evaluate(() => {
+    const dk = ms => dayKey(ms);
+    const now = Date.now() - 5 * 3600000, D = 86400000, rec = {};
+    for (const off of [0, 1, 2]) rec[dk(now - off * D) + '#am'] = { done: true, correct: 3, total: 5, finished: new Date(now - off * D).toISOString() };
+    rec[dk(now - 5 * D) + '#am'] = { done: true, correct: 1, total: 5, finished: new Date(now - 5 * D).toISOString() }; // 間が空いた古い記録は数えない
+    localStorage.setItem('kwt_daily5_v1', JSON.stringify(rec));
+    return d5Streak() === 3;
+  }));
+  check('未プレイでも連続記録は0にならない（前日までを数える）', await page.evaluate(() => {
+    const dk = ms => dayKey(ms), now = Date.now() - 5 * 3600000, D = 86400000, rec = {};
+    for (const off of [1, 2]) rec[dk(now - off * D) + '#am'] = { done: true, finished: new Date(now - off * D).toISOString() };
+    localStorage.setItem('kwt_daily5_v1', JSON.stringify(rec));
+    return d5Streak() === 2;
+  }));
+
   check('コンソールエラー無し', errors.length === 0);
   if (errors.length) console.log(errors);
 

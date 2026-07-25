@@ -1305,6 +1305,30 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-home.on:active{transform:scale(.9)}
 .home-wrap.status .sg-wrap,.home-wrap.hiderail .sg-wrap{opacity:0;pointer-events:none;transition:opacity .3s ease}
 
+/* 1周クリアの到達演出 */
+.lapdone{position:fixed;inset:0;z-index:560;background:rgba(0,0,0,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:13px;padding:28px 20px;opacity:0;transition:opacity .3s ease;text-align:center}
+.lapdone.on{opacity:1}
+.lap-kicker{font-size:12px;font-weight:900;letter-spacing:.3em;color:#FFC400}
+.lap-title{font-size:26px;font-weight:900;color:#fff;line-height:1.3;text-shadow:0 0 22px rgba(255,196,0,.6)}
+.lap-title b{color:#FFC400;font-size:40px}
+.lap-sub{font-size:13.5px;font-weight:800;color:rgba(255,255,255,.9);line-height:1.9}
+.lap-sub b{color:#FFD84D}
+.lap-medal{width:118px;height:118px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:900;color:#fff;
+  background:linear-gradient(160deg,#FFD766,#FF9D00);box-shadow:0 0 0 5px rgba(255,255,255,.9),0 0 0 10px rgba(255,196,0,.95),0 10px 26px rgba(0,0,0,.5);
+  animation:medalpop .7s cubic-bezier(.34,1.6,.5,1)}
+.lap-btns{display:flex;flex-direction:column;gap:9px;width:min(320px,86vw);margin-top:4px}
+.lap-btns button{border:none;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit}
+.lap-btns .lb-next{background:#FFC400;color:#2b1a00}
+.lap-btns .lb-stay{background:transparent;border:2px solid rgba(255,255,255,.45);color:#fff}
+/* ROOMごとのすごろく進捗チップ（スクロールしない） */
+.sg-prog{position:absolute;left:50%;transform:translateX(-50%);top:8px;z-index:4;background:rgba(0,0,0,.42);color:#fff;font-size:12px;font-weight:900;
+  letter-spacing:.06em;padding:5px 12px;border-radius:999px;pointer-events:none;white-space:nowrap}
+.sg-prog b{color:#FFD84D;font-size:14px}
+/* 今日の5問の連続記録 */
+.d5-streak{display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:900;color:#C24A00;margin-bottom:10px}
+.d5-streak b{font-size:20px}
+
 /* ============================================================ 今日の5問テスト（朝の部・夜の部 各1回） ============================================================
  * 配色・角丸はアプリ既存トーン（プレゼント/結果画面）に合わせる: 白地＋#1a1a1a文字＋#FFC400/#E0831A差し色、角丸は最小限 */
 #rr-d5.d5-off{filter:grayscale(1);opacity:.55}
@@ -3697,6 +3721,16 @@ function d5Key(ms){return dayKey(ms-D5_AM*3600000)+"#"+d5Slot(ms);} // 深夜0�
 function loadD5(){try{return JSON.parse(localStorage.getItem(LS_D5)||"{}")||{};}catch(e){return{};}}
 function saveD5(o){const ks=Object.keys(o);if(ks.length>40)ks.slice(0,ks.length-40).forEach(k=>delete o[k]);_lsSet(LS_D5,JSON.stringify(o));} // 古い枠は間引き
 function d5Rec(ms){return loadD5()[d5Key(ms||Date.now())]||null;}
+/* 今日の5問を遊んだ日の連続記録（朝夜どちらか1回でもその日は達成） */
+function d5Streak(){
+  const rec=loadD5(),days=new Set();
+  Object.keys(rec).forEach(k=>{if(rec[k]&&rec[k].done)days.add(k.split("#")[0]);});
+  if(!days.size)return 0;
+  let n=0;const d=new Date(Date.now()-D5_AM*3600000);
+  if(!days.has(dayKey(d.getTime())))d.setDate(d.getDate()-1); // 今日まだなら昨日から数える
+  while(days.has(dayKey(d.getTime()))){n++;d.setDate(d.getDate()-1);}
+  return n;
+}
 function d5Used(ms){return !!d5Rec(ms);}
 function d5NextOpenAt(ms){
   const d=new Date(ms),h=d.getHours();
@@ -3764,6 +3798,7 @@ function d5RenderModal(){
     <button class="d5-close" onclick="closeDaily5()" aria-label="閉じる">×</button>
     <div class="d5-h">今日の5問テスト</div>
     <div class="d5-sub">朝と夜、1日2回だけ挑戦できます</div>
+    ${(()=>{const k=d5Streak();return k?`<div class="d5-streak"><img src="images-thumb/0773.webp" alt="" style="width:24px;height:24px;object-fit:contain">連続 <b>${k}</b> 日</div>`:"";})()}
     <div class="d5-slots">${cell("am")}${cell("pm")}</div>
     ${body}</div>`;
 }
@@ -3841,7 +3876,7 @@ function d5RenderResult(rec,animate){
   document.getElementById("s-d5result").innerHTML=`<div class="res">
     <div class="res-head">
       <div style="font-size:15px;font-weight:900">今日の5問テスト・${d5SlotLabel(rec.slot)}</div>
-      <div style="font-size:12px;font-weight:800;color:var(--faint);margin-top:2px">${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}</div>
+      <div style="font-size:12px;font-weight:800;color:var(--faint);margin-top:2px">${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}${(()=>{const k=d5Streak();return k?`　🔥 連続 ${k} 日`:"";})()}</div>
       <div class="d5r-phase">
         <div class="d5r-judging"${animate?"":' style="opacity:0"'}>判定中…</div>
         <div class="d5r-score${animate?"":" shown"}">
@@ -3908,7 +3943,39 @@ const SG_QPT=12;                                   // 1マスの問題数
 const SG_STEP=178,SG_TOP=120,SG_AMP=178,SG_CX=277;  // マスの間隔・端の余白・蛇行の振幅・中心x（下から上へ登る）
 const SG_FREQ=0.95,SG_FAR=0.34;                     // 蛇行の急さ・遠方の縮小率（斜め見の遠近感）
 const SG_DECO=["🌲","🌳","🌸","⭐","✨","🍀","🌿","🌼","🪨","🍄"];
-let _boardTile=null,_lastBoardTile=null;
+let _boardTile=null,_lastBoardTile=null,_lapDone=null;
+/* 1周クリアのごほうび（同じ周では1度だけ） */
+function grantLapPresent(level,sec,lap){
+  const st=_presentState();st.achv=st.achv||{};
+  const id="lap-"+level+"-"+sec+"-"+lap;
+  if(st.achv[id])return 0;
+  const amount=200+(lap-1)*50;
+  st.achv[id]=1;
+  st.queue.push({cat:"level",kind:"achv",title:"ROOM"+String(sec).padStart(2,"0")+" "+lap+"周達成",total:amount,at:new Date().toISOString()});
+  _savePresent(st);updatePresent();
+  return amount;
+}
+function showLapDone(){
+  const d=_lapDone;_lapDone=null;if(!d)return;
+  const bonus=grantLapPresent(d.level,d.sec,d.lap);
+  const max=(LEVEL_INFO[d.level]||{}).count||0, nextSec=d.sec<max?d.sec+1:0;
+  const nn=String(d.sec).padStart(2,"0"), nx=String(nextSec).padStart(2,"0");
+  const ov=document.createElement("div");ov.className="lapdone";
+  ov.innerHTML='<div class="lap-kicker">LAP '+d.lap+' COMPLETE</div>'
+    +'<div class="lap-medal">'+d.lap+'</div>'
+    +'<div class="lap-title">ROOM'+nn+' <b>'+d.lap+'周</b> 達成！</div>'
+    +'<div class="lap-sub">この周で <b>'+d.words+'語</b> すべてに挑戦しました'
+      +(bonus?'<br>ボーナス <b>+'+bonus+' XP</b> をプレゼントに追加':'')+'</div>'
+    +'<div class="lap-btns">'
+      +(nextSec?'<button class="lb-next" onclick="lapGoNext('+nextSec+')">ROOM'+nx+' へ進む</button>':'')
+      +'<button class="lb-stay" onclick="closeLapDone()">'+(nextSec?'このROOMを続ける':'閉じる')+'</button>'
+    +'</div>';
+  document.body.appendChild(ov);
+  requestAnimationFrame(()=>ov.classList.add("on"));
+  try{sfxClaim();}catch(e){}
+}
+function closeLapDone(){const e=document.querySelector(".lapdone");if(e){e.classList.remove("on");setTimeout(()=>{if(e.parentNode)e.remove();},300);}}
+function lapGoNext(n){closeLapDone();show("s-home");setTimeout(()=>jumpRoom(n),140);}
 function boardLapSize(level,sec){ // 100語→12マス（8.33語/マス）。語数に比例して増減
   const n=((LEVEL_SECTIONS[level]||{})[sec]||[]).length;
   return Math.max(3,Math.ceil(n*SG_QPT/100));
@@ -4126,6 +4193,7 @@ function sgBoardHTML(n){
   const nn=String(n).padStart(2,"0");
   return '<div class="sg-wrap">'
     +'<img class="sg-bg" src="rooms/'+level+'-'+nn+'.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">'
+    +'<div class="sg-prog">'+(Math.floor(st.cleared/L)+1)+'周目 <b>'+(st.cleared%L)+'</b> / '+L+'</div>'
     +'<div class="sg-scroll" data-n="'+n+'"><div class="sg-track" style="height:'+h+'px">'
     +'<svg class="sg-road" width="554" height="'+h+'" viewBox="0 0 554 '+h+'" aria-hidden="true">'
     +'<path class="sg-edge" d="" fill="rgba(151,120,72,.34)"/>'
@@ -5437,7 +5505,13 @@ function finishTest(){
   const nCorrect=R.filter(r=>r.isCorrect).length,nWrong=12-nCorrect;
   let perfect=getPerfectCount();if(total===100)perfect=incPerfectCount();
   if(!state.isReview)updateSectionRank(curSection,rank); // 過去最高ランクを上回った場合のみ更新
-  if(_boardTile){boardClear(_boardTile,rank,total);_lastBoardTile={..._boardTile};_boardTile=null;} // すごろく: このマスをクリア（1周ぶん終われば次の周が伸びる）
+  if(_boardTile){ // すごろく: このマスをクリア（1周ぶん終われば次の周が伸びる）
+    const _bt=_boardTile,_L=boardLapSize(_bt.level,_bt.sec),_before=boardState(_bt.level,_bt.sec).cleared;
+    boardClear(_bt,rank,total);_lastBoardTile={..._bt};_boardTile=null;
+    const _after=boardState(_bt.level,_bt.sec).cleared;
+    if(_after>_before&&_after%_L===0)_lapDone={level:_bt.level,sec:_bt.sec,lap:_after/_L,size:_L,
+      words:((LEVEL_SECTIONS[_bt.level]||{})[_bt.sec]||[]).length}; // 1周達成
+  }
   // 今回の変化（記憶コンディション・要復習語数・単語別変化）を保存
   const nowMs=Date.now();
   const changes=R.map(r=>({id:r.wordId,ko:r.korean,ja:r.japanese,before:Math.round(r.memoryScoreBefore),after:Math.round(r.memoryScoreAfter)}));
@@ -5506,7 +5580,7 @@ function finishTest(){
   activateAds(document.getElementById("s-result"));
   // 結果表示の前に「単語カード獲得」演出を全面オーバーレイで見せ、閉じたら結果のアニメを開始
   const cgWords=R.map(r=>({ko:r.korean,ja:r.japanese}));
-  showCardGetSequence(cgWords,()=>startResultAnims(pwrAfter));
+  showCardGetSequence(cgWords,()=>{startResultAnims(pwrAfter);if(_lapDone)setTimeout(showLapDone,260);});
 }
 /* 結果画面の入場アニメ：点数カウントアップ・ランクメダル・PWRフィル */
 function startResultAnims(pwrAfter){
@@ -5929,7 +6003,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v3.1 (2026-07-26)";
+const APP_VERSION="v3.2 (2026-07-26)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
