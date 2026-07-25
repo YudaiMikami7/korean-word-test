@@ -164,24 +164,80 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check('復元したマスにランクが入る', !!st.r1.tiles['1'] && !!st.r1.tiles['1'].rank);
   check('「いまここ」が4マス目', st.now === 'マス4');
 
-  // --- ROOMメニュー左右の矢印 ---
+  // --- 左右の三角ボタン（スライドごとではなくhome-wrap直下のフロート＝全ページ共通） ---
   const arr = await page.evaluate(async () => {
     localStorage.clear(); location.hash = '';
     return null;
   }).then(() => page.reload()).then(() => page.waitForTimeout(1400)).then(() => page.evaluate(async () => {
     jumpRoom(3); await new Promise(r => setTimeout(r, 600));
     const before = curSection;
-    document.querySelector('.room-slide[data-n="3"] .rm-next').click();
-    await new Promise(r => setTimeout(r, 600));
+    document.getElementById('rm-next').click();
+    await new Promise(r => setTimeout(r, 900));
     const next = curSection;
-    document.querySelector('.room-slide[data-n="4"] .rm-prev').click();
-    await new Promise(r => setTimeout(r, 600));
-    return { before, next, prev: curSection,
-      firstPrev: !!document.querySelector('.room-slide[data-n="1"] .rm-prev'),
-      lastNext: !!document.querySelector(`.room-slide[data-n="${LEVEL_INFO[curLevel].count}"] .rm-next`) };
+    document.getElementById('rm-prev').click();
+    await new Promise(r => setTimeout(r, 900));
+    const prev = curSection;
+    const inSlide = !!document.querySelector('.room-slide .rm-arrow');           // スライドの中には無い
+    const parent = document.getElementById('rm-next').parentElement.id;          // home-wrap直下にある
+    const el = document.getElementById('hv-rooms');
+    el.scrollLeft = 0; syncRoomArrows();                                          // 先頭（難易度スライド）
+    const firstPrev = document.getElementById('rm-prev').classList.contains('off');
+    const firstNext = document.getElementById('rm-next').classList.contains('off');
+    el.scrollLeft = (LEVEL_INFO[curLevel].count + 1) * 602; syncRoomArrows();     // 末尾のROOM
+    const lastNext = document.getElementById('rm-next').classList.contains('off');
+    return { before, next, prev, inSlide, parent, firstPrev, firstNext, lastNext };
   }));
   check(`矢印で隣のROOMへ移動できる (3→${arr.next}→${arr.prev})`, arr.before === 3 && arr.next === 4 && arr.prev === 3);
-  check('先頭に「前へ」、末尾に「次へ」は出ない', !arr.firstPrev && !arr.lastNext);
+  check(`矢印はフロート（スライド内に無く home-wrap 直下）`, !arr.inSlide && arr.parent === 'homewrap');
+  check('先頭では「前へ」、末尾では「次へ」だけが消える', arr.firstPrev && !arr.firstNext && arr.lastNext);
+
+  // --- すごろくの上での左右スワイプ（touch-action:pan-yで効かなくなっていたぶんを自前で判定） ---
+  const sw = await page.evaluate(() => { localStorage.clear(); })
+    .then(() => page.reload()).then(() => page.waitForTimeout(1500)).then(() => page.evaluate(async () => {
+      document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove());
+      const swipe = async (dx) => {
+        const sc = document.querySelector(`.room-slide[data-n="${curSection}"] .sg-scroll`);
+        const mk = (x, y) => new Touch({ identifier: 1, target: sc, clientX: x, clientY: y });
+        const fire = (type, x, y) => {
+          const t = mk(x, y);
+          sc.dispatchEvent(new TouchEvent(type, { bubbles: true, cancelable: true,
+            touches: type === 'touchend' ? [] : [t], targetTouches: type === 'touchend' ? [] : [t], changedTouches: [t] }));
+        };
+        fire('touchstart', 300, 600); fire('touchmove', 300 + dx, 606); fire('touchend', 300 + dx, 606);
+        await new Promise(r => setTimeout(r, 900));
+        return curSection;
+      };
+      jumpRoom(3); await new Promise(r => setTimeout(r, 600));
+      const left = await swipe(-120);   // 左へ払う＝次のROOM
+      const right = await swipe(120);   // 右へ払う＝前のROOM
+      return { left, right };
+    }));
+  check(`すごろくを左へスワイプで次のROOM (3→${sw.left})`, sw.left === 4);
+  check(`すごろくを右へスワイプで前のROOM (${sw.left}→${sw.right})`, sw.right === 3);
+
+  // --- 現在地（スタートのマス）へ戻る ---
+  const hb = await page.evaluate(() => { localStorage.clear(); })
+    .then(() => page.reload()).then(() => page.waitForTimeout(1500)).then(() => page.evaluate(async () => {
+      document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove());
+      const sc = document.querySelector(`.room-slide[data-n="${curSection}"] .sg-scroll`);
+      const btn = sc.parentNode.querySelector('.sg-home');
+      const atHome = !btn.classList.contains('on');           // 現在地に居るあいだは出ない
+      sc.scrollTop = 0; await new Promise(r => setTimeout(r, 120));
+      const away = btn.classList.contains('on');              // 離れると出る
+      btn.click(); await new Promise(r => setTimeout(r, 900));
+      const back = Math.abs(sc.scrollTop - sgHomeTop(sc)) < 4, hidden = !btn.classList.contains('on');
+      // ダブルタップでも戻る
+      sc.scrollTop = 0; await new Promise(r => setTimeout(r, 120));
+      const tap = (t) => sc.dispatchEvent(new PointerEvent(t, { bubbles: true, clientX: 300, clientY: 600 }));
+      tap('pointerdown'); tap('pointerup'); tap('pointerdown'); tap('pointerup');
+      await new Promise(r => setTimeout(r, 900));
+      return { atHome, away, back, hidden, dbl: Math.abs(sc.scrollTop - sgHomeTop(sc)) < 4 };
+    }));
+  check('現在地に居るあいだ「現在地」ボタンは出ない', hb.atHome);
+  check('現在地から離れると「現在地」ボタンが出る', hb.away);
+  check('「現在地」ボタンでスタートのマスへ戻る', hb.back);
+  check('戻ったら「現在地」ボタンは消える', hb.hidden);
+  check('画面のダブルタップでもスタートのマスへ戻る', hb.dbl);
 
   // --- ホーム下部のレイアウト刷新 ---
   await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); })

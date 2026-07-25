@@ -266,15 +266,22 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 @keyframes rankmedalpop{0%{transform:scale(.35) rotate(-160deg);opacity:0}70%{opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
 /* ルームメニュー領域のクリップ：3面ローテのアニメが座布団の外にはみ出て描画されないように（座標は不変） */
 .rmenu-clip{position:absolute;inset:0;z-index:2;clip-path:inset(-12px 40px calc(100% - 104px) 40px round 56px)}
-/* ROOMメニュー（カプセル）の外側・左右に置く「隣のROOMへ」矢印 */
-.rm-arrow{position:absolute;top:14px;width:36px;height:76px;z-index:3;border:none;padding:0;background:transparent;
-  font-size:0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;transition:transform .08s ease}
+/* ROOMメニュー（カプセル）の外側・左右に置く「隣のページへ」矢印。
+   スライドの中ではなくhome-wrap直下に1組だけ置くフロート＝難易度・プリQQ・どのROOMでも同じ位置に出る。
+   top=225(slide-innerの位置)+14(従来のtop)。単語一覧モードのメニュー上昇には--liftで追従する */
+.rm-arrow{position:absolute;top:calc(239px + var(--lift,0px));width:36px;height:76px;z-index:6;border:none;padding:0;background:transparent;
+  font-size:0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;
+  transition:transform .08s ease,top .35s ease,opacity .25s ease}
 .rm-arrow::before{content:"";display:block;width:0;height:0;border-style:solid} /* 三角だけ。座布団と影は付けない */
 .rm-prev::before{border-width:14px 17px 14px 0;border-color:transparent rgba(255,255,255,.95) transparent transparent}
 .rm-next::before{border-width:14px 0 14px 17px;border-color:transparent transparent transparent rgba(255,255,255,.95)}
 .rm-arrow:active{transform:scale(.84)}
 .rm-prev{left:4px}
 .rm-next{right:4px}
+.rm-arrow.off{opacity:0;pointer-events:none} /* 端のスライドでは、それ以上進めない側を消す */
+/* プリQQは背景が淡いので三角を濃いピンクに（他スライドは白のまま） */
+.home-wrap.pq-active .rm-prev::before{border-right-color:#c04ea0}
+.home-wrap.pq-active .rm-next::before{border-left-color:#c04ea0}
 .home-wrap.status .rm-arrow,.home-wrap.hiderail .rm-arrow{opacity:0;pointer-events:none}
 /* ルームメニューの3面ローテーション：語数/％/ランク(face0) ⇄ おすすめ単語 ⇄ PWRグラフ。左下を軸に回転して入替（座布団なし・背景はroom色・白文字・影なし） */
 .rmenu-reco,.rmenu-pwr{position:absolute;left:220px;top:-10px;width:328px;height:120px;display:flex;flex-direction:column;justify-content:center;padding:0 12px;box-sizing:border-box;transform-origin:0% 100%;transform:rotate(60deg) scale(.32);opacity:0;pointer-events:none;z-index:3;transition:transform .5s cubic-bezier(.34,1.4,.5,1),opacity .36s ease}
@@ -1287,6 +1294,15 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-lap{position:absolute;left:0;width:554px;text-align:center;pointer-events:none}
 .sg-lap span{display:inline-block;background:rgba(0,0,0,.4);color:#fff;font-size:12px;font-weight:900;letter-spacing:.14em;padding:4px 14px}
 .sg-toast{position:fixed;left:50%;bottom:24%;transform:translateX(-50%);background:rgba(0,0,0,.84);color:#fff;font-size:14px;font-weight:800;padding:11px 20px;z-index:600;pointer-events:none;animation:d5ack 1.9s ease forwards}
+/* 現在地（＝スタートのマス）へ戻るボタン。すごろくを動かして「いまここ」を見失ったときだけ出る（画面のダブルタップでも戻れる）。
+   下端56pxはマスクで薄くなるので、そこには掛からない高さに置く */
+/* z-indexはマスより上（マスは遠近に応じて4〜44が入る）。sg-wrap自身が重ね合わせ文脈なので外へは影響しない */
+.sg-home{position:absolute;right:10px;bottom:66px;z-index:60;border:none;padding:11px 22px 13px;border-radius:999px;
+  background:#111;color:#fff;font-size:26px;font-weight:900;letter-spacing:.1em;white-space:nowrap;cursor:pointer;font-family:inherit;
+  box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 0 4px rgba(255,196,0,.95);
+  opacity:0;pointer-events:none;transform:translateY(12px) scale(.86);transition:opacity .22s ease,transform .22s cubic-bezier(.34,1.5,.5,1)}
+.sg-home.on{opacity:1;pointer-events:auto;transform:none}
+.sg-home.on:active{transform:scale(.9)}
 .home-wrap.status .sg-wrap,.home-wrap.hiderail .sg-wrap{opacity:0;pointer-events:none;transition:opacity .3s ease}
 
 /* ============================================================ 今日の5問テスト（朝の部・夜の部 各1回） ============================================================
@@ -1407,6 +1423,9 @@ body.bigtext .set-d{font-size:13.5px}
       <div id="room-pager"></div>
       </div>
       <div class="room-scroll" id="hv-rooms"></div>
+      <!-- 隣のページへ：スライドごとに置かず、home-wrap直下のフロート1組で全ページ共通 -->
+      <button class="rm-arrow rm-prev" id="rm-prev" onclick="stepRoom(-1)" aria-label="前のページへ">‹</button>
+      <button class="rm-arrow rm-next" id="rm-next" onclick="stepRoom(1)" aria-label="次のページへ">›</button>
       <button class="wb-back" id="wb-back" onclick="exitListMode()" aria-label="ホームに戻る">‹</button>
       <div id="pull-hint">↓ さらに引くとホームに戻る</div>
       <div id="wb-search"><input id="wb-q" type="search" placeholder="単語をさがす（韓国語・日本語）" oninput="wbSearch(this.value)"><div id="wb-hits"></div></div>
@@ -2133,6 +2152,22 @@ function pagerJump(sec){
   el.scrollTo({left:idx*602,behavior:"smooth"});
   showRoomPager();
 }
+/* フロートの三角ボタン／すごろく上の横スワイプ：いま見ているスライドの1つ隣へ（難易度・プリQQ・各ROOMを通しで移動） */
+function stepRoom(d){
+  const el=document.getElementById("hv-rooms");if(!el)return;
+  const max=LEVEL_INFO[curLevel].count+1; // idx0=難易度 / idx1=特別 / idx>=2=ROOM
+  const idx=Math.min(Math.max(Math.round(el.scrollLeft/602)+d,0),max);
+  el.scrollTo({left:idx*602,behavior:"smooth"});
+  showRoomPager();
+}
+/* 端のスライドでは、それ以上進めない側の三角を消す */
+function syncRoomArrows(){
+  const el=document.getElementById("hv-rooms"),pv=document.getElementById("rm-prev"),nx=document.getElementById("rm-next");
+  if(!el||!pv||!nx)return;
+  const max=LEVEL_INFO[curLevel].count+1,idx=Math.round(el.scrollLeft/602);
+  pv.classList.toggle("off",idx<=0);
+  nx.classList.toggle("off",idx>=max);
+}
 
 /* ルームメニューの3面ローテーション：語数/％/ランク(0) → おすすめ単語(1) → PWRグラフ(2) → … を回転入替 */
 let _recoTimer=null,_recoFace=0,_recoIdx=0;
@@ -2494,8 +2529,6 @@ function buildRoomSlides(){
       <div class="rmenu-reco"></div>
       <div class="rmenu-pwr"></div>
       </div>
-      ${n>1?`<button class="rm-arrow rm-prev" onclick="event.stopPropagation();jumpRoom(${n-1})" aria-label="前のROOMへ">‹</button>`:""}
-      ${n<count?`<button class="rm-arrow rm-next" onclick="event.stopPropagation();jumpRoom(${n+1})" aria-label="次のROOMへ">›</button>`:""}
       ${_listMode?(Math.abs(n-curSection)<=1?roomListHTML(n):`<div class="slide-list wb-list" data-lazy="${n}"></div>`)
         :(Math.abs(n-curSection)<=1?sgBoardHTML(n):`<div class="sg-wrap" data-sglazy="${n}"></div>`)} <!-- すごろくは近傍3ROOMだけ実描画（全ROOM分を持つとページが落ちる） -->
       </div>
@@ -2505,15 +2538,21 @@ function buildRoomSlides(){
   if(!el.dataset.bound){
     el.dataset.bound="1";
     // ホーム: 一定量引くと発動するプルダウン式（上引き=単語帳 / 下引き=ステータス）。単語帳内: 最上部からの下引きでホームへ戻る
-    let _ty=null,_tx=null,_plList=null,_plBase=null,_homeDir=null,_sgDrag=false;
+    let _ty=null,_tx=null,_plList=null,_plBase=null,_homeDir=null,_sgDrag=false,_sgSwiped=false;
     el.addEventListener("touchstart",e=>{
-      _ty=e.touches[0].clientY;_tx=e.touches[0].clientX;_plBase=null;_homeDir=null;
+      _ty=e.touches[0].clientY;_tx=e.touches[0].clientX;_plBase=null;_homeDir=null;_sgSwiped=false;
       _sgDrag=!!(e.target&&e.target.closest&&e.target.closest(".sg-scroll")); // すごろくの中から始まった縦ドラッグは素直に縦スクロールさせる
       _plList=_listMode?(_onSpecial?el.querySelector(".pq-slide .slide-list"):el.querySelector(`.room-slide[data-n="${curSection}"] .slide-list`)):null;
     },{passive:true});
     el.addEventListener("touchmove",e=>{
-      if(_ty==null||_statusMode||_sgDrag)return;
+      if(_ty==null||_statusMode)return;
       const y=e.touches[0].clientY,dy=y-_ty,dx=e.touches[0].clientX-_tx;
+      // すごろくの上：縦はそのまま縦スクロール。横は自前で判定して隣のページへ
+      // （.sg-scrollがtouch-action:pan-yなのでブラウザ側の横スクロールが親に伝わらず、従来はここで左右スワイプが効かなかった）
+      if(_sgDrag){
+        if(!_sgSwiped&&Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.4){_sgSwiped=true;stepRoom(dx<0?1:-1);}
+        return;
+      }
       if(_listMode){
         // 単語帳の縦スクロールが最上部(scrollTop<=0)のとき、下方向の引っ張りで戻るヒント
         if(_plList&&_plList.scrollTop<=0&&dy>0&&Math.abs(dy)>Math.abs(dx)){
@@ -2532,7 +2571,7 @@ function buildRoomSlides(){
     el.addEventListener("touchend",()=>{
       if(_listMode){if(_plBase!=null){const go=_pullVal>=90;hidePullHint();if(go)exitListMode();}}
       else if(_homeDir){const go=_pullVal>=90,dir=_homeDir;hidePullHint();if(go){dir==="up"?enterListMode():enterStatusMode();}}
-      _ty=null;_plBase=null;_plList=null;_homeDir=null;_sgDrag=false;
+      _ty=null;_plBase=null;_plList=null;_homeDir=null;_sgDrag=false;_sgSwiped=false;
     });
     // ステータス中: 上に引っ張るとホームへ戻る（引っ張り式・90px超で発動）
     const hw=document.getElementById("homewrap");
@@ -2558,6 +2597,7 @@ function buildRoomSlides(){
       const onSp=idx===1;_onSpecial=onSp;
       document.getElementById("homewrap").classList.toggle("pq-active",onSp);
       applyBgAll(idx===0?LEVEL_SLIDE_BG:(onSp?"#ffe3f1":roomBg(idx-1)));
+      syncRoomArrows(); // 両端では進めない側の三角を消す
       if(idx>=1)showRoomPager(); // ルーム切替中は丸ページャーを表示（難易度スライドは除く）
       _clearReco(); // 切替時は前スライドのおすすめ表示を戻す
       clearTimeout(_roomScrollT);
@@ -2569,6 +2609,7 @@ function buildRoomSlides(){
   }
   el.scrollLeft=_onSpecial?602:(curSection+1)*602; // 特別ルーム選択中は特別スライド(index1=602)、通常はROOM n(index n+1)
   buildRoomPager(); // 丸ページャーを現在の難易度のルーム構成で組み直す
+  syncRoomArrows(); // 難易度切替でROOM数が変わるので、両端の三角の出し分けも組み直す
 }
 /* 602px基準で比例スケール（PCは等倍上限・中央寄せ） */
 function scaleHome(){
@@ -4021,8 +4062,18 @@ function sgApplyDepth(sc){
 function sgBind(sc){
   if(!sc||sc.dataset.sgbound)return;sc.dataset.sgbound="1";
   // 1フレーム0.1ms程度と軽いのでrAFを挟まず同フレームで更新する（挟むと描画が1フレーム遅れ、速いスクロールで揺れて見える）
-  sc.addEventListener("scroll",()=>sgApplyDepth(sc),{passive:true});
+  sc.addEventListener("scroll",()=>{sgApplyDepth(sc);sgSyncHome(sc);},{passive:true});
   sc.addEventListener("touchmove",()=>sgApplyDepth(sc),{passive:true});
+  // ダブルタップで現在地（スタートのマス）へ戻る。
+  // マスの上で始めても「1回目=カウントダウン開始 / 2回目=取り消し」になるのでテストは始まらない。
+  let dt=0,px=0,py=0,sx=0,sy=0;
+  sc.addEventListener("pointerdown",e=>{sx=e.clientX;sy=e.clientY;},{passive:true});
+  sc.addEventListener("pointerup",e=>{
+    if(Math.abs(e.clientX-sx)>12||Math.abs(e.clientY-sy)>12){dt=0;return;} // 動かした指（スクロール）は数えない
+    const t=e.timeStamp||0;
+    if(t-dt<400&&Math.abs(e.clientX-px)<40&&Math.abs(e.clientY-py)<40){dt=0;sgScrollToCurrent(+sc.dataset.n,true);}
+    else{dt=t;px=e.clientX;py=e.clientY;}
+  },{passive:true});
 }
 function sgHydrate(n){
   const sc=document.querySelector('.room-slide[data-n="'+n+'"] .sg-scroll');if(!sc)return;
@@ -4036,9 +4087,11 @@ function sgHydrate(n){
     halves:[26,21],
     paths:[sc.querySelector(".sg-edge"),sc.querySelector(".sg-asphalt")]};
   if(sc._sg.paths.some(p=>!p))return;
+  sc._sgHome=null;      // 「いまここ」の位置はこの器のぶんを測り直す
   sgBind(sc);
   sgFitAllBadges(sc);   // 既に読み込み済みの画像ぶんを反映（onloadが発火しないケース）
   sgApplyDepth(sc);
+  sgSyncHome(sc);
 }
 /* 沿道の自然物：すごろく専用に生成した3Dクレイ調の透過webp（木/もみの木/花/岩/雲/星） */
 const SG_DECO_IMG=["sgdeco/tree.webp","sgdeco/pine.webp","sgdeco/flower.webp","sgdeco/rock.webp","sgdeco/cloud.webp","sgdeco/star.webp"];
@@ -4079,7 +4132,9 @@ function sgBoardHTML(n){
     +'<path class="sg-asphalt" d="" fill="rgba(238,224,192,.95)"/>'
     +'</svg>'
     +laps.join("")+decos.join("")+tiles.join("")
-    +'</div></div></div>';
+    +'</div></div>'
+    +'<button class="sg-home" onclick="sgScrollToCurrent('+n+',true)" aria-label="現在地に戻る">◎ 現在地</button>'
+    +'</div>';
 }
 /* 画像ファイルは正方形でも、被写体の形は縦長・横長とまちまちで、まわりの透明部分の量が画像ごとに違う。
  * 枠の角に番号とランクを置くと、絵が横長の画像では両者が離れて見えてしまうので、
@@ -4100,12 +4155,27 @@ function sgFitBadges(img){
   }catch(e){}
 }
 function sgFitAllBadges(sc){(sc||document).querySelectorAll(".sg-tile .sg-img").forEach(im=>{if(im.complete&&im.naturalWidth)sgFitBadges(im);});}
-function sgScrollToCurrent(n){
-  const sc=document.querySelector(`.room-slide[data-n="${n}"] .sg-scroll`);if(!sc)return;
+/* 「いまここ」を画面の下寄りに置くスクロール位置。スクロールのたびに測り直さないよう1度だけ計算して持つ。
+ * 実際に止まれる範囲(0〜scrollHeight-clientHeight)へ丸めておく＝「いまここ」に居るのに現在地ボタンが出続けるのを防ぐ */
+function sgHomeTop(sc){
+  if(sc._sgHome!=null)return sc._sgHome;
+  const h=sc.clientHeight||506,max=Math.max(0,sc.scrollHeight-h);
   const cur=sc.querySelector(".sg-tile.now");
   // 下から上へ登るので、いまのマスは画面の下寄り（＝いちばん手前）に置く
-  sc.scrollTop=cur?Math.max(0,cur.offsetTop-sc.clientHeight*0.62):sc.scrollHeight;
-  sgApplyDepth(sc);
+  sc._sgHome=cur?Math.max(0,Math.min(max,cur.offsetTop-h*0.62)):max;
+  return sc._sgHome;
+}
+/* 現在地から離れているあいだだけ「現在地」ボタンを出す */
+function sgSyncHome(sc){
+  const btn=sc.parentNode&&sc.parentNode.querySelector(".sg-home");if(!btn)return;
+  const off=Math.abs(sc.scrollTop-sgHomeTop(sc))>90;
+  if(off!==btn.classList.contains("on"))btn.classList.toggle("on",off);
+}
+function sgScrollToCurrent(n,smooth){
+  const sc=document.querySelector(`.room-slide[data-n="${n}"] .sg-scroll`);if(!sc)return;
+  const top=sgHomeTop(sc);
+  if(smooth&&sc.scrollTo)sc.scrollTo({top,behavior:"smooth"});else sc.scrollTop=top;
+  sgApplyDepth(sc);sgSyncHome(sc);
 }
 /* 全ROOMスライドの道と遠近を初期化（スライドを作り直すたびに呼ぶ） */
 function sgHydrateAll(){document.querySelectorAll(".room-slide .sg-scroll").forEach(sc=>sgHydrate(+sc.dataset.n));}
@@ -5859,7 +5929,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v3.0 (2026-07-26)";
+const APP_VERSION="v3.1 (2026-07-26)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
