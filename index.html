@@ -1179,6 +1179,82 @@ body.bigtext .set-d{font-size:13.5px}
 .sp-memo-ko{font-size:23px;font-weight:900}
 .sp-memo-ja{font-size:18px;font-weight:800;color:#FFD86B}
 .sp-memo-count{font-size:32px;font-weight:900;color:#FFC400;min-height:38px}
+
+/* ============================================================ 今日の5問テスト（朝の部・夜の部 各1回） ============================================================ */
+#rr-d5.d5-off{filter:grayscale(1);opacity:.55}
+.rr-badge.d5-b{background:#FF8A00}
+.rr-btn .d5-ico{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;border-radius:50%;
+  background:linear-gradient(160deg,#FFC94D,#FF7A00);color:#fff;transition:transform .45s ease,opacity .3s ease}
+.rr-btn .d5-ico b{font-size:29px;font-weight:900;line-height:1;text-shadow:0 2px 0 rgba(0,0,0,.18)}
+.rr-btn .d5-ico i{font-style:normal;font-size:11px;font-weight:900;line-height:1;margin-top:2px;letter-spacing:.08em}
+.rr-btn.show-label .d5-ico{transform:rotate(180deg);opacity:0}
+#d5-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
+#d5-modal.on{display:flex}
+.d5-card{width:360px;max-width:92vw;max-height:88vh;overflow-y:auto;color:#fff;border-radius:28px;position:relative;
+  padding:0 18px calc(20px + env(safe-area-inset-bottom));background:linear-gradient(165deg,#20305c,#121a2e);box-shadow:0 18px 50px rgba(0,0,0,.5);-webkit-overflow-scrolling:touch}
+.d5-h{padding:22px 0 4px;text-align:center;font-size:22px;font-weight:900;letter-spacing:.04em}
+.d5-sub{text-align:center;font-size:13px;font-weight:800;color:#9FC0FF;margin-bottom:14px}
+.d5-close{position:absolute;right:10px;top:12px;width:34px;height:34px;border:none;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:20px;font-weight:900;cursor:pointer}
+.d5-slots{display:flex;gap:10px;margin-bottom:14px}
+.d5-slot{flex:1;border-radius:16px;padding:10px 6px;text-align:center;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.12)}
+.d5-slot.now{border-color:#FFC400;background:rgba(255,196,0,.16)}
+.d5-slot .d5-sl{font-size:12px;font-weight:900;color:#cfe0ff;line-height:1.5}
+.d5-slot .d5-sv{font-size:15px;font-weight:900;margin-top:4px}
+.d5-slot .d5-sv.ok{color:#7CE7A6}.d5-slot .d5-sv.no{color:rgba(255,255,255,.55)}
+.d5-rules{background:rgba(255,255,255,.07);border-radius:14px;padding:12px 14px;font-size:13px;font-weight:700;line-height:1.9;color:#dbe6ff;margin-bottom:14px}
+.d5-rules b{color:#FFD84D}
+.d5-go{width:100%;height:58px;border:none;border-radius:29px;background:linear-gradient(180deg,#FFC400,#FF8A00);color:#2b1a00;font-size:19px;font-weight:900;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.28)}
+.d5-go:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.28)}
+.d5-wait{border-radius:18px;background:rgba(255,255,255,.08);padding:14px;text-align:center}
+.d5-wait .d5-wt{font-size:12px;font-weight:800;color:#9FC0FF}
+.d5-wait .d5-wv{font-size:28px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:.02em;margin-top:2px}
+.d5-ghost{width:100%;height:46px;margin-top:10px;border:2px solid rgba(255,255,255,.28);border-radius:23px;background:transparent;color:#fff;font-size:15px;font-weight:900;cursor:pointer}
+/* 回答受付フラッシュ（正誤は出さない） */
+#qstage .choice.d5-pick{box-shadow:0 0 0 4px #FFC400 inset}
+.d5-ack{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.d5-ack span{font-size:24px;font-weight:900;color:#fff;background:rgba(0,0,0,.58);border-radius:999px;padding:12px 30px;animation:d5ack .72s ease forwards}
+@keyframes d5ack{0%{opacity:0;transform:scale(.82)}22%{opacity:1;transform:scale(1)}72%{opacity:1}100%{opacity:0;transform:scale(1.05)}}
+/* 結果画面（1問ずつ○×を判定） */
+#s-d5result{background:linear-gradient(180deg,#16264a,#0a0f1c);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.d5r{padding:26px 18px calc(30px + env(safe-area-inset-bottom));color:#fff;box-sizing:border-box}
+.d5r-h{text-align:center;font-size:12px;font-weight:900;letter-spacing:.22em;color:#9FC0FF}
+.d5r-t{text-align:center;font-size:25px;font-weight:900;margin:4px 0 20px}
+.d5r-list{display:flex;flex-direction:column;gap:10px;max-width:520px;margin:0 auto}
+.d5r-row{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.09);border-radius:16px;padding:12px 14px;
+  opacity:.25;transform:translateY(10px);transition:opacity .3s ease,transform .3s ease,box-shadow .2s ease}
+.d5r-row.shown{opacity:1;transform:none}
+.d5r-row .d5r-mid{filter:blur(6px);transition:filter .3s ease} /* 未判定の問題は先読みできないようぼかす */
+.d5r-row.shown .d5r-mid{filter:none}
+.d5r-row.on-now{box-shadow:0 0 0 3px #FFC400}
+.d5r-no{width:28px;flex:0 0 auto;font-size:13px;font-weight:900;color:#9FC0FF}
+.d5r-mid{flex:1;min-width:0}
+.d5r-q{font-size:18px;font-weight:900;line-height:1.3;word-break:break-word}
+.d5r-a{font-size:12px;font-weight:700;color:#b9caea;margin-top:4px;line-height:1.6;word-break:break-word}
+.d5r-a i{font-style:normal;color:#FFB0B0}
+.d5r-a i.ok{color:#7CE7A6}
+.d5r-a b{color:#fff}
+.d5r-mk{flex:0 0 auto;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;line-height:1;opacity:0;transform:scale(2.4) rotate(-14deg)}
+.d5r-row.judged .d5r-mk{animation:d5stamp .42s cubic-bezier(.2,1.5,.4,1) forwards}
+@keyframes d5stamp{0%{opacity:0;transform:scale(2.4) rotate(-14deg)}60%{opacity:1;transform:scale(.88) rotate(3deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+.d5r-mk.o{color:#FF3B3B}.d5r-mk.x{color:#2F9BFF}.d5r-mk.u{color:rgba(255,255,255,.7)}.d5r-mk.t{color:#DFB10F}
+.d5r-score{max-width:520px;margin:24px auto 0;text-align:center;opacity:0;transform:translateY(8px);transition:opacity .45s ease,transform .45s ease}
+.d5r-score.shown{opacity:1;transform:none}
+.d5r-sn{font-size:56px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
+.d5r-sn span{font-size:24px;color:#9FC0FF;font-weight:900}
+.d5r-cheer{font-size:15px;font-weight:800;margin-top:12px;color:#DDE8FF;line-height:1.7}
+.d5r-btns{max-width:520px;margin:24px auto 0;display:flex;flex-direction:column;gap:10px}
+.d5r-btns button{height:52px;border:none;border-radius:26px;font-size:16px;font-weight:900;cursor:pointer}
+.d5r-btns .d5r-home{background:#fff;color:#16264a}
+.d5r-btns .d5r-sec{background:transparent;border:2px solid rgba(255,255,255,.3);color:#fff}
+/* レア演出 */
+.d5-rare{position:fixed;inset:0;z-index:500;pointer-events:none;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.d5-rare .d5-flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 37%,rgba(255,244,200,.95),rgba(255,200,60,.34) 34%,rgba(255,200,60,0) 68%);animation:d5flash 1.35s ease-out forwards}
+@keyframes d5flash{0%{opacity:0;transform:scale(.4)}18%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.5)}}
+.d5-rare .d5-word{position:relative;margin-bottom:26vh;font-size:min(58px,13vw);font-weight:900;letter-spacing:.22em;color:#fff;white-space:nowrap;
+  text-shadow:0 0 18px rgba(255,200,60,.95),0 0 46px rgba(255,150,0,.8);animation:d5word 1.7s cubic-bezier(.15,1.4,.3,1) forwards}
+@keyframes d5word{0%{opacity:0;transform:scale(2.6) rotate(-8deg)}20%{opacity:1;transform:scale(1) rotate(0)}74%{opacity:1;transform:scale(1.03)}100%{opacity:0;transform:scale(1.14)}}
+.d5-spk{position:absolute;left:50%;top:37%;width:10px;height:10px;border-radius:50%;background:#FFE79A;box-shadow:0 0 12px 4px rgba(255,214,90,.9);animation:d5spk 1.3s ease-out forwards}
+@keyframes d5spk{0%{opacity:0;transform:translate(0,0) scale(.3)}12%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.1)}}
 </style>
 <!-- アクセス解析: Cloudflare Web Analytics（プロキシ経由で自動計測。手動ビーコン不要） -->
 <script src="ga.js?v=2512"></script>
@@ -1206,6 +1282,7 @@ body.bigtext .set-d{font-size:13.5px}
         <button class="rr-btn rr-map" id="map-btn" onclick="openRoomMap()" aria-label="ROOM一覧"><img src="icons/map.webp" alt="ROOM一覧" onerror="this.replaceWith(document.createTextNode('🗺'))"><span class="rr-txt">ROOM<br>一覧</span></button>
         <button class="rr-btn" id="cal-btn" onclick="openCalendar()"><img src="icons/calendar.webp" alt="カレンダー"><span class="rr-txt">カレンダー</span></button>
         <button class="rr-btn" id="sp-btn" onclick="openSpecial()" aria-label="スペシャルモード"><img src="icons/game.webp" alt="スペシャル" onerror="this.replaceWith(document.createTextNode('🎮'))"><span class="rr-txt">スペシャル</span></button>
+        <button class="rr-btn" id="rr-d5" onclick="openDaily5()" aria-label="今日の5問テスト"><span class="d5-ico"><b>5</b><i>問</i></span><span class="rr-txt">今日の<br>5問</span><span class="rr-badge d5-b" id="pb-d5" style="display:none">!</span></button>
       </div>
       <div class="reward-rail">
         <button class="rr-btn" id="rr-daily" onclick="openPresent('daily')"><img src="icons/bonus-daily.webp" alt="毎日"><span class="rr-txt">毎日</span><span class="rr-badge" id="pb-daily" style="display:none"></span></button>
@@ -1253,6 +1330,8 @@ body.bigtext .set-d{font-size:13.5px}
 
   <!-- RESULT -->
   <div class="screen" id="s-result"></div>
+  <!-- 今日の5問テスト 結果（○×を1問ずつ判定表示） -->
+  <div class="screen" id="s-d5result"></div>
   <!-- WORD DETAIL -->
   <div class="screen" id="s-wdetail"></div>
   <!-- CURVE -->
@@ -1266,6 +1345,7 @@ body.bigtext .set-d{font-size:13.5px}
 <div id="calendar-modal"></div>
 <div id="settings-modal"></div>
 <div id="special-modal"></div>
+<div id="d5-modal"></div>
 <div id="history-modal"></div>
 <div id="map-modal"></div>
 <div id="rotate-hint">📱 縦向きでのご利用がおすすめです</div>
@@ -2424,6 +2504,7 @@ function renderHome(){
   applyHomeBg();
   scaleHome();
   updatePresent();
+  updateD5Btn(); // 今日の5問：残り回数バッジ／消化済みのグレーアウト
   checkAchievements();
   calibratePwr(); // ホーム表示のたびに実測し直し、以降は固定速度で減算
   updatePwrFine();
@@ -3059,6 +3140,17 @@ function sfxCorrect(){if(loadSettings().sound===false)return;const c=_sfx();if(!
 function sfxIncorrect(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime; _tone(c,320,t,0.14,0.14,"sawtooth");_tone(c,220,t+0.1,0.2,0.14,"sawtooth");} // 不正解: 低い2音下降
 function sfxNeutral(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime; _tone(c,520,t,0.14,0.12,"sine");} // わからない: やわらかい単音（失敗音にしない）
 function sfxClaim(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;[523,659,784,1047].forEach((f,i)=>_tone(c,f,t+i*0.07,0.3,0.2,"triangle"));_tone(c,1568,t+0.3,0.45,0.1,"sine");}
+/* --- 今日の5問テスト用 --- */
+function sfxD5Ack(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;_tone(c,660,t,0.06,0.13,"square");} // 回答受付（正誤を示さない中立音）
+function sfxD5Roll(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;[0,0.07,0.14].forEach((d,i)=>_tone(c,440+i*40,t+d,0.05,0.09,"square"));} // 判定前のドラムロール風
+function sfxRare(){ // レア演出音：高速上昇アルペジオ＋キラキラの余韻
+  if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;
+  [1046.5,1318.5,1568,2093,2637].forEach((f,i)=>_tone(c,f,t+i*0.055,0.42,0.15,"triangle"));
+  [1568,1975.5,2349,3136].forEach((f,i)=>_tone(c,f,t+0.34+i*0.035,0.95,0.10,"sine"));
+  _tone(c,523.25,t+0.34,1.25,0.09,"triangle");
+  _tone(c,3520,t+0.52,1.05,0.06,"sine");
+  _tone(c,4186,t+0.66,0.95,0.045,"sine");
+}
 let _koVoice=null,_curAudio=null;
 function _pickKoVoice(){
   if(!('speechSynthesis' in window))return;
@@ -3311,9 +3403,9 @@ window.addEventListener("popstate",()=>{
     const _spg=document.getElementById("spov");
     if(_spg&&_spg.classList.contains("on")){spExitGame();return;}
     // 1) 開いているモーダルを閉じる
-    for(const id of ["present-modal","calendar-modal","settings-modal","special-modal","history-modal","map-modal"]){
+    for(const id of ["present-modal","calendar-modal","settings-modal","special-modal","history-modal","map-modal","d5-modal"]){
       const m=document.getElementById(id);
-      if(m&&m.classList.contains("on")){m.classList.remove("on");return;}
+      if(m&&m.classList.contains("on")){m.classList.remove("on");if(id==="d5-modal"){clearInterval(_d5Timer);_d5Timer=null;}return;}
     }
     const home=document.getElementById("s-home");
     // 2) ホームの一覧/ステータスモードを解除
@@ -3375,7 +3467,7 @@ function confirmQuit(){
   const t0=performance.now();
   clearInterval(timer); // ダイアログ表示中はタイマーを完全停止（裏で時間切れにならないように）
   const m=document.createElement("div");m.className="appconfirm";
-  m.innerHTML=`<div class="ac-card"><div class="ac-t">テストを中断して<br>ホームに戻りますか？</div>
+  m.innerHTML=`<div class="ac-card"><div class="ac-t">${_d5.on?"今日の5問を中断しますか？<br><span style=\"font-size:13px;font-weight:700;opacity:.8\">この枠はもう挑戦できません</span>":"テストを中断して<br>ホームに戻りますか？"}</div>
     <div class="ac-btns"><button class="btn ac-stop" id="ac-yes">はい</button><button class="btn ghost" id="ac-no">いいえ</button></div></div>`;
   document.body.appendChild(m);
   const resume=()=>{if(!answered){qStart+=performance.now()-t0;resumeTimer();}m.remove();}; // 停止していた分を差し戻して計時再開
@@ -3387,7 +3479,8 @@ function confirmQuit(){
 function quitTest(){
   clearInterval(timer);clearTimeout(ovTimer);_counting=false;
   _gearActive=false;clearInterval(_gearTimer);
-  document.querySelectorAll(".overlay").forEach(e=>e.remove());
+  _d5.on=false; // 今日の5問を中断（枠は開始時点で消費済みなのでやり直しはできない）
+  document.querySelectorAll(".overlay,.d5-ack").forEach(e=>e.remove());
   stopSpeak();answered=true;
   show("s-home");
 }
@@ -3427,6 +3520,212 @@ function showCountdown(cb){
     if(n<=0){clearInterval(timer);_counting=false;cb();return;}
     draw();
   },625); // 3・2・1は0.625秒間隔（従来500msの1.25倍ゆっくり）
+}
+
+/* ============================================================ 今日の5問テスト ============================================================
+ * ・1日2回（朝の部 0:00-11:59／夜の部 12:00-23:59）、各1回ずつだけ挑戦できる
+ * ・4択が5問。回答中は正誤を一切出さない（正解音・正解音声・玉の演出も止める）
+ * ・5問目のあと、専用の結果画面で1問ずつ順に○×を判定表示 → 判定しきったらレア演出音
+ * ・記憶スコア（忘却エンジン）は通常テストと同じく submit() 内で更新される */
+const LS_D5="kwt_daily5_v1";
+const D5_N=5, D5_PLAN=["jk","kj","jk","kj","jk"]; // 全問4択（日→韓／韓→日を交互）
+let _d5={on:false,slot:"",key:""},_d5Timer=null;
+function d5Slot(ms){return new Date(ms).getHours()<12?"am":"pm";}
+function d5SlotLabel(s){return s==="am"?"朝の部":"夜の部";}
+function d5SlotTime(s){return s==="am"?"0:00–11:59":"12:00–23:59";}
+function d5Key(ms){return dayKey(ms)+"#"+d5Slot(ms);}
+function loadD5(){try{return JSON.parse(localStorage.getItem(LS_D5)||"{}")||{};}catch(e){return{};}}
+function saveD5(o){const ks=Object.keys(o);if(ks.length>40)ks.slice(0,ks.length-40).forEach(k=>delete o[k]);_lsSet(LS_D5,JSON.stringify(o));} // 古い枠は間引き
+function d5Rec(ms){return loadD5()[d5Key(ms||Date.now())]||null;}
+function d5Used(ms){return !!d5Rec(ms);}
+function d5NextOpenAt(ms){const d=new Date(ms);if(d.getHours()<12)d.setHours(12,0,0,0);else{d.setDate(d.getDate()+1);d.setHours(0,0,0,0);}return d.getTime();}
+function d5Countdown(ms){let s=Math.max(0,Math.round((d5NextOpenAt(ms)-ms)/1000));const h=Math.floor(s/3600),m=Math.floor(s%3600/60);s=s%60;const p=n=>String(n).padStart(2,"0");return h+":"+p(m)+":"+p(s);}
+/* その日・その枠で出題を固定するための決定的乱数（＝「今日の5問」は何度開いても同じ） */
+function _d5Hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function _d5Rng(seed){let a=seed>>>0;return function(){a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+function d5PickIds(){
+  const rnd=_d5Rng(_d5Hash("kwt-d5|"+d5Key(Date.now())+"|"+curLevel));
+  const pool=levelAllWords().filter(w=>w&&w.ko&&w.ja);
+  const ids=[],used=new Set();
+  for(let g=0;g<900&&ids.length<D5_N;g++){
+    const w=pool[Math.floor(rnd()*pool.length)];
+    if(!w||used.has(w.id))continue;
+    used.add(w.id);ids.push(w.id);
+  }
+  return ids;
+}
+function buildDaily5Questions(){
+  const pool=levelAllWords();
+  return d5PickIds().map((id,i)=>{
+    const w=WORD_BY_ID[id],type=D5_PLAN[i]||"jk";
+    const cs=buildChoiceSet(w,pool,type==="kj"?"ja":"ko");
+    return{word:w,type,choices:cs.choices,correct:type==="kj"?w.ja:w.ko,source:"daily5",cmeta:cs.meta};
+  });
+}
+/* ---- 入口（ホーム左レールのボタン） ---- */
+function updateD5Btn(){
+  const b=document.getElementById("rr-d5");if(!b)return;
+  const used=d5Used();
+  b.classList.toggle("d5-off",used);
+  const bd=document.getElementById("pb-d5");if(bd)bd.style.display=used?"none":"flex";
+}
+function openDaily5(){
+  const m=document.getElementById("d5-modal");
+  if(!m.classList.contains("on"))pushNav("modal");
+  d5RenderModal();
+  m.classList.add("on");
+  m.onclick=e=>{if(e.target===m)closeDaily5();};
+  clearInterval(_d5Timer);
+  _d5Timer=setInterval(()=>{
+    const el=document.getElementById("d5-cd");
+    if(!el||!m.classList.contains("on")){clearInterval(_d5Timer);_d5Timer=null;return;}
+    if(!d5Used()){d5RenderModal();return;} // 枠がまたいで開放されたら表示を切り替え
+    el.textContent=d5Countdown(Date.now());
+  },1000);
+}
+function closeDaily5(){document.getElementById("d5-modal").classList.remove("on");clearInterval(_d5Timer);_d5Timer=null;}
+function d5RenderModal(){
+  const now=Date.now(),slot=d5Slot(now),rec=d5Rec(now),all=loadD5(),dk=dayKey(now);
+  const cell=(s)=>{const r=all[dk+"#"+s];
+    return `<div class="d5-slot${slot===s?" now":""}"><div class="d5-sl">${d5SlotLabel(s)}<br>${d5SlotTime(s)}</div>
+      <div class="d5-sv ${r?"ok":"no"}">${r?(r.done?(r.correct+" / "+D5_N+" 正解"):"中断"):"未プレイ"}</div></div>`;};
+  const body=rec
+   ?`<div class="d5-wait"><div class="d5-wt">次の「今日の5問」まで</div><div class="d5-wv" id="d5-cd">${d5Countdown(now)}</div></div>
+     ${rec.done?`<button class="d5-ghost" onclick="closeDaily5();d5ShowSaved()">この回の結果をもう一度見る</button>`:""}`
+   :`<div class="d5-rules">・<b>4択が5問</b>だけの一発勝負<br>・回答中は<b>正誤を表示しません</b><br>・5問目のあと、結果画面で<b>1問ずつ判定</b><br>・出題は<b>今日のこの枠で固定</b>です<br>・はじめると<b>1回ぶん消費</b>します</div>
+     <button class="d5-go" onclick="startDaily5()">${d5SlotLabel(slot)}をはじめる</button>`;
+  document.getElementById("d5-modal").innerHTML=`<div class="d5-card">
+    <button class="d5-close" onclick="closeDaily5()" aria-label="閉じる">×</button>
+    <div class="d5-h">今日の5問テスト</div>
+    <div class="d5-sub">朝と夜、1日2回だけ挑戦できます</div>
+    <div class="d5-slots">${cell("am")}${cell("pm")}</div>
+    ${body}</div>`;
+}
+/* ---- 開始 ---- */
+function startDaily5(){
+  if(d5Used()){d5RenderModal();return;}
+  closeDaily5();
+  const now=Date.now();
+  _d5={on:true,slot:d5Slot(now),key:d5Key(now)};
+  const all=loadD5();all[_d5.key]={slot:_d5.slot,started:new Date(now).toISOString(),correct:0,total:D5_N,done:false,items:[]};saveD5(all); // 開始時点で1回ぶん消費
+  updateD5Btn();
+  state={questions:buildDaily5Questions(),idx:0,results:[],testId:"d5-"+now.toString(36),userId:getUserId(),
+    cycleNumber:loadProgress().cycleNumber||1,isReview:false,daily5:true,
+    conditionBefore:Math.round(overallCondition(now)),reviewBefore:reviewNeedCount(now),
+    pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level,pq:false};
+  _pqQuiz=false;_cdSkip=false;
+  sfxStart();
+  qrStopRain();qrClearLayer("q-rain");QR.active="q-rain";
+  updateAdvBtn();
+  show("s-quiz");
+  showCountdown(()=>renderQuestion());
+}
+/* ---- 回答後（正誤は出さず、選んだ選択肢だけ光らせて次へ） ---- */
+function d5AfterAnswer(status,userAnswer){
+  const wrap=document.querySelector("#qstage .choices");
+  if(wrap)wrap.querySelectorAll(".choice").forEach(b=>{b.disabled=true;if(b.dataset.v===userAnswer)b.classList.add("d5-pick");});
+  sfxD5Ack();
+  const ov=document.createElement("div");ov.className="d5-ack";
+  ov.innerHTML=`<span>${status==="timeout"?"時間切れ":status==="unknown"?"スキップ":"回答しました"}</span>`;
+  document.body.appendChild(ov);
+  setTimeout(()=>{ov.remove();if(_d5.on)afterAnswer();},720);
+}
+/* ---- 終了 → 結果画面へ ---- */
+function finishDaily5(){
+  clearInterval(timer);
+  const R=state.results,qs=state.questions;
+  const items=R.map((r,i)=>({n:i+1,type:(qs[i]&&qs[i].type)||"jk",
+    q:((qs[i]&&qs[i].type)==="kj")?r.korean:r.japanese,
+    your:r.userAnswer||"",correct:r.correctAnswer,status:r.answerStatus,ok:!!r.isCorrect,ko:r.korean,ja:r.japanese}));
+  const nCorrect=items.filter(x=>x.ok).length;
+  const all=loadD5(),prev=all[_d5.key]||{};
+  const rec={slot:_d5.slot,started:prev.started||new Date().toISOString(),finished:new Date().toISOString(),
+    correct:nCorrect,total:items.length,done:true,items};
+  all[_d5.key]=rec;saveD5(all);
+  _d5.on=false;
+  updateDiagnosis(); // タイプ診断だけ更新（ランク／プレゼントは通常テスト専用）
+  if(typeof track==="function")track("daily5_complete",{slot:rec.slot,correct:nCorrect});
+  d5RenderResult(rec,true);
+}
+function d5ShowSaved(){const r=d5Rec();if(r&&r.done)d5RenderResult(r,false);}
+const D5_CHEER=[
+  "パーフェクト！文句なしの5問全問正解🎉",
+  "すばらしい！ほぼ完璧です✨",
+  "good！半分以上とれています",
+  "おしい！次の枠で取り返しましょう",
+  "今回はウォームアップ。まだ挽回できます🌱"
+];
+function d5PickCheer(n){return n>=5?D5_CHEER[0]:n===4?D5_CHEER[1]:n===3?D5_CHEER[2]:n===2?D5_CHEER[3]:D5_CHEER[4];}
+function d5RenderResult(rec,animate){
+  const SYM={correct:["○","o"],incorrect:["×","x"],unknown:["－","u"],timeout:["△","t"]};
+  const rows=rec.items.map((it,i)=>{
+    const sy=SYM[it.status]||["×","x"];
+    const yours=it.status==="unknown"?"わからない":it.status==="timeout"?"時間切れ":(it.your||"—");
+    return `<div class="d5r-row${animate?"":" shown judged"}" data-i="${i}">
+      <div class="d5r-no">Q${it.n}</div>
+      <div class="d5r-mid">
+        <div class="d5r-q">${esc(it.q)}</div>
+        <div class="d5r-a">あなた：<i class="${it.ok?"ok":""}">${esc(yours)}</i>　／　正解：<b>${esc(it.correct)}</b></div>
+      </div>
+      <div class="d5r-mk ${sy[1]}">${sy[0]}</div>
+    </div>`;
+  }).join("");
+  const d=new Date(rec.finished||Date.now());
+  document.getElementById("s-d5result").innerHTML=`<div class="d5r">
+    <div class="d5r-h">TODAY'S 5 QUESTIONS</div>
+    <div class="d5r-t">${d5SlotLabel(rec.slot)}の結果<br><span style="font-size:14px;color:#9FC0FF">${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}</span></div>
+    <div class="d5r-list">${rows}</div>
+    <div class="d5r-score${animate?"":" shown"}">
+      <div class="d5r-sn">${rec.correct}<span> / ${rec.total} 正解</span></div>
+      <div class="d5r-cheer">${d5PickCheer(rec.correct)}</div>
+    </div>
+    <div class="d5r-btns">
+      <button class="d5r-home" onclick="show('s-home')">ホームに戻る</button>
+      <button class="d5r-sec" onclick="show('s-home');openDaily5()">次に挑戦できる時間を見る</button>
+    </div>
+  </div>`;
+  show("s-d5result");
+  applyBgAll("#0a0f1c");
+  if(animate)d5Reveal();
+}
+/* 5問ぶんの○×を1問ずつ順に判定表示 → 判定しきったらレア演出 */
+function d5Reveal(){
+  const rows=[...document.querySelectorAll("#s-d5result .d5r-row")];
+  let i=0;
+  const step=()=>{
+    if(!document.getElementById("s-d5result").classList.contains("on"))return; // 途中で画面を離れたら止める
+    if(i>=rows.length){
+      const sc=document.querySelector("#s-d5result .d5r-score");if(sc)sc.classList.add("shown");
+      setTimeout(d5RareBurst,480);
+      return;
+    }
+    const r=rows[i];
+    r.classList.add("shown","on-now");
+    sfxD5Roll();
+    setTimeout(()=>{
+      r.classList.add("judged");r.classList.remove("on-now");
+      const mk=r.querySelector(".d5r-mk");
+      if(mk&&mk.classList.contains("o"))sfxCorrect();
+      else if(mk&&(mk.classList.contains("u")||mk.classList.contains("t")))sfxNeutral();
+      else sfxIncorrect();
+      i++;setTimeout(step,540);
+    },640);
+  };
+  setTimeout(step,480);
+}
+/* レア演出：金色のフラッシュ＋キラキラ＋「RARE」＋レア効果音 */
+function d5RareBurst(){
+  const old=document.querySelector(".d5-rare");if(old)old.remove();
+  const ov=document.createElement("div");ov.className="d5-rare";
+  let spk="";
+  for(let i=0;i<18;i++){
+    const a=(Math.PI*2/18)*i+Math.random()*0.3,dist=140+Math.random()*180;
+    spk+=`<div class="d5-spk" style="--dx:${Math.round(Math.cos(a)*dist)}px;--dy:${Math.round(Math.sin(a)*dist)}px;animation-delay:${(Math.random()*0.18).toFixed(2)}s"></div>`;
+  }
+  ov.innerHTML=`<div class="d5-flash"></div>${spk}<div class="d5-word">★ RARE ★</div>`;
+  document.body.appendChild(ov);
+  sfxRare();
+  setTimeout(()=>ov.remove(),1900);
 }
 
 /* ============================================================ 歯車モード（設定でONにするとスタートボタンが歯車出題に切替） ============================================================
@@ -4156,6 +4455,7 @@ function _tick(){
 }
 /* 4択のみ：制限時間が半分過ぎたら不正解を1つ、残り1/5（10秒なら2秒）で更にもう1つ薄く消す（50/50風ヒント） */
 function _maybeEliminate(remain,limit){
+  if(_d5.on)return; // 今日の5問は一発勝負のため50/50ヒントを出さない
   const q=state&&state.questions&&state.questions[state.idx];
   if(!q||(q.type!=="kj"&&q.type!=="jk"))return;
   const wrap=document.querySelector("#qstage .choices");if(!wrap)return;
@@ -4174,8 +4474,8 @@ function renderQuestion(){
   // 遷移時に音声を止めない（長い単語が途中で切れないよう最後まで再生させる）。
   // 重複防止は次の正解時に speakKorean() 側の stopSpeak() が担う。
   const q=state.questions[state.idx];
-  document.getElementById("prog").textContent=(state.idx+1)+" / 12";
-  const _qa=document.getElementById("qadv");if(_qa)_qa.style.visibility="visible"; // 出題番号と同時にスイッチ表示
+  document.getElementById("prog").textContent=(_d5.on?"今日の5問　":"")+(state.idx+1)+" / "+((state.questions&&state.questions.length)||12);
+  const _qa=document.getElementById("qadv");if(_qa)_qa.style.visibility=_d5.on?"hidden":"visible"; // 出題番号と同時にスイッチ表示（今日の5問は正誤表示が無いので隠す）
   const stage=document.getElementById("qstage");
   if(q.type==="kj"||q.type==="jk"){
     const display=q.type==="kj"?q.word.ko:q.word.ja;
@@ -4328,6 +4628,7 @@ function submit(status,userAnswer){
     displayMemoryScoreAfterDecay:Math.round(dispAfter) // 互換
   };
   state.results.push(rec);saveAnswer(rec);
+  if(_d5.on){d5AfterAnswer(status,userAnswer);return;} // 今日の5問：正誤音・正解音声・玉の演出・○×オーバーレイをすべて出さない（判定は結果画面でまとめて）
   if(isCorrect)sfxCorrect();else if(status==="unknown")sfxNeutral();else sfxIncorrect(); // 正解=正解音／わからない=中立音／不正解・時間切れ=不正解音
   speakKorean(q.word); // 正解・不正解・わからない・時間切れすべてで正解の韓国語音声を再生（学習のため）
   if(isCorrect)spawnWordDrop(q.word,Math.max(0,limit-elapsed)/limit); // 正解（四択・書き取りとも）：単語玉が背景に降り積もる（速答ほど大きい）
@@ -4579,6 +4880,10 @@ function writingAnsHTML(status,q,userAnswer){
   return `<div class="ovans">${spk}<div class="oa-ko correct">${ko}</div></div>`;
 }
 function afterAnswer(){
+  if(_d5.on){ // 今日の5問（5問で終了 → 専用結果画面へ）
+    if(state.idx>=state.questions.length-1){finishDaily5();return;}
+    state.idx++;renderQuestion();return;
+  }
   if(state.idx>=11){finishTest();return;}
   state.idx++;renderQuestion();
 }
@@ -5136,7 +5441,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.124 (2026-07-23)";
+const APP_VERSION="v2.125 (2026-07-25)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
