@@ -183,6 +183,37 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check(`矢印で隣のROOMへ移動できる (3→${arr.next}→${arr.prev})`, arr.before === 3 && arr.next === 4 && arr.prev === 3);
   check('先頭に「前へ」、末尾に「次へ」は出ない', !arr.firstPrev && !arr.lastNext);
 
+  // --- ホーム下部のレイアウト刷新 ---
+  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); })
+    .then(() => page.reload()).then(() => page.waitForTimeout(1500));
+  await page.evaluate(() => document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove()));
+  const home = await page.evaluate(() => ({
+    startHidden: getComputedStyle(document.querySelector('.start-button')).display === 'none',
+    statusHidden: !document.querySelector('.hsb-left') || getComputedStyle(document.querySelector('.hsb-left')).display === 'none',
+    wbRect: (() => { const b = document.querySelector('.hsb-right'); if (!b) return null; const cs = getComputedStyle(b); return { radius: cs.borderRadius, left: cs.left, top: cs.top }; })(),
+    bubble: document.querySelector('.room-slide[data-n="1"] .sg-here')?.textContent,
+  }));
+  check('大きなスタートボタンは非表示', home.startHidden);
+  check('ステータスボタンは廃止', home.statusHidden);
+  check(`単語帳は長方形で帯の右へ (left=${home.wbRect && home.wbRect.left})`, !!home.wbRect && home.wbRect.radius === '14px' && home.wbRect.left === '478px');
+  check('「いまここ」の吹き出しが「スタート」', home.bubble === 'スタート');
+  check('吹き出しが画像の上にある', await page.evaluate(() => {
+    const t = document.querySelector('.room-slide[data-n="1"] .sg-tile.now');
+    const img = t.querySelector('.sg-img'), b = t.querySelector('.sg-here');
+    return b.getBoundingClientRect().bottom <= img.getBoundingClientRect().top + 2;
+  }));
+  check('「いまここ」はモノクロ＋黄色い光彩', await page.evaluate(() => {
+    const f = getComputedStyle(document.querySelector('.room-slide[data-n="1"] .sg-tile.now .sg-img')).animationName;
+    return f.includes('sgglow') && f.includes('sgnowc');
+  }));
+  check('吹き出しを押すとテストが始まる', await page.evaluate(async () => {
+    document.querySelector('.room-slide[data-n="1"] .sg-here').click();
+    await new Promise(r => setTimeout(r, 2600));
+    const on = document.getElementById('s-quiz').classList.contains('on');
+    if (on) quitTest();
+    return on;
+  }));
+
   check('コンソールエラー無し', errors.length === 0);
   if (errors.length) console.log(errors);
 

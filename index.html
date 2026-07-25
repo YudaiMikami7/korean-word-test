@@ -349,8 +349,8 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rr-btn.suck{animation:suckpop .5s ease}
 @keyframes toastin{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 /* 今日学ぶべき単語の帯：スタートボタン上に半透明白、カードが左→右に流れる */
-.today-band{position:absolute;left:0;top:810px;width:602px;height:182px;background:rgba(255,255,255,.6);z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease} /* 白帯は白寄り60%（背後の玉と重なっても見づらくならない） */
-.tb-clip{position:absolute;left:0;top:-5px;width:602px;height:187px;overflow:hidden;display:flex;align-items:flex-end}
+.today-band{position:absolute;left:0;top:975px;width:468px;height:182px;background:rgba(255,255,255,.6);z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease} /* 白帯は白寄り60%（背後の玉と重なっても見づらくならない） */
+.tb-clip{position:absolute;left:0;top:-5px;width:468px;height:187px;overflow:hidden;display:flex;align-items:flex-end}
 .tb-label{position:absolute;left:14px;top:8px;font-size:14px;font-weight:900;letter-spacing:1px;color:rgba(0,0,0,.55);pointer-events:none} /* 帯左上の見出し（流れる画像より背面） */
 .home-wrap.status .today-band,.home-wrap.hiderail .today-band{opacity:0}
 .tb-track{display:flex;animation:tbflow 30s linear infinite;will-change:transform;backface-visibility:hidden;margin-bottom:8px}
@@ -580,7 +580,8 @@ body.bigtext .set-d{font-size:13.5px}
 .zk-sil{filter:brightness(0) opacity(.78)} /* 黒シルエット */
 .zk-q{font-size:44px;font-weight:900;color:rgba(0,0,0,.4)}
 .room-ph{position:absolute;left:24px;top:178px;width:554px;height:507px;display:flex;align-items:center;justify-content:center;font-size:130px;color:rgba(255,255,255,.32);font-weight:800;z-index:1}
-.start-button{position:absolute;left:50%;transform:translate(-50%,calc(var(--down,0px)*2.2));top:1004px;width:320px;height:123px;border:4px solid #FFC400;border-radius:62px;
+.start-button{display:none!important} /* スタートはすごろくの「いまここ」吹き出しに統合 */
+.start-button-legacy{position:absolute;left:50%;transform:translate(-50%,calc(var(--down,0px)*2.2));top:1004px;width:320px;height:123px;border:4px solid #FFC400;border-radius:62px;
   background:rgba(0,0,0,.8);color:#FFFFFF;font-size:54px;font-weight:900;cursor:pointer;font-family:inherit;z-index:2;
   animation:glowpulse 1.45s ease-in-out infinite;transition:transform .4s ease,opacity .3s ease}
 /* 黄色光彩を強化：外へ広がって消えるリングを重ねる */
@@ -597,7 +598,11 @@ body.bigtext .set-d{font-size:13.5px}
 .sb-txt span:nth-child(3){animation-delay:.3s}
 .sb-txt span:nth-child(4){animation-delay:.45s}
 @keyframes sbchar{0%,72%,100%{transform:rotateY(0)}36%{transform:rotateY(360deg)}}
-.home-side-btn{position:absolute;top:1009px;width:113px;height:113px;border:none;border-radius:50%;background:#fff;color:#333;
+.home-side-btn.hsb-right{position:absolute;left:478px;top:975px;width:112px;height:182px;border-radius:14px;flex-direction:column;gap:4px;
+  display:flex;align-items:center;justify-content:center;background:#fff;border:none;color:#333;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.18);z-index:2}
+.home-side-btn.hsb-right img{width:66px;height:66px;transform:none!important;opacity:1!important}
+.home-side-btn.hsb-right .hsb-txt{position:static;transform:none!important;opacity:1!important;font-size:15px;font-weight:900;color:#333;display:block}
+.home-side-btn-legacy{position:absolute;top:1009px;width:113px;height:113px;border:none;border-radius:50%;background:#fff;color:#333;
   box-shadow:0 5px 14px rgba(0,0,0,.28);overflow:hidden;
   font-family:inherit;font-weight:900;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;text-align:center;
   transform:translateY(calc(var(--down,0px)*2.2));transition:transform .4s ease,opacity .3s ease;line-height:1.25;font-size:16px;padding:0 8px}
@@ -608,8 +613,7 @@ body.bigtext .set-d{font-size:13.5px}
 .hsb-left .hsb-txt{font-size:16px} /* 「ステータス」は文字数が多いので少し小さく */
 .home-side-btn.show-label img{transform:rotate(180deg);opacity:0}
 .home-side-btn.show-label .hsb-txt{transform:rotate(0deg);opacity:1}
-.hsb-left{left:18px}
-.hsb-right{right:18px}
+.hsb-left{display:none!important} /* ステータスボタンは廃止 */
 /* プリQQ選択中：単語帳/忘却曲線ボタンを白背景＋くるくる回りながら小さく出てくる登場アニメ */
 .home-wrap.pq-active .home-side-btn{background:#fff;box-shadow:0 5px 16px rgba(214,120,175,.5),inset 0 0 0 2px rgba(255,183,222,.9);animation:pqBtnPop .66s cubic-bezier(.34,1.56,.64,1) both}
 .home-wrap.pq-active .hsb-right{animation-delay:.09s}
@@ -1216,7 +1220,7 @@ body.bigtext .set-d{font-size:13.5px}
 /* ============================================================ すごろく（ROOM中央・縦スクロール） ============================================================
  * 1マス＝1テスト(12問)。丸いマスが蛇行してつながり、上から下へ進む。マスの上には常に単語画像が乗る。
  * 1周＝12マス（ROOM末尾など語数の少ない部屋は語数に比例して短くなる）。1周こなすと次の周のマスが下に伸びる。 */
-.sg-wrap{position:absolute;left:24px;top:104px;width:554px;height:506px;z-index:1;overflow:hidden;
+.sg-wrap{position:absolute;left:24px;top:104px;width:554px;height:636px;z-index:1;overflow:hidden;
   -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 40px,#000 calc(100% - 56px),transparent 100%);
           mask-image:linear-gradient(180deg,transparent 0,#000 40px,#000 calc(100% - 56px),transparent 100%)}
 .sg-bg{position:absolute;left:0;top:-10px;width:554px;height:507px;object-fit:contain;opacity:.2;pointer-events:none;filter:saturate(.7)} /* ROOMのジオラマを薄く敷いて奥行きを出す */
@@ -1236,11 +1240,17 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-tile.done .sg-num{color:#DFFBE6}
 .sg-rank{position:absolute;z-index:4;right:-54px;top:-176px;width:36px;height:36px;border-radius:50%;color:#fff;font-size:19px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.38);border:2px solid #fff}
 .sg-tile.now .sg-num,.sg-tile.now .sg-rank{animation:sgnow 1.6s ease-in-out infinite}
-.sg-tile.now .sg-img,.sg-tile.now .sg-noimg{animation:sgnowc 1.6s ease-in-out infinite} /* 画像はtranslateX(-50%)を保ったまま一緒に揺らす */
+.sg-tile.now .sg-img,.sg-tile.now .sg-noimg{animation:sgnowc 1.6s ease-in-out infinite,sgglow 1.9s ease-in-out infinite} /* 画像はtranslateX(-50%)を保ったまま一緒に揺らす＋黄色い光彩 */
+@keyframes sgglow{
+  0%,100%{filter:grayscale(1) drop-shadow(0 0 10px rgba(255,205,70,.9)) drop-shadow(0 0 24px rgba(255,175,0,.6)) drop-shadow(0 8px 8px rgba(0,0,0,.28))}
+  50%{filter:grayscale(1) drop-shadow(0 0 20px rgba(255,215,100,1)) drop-shadow(0 0 44px rgba(255,175,0,.9)) drop-shadow(0 8px 8px rgba(0,0,0,.28))}
+}
 @keyframes sgnow{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @keyframes sgnowc{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-7px)}}
-.sg-here{position:absolute;z-index:5;left:50%;top:58px;transform:translateX(-50%);background:#111;color:#fff;font-size:12px;font-weight:900;padding:5px 12px;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,.35);z-index:2}
-.sg-here::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-top-color:#111;border-bottom:0}
+.sg-here{position:absolute;z-index:6;left:50%;top:-252px;transform:translateX(-50%);background:#111;color:#FFC400;
+  font-size:23px;font-weight:900;letter-spacing:.16em;padding:13px 34px;white-space:nowrap;border-radius:8px;
+  box-shadow:0 5px 14px rgba(0,0,0,.42),0 0 0 3px rgba(255,196,0,.9)}
+.sg-here::after{content:"";position:absolute;left:50%;bottom:-9px;margin-left:-9px;border:9px solid transparent;border-top-color:#111;border-bottom:0}
 .sg-tile.lock{cursor:default}
 .sg-tile.lock .sg-img,.sg-tile.lock .sg-noimg{filter:grayscale(1) drop-shadow(0 6px 6px rgba(0,0,0,.26))}
 .sg-tile.lock .sg-num{color:rgba(255,255,255,.55)}
@@ -2149,7 +2159,7 @@ function startSideBtnFlip(){if(_sideFlipTimer)return;
   const tick=()=>{
     if(document.getElementById("s-home").classList.contains("on")&&!_statusMode){
       showLabel=!showLabel;
-      document.querySelectorAll(".home-side-btn").forEach(b=>b.classList.toggle("show-label",showLabel)); // 中身のみZ軸回転で切替（丸は固定）
+      document.querySelectorAll(".home-side-btn:not(.hsb-right)").forEach(b=>b.classList.toggle("show-label",showLabel)); // 単語帳は常時アイコン＋ラベル
     }
     _sideFlipTimer=setTimeout(tick,showLabel?1450:5800); // 文字1.45秒・アイコン5.8秒＝2:8
   };
@@ -4017,7 +4027,7 @@ function sgBoardHTML(n){
       +(src?'<img class="sg-img" src="'+src+'" alt="" loading="lazy" decoding="async">':'<span class="sg-noimg">🃏</span>')
       +'<span class="sg-num">'+g+'</span>'
       +(rank?'<span class="sg-rank" style="background:'+(RANK_COLORS[rank]||"#555")+'">'+rank+'</span>':"")
-      +(now?'<span class="sg-here">いまここ</span>':"")
+      +(now?'<span class="sg-here">スタート</span>':"")
       +'</button>');
     if(idx===0)laps.push('<div class="sg-lap" style="top:'+Math.round(p.y+SG_STEP*0.56)+'px"><span>'+lap+'周目</span></div>');
     // 自然物は道の反対側の外周へ1マスにつき1つ（マス・道・左レールに被らせない）
@@ -5779,7 +5789,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.134 (2026-07-25)";
+const APP_VERSION="v2.135 (2026-07-25)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
