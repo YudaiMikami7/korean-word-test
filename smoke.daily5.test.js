@@ -49,19 +49,19 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   await page.waitForTimeout(300);
   check('モーダルが開く', await page.evaluate(() => document.getElementById('d5-modal').classList.contains('on')));
   check('朝の部/夜の部の2枠が出る', await page.evaluate(() => document.querySelectorAll('#d5-modal .d5-slot').length === 2));
-  check('切り替えは6時と18時', await page.evaluate(() => {
+  check('切り替えは5時と18時', await page.evaluate(() => {
     const at = (h) => { const d = new Date(); d.setHours(h, 30, 0, 0); return d5Slot(d.getTime()); };
-    return at(5) === 'pm' && at(6) === 'am' && at(17) === 'am' && at(18) === 'pm' && at(23) === 'pm'
-      && d5SlotTime('am') === '6:00–17:59' && d5SlotTime('pm') === '18:00–5:59';
+    return at(4) === 'pm' && at(5) === 'am' && at(17) === 'am' && at(18) === 'pm' && at(23) === 'pm'
+      && d5SlotTime('am') === '5:00–17:59' && d5SlotTime('pm') === '18:00–4:59';
   }));
-  check('深夜0〜6時は前日の夜の部として扱う', await page.evaluate(() => {
+  check('深夜0〜5時は前日の夜の部として扱う', await page.evaluate(() => {
     const d = new Date(); d.setHours(2, 0, 0, 0);
     const prev = new Date(d.getTime() - 86400000);
     return d5Key(d.getTime()) === dayKey(prev.getTime()) + '#pm';
   }));
-  check('次の枠が開く時刻が6時/18時', await page.evaluate(() => {
+  check('次の枠が開く時刻が5時/18時', await page.evaluate(() => {
     const mk = (h) => { const d = new Date(); d.setHours(h, 30, 0, 0); return new Date(d5NextOpenAt(d.getTime())).getHours(); };
-    return mk(2) === 6 && mk(10) === 18 && mk(20) === 6;
+    return mk(2) === 5 && mk(10) === 18 && mk(20) === 5;
   }));
   check('未プレイ枠に「はじめる」がある', await page.evaluate(() => !!document.querySelector('#d5-modal .d5-go')));
 
