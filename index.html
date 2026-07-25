@@ -267,10 +267,12 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* ルームメニュー領域のクリップ：3面ローテのアニメが座布団の外にはみ出て描画されないように（座標は不変） */
 .rmenu-clip{position:absolute;inset:0;z-index:2;clip-path:inset(-12px 40px calc(100% - 104px) 40px round 56px)}
 /* ROOMメニュー（カプセル）の外側・左右に置く「隣のROOMへ」矢印 */
-.rm-arrow{position:absolute;top:14px;width:34px;height:76px;z-index:3;border:none;padding:0;background:rgba(0,0,0,.22);color:#fff;
-  font-size:30px;font-weight:900;line-height:76px;text-align:center;cursor:pointer;font-family:inherit;border-radius:10px;
-  box-shadow:0 2px 6px rgba(0,0,0,.18);transition:background .15s ease,transform .08s ease}
-.rm-arrow:active{background:rgba(0,0,0,.38);transform:scale(.94)}
+.rm-arrow{position:absolute;top:14px;width:36px;height:76px;z-index:3;border:none;padding:0;background:transparent;
+  font-size:0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;transition:transform .08s ease}
+.rm-arrow::before{content:"";display:block;width:0;height:0;border-style:solid} /* 三角だけ。座布団と影は付けない */
+.rm-prev::before{border-width:14px 17px 14px 0;border-color:transparent rgba(255,255,255,.95) transparent transparent}
+.rm-next::before{border-width:14px 0 14px 17px;border-color:transparent transparent transparent rgba(255,255,255,.95)}
+.rm-arrow:active{transform:scale(.84)}
 .rm-prev{left:4px}
 .rm-next{right:4px}
 .home-wrap.status .rm-arrow,.home-wrap.hiderail .rm-arrow{opacity:0;pointer-events:none}
@@ -718,24 +720,24 @@ body.bigtext .set-d{font-size:13.5px}
 .st-mbti{position:absolute;left:24px;top:60px;height:420px;width:554px;display:flex;flex-direction:column;z-index:4;cursor:pointer;
   background:rgba(255,255,255,.15);padding:20px 24px;box-sizing:border-box} /* 白15%パネル(UI.pdf)・スワイプで動かない */
 .st-job{text-align:center;font-size:27px;font-weight:800;margin-bottom:14px}
-.ax2row{display:flex;align-items:center;gap:12px;flex:1}
-.ax2dot{width:15px;height:15px;border-radius:50%;flex:0 0 auto}
-.ax2l{font-size:34px;font-weight:800;width:36px;text-align:center;flex:0 0 auto}
+.ax2row{display:flex;align-items:center;gap:9px;flex:1}
+.ax2dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
+.ax2l{font-size:23px;font-weight:800;width:25px;text-align:center;flex:0 0 auto}
 /* 軸の説明：F＝… ではなく、左のアルファベットの真下に左の名前・右のアルファベットの真下に右の名前 */
-.st-axdesc{position:relative;height:15px;margin:0 0 2px}
-.st-axdesc .ad-l,.st-axdesc .ad-r{position:absolute;top:0;width:90px;text-align:center;font-size:12.5px;font-weight:800;line-height:1;color:#fff}
+.st-axdesc{position:relative;height:13px;margin:0 0 2px}
+.st-axdesc .ad-l,.st-axdesc .ad-r{position:absolute;top:0;width:84px;text-align:center;font-size:11px;font-weight:800;line-height:1;color:#fff}
 .st-axdesc .ad-l{left:0}
 .st-axdesc .ad-r{right:0}
 /* 16TYPE 詳細 › を右上へ */
 .st-mbti .t16top{position:absolute;top:0;right:2px;margin:0;z-index:5}
-.ax2bar{position:relative;flex:1;height:40px}
-.ax2line{position:absolute;left:0;right:0;top:50%;height:3px;background:#fff;transform:translateY(-50%)}
-.ax2tick{position:absolute;top:50%;width:3px;height:12px;background:#fff;transform:translate(-50%,-50%)}
-.ax2tick.end{height:18px}
-.ax2knob{position:absolute;top:50%;width:21px;height:21px;border-radius:50%;border:3px solid #fff;transform:translate(-50%,-50%);box-sizing:border-box}
-.ax2panel{background:rgba(255,255,255,.15);padding:14px 18px} /* 4メータの白15%背景 */
+.ax2bar{position:relative;flex:1;height:27px}
+.ax2line{position:absolute;left:0;right:0;top:50%;height:2px;background:#fff;transform:translateY(-50%)}
+.ax2tick{position:absolute;top:50%;width:2px;height:9px;background:#fff;transform:translate(-50%,-50%)}
+.ax2tick.end{height:13px}
+.ax2knob{position:absolute;top:50%;width:15px;height:15px;border-radius:50%;border:2px solid #fff;transform:translate(-50%,-50%);box-sizing:border-box}
+.ax2panel{background:rgba(255,255,255,.15);padding:10px 14px} /* 4メータの白15%背景 */
 .tdetail-sec .ax2row{margin:12px 0 4px}
-.ax2desc{font-size:11.5px;line-height:1.6;color:rgba(255,255,255,.82);padding:0 2px 12px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:12px} /* 各メータ直下の常時説明 */
+.ax2desc{font-size:11px;line-height:1.6;color:rgba(255,255,255,.82);padding:0 2px 9px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:9px} /* 各メータ直下の常時説明 */
 .ax2panel .ax2desc:last-child{border-bottom:none;margin-bottom:0;padding-bottom:2px}
 .ax2desc b{color:#fff;font-size:12px}
 .t16link{margin-top:auto;text-align:right;font-size:17px;font-weight:800;cursor:pointer;letter-spacing:1px}
@@ -1219,8 +1221,8 @@ body.bigtext .set-d{font-size:13.5px}
   box-shadow:0 7px 0 #C3860F,0 10px 11px rgba(0,0,0,.24);transition:transform .08s ease,box-shadow .08s ease} /* 地面に置いた円盤を斜め上から見た楕円。上のテカリは無し・下の影のみ */
 .sg-tile:active .sg-disc{transform:translateY(4px);box-shadow:0 3px 0 #C3860F,0 5px 8px rgba(0,0,0,.24)}
 .sg-num{position:absolute;z-index:1;left:0;right:0;bottom:20px;text-align:center;font-size:18px;font-weight:900;color:#7A4E00;text-shadow:0 1px 0 rgba(255,255,255,.6)}
-.sg-img{position:absolute;z-index:3;left:50%;top:-74px;width:118px;height:118px;transform:translateX(-50%);object-fit:contain;pointer-events:none;filter:drop-shadow(0 8px 7px rgba(0,0,0,.3))}
-.sg-noimg{position:absolute;z-index:3;left:50%;top:-56px;transform:translateX(-50%);font-size:56px;pointer-events:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.3))}
+.sg-img{position:absolute;z-index:3;left:50%;top:-186px;width:236px;height:236px;transform:translateX(-50%);object-fit:contain;pointer-events:none;filter:drop-shadow(0 8px 7px rgba(0,0,0,.3))}
+.sg-noimg{position:absolute;z-index:3;left:50%;top:-120px;transform:translateX(-50%);font-size:112px;pointer-events:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.3))}
 .sg-tile.done .sg-disc{background:#78D398;box-shadow:0 8px 0 #3B8A57,0 11px 12px rgba(0,0,0,.24)}
 .sg-tile.done .sg-num{color:#1E5B36}
 .sg-rank{position:absolute;z-index:1;right:-2px;bottom:36px;width:34px;height:34px;border-radius:50%;color:#fff;font-size:19px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.38);border:2px solid #fff}
@@ -2913,7 +2915,9 @@ function togglePeek(code){
 }
 /* 軸説明文の（F：…）（U：…）等の括弧書き部分を軸カラーで着色 */
 function colorAxisParen(desc){
-  return esc(desc).replace(/（([FUMCPSQD])：([^）]*)）/g,(m,l,b)=>`<span style="color:${AXIS_COLORS[l]||'inherit'};font-weight:800">（${l}：${b}）</span>`);
+  // 「（F：説明）」形式と「（M）」形式のどちらも軸カラーで着色する（従来は前者だけで、2〜4軸目に色が付いていなかった）
+  return esc(desc).replace(/（([FUMCPSQD])(：[^）]*)?）/g,
+    (m,l,b)=>`<span style="color:${AXIS_COLORS[l]||'inherit'};font-weight:800">（${l}${b||""}）</span>`);
 }
 function renderTypeDetail(){
   const d=computeDiagnosis();
@@ -2932,16 +2936,17 @@ function renderTypeDetail(){
       <span class="ax2l">${ax.R}</span>
       <span class="ax2dot" style="background:${AXIS_COLORS[ax.R]}"></span>
     </div>
-    <div class="st-axdesc"><span class="ad-l">${esc(ax.ln)}</span><span class="ad-r">${esc(ax.rn)}</span></div>
+    <div class="st-axdesc"><span class="ad-l" style="color:${AXIS_COLORS[ax.L]}">${esc(ax.ln)}</span><span class="ad-r" style="color:${AXIS_COLORS[ax.R]}">${esc(ax.rn)}</span></div>
     <div class="ax2desc">${colorAxisParen(ax.desc)}</div>`;
   }).join(""); // ステータス画面と同じ設計：ラベルは白、説明文の括弧書きは軸カラー
   // タイプ説明（選択中＝既定は自分）
   const pk=_typePeek;
+  const codeColored=c=>[...c].map(ch=>`<span style="color:${AXIS_COLORS[ch]||'inherit'}">${ch}</span>`).join("");
   const peek=`<div class="tpeek" id="tpeek-main"><img src="characters/${pk.toLowerCase()}.svg" alt="">
-    <div><b>${pk} ${esc((TYPE_INFO[pk]||[""])[0])}</b><br>${esc(TYPE_LONG[pk]||"")}</div></div>`;
+    <div><b>${codeColored(pk)} ${esc((TYPE_INFO[pk]||[""])[0])}</b><br>${colorAxisParen(TYPE_LONG[pk]||"")}</div></div>`;
   const list=Object.entries(TYPE_INFO).map(([code,[name]])=>{
     const cur=code===fullCode,sel=_typePeek===code;
-    return `<div class="trow${cur?" cur":""}${sel?" sel":""}" onclick="togglePeek('${code}')"><span class="tcode">${code}</span><span>${esc(name)}</span></div>`;
+    return `<div class="trow${cur?" cur":""}${sel?" sel":""}" onclick="togglePeek('${code}')"><span class="tcode">${codeColored(code)}</span><span>${esc(name)}</span></div>`;
   }).join("");
   document.getElementById("s-type").innerHTML=`
    <div class="page">
@@ -3809,7 +3814,7 @@ function d5RareBurst(){
  * → 1周こなせば必ず全語が登場する（従来は正答率が低いと一周できなかった）。復習の混ざり方は従来どおり毎回3〜4問。 */
 const LS_BOARD="kwt_board_v1";
 const SG_QPT=12;                                   // 1マスの問題数
-const SG_STEP=140,SG_TOP=104,SG_AMP=178,SG_CX=277;  // マスの間隔・端の余白・蛇行の振幅・中心x（下から上へ登る）
+const SG_STEP=178,SG_TOP=120,SG_AMP=178,SG_CX=277;  // マスの間隔・端の余白・蛇行の振幅・中心x（下から上へ登る）
 const SG_FREQ=0.95,SG_FAR=0.34;                     // 蛇行の急さ・遠方の縮小率（斜め見の遠近感）
 const SG_DECO=["🌲","🌳","🌸","⭐","✨","🍀","🌿","🌼","🪨","🍄"];
 let _boardTile=null,_lastBoardTile=null;
@@ -3818,30 +3823,38 @@ function boardLapSize(level,sec){ // 100語→12マス（8.33語/マス）。語
   return Math.max(3,Math.ceil(n*SG_QPT/100));
 }
 function boardKey(level,sec){return level+"-"+String(sec).padStart(2,"0");}
-/* これまでの学習履歴からすごろくの進捗を復元（初回のみ）。
- * 過去に12問を完走したテストを、そのROOMのマスとして古い順に埋める＝今までの積み上げぶんだけ進んだ状態から始まる。 */
+/* これまでの学習履歴ぶんだけすごろくを進める（1度だけ）。
+ * ・12問を完走したテストを、そのROOMのマスとして古い順に埋める
+ * ・履歴は90日で間引かれるため、記憶データ(reviewCount)からも「そのROOMで何回ぶん解いたか」を見積もり、多いほうを採る
+ * ・すでに進めているぶんは絶対に下げない（マージする） */
 (function boardSeedFromHistory(){
   try{
-    if(localStorage.getItem("kwt_boardseed_v1"))return;
-    localStorage.setItem("kwt_boardseed_v1","1");
-    if(localStorage.getItem(LS_BOARD))return;             // 既にすごろくを進めていれば触らない
-    const h=loadHistory();if(!h.length)return;
-    const m=secOfWord(),tests={};
-    h.forEach(r=>{
+    if(localStorage.getItem("kwt_boardseed_v2"))return;
+    localStorage.setItem("kwt_boardseed_v2","1");
+    const m=secOfWord(),tests={},secOf={};
+    loadHistory().forEach(r=>{
       const k=m[r.wordId];if(!k||!r.testId)return;
       const t=tests[r.testId]||(tests[r.testId]={sec:k,score:0,n:0,at:r.answeredAt||""});
       t.score+=(r.score||0);t.n++;if((r.answeredAt||"")>t.at)t.at=r.answeredAt||t.at;
     });
     const per={};
-    Object.keys(tests).forEach(id=>{const t=tests[id];if(t.n<12)return;(per[t.sec]=per[t.sec]||[]).push(t);}); // 12問完走のみ1マスとして数える
-    const board={};
-    Object.keys(per).forEach(sec=>{
+    Object.keys(tests).forEach(id=>{const t=tests[id];if(t.n<12)return;(per[t.sec]=per[t.sec]||[]).push(t);});
+    // 履歴が間引かれていても取りこぼさないよう、単語ごとの回答回数からも見積もる
+    const stats=loadStats(),ans={};
+    Object.keys(stats).forEach(id=>{const k=m[id];if(!k)return;ans[k]=(ans[k]||0)+((stats[id]||{}).reviewCount||0);});
+    const board=loadBoard();let changed=false;
+    const keys=new Set(Object.keys(per).concat(Object.keys(ans)));
+    keys.forEach(sec=>{
       const [lv,num]=sec.split("-"),key=lv+"-"+String(num).padStart(2,"0");
-      const list=per[sec].sort((a,b)=>a.at<b.at?-1:1),tiles={};
-      list.forEach((t,i)=>{const sc=Math.min(100,Math.ceil(t.score));tiles[i+1]={rank:rankFor(sc),score:sc,at:t.at};});
-      board[key]={cleared:list.length,tiles};
+      const list=(per[sec]||[]).sort((a,b)=>a.at<b.at?-1:1);
+      const want=Math.max(list.length,Math.floor((ans[sec]||0)/SG_QPT));
+      if(want<=0)return;
+      const cur=board[key]||{cleared:0,tiles:{}};
+      list.forEach((t,i)=>{const g=i+1;if(!cur.tiles[g]){const sc=Math.min(100,Math.ceil(t.score));cur.tiles[g]={rank:rankFor(sc),score:sc,at:t.at};}});
+      if(want>(cur.cleared||0)){cur.cleared=want;changed=true;}
+      board[key]=cur;
     });
-    if(Object.keys(board).length)_lsSet(LS_BOARD,JSON.stringify(board));
+    if(changed)_lsSet(LS_BOARD,JSON.stringify(board));
   }catch(e){}
 })();
 function loadBoard(){try{return JSON.parse(localStorage.getItem(LS_BOARD)||"{}")||{};}catch(e){return{};}}
@@ -5518,7 +5531,7 @@ function statusMbtiHTML(){ // UI.pdf準拠: 白15%パネル・職業名・目盛
       <span class="ax2l">${ax.R}</span>
       <span class="ax2dot" style="background:${AXIS_COLORS[ax.R]}"></span>
     </div>
-    <div class="st-axdesc"><span class="ad-l">${esc(ax.ln)}</span><span class="ad-r">${esc(ax.rn)}</span></div>`;
+    <div class="st-axdesc"><span class="ad-l" style="color:${AXIS_COLORS[ax.L]}">${esc(ax.ln)}</span><span class="ad-r" style="color:${AXIS_COLORS[ax.R]}">${esc(ax.rn)}</span></div>`;
   }).join("");
   return `<div class="t16link t16top" onclick="renderTypeDetail()">16TYPE 詳細 <b>›</b></div>
     <div class="st-job">${any?esc((TYPE_INFO[fullCode]||[""])[0]):"分析中"}</div>
@@ -5756,7 +5769,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.131 (2026-07-25)";
+const APP_VERSION="v2.132 (2026-07-25)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

@@ -140,6 +140,25 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     now: document.querySelector('.room-slide[data-n="1"] .sg-tile.now')?.getAttribute('aria-label'),
   }));
   check(`過去3回ぶんが3マス進んだ状態になる (cleared=${st.r1.cleared})`, seeded && st.r1.cleared === 3 && st.tiles === 3);
+  // 履歴が間引かれていても、記憶データ(reviewCount)から進捗を補える
+  const fromStats = await page.evaluate(async () => {
+    localStorage.clear();
+    const st = {}; LEVEL_SECTIONS.beginner[4].forEach(id => { st[id] = { reviewCount: 6, hasSeen: true }; }); // 100語x6回=600 → 600/12=50マス
+    localStorage.setItem('kwt_stats_v1', JSON.stringify(st));
+    return true;
+  }).then(() => page.reload()).then(() => page.waitForTimeout(1400))
+    .then(() => page.evaluate(() => ({ r4: boardState('beginner', 4).cleared, r5: boardState('beginner', 5).cleared })));
+  check(`履歴が無くても記憶データから進捗を補う (ROOM04=${fromStats.r4})`, fromStats.r4 === 50 && fromStats.r5 === 0);
+  // 既に進めている分は下げない
+  const noDown = await page.evaluate(async () => {
+    localStorage.clear();
+    localStorage.setItem('kwt_board_v1', JSON.stringify({ 'beginner-06': { cleared: 20, tiles: {} } }));
+    const st = {}; LEVEL_SECTIONS.beginner[6].slice(0, 10).forEach(id => { st[id] = { reviewCount: 1, hasSeen: true }; });
+    localStorage.setItem('kwt_stats_v1', JSON.stringify(st));
+    return true;
+  }).then(() => page.reload()).then(() => page.waitForTimeout(1400))
+    .then(() => page.evaluate(() => boardState('beginner', 6).cleared));
+  check(`既存の進捗は下げない (20 → ${noDown})`, noDown === 20);
   check('未完走(6問)のテストはマスに数えない', st.r1.cleared === 3);
   check(`別ROOMも個別に反映 (ROOM02=${st.r2.cleared} / ROOM03=${st.r3.cleared})`, st.r2.cleared === 1 && st.r3.cleared === 0);
   check('復元したマスにランクが入る', !!st.r1.tiles['1'] && !!st.r1.tiles['1'].rank);
