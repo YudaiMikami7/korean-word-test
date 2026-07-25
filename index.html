@@ -69,9 +69,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .qhome{background:rgba(0,0,0,.8);border:none;color:#fff;width:32px;height:32px;font-size:16px;cursor:pointer;flex:0 0 auto}
 .qbar .prog{letter-spacing:.5px}
 .qbar .time{color:#FFFFFF;font-variant-numeric:tabular-nums;margin-left:auto;font-weight:800;font-size:14.3px} /* カウントダウンは1段太く(700→800)・1.1倍(13→14.3px) */
-.pbar{height:7px;margin:8px 18px 0;background:rgba(0,0,0,.55);border:2px solid #000;border-radius:4px;overflow:hidden;box-sizing:border-box} /* 進捗バー：問題が進むほど伸びる（時間バーの半分の高さ） */
+.pbar{height:7px;margin:8px 18px 0;background:rgba(0,0,0,.42);border:1px solid rgba(0,0,0,.45);border-radius:4px;overflow:hidden;box-sizing:border-box} /* 進捗バー：問題が進むほど伸びる（時間バーの半分の高さ） */
 .pfill{height:100%;width:0;background:#F8B500;transition:width .45s cubic-bezier(.3,1.2,.4,1)} /* 山吹色 */
-.tbar{height:14px;margin:3px 18px 0;background:rgba(0,0,0,.55);border:2px solid #000;border-radius:4px;overflow:hidden;box-sizing:border-box} /* 黒枠の中に緑メーターが減る出題バー */
+.tbar{height:14px;margin:3px 18px 0;background:rgba(0,0,0,.42);border:1px solid rgba(0,0,0,.45);border-radius:4px;overflow:hidden;box-sizing:border-box} /* 黒枠の中に緑メーターが減る出題バー */
 .tfill{height:100%;width:100%;background:#00FF37;transition:width .1s linear} /* 制限時間バーは緑（ホームのトンマナ）・黒枠内で減っていく */
 .tfill.warn{background:#FFC400}
 
@@ -514,7 +514,7 @@ body.bigtext .set-d{font-size:13.5px}
 .hist-card .wh-empty{color:rgba(0,0,0,.55)}
 .hist-close{position:absolute;right:10px;top:6px;background:transparent;border:none;font-size:24px;font-weight:900;color:#888;cursor:pointer}
 .oa-close{display:inline-block;background:rgba(255,216,77,.95);color:#5a4300;font-size:14px;font-weight:900;padding:7px 14px;border-radius:999px;margin-bottom:10px} /* 書き取りのおしい表示 */
-.res-cheer{font-size:12.5px;font-weight:800;color:rgba(255,255,255,.95);margin-top:6px}
+.res-cheer{font-size:12.5px;font-weight:800;color:rgba(255,255,255,.95);margin-top:4px}
 .res-first{flex:0 0 auto;background:rgba(255,255,255,.92);color:#1a1a1a;border-radius:14px;padding:12px 14px;margin-bottom:8px;font-size:13px;font-weight:800;line-height:1.7;text-align:center} /* 初回完走の報酬予告 */
 .res-first b{color:#C24A00}
 .wb-tabs{display:flex;gap:8px;padding:10px 12px 0}
@@ -787,9 +787,9 @@ body.bigtext .set-d{font-size:13.5px}
 
 /* ===== result (fixed, only list scrolls) ===== */
 .res{flex:1 1 auto;min-height:0;width:100%;display:flex;flex-direction:column;padding:14px 18px calc(10px + env(safe-area-inset-bottom))} /* 100dvh固定をやめ画面領域内に収める（ページスクロール撲滅） */
-.res-head{flex:0 0 auto;text-align:center;background:rgba(255,255,255,.28);border-radius:14px;padding:10px 8px} /* 背後の玉と干渉しないよう白下敷き */
-.res-top{display:flex;align-items:center;justify-content:center;gap:18px}
-.rank-c{width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:54px;font-weight:900;color:#fff}
+.res-head{flex:0 0 auto;text-align:center;background:rgba(255,255,255,.28);border-radius:14px;padding:7px 8px} /* 背後の玉と干渉しないよう白下敷き */
+.res-top{display:flex;align-items:center;justify-content:center;gap:14px}
+.rank-c{width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:45px;font-weight:900;color:#fff}
 /* ランクをメダル風に：金リング＋光沢、登場時に回転しながらポップ */
 .rank-medal{position:relative;box-shadow:0 0 0 4px rgba(255,255,255,.85),0 0 0 7px rgba(255,196,0,.9),0 6px 16px rgba(0,0,0,.35)}
 .rank-medal::after{content:"";position:absolute;inset:6px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%);pointer-events:none}
@@ -826,12 +826,13 @@ body.bigtext .set-d{font-size:13.5px}
 }
 @keyframes cgshine{0%{opacity:0;left:-120%}45%{opacity:.95}100%{opacity:0;left:160%}}
 /* 結果の単語一覧＝獲得カード風グリッド（正誤記号＋記憶率＋変化つき） */
-.res-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:2px}
-.rc-card{position:relative;aspect-ratio:3/4;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.25);padding:4px;box-sizing:border-box}
-.rc-card img{width:72%;height:46%;object-fit:contain}
+.res-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:2px} /* 4列→3列にして1枚を大きく */
+.rc-card{position:relative;aspect-ratio:3/3.5;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.25);padding:5px;box-sizing:border-box}
+.rc-card img{width:76%;height:44%;object-fit:contain}
 .rc-card .cg-noimg{font-size:26px}
-.rc-sym{position:absolute;top:2px;left:6px;font-size:19px;font-weight:900;text-shadow:0 1px 2px rgba(0,0,0,.15)}
-.rc-ko{font-size:13px;font-weight:900;color:#333;white-space:nowrap;overflow:hidden;max-width:94%;text-overflow:ellipsis;margin-top:3px}
+.rc-sym{position:absolute;top:2px;left:7px;font-size:21px;font-weight:900;text-shadow:0 1px 2px rgba(0,0,0,.15)}
+.rc-ko{font-size:15px;font-weight:900;color:#333;white-space:nowrap;overflow:hidden;max-width:94%;text-overflow:ellipsis;margin-top:3px}
+.rc-ja{font-size:11px;font-weight:700;color:#7a6a4a;white-space:nowrap;overflow:hidden;max-width:94%;text-overflow:ellipsis;margin-top:1px} /* 日本語の意味 */
 .rc-foot{display:flex;gap:6px;align-items:baseline;justify-content:center;margin-top:1px}
 .rc-cards{font-size:11px;font-weight:900;color:#b8862b}
 .rc-delta{font-size:11px;font-weight:900} /* 記憶率の増減（±%）色はインラインで緑/赤 */
@@ -843,13 +844,13 @@ body.bigtext .set-d{font-size:13.5px}
 .rp-g{width:120px;height:15px;background:#333;border-radius:999px;padding:3px;box-sizing:border-box}
 .rp-g div{height:100%;border-radius:999px}
 .res-right{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
-.res-pwr{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
+.res-pwr{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
 .res-pwr .pwr-g div{transition:width .9s ease}
 .res-pwr .pwr-lab,.res-pwr .pwr-val{font-size:15px} /* メータ縮小に合わせ文字も小さく */
 .res-pwr .pwr-g{width:180px;height:12px;padding:2px}
 .pwr-delta{font-size:18px;font-weight:900}
 .res-pwr .pwr-delta{font-size:14px}
-.res-counts{display:flex;justify-content:flex-start;gap:20px;font-size:18px;font-weight:900}
+.res-counts{display:flex;flex-direction:column;align-items:flex-start;gap:1px;font-size:17px;font-weight:900;line-height:1.15} /* 点数の右に 上=正解数 / 下=不正解数 */
 .res-sess{margin-top:8px;font-size:12.5px;color:var(--faint);font-weight:700}
 .res-sess b{color:var(--text)}
 .btn.dark{background:rgba(0,0,0,.8);color:#fff}
@@ -864,9 +865,18 @@ body.bigtext .set-d{font-size:13.5px}
 .rtab td.ko{font-weight:700;font-size:15px}
 .rtab .r-ok{color:var(--green)}.rtab .r-ng{color:var(--blue)}.rtab .r-un{color:var(--mute)}.rtab .r-to{color:var(--gold)}
 .hint-badge{display:inline-block;margin-left:6px;padding:1px 6px;border:1px solid var(--line);color:var(--gold);font-size:10px;font-weight:700;vertical-align:middle}
-.res-btns{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;gap:9px;background:rgba(255,255,255,.28);border-radius:14px;padding:8px}
+.res-btns{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:7px;background:rgba(255,255,255,.55);border-radius:14px;padding:7px}
+/* アイコン＋下にラベルの縦並びボタン（応援する / シェアする / もう一度 / ホーム） */
+.res-btns .rb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  border:none;border-radius:10px;background:#fff;color:#222;padding:9px 2px;cursor:pointer;
+  font-family:inherit;text-decoration:none;transition:transform .08s ease,background .15s ease}
+.res-btns .rb:active{transform:translateY(1px);background:#eee}
+.res-btns .rb-ico{font-size:22px;line-height:1}
+.res-btns .rb-lab{font-size:11.5px;font-weight:900;line-height:1;white-space:nowrap}
+.res-btns .rb-pri{background:#111;color:#fff}
+.res-btns .rb-pri:active{background:#2a2a2a}
 .res-btns .btn{padding:14px;font-size:14px}
-.res-btns .full{grid-column:1/3}
+.res-btns .full{grid-column:1/4}
 
 /* ===== generic page (history / curve) ===== */
 .page{height:100dvh;display:flex;flex-direction:column;padding:16px 16px calc(12px + env(safe-area-inset-bottom))}
@@ -1217,25 +1227,23 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-road{position:absolute;left:0;top:0;pointer-events:none}
 .sg-deco{position:absolute;z-index:0;pointer-events:none;user-select:none;object-fit:contain;will-change:transform;filter:drop-shadow(0 5px 5px rgba(0,0,0,.24))}
 .sg-tile{position:absolute;z-index:1;width:96px;height:96px;margin:-48px 0 0 -48px;border:none;background:transparent;padding:0;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
-.sg-disc{position:absolute;z-index:0;left:0;right:0;bottom:2px;height:60px;border-radius:50%;background:#FFC63F;
-  box-shadow:0 7px 0 #C3860F,0 10px 11px rgba(0,0,0,.24);transition:transform .08s ease,box-shadow .08s ease} /* 地面に置いた円盤を斜め上から見た楕円。上のテカリは無し・下の影のみ */
-.sg-tile:active .sg-disc{transform:translateY(4px);box-shadow:0 3px 0 #C3860F,0 5px 8px rgba(0,0,0,.24)}
-.sg-num{position:absolute;z-index:1;left:0;right:0;bottom:20px;text-align:center;font-size:18px;font-weight:900;color:#7A4E00;text-shadow:0 1px 0 rgba(255,255,255,.6)}
-.sg-img{position:absolute;z-index:3;left:50%;top:-186px;width:236px;height:236px;transform:translateX(-50%);object-fit:contain;pointer-events:none;filter:drop-shadow(0 8px 7px rgba(0,0,0,.3))}
+.sg-tile:active .sg-img{transform:translateX(-50%) scale(.94)}
+/* 番号は画像の左上、ランクは画像の右上（円盤は置かない） */
+.sg-num{position:absolute;z-index:4;left:-56px;top:-176px;font-size:25px;font-weight:900;color:#fff;
+  text-shadow:0 2px 5px rgba(0,0,0,.6),0 0 4px rgba(0,0,0,.6)}
+.sg-img{position:absolute;z-index:3;left:50%;top:-186px;width:236px;height:236px;transform:translateX(-50%);object-fit:contain;transition:transform .08s ease;filter:drop-shadow(0 8px 7px rgba(0,0,0,.3))}
 .sg-noimg{position:absolute;z-index:3;left:50%;top:-120px;transform:translateX(-50%);font-size:112px;pointer-events:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.3))}
-.sg-tile.done .sg-disc{background:#78D398;box-shadow:0 8px 0 #3B8A57,0 11px 12px rgba(0,0,0,.24)}
-.sg-tile.done .sg-num{color:#1E5B36}
-.sg-rank{position:absolute;z-index:1;right:-2px;bottom:36px;width:34px;height:34px;border-radius:50%;color:#fff;font-size:19px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.38);border:2px solid #fff}
-.sg-tile.now .sg-disc,.sg-tile.now .sg-num,.sg-tile.now .sg-rank{animation:sgnow 1.6s ease-in-out infinite}
+.sg-tile.done .sg-num{color:#DFFBE6}
+.sg-rank{position:absolute;z-index:4;right:-54px;top:-176px;width:36px;height:36px;border-radius:50%;color:#fff;font-size:19px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.38);border:2px solid #fff}
+.sg-tile.now .sg-num,.sg-tile.now .sg-rank{animation:sgnow 1.6s ease-in-out infinite}
 .sg-tile.now .sg-img,.sg-tile.now .sg-noimg{animation:sgnowc 1.6s ease-in-out infinite} /* 画像はtranslateX(-50%)を保ったまま一緒に揺らす */
 @keyframes sgnow{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @keyframes sgnowc{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-7px)}}
-.sg-here{position:absolute;z-index:4;left:50%;top:104px;transform:translateX(-50%);background:#111;color:#fff;font-size:12px;font-weight:900;padding:5px 12px;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,.35);z-index:2}
-.sg-here::after{content:"";position:absolute;left:50%;top:-6px;margin-left:-6px;border:6px solid transparent;border-bottom-color:#111;border-top:0}
+.sg-here{position:absolute;z-index:5;left:50%;top:58px;transform:translateX(-50%);background:#111;color:#fff;font-size:12px;font-weight:900;padding:5px 12px;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,.35);z-index:2}
+.sg-here::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-top-color:#111;border-bottom:0}
 .sg-tile.lock{cursor:default}
-.sg-tile.lock .sg-disc{background:#C9C9C9;box-shadow:0 8px 0 #8C8C8C,0 10px 11px rgba(0,0,0,.2)}
-.sg-tile.lock .sg-img,.sg-tile.lock .sg-noimg{filter:grayscale(1) opacity(.45) drop-shadow(0 4px 5px rgba(0,0,0,.2))}
-.sg-tile.lock .sg-num{color:#7c7c7c}
+.sg-tile.lock .sg-img,.sg-tile.lock .sg-noimg{filter:grayscale(1) drop-shadow(0 6px 6px rgba(0,0,0,.26))}
+.sg-tile.lock .sg-num{color:rgba(255,255,255,.55)}
 .sg-lap{position:absolute;left:0;width:554px;text-align:center;pointer-events:none}
 .sg-lap span{display:inline-block;background:rgba(0,0,0,.4);color:#fff;font-size:12px;font-weight:900;letter-spacing:.14em;padding:4px 14px}
 .sg-toast{position:fixed;left:50%;bottom:24%;transform:translateX(-50%);background:rgba(0,0,0,.84);color:#fff;font-size:14px;font-weight:800;padding:11px 20px;z-index:600;pointer-events:none;animation:d5ack 1.9s ease forwards}
@@ -4007,7 +4015,7 @@ function sgBoardHTML(n){
     tiles.push('<button class="sg-tile'+(done?" done":"")+(now?" now":"")+(lock?" lock":"")+'" data-x="'+p.x+'" data-y="'+p.y+'" style="left:'+p.x+'px;top:'+p.y+'px"'
       +' onclick="sgTap('+n+','+g+')" aria-label="マス'+g+'">'
       +(src?'<img class="sg-img" src="'+src+'" alt="" loading="lazy" decoding="async">':'<span class="sg-noimg">🃏</span>')
-      +'<span class="sg-disc"></span><span class="sg-num">'+g+'</span>'
+      +'<span class="sg-num">'+g+'</span>'
       +(rank?'<span class="sg-rank" style="background:'+(RANK_COLORS[rank]||"#555")+'">'+rank+'</span>':"")
       +(now?'<span class="sg-here">いまここ</span>':"")
       +'</button>');
@@ -5306,6 +5314,7 @@ function finishTest(){
       <span class="rc-sym" style="color:${syc}">${sy[0]}</span>
       ${img}
       <div class="rc-ko">${esc(r.korean)}</div>
+      <div class="rc-ja">${esc(r.japanese)}</div>
       <div class="rc-foot"><span class="rc-cards">${cardsGot}枚</span><span class="rc-delta" style="color:${memDelta>=0?'#1FAD62':'#FF6B6B'}">${memDelta>0?'+':''}${memDelta}%</span></div>
     </div>`;
   }).join("");
@@ -5323,9 +5332,10 @@ function finishTest(){
     <div class="res-head">
       <div class="res-top">
         <div class="rank-c rank-medal" style="background:${RANK_COLORS[rank]||"#555"}">${rank}</div>
-        <div class="res-right">
-          <div class="res-score"><b id="res-score-n" data-to="${totalDisp}">0</b><span> / 100</span></div>
-          <div class="res-counts"><span style="color:#FF3B3B">○ ${nCorrect}</span><span style="color:#2F6FE0">× ${nWrong}</span></div>
+        <div class="res-score"><b id="res-score-n" data-to="${totalDisp}">0</b><span> / 100</span></div>
+        <div class="res-counts">
+          <span style="color:#FF3B3B">○ ${nCorrect}</span>
+          <span style="color:#2F6FE0">× ${nWrong}</span>
         </div>
       </div>
       <div class="res-pwr"><span class="pwr-lab">PWR</span><div class="pwr-g"><div id="res-pwrfill" style="background:#00FF37;width:${pwrBefore}%"></div></div><span class="pwr-val">${pwrAfter}%</span><span class="pwr-delta" style="color:${pwrDelta>=0?"#1FAD62":"#FF6B6B"}">${pwrDelta>0?"+":""}${pwrDelta}</span></div>
@@ -5334,12 +5344,12 @@ function finishTest(){
     ${typeUpd}
     <div class="res-listwrap"><div class="res-cards">${rows}</div></div>
     <div class="res-btns">
-      <button class="btn pri full" onclick="if(typeof track==='function')track('retry');sgRetry()">もう一度挑戦する</button>
-      <button class="btn sec full" onclick="shareResult()">&#120143; 結果をシェアして友達に挑戦</button>
-      ${donateBtnHTML('btn ter')}
-      <button class="btn ter" onclick="show('s-home')">ホームに戻る</button>
-      ${installBtnHTML()}
+      ${MONETIZE.donateUrl?`<a class="rb" href="${MONETIZE.donateUrl}" target="_blank" rel="noopener" onclick="if(typeof track==='function')track('donate_click')"><span class="rb-ico">☕</span><span class="rb-lab">応援する</span></a>`:""}
+      <button class="rb" onclick="shareResult()"><span class="rb-ico">&#120143;</span><span class="rb-lab">シェアする</span></button>
+      <button class="rb rb-pri" onclick="if(typeof track==='function')track('retry');sgRetry()"><span class="rb-ico">↻</span><span class="rb-lab">もう一度</span></button>
+      <button class="rb" onclick="show('s-home')"><span class="rb-ico">⌂</span><span class="rb-lab">ホーム</span></button>
     </div>
+    ${installBtnHTML()}
     ${adSlotHTML()}
    </div>`;
   show("s-result");
@@ -5769,7 +5779,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.132 (2026-07-25)";
+const APP_VERSION="v2.133 (2026-07-25)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
