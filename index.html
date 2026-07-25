@@ -1144,13 +1144,20 @@ body.bigtext .set-d{font-size:13.5px}
 .spov{position:fixed;inset:0;z-index:560;background:linear-gradient(170deg,#241d38,#14111f);display:flex;flex-direction:column;color:#fff;opacity:0;transition:opacity .2s ease;padding:calc(10px + env(safe-area-inset-top)) 16px calc(14px + env(safe-area-inset-bottom))}
 .spov.on{opacity:1}
 .sp-top{flex:0 0 auto;display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.sp-top .sp-quit{background:rgba(255,255,255,.14);border:none;color:#fff;width:46px;height:46px;border-radius:50%;font-size:22px;font-weight:900;cursor:pointer;line-height:1;font-family:inherit}
-.sp-top .sp-quit:active{background:rgba(255,255,255,.3)}
+/* やめる(戻る)ボタン: 画面最上部だと片手持ちで親指が届かずタッチしにくいため、
+   下端の親指ゾーンに浮かせる。DOM上は .sp-top 内のままだが .spov 基準の絶対配置。 */
+.spov .sp-quit{position:absolute;left:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:6;
+  background:rgba(255,255,255,.18);border:none;color:#fff;width:60px;height:60px;border-radius:50%;
+  font-size:26px;font-weight:900;cursor:pointer;line-height:1;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 20px rgba(0,0,0,.4);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.spov .sp-quit:active{background:rgba(255,255,255,.34);transform:scale(.94)}
 .sp-top .sp-title{font-size:16px;font-weight:900;letter-spacing:1px}
 .sp-top .sp-prog{margin-left:auto;font-size:14px;font-weight:900;color:#FFC400}
 .sp-timerbar{flex:0 0 auto;height:6px;border-radius:3px;background:rgba(255,255,255,.15);overflow:hidden;margin-bottom:10px}
 .sp-timerbar i{display:block;height:100%;background:#FFC400;width:100%}
-.sp-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;overflow-y:auto}
+/* padding-bottom は下端に浮かせた .sp-quit ぶんの逃がし（ゲーム内容が隠れないように） */
+.sp-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;overflow-y:auto;padding-bottom:84px}
 .sp-q{font-size:15px;font-weight:800;color:rgba(255,255,255,.9);text-align:center}
 .sp-big{font-size:34px;font-weight:900;text-align:center;line-height:1.25;word-break:break-all}
 .sp-opts{width:min(360px,90vw);display:flex;flex-direction:column;gap:10px}
@@ -5832,7 +5839,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.137 (2026-07-26)";
+const APP_VERSION="v2.138 (2026-07-26)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
