@@ -145,6 +145,25 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check('復元したマスにランクが入る', !!st.r1.tiles['1'] && !!st.r1.tiles['1'].rank);
   check('「いまここ」が4マス目', st.now === 'マス4');
 
+  // --- ROOMメニュー左右の矢印 ---
+  const arr = await page.evaluate(async () => {
+    localStorage.clear(); location.hash = '';
+    return null;
+  }).then(() => page.reload()).then(() => page.waitForTimeout(1400)).then(() => page.evaluate(async () => {
+    jumpRoom(3); await new Promise(r => setTimeout(r, 600));
+    const before = curSection;
+    document.querySelector('.room-slide[data-n="3"] .rm-next').click();
+    await new Promise(r => setTimeout(r, 600));
+    const next = curSection;
+    document.querySelector('.room-slide[data-n="4"] .rm-prev').click();
+    await new Promise(r => setTimeout(r, 600));
+    return { before, next, prev: curSection,
+      firstPrev: !!document.querySelector('.room-slide[data-n="1"] .rm-prev'),
+      lastNext: !!document.querySelector(`.room-slide[data-n="${LEVEL_INFO[curLevel].count}"] .rm-next`) };
+  }));
+  check(`矢印で隣のROOMへ移動できる (3→${arr.next}→${arr.prev})`, arr.before === 3 && arr.next === 4 && arr.prev === 3);
+  check('先頭に「前へ」、末尾に「次へ」は出ない', !arr.firstPrev && !arr.lastNext);
+
   check('コンソールエラー無し', errors.length === 0);
   if (errors.length) console.log(errors);
 

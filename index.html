@@ -266,6 +266,14 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 @keyframes rankmedalpop{0%{transform:scale(.35) rotate(-160deg);opacity:0}70%{opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
 /* ルームメニュー領域のクリップ：3面ローテのアニメが座布団の外にはみ出て描画されないように（座標は不変） */
 .rmenu-clip{position:absolute;inset:0;z-index:2;clip-path:inset(-12px 40px calc(100% - 104px) 40px round 56px)}
+/* ROOMメニュー（カプセル）の外側・左右に置く「隣のROOMへ」矢印 */
+.rm-arrow{position:absolute;top:14px;width:34px;height:76px;z-index:3;border:none;padding:0;background:rgba(0,0,0,.22);color:#fff;
+  font-size:30px;font-weight:900;line-height:76px;text-align:center;cursor:pointer;font-family:inherit;border-radius:10px;
+  box-shadow:0 2px 6px rgba(0,0,0,.18);transition:background .15s ease,transform .08s ease}
+.rm-arrow:active{background:rgba(0,0,0,.38);transform:scale(.94)}
+.rm-prev{left:4px}
+.rm-next{right:4px}
+.home-wrap.status .rm-arrow,.home-wrap.hiderail .rm-arrow{opacity:0;pointer-events:none}
 /* ルームメニューの3面ローテーション：語数/％/ランク(face0) ⇄ おすすめ単語 ⇄ PWRグラフ。左下を軸に回転して入替（座布団なし・背景はroom色・白文字・影なし） */
 .rmenu-reco,.rmenu-pwr{position:absolute;left:220px;top:-10px;width:328px;height:120px;display:flex;flex-direction:column;justify-content:center;padding:0 12px;box-sizing:border-box;transform-origin:0% 100%;transform:rotate(60deg) scale(.32);opacity:0;pointer-events:none;z-index:3;transition:transform .5s cubic-bezier(.34,1.4,.5,1),opacity .36s ease}
 /* PWRメータ面は右端をさらに内側へ寄せてルームメニューからはみ出さないように */
@@ -1216,8 +1224,10 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-tile.done .sg-disc{background:#78D398;box-shadow:0 8px 0 #3B8A57,0 11px 12px rgba(0,0,0,.24)}
 .sg-tile.done .sg-num{color:#1E5B36}
 .sg-rank{position:absolute;z-index:1;right:-2px;bottom:36px;width:34px;height:34px;border-radius:50%;color:#fff;font-size:19px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.38);border:2px solid #fff}
-.sg-tile.now .sg-disc{animation:sgnow 1.6s ease-in-out infinite}
+.sg-tile.now .sg-disc,.sg-tile.now .sg-num,.sg-tile.now .sg-rank{animation:sgnow 1.6s ease-in-out infinite}
+.sg-tile.now .sg-img,.sg-tile.now .sg-noimg{animation:sgnowc 1.6s ease-in-out infinite} /* 画像はtranslateX(-50%)を保ったまま一緒に揺らす */
 @keyframes sgnow{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes sgnowc{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-7px)}}
 .sg-here{position:absolute;z-index:4;left:50%;top:104px;transform:translateX(-50%);background:#111;color:#fff;font-size:12px;font-weight:900;padding:5px 12px;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,.35);z-index:2}
 .sg-here::after{content:"";position:absolute;left:50%;top:-6px;margin-left:-6px;border:6px solid transparent;border-bottom-color:#111;border-top:0}
 .sg-tile.lock{cursor:default}
@@ -2433,6 +2443,8 @@ function buildRoomSlides(){
       <div class="rmenu-reco"></div>
       <div class="rmenu-pwr"></div>
       </div>
+      ${n>1?`<button class="rm-arrow rm-prev" onclick="event.stopPropagation();jumpRoom(${n-1})" aria-label="前のROOMへ">‹</button>`:""}
+      ${n<count?`<button class="rm-arrow rm-next" onclick="event.stopPropagation();jumpRoom(${n+1})" aria-label="次のROOMへ">›</button>`:""}
       ${_listMode?(Math.abs(n-curSection)<=1?roomListHTML(n):`<div class="slide-list wb-list" data-lazy="${n}"></div>`):sgBoardHTML(n)}
       </div>
     </div>`;
@@ -3581,10 +3593,10 @@ function showCountdown(cb){
 const LS_D5="kwt_daily5_v1";
 const D5_N=5, D5_PLAN=["jk","kj","jk","kj","jk"]; // 全問4択（日→韓／韓→日を交互）
 let _d5={on:false,slot:"",key:""},_d5Timer=null;
-const D5_AM=5,D5_PM=18; // 朝の部/夜の部の切り替え時刻
+const D5_AM=5,D5_PM=17; // 朝の部/夜の部の切り替え時刻
 function d5Slot(ms){const h=new Date(ms).getHours();return (h>=D5_AM&&h<D5_PM)?"am":"pm";}
 function d5SlotLabel(s){return s==="am"?"朝の部":"夜の部";}
-function d5SlotTime(s){return s==="am"?"5:00–17:59":"18:00–4:59";}
+function d5SlotTime(s){return s==="am"?"5:00–16:59":"17:00–4:59";}
 function d5Key(ms){return dayKey(ms-D5_AM*3600000)+"#"+d5Slot(ms);} // 深夜0〜5時は前日の夜の部として扱う
 function loadD5(){try{return JSON.parse(localStorage.getItem(LS_D5)||"{}")||{};}catch(e){return{};}}
 function saveD5(o){const ks=Object.keys(o);if(ks.length>40)ks.slice(0,ks.length-40).forEach(k=>delete o[k]);_lsSet(LS_D5,JSON.stringify(o));} // 古い枠は間引き
@@ -3593,7 +3605,7 @@ function d5Used(ms){return !!d5Rec(ms);}
 function d5NextOpenAt(ms){
   const d=new Date(ms),h=d.getHours();
   if(h<D5_AM)d.setHours(D5_AM,0,0,0);                              // 深夜 → 今日の5:00
-  else if(h<D5_PM)d.setHours(D5_PM,0,0,0);                         // 朝の部 → 今日の18:00
+  else if(h<D5_PM)d.setHours(D5_PM,0,0,0);                         // 朝の部 → 今日の17:00
   else{d.setDate(d.getDate()+1);d.setHours(D5_AM,0,0,0);}          // 夜の部 → 翌5:00
   return d.getTime();
 }
@@ -3958,7 +3970,7 @@ function sgHydrate(n){
   const samples=sgSamples(pts);
   sc._sg={tiles,movers,samples,h:sc.clientHeight||506,
     bufL:new Array(samples.length),bufR:new Array(samples.length),
-    halves:[33,27],
+    halves:[26,21],
     paths:[sc.querySelector(".sg-edge"),sc.querySelector(".sg-asphalt")]};
   if(sc._sg.paths.some(p=>!p))return;
   sgBind(sc);
@@ -5744,7 +5756,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.129 (2026-07-25)";
+const APP_VERSION="v2.130 (2026-07-25)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
