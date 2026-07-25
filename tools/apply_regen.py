@@ -14,7 +14,7 @@ BAK = os.path.join(ROOT, "_regen", "_replaced")
 SIZE = 240
 DRY = "--dry" in sys.argv
 # 追加の取り込み元（後から作り直したぶんが優先される）
-EXTRA = [d for d in (os.path.join(ROOT, "_regen2"),) if os.path.isdir(d)]
+EXTRA = [d for d in (os.path.join(ROOT, "_regen2"), os.path.join(ROOT, "_regen3")) if os.path.isdir(d)]
 
 
 def check(im):
