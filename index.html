@@ -349,8 +349,8 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rr-btn.suck{animation:suckpop .5s ease}
 @keyframes toastin{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 /* 今日学ぶべき単語の帯：スタートボタン上に半透明白、カードが左→右に流れる */
-.today-band{position:absolute;left:0;top:975px;width:468px;height:182px;background:rgba(255,255,255,.6);z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease} /* 白帯は白寄り60%（背後の玉と重なっても見づらくならない） */
-.tb-clip{position:absolute;left:0;top:-5px;width:468px;height:187px;overflow:hidden;display:flex;align-items:flex-end}
+.today-band{position:absolute;left:14px;top:962px;width:452px;height:170px;border-radius:14px;overflow:hidden;background:rgba(255,255,255,.6);z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease} /* 白帯は白寄り60%（背後の玉と重なっても見づらくならない） */
+.tb-clip{position:absolute;left:0;top:-5px;width:452px;height:175px;overflow:hidden;display:flex;align-items:flex-end}
 .tb-label{position:absolute;left:14px;top:8px;font-size:14px;font-weight:900;letter-spacing:1px;color:rgba(0,0,0,.55);pointer-events:none} /* 帯左上の見出し（流れる画像より背面） */
 .home-wrap.status .today-band,.home-wrap.hiderail .today-band{opacity:0}
 .tb-track{display:flex;animation:tbflow 30s linear infinite;will-change:transform;backface-visibility:hidden;margin-bottom:8px}
@@ -405,12 +405,18 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rr-btn img{width:86%;height:86%;object-fit:contain}
 .rr-set{font-size:34px;color:#555;line-height:1} /* 白背景に映る濃色 */
 /* リールの各ボタンもアイコン⇄日本語ラベルを中身のZ軸回転で入替（タイミングはボタンごとにランダム） */
-.rr-btn img,.rr-btn .rr-txt{transition:opacity .35s ease}
+.rr-btn img{transition:opacity .14s ease .15s}      /* 戻るとき=アイコンは後から出す */
+.rr-btn .rr-txt{transition:opacity .14s ease}        /* 戻るとき=文字は先に消す */
+.rr-btn.show-label img{transition:opacity .14s ease} /* 進むとき=アイコンは先に消す */
+.rr-btn.show-label .rr-txt{transition:opacity .14s ease .15s} /* 進むとき=文字は後から出す */
 .rr-btn .rr-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:900;color:#333;line-height:1.2;padding:3px;text-align:center;opacity:0;box-sizing:border-box}
 .rr-btn.show-label img{opacity:0}
 .rr-btn.show-label .rr-txt{opacity:1}
 /* 設定マークだけは従来どおり回転で切り替える */
-#set-btn img,#set-btn .rr-txt{transition:transform .45s ease,opacity .3s ease}
+#set-btn img{transition:transform .3s ease,opacity .14s ease .15s}
+#set-btn .rr-txt{transition:transform .3s ease,opacity .14s ease}
+#set-btn.show-label img{transition:transform .3s ease,opacity .14s ease}
+#set-btn.show-label .rr-txt{transition:transform .3s ease,opacity .14s ease .15s}
 #set-btn .rr-txt{transform:rotate(-180deg)}
 #set-btn.show-label img{transform:rotate(180deg)}
 #set-btn.show-label .rr-txt{transform:rotate(0deg)}
@@ -603,10 +609,10 @@ body.bigtext .set-d{font-size:13.5px}
 .sb-txt span:nth-child(3){animation-delay:.3s}
 .sb-txt span:nth-child(4){animation-delay:.45s}
 @keyframes sbchar{0%,72%,100%{transform:rotateY(0)}36%{transform:rotateY(360deg)}}
-.home-side-btn.hsb-right{position:absolute;left:478px;top:975px;width:112px;height:182px;border-radius:14px;flex-direction:column;gap:4px;
+.home-side-btn.hsb-right{position:absolute;left:476px;top:962px;width:112px;height:170px;border-radius:14px;flex-direction:column;gap:2px;
   display:flex;align-items:center;justify-content:center;background:#fff;border:none;color:#333;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.18);z-index:2}
-.home-side-btn.hsb-right img{width:66px;height:66px;transform:none!important;opacity:1!important}
-.home-side-btn.hsb-right .hsb-txt{position:static;transform:none!important;opacity:1!important;font-size:15px;font-weight:900;color:#333;display:block}
+.home-side-btn.hsb-right img{width:96px;height:96px;transform:none!important;opacity:1!important}
+.home-side-btn.hsb-right .hsb-txt{position:static;transform:none!important;opacity:1!important;font-size:20px;font-weight:900;color:#333;display:block}
 .home-side-btn-legacy{position:absolute;top:1009px;width:113px;height:113px;border:none;border-radius:50%;background:#fff;color:#333;
   box-shadow:0 5px 14px rgba(0,0,0,.28);overflow:hidden;
   font-family:inherit;font-weight:900;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;text-align:center;
@@ -628,7 +634,7 @@ body.bigtext .set-d{font-size:13.5px}
   50%{box-shadow:0 0 24px 8px rgba(255,196,0,.9);border-color:#FFE066}
 }
 .start-button:active{background:rgba(0,0,0,.65)}
-.hv-ver{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:11px;color:rgba(255,255,255,.5);z-index:2}
+.hv-ver{position:absolute;left:0;right:0;bottom:10px;text-align:center;font-size:11px;color:rgba(255,255,255,.5);z-index:2} /* 帯(下端1132px)の下に余白を確保 */
 #settings-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.42)}
 #settings-modal.on{display:flex}
 /* iPhoneコントロールセンター風の設定パネル */
@@ -1237,13 +1243,14 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-deco{position:absolute;z-index:0;pointer-events:none;user-select:none;object-fit:contain;will-change:transform;filter:drop-shadow(0 5px 5px rgba(0,0,0,.24))}
 .sg-tile{position:absolute;z-index:1;width:96px;height:96px;margin:-48px 0 0 -48px;border:none;background:transparent;padding:0;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
 .sg-tile:active .sg-img{transform:translateX(-50%) scale(.94)}
+.sg-tile.now:active .sg-img,.sg-tile.now:active .sg-noimg{animation-play-state:paused;transform:translateX(-50%) scale(.94)} /* 光彩マスも押したときはカラーのマスと同じ縮み方をする */
 /* 番号は画像の左上、ランクは画像の右上（円盤は置かない） */
 .sg-num{position:absolute;z-index:4;left:-58px;top:-186px;font-size:40px;font-weight:900;color:#fff;line-height:1;
   text-shadow:0 3px 7px rgba(0,0,0,.65),0 0 5px rgba(0,0,0,.65)}
 .sg-img{position:absolute;z-index:3;left:50%;top:-186px;width:236px;height:236px;transform:translateX(-50%);object-fit:contain;transition:transform .08s ease;filter:drop-shadow(0 8px 7px rgba(0,0,0,.3))}
 .sg-noimg{position:absolute;z-index:3;left:50%;top:-120px;transform:translateX(-50%);font-size:112px;pointer-events:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.3))}
 .sg-tile.done .sg-num{color:#DFFBE6}
-.sg-rank{position:absolute;z-index:4;right:-58px;top:-186px;width:58px;height:58px;border-radius:50%;color:#fff;font-size:31px;font-weight:900;
+.sg-rank{position:absolute;z-index:4;right:-58px;top:-186px;width:58px;height:58px;border-radius:50%;color:#fff;font-size:41px;font-weight:900;
   display:flex;align-items:center;justify-content:center;border:none;
   box-shadow:0 0 0 3px rgba(255,255,255,.9),0 0 0 6px rgba(255,196,0,.95),0 4px 11px rgba(0,0,0,.4)} /* 結果画面と同じメダル風 */
 .sg-rank::after{content:"";position:absolute;inset:5px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%);pointer-events:none}
@@ -1255,10 +1262,17 @@ body.bigtext .set-d{font-size:13.5px}
 }
 @keyframes sgnow{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @keyframes sgnowc{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-7px)}}
-.sg-here{position:absolute;z-index:6;left:50%;top:-252px;transform:translateX(-50%);background:#111;color:#FFC400;
-  font-size:23px;font-weight:900;letter-spacing:.16em;padding:13px 34px;white-space:nowrap;border-radius:8px;
-  box-shadow:0 5px 14px rgba(0,0,0,.42),0 0 0 3px rgba(255,196,0,.9)}
-.sg-here::after{content:"";position:absolute;left:50%;bottom:-9px;margin-left:-9px;border:9px solid transparent;border-top-color:#111;border-bottom:0}
+.sg-here{position:absolute;z-index:6;left:50%;top:-268px;background:#111;color:#fff;
+  font-size:34px;font-weight:900;letter-spacing:.14em;padding:8px 30px 10px;white-space:nowrap;border-radius:999px;
+  box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 0 4px rgba(255,196,0,.95);
+  animation:sgherebob 1.6s ease-in-out infinite}
+@keyframes sgherebob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-9px)}}
+/* 文字は旧スタートボタンと同じく1文字ずつ回転 */
+.sg-here span{display:inline-block;animation:sbchar 3s ease-in-out infinite;backface-visibility:hidden}
+.sg-here span:nth-child(2){animation-delay:.15s}
+.sg-here span:nth-child(3){animation-delay:.3s}
+.sg-here span:nth-child(4){animation-delay:.45s}
+.sg-here::after{content:"";position:absolute;left:50%;bottom:-10px;margin-left:-10px;border:10px solid transparent;border-top-color:#111;border-bottom:0}
 .sg-tile.lock{cursor:default}
 .sg-tile.lock .sg-img,.sg-tile.lock .sg-noimg{filter:grayscale(1) drop-shadow(0 6px 6px rgba(0,0,0,.26))}
 .sg-tile.lock .sg-num{color:rgba(255,255,255,.55)}
@@ -1272,10 +1286,10 @@ body.bigtext .set-d{font-size:13.5px}
 #rr-d5.d5-off{filter:grayscale(1);opacity:.55}
 .rr-badge.d5-b{background:#FF8A00}
 .rr-btn .d5-ico{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;border-radius:50%;
-  background:linear-gradient(160deg,#FFC94D,#FF7A00);color:#fff;transition:opacity .35s ease}
+  background:linear-gradient(160deg,#FFC94D,#FF7A00);color:#fff;transition:opacity .14s ease .15s}
 .rr-btn .d5-ico b{font-size:29px;font-weight:900;line-height:1;text-shadow:0 2px 0 rgba(0,0,0,.18)}
 .rr-btn .d5-ico i{font-style:normal;font-size:11px;font-weight:900;line-height:1;margin-top:2px;letter-spacing:.08em}
-.rr-btn.show-label .d5-ico{opacity:0}
+.rr-btn.show-label .d5-ico{opacity:0;transition:opacity .14s ease}
 /* --- モーダル（プレゼントモーダルと同じ白地・角丸なし） --- */
 #d5-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
 #d5-modal.on{display:flex}
@@ -1436,6 +1450,7 @@ body.bigtext .set-d{font-size:13.5px}
 
 <script src="words-middle.js"></script>
 <script src="words-images.js"></script>
+<script src="words-imgbox.js"></script>
 <script src="words-beginner.js"></script>
 <script>
 /* ============================================================ 単語データ 100語 ============================================================ */
@@ -1670,7 +1685,7 @@ function openCalendar(off){
   const view=new Date(base.getFullYear(),base.getMonth()+_calOffset,1);
   const y=view.getFullYear(),mo=view.getMonth();
   const launched=new Set(launchedDays());const cnt=doneCountByDay();
-  const d5days=new Set(Object.keys(loadD5()).map(k=>k.split("#")[0])); // 今日の5問テストを実施した日
+  const d5days=new Set(Object.values(loadD5()).map(r=>dayKey(new Date(r.finished||r.started||0).getTime()))); // 今日の5問テストを実施した日（枠のキーではなく実際に遊んだ日付で塗る）
   const first=new Date(y,mo,1).getDay(),days=new Date(y,mo+1,0).getDate();
   const wd=["日","月","火","水","木","金","土"].map(w=>`<div class="cd wd">${w}</div>`).join("");
   const todayK=dayKey(base.getTime());
@@ -2193,9 +2208,9 @@ function startRailFlip(){
     const tick=()=>{
       if(document.getElementById("s-home").classList.contains("on")&&!_statusMode&&!_listMode)b.classList.toggle("show-label");
       const label=b.classList.contains("show-label");
-      setTimeout(tick,label?(1100+Math.random()*700):(4200+Math.random()*3000)); // 文字1.1〜1.8秒／アイコン4.2〜7.2秒＝約2:8
+      setTimeout(tick,label?(600+Math.random()*220):(11500+Math.random()*4500)); // 文字0.6〜0.82秒／アイコン11.5〜16秒＝約5:95
     };
-    setTimeout(tick,700+Math.random()*3500); // 初回タイミングもバラバラ
+    setTimeout(tick,900+Math.random()*9000); // 初回タイミングもバラバラ
   });
 }
 
@@ -4013,6 +4028,7 @@ function sgHydrate(n){
     paths:[sc.querySelector(".sg-edge"),sc.querySelector(".sg-asphalt")]};
   if(sc._sg.paths.some(p=>!p))return;
   sgBind(sc);
+  sgFitAllBadges(sc);   // 既に読み込み済みの画像ぶんを反映（onloadが発火しないケース）
   sgApplyDepth(sc);
 }
 /* 沿道の自然物：すごろく専用に生成した3Dクレイ調の透過webp（木/もみの木/花/岩/雲/星） */
@@ -4032,10 +4048,10 @@ function sgBoardHTML(n){
     const rank=done?st.tiles[g].rank:null;
     tiles.push('<button class="sg-tile'+(done?" done":"")+(now?" now":"")+(lock?" lock":"")+'" data-x="'+p.x+'" data-y="'+p.y+'" style="left:'+p.x+'px;top:'+p.y+'px"'
       +' onclick="sgTap('+n+','+g+')" aria-label="マス'+g+'">'
-      +(src?'<img class="sg-img" src="'+src+'" alt="" loading="lazy" decoding="async">':'<span class="sg-noimg">🃏</span>')
+      +(src?'<img class="sg-img" src="'+src+'" alt="" loading="lazy" decoding="async" onload="sgFitBadges(this)">':'<span class="sg-noimg">🃏</span>')
       +'<span class="sg-num">'+g+'</span>'
       +(rank?'<span class="sg-rank" style="background:'+(RANK_COLORS[rank]||"#555")+'">'+rank+'</span>':"")
-      +(now?'<span class="sg-here">スタート</span>':"")
+      +(now?'<span class="sg-here"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span>':"")
       +'</button>');
     if(idx===0)laps.push('<div class="sg-lap" style="top:'+Math.round(p.y+SG_STEP*0.56)+'px"><span>'+lap+'周目</span></div>');
     // 自然物は道の反対側の外周へ1マスにつき1つ（マス・道・左レールに被らせない）
@@ -4056,6 +4072,25 @@ function sgBoardHTML(n){
     +laps.join("")+decos.join("")+tiles.join("")
     +'</div></div></div>';
 }
+/* 画像ファイルは正方形でも、被写体の形は縦長・横長とまちまちで、まわりの透明部分の量が画像ごとに違う。
+ * 枠の角に番号とランクを置くと、絵が横長の画像では両者が離れて見えてしまうので、
+ * 事前計算した「絵が描かれている範囲」(words-imgbox.js)の角へ寄せる。 */
+const SG_IMG_BOX=236, SG_IMG_LEFT=-70, SG_IMG_TOP=-186; // タイル座標での画像枠
+function sgFitBadges(img){
+  try{
+    const t=img.closest&&img.closest(".sg-tile");if(!t)return;
+    const num=t.querySelector(".sg-num"),rk=t.querySelector(".sg-rank");
+    const key=((img.getAttribute("src")||"").match(/(\d+)\.webp$/)||[])[1];
+    const b=(typeof WORD_IMG_BOX!=="undefined"&&key)?WORD_IMG_BOX[key]:null;
+    const B=SG_IMG_BOX;
+    const bx=SG_IMG_LEFT+(b?B*b[0]/100:0);
+    const by=SG_IMG_TOP +(b?B*b[1]/100:0);
+    const bw=b?B*(b[2]-b[0])/100:B;
+    if(num){num.style.left=Math.round(bx-12)+"px";num.style.top=Math.round(by-6)+"px";}
+    if(rk){rk.style.right="auto";rk.style.left=Math.round(bx+bw-46)+"px";rk.style.top=Math.round(by-14)+"px";}
+  }catch(e){}
+}
+function sgFitAllBadges(sc){(sc||document).querySelectorAll(".sg-tile .sg-img").forEach(im=>{if(im.complete&&im.naturalWidth)sgFitBadges(im);});}
 function sgScrollToCurrent(n){
   const sc=document.querySelector(`.room-slide[data-n="${n}"] .sg-scroll`);if(!sc)return;
   const cur=sc.querySelector(".sg-tile.now");
@@ -5797,7 +5832,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.136 (2026-07-26)";
+const APP_VERSION="v2.137 (2026-07-26)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

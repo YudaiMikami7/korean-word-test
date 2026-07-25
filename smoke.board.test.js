@@ -195,7 +195,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   }));
   check('大きなスタートボタンは非表示', home.startHidden);
   check('ステータスボタンは廃止', home.statusHidden);
-  check(`単語帳は長方形で帯の右へ (left=${home.wbRect && home.wbRect.left})`, !!home.wbRect && home.wbRect.radius === '14px' && home.wbRect.left === '478px');
+  check(`単語帳は長方形で帯の右へ (left=${home.wbRect && home.wbRect.left})`, !!home.wbRect && home.wbRect.radius === '14px' && home.wbRect.left === '476px');
   check('「いまここ」の吹き出しが「スタート」', home.bubble === 'スタート');
   check('吹き出しが画像の上にある', await page.evaluate(() => {
     const t = document.querySelector('.room-slide[data-n="1"] .sg-tile.now');
@@ -229,11 +229,49 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
       setTr: getComputedStyle(document.querySelector('#set-btn .rr-txt')).transform,
       labels: ['rr-daily','rr-rank','rr-level','rr-pwr'].map(id => document.querySelector('#'+id+' .rr-txt').textContent) };
   });
-  check(`ランクは58px・メダル風 (${look.w} / ${look.fs})`, look.w === '58px' && look.fs === '31px' && look.ring);
+  check(`ランクは58px・メダル風 (${look.w} / ${look.fs})`, look.w === '58px' && look.fs === '41px' && look.ring);
   check(`マス番号が大きい (${look.numFs})`, look.numFs === '40px');
   check('レールはフェード切替（回転しない）', look.dailyTr === 'none');
   check('設定マークだけ従来の回転のまま', look.setTr !== 'none');
   check('右のレールは全部「◯◯ボーナス」', look.labels.join('|') === '毎日ボーナス|ランクボーナス|レベルボーナス|PWRボーナス');
+
+  // --- 番号/ランクが絵の位置に追従するか・レール切替で重ならないか ---
+  check('番号とランクが絵の角に追従する', await page.evaluate(async () => {
+    if (typeof WORD_IMG_BOX === 'undefined') return false;
+    const imgs = [...document.querySelectorAll('.room-slide[data-n="1"] .sg-tile .sg-img')];
+    // 画面外のlazy画像は読み込まれないままなので、待つのは最大1.5秒までにする
+    await Promise.all(imgs.map(i => i.complete ? null : new Promise(r => {
+      const done = () => r(); i.onload = done; i.onerror = done; setTimeout(done, 1500);
+    })));
+    sgFitAllBadges();
+    let checked = 0;
+    for (const img of imgs) {
+      const t = img.closest('.sg-tile'), num = t.querySelector('.sg-num');
+      const key = (img.getAttribute('src').match(/(\d+)\.webp$/) || [])[1];
+      const b = WORD_IMG_BOX[key]; if (!b) continue;
+      const expect = Math.round(-186 + 236 * b[1] / 100 - 6);
+      if (Math.abs(parseFloat(num.style.top) - expect) > 1.5) return false; // 絵の上端に合っていない
+      checked++;
+    }
+    return checked >= 5;
+  }));
+  check('絵が横長でも番号とランクが離れない', await page.evaluate(() => {
+    // 絵の横幅が最も狭い画像でも、番号とランクの間隔が画像枠(236px)より十分狭いこと
+    const narrow = Object.entries(WORD_IMG_BOX).sort((a, b) => (a[1][2] - a[1][0]) - (b[1][2] - b[1][0]))[0];
+    const w = 236 * (narrow[1][2] - narrow[1][0]) / 100;
+    return w < 236 * 0.75;  // データ上そういう画像が実在する
+  }));
+  check('レール切替でアイコンと文字が重ならない', await page.evaluate(async () => {
+    const btn = document.getElementById('rr-daily');
+    const img = btn.querySelector('img'), txt = btn.querySelector('.rr-txt');
+    let worst = 0;
+    btn.classList.add('show-label');
+    for (let i = 0; i < 40; i++) { await new Promise(r => requestAnimationFrame(r)); worst = Math.max(worst, +getComputedStyle(img).opacity + +getComputedStyle(txt).opacity); }
+    await new Promise(r => setTimeout(r, 400));
+    btn.classList.remove('show-label');
+    for (let i = 0; i < 40; i++) { await new Promise(r => requestAnimationFrame(r)); worst = Math.max(worst, +getComputedStyle(img).opacity + +getComputedStyle(txt).opacity); }
+    return worst < 1.15;
+  }));
 
   check('コンソールエラー無し', errors.length === 0);
   if (errors.length) console.log(errors);
