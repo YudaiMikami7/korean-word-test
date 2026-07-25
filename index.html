@@ -69,9 +69,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .qhome{background:rgba(0,0,0,.8);border:none;color:#fff;width:32px;height:32px;font-size:16px;cursor:pointer;flex:0 0 auto}
 .qbar .prog{letter-spacing:.5px}
 .qbar .time{color:#FFFFFF;font-variant-numeric:tabular-nums;margin-left:auto;font-weight:800;font-size:14.3px} /* カウントダウンは1段太く(700→800)・1.1倍(13→14.3px) */
-.pbar{height:14px;margin:8px 18px 0;background:rgba(0,0,0,.55);border:2px solid #000;border-radius:4px;overflow:hidden;box-sizing:border-box} /* 進捗バー：問題が進むほど伸びる */
+.pbar{height:7px;margin:8px 18px 0;background:rgba(0,0,0,.55);border:1px solid #000;border-radius:3px;overflow:hidden;box-sizing:border-box} /* 進捗バー：問題が進むほど伸びる（時間バーの半分の高さ） */
 .pfill{height:100%;width:0;background:#F8B500;transition:width .45s cubic-bezier(.3,1.2,.4,1)} /* 山吹色 */
-.tbar{height:14px;margin:6px 18px 0;background:rgba(0,0,0,.55);border:2px solid #000;border-radius:4px;overflow:hidden;box-sizing:border-box} /* 黒枠の中に緑メーターが減る出題バー */
+.tbar{height:14px;margin:3px 18px 0;background:rgba(0,0,0,.55);border:2px solid #000;border-radius:4px;overflow:hidden;box-sizing:border-box} /* 黒枠の中に緑メーターが減る出題バー */
 .tfill{height:100%;width:100%;background:#00FF37;transition:width .1s linear} /* 制限時間バーは緑（ホームのトンマナ）・黒枠内で減っていく */
 .tfill.warn{background:#FFC400}
 
@@ -594,7 +594,8 @@ body.bigtext .set-d{font-size:13.5px}
 /* アイコンとラベルを一定時間で入替（単語帳/忘却曲線）：丸自体は動かさず、中身だけZ軸回転で切替 */
 .home-side-btn img,.home-side-btn .hsb-txt{transition:transform .45s ease,opacity .3s ease}
 .home-side-btn img{transform:rotate(0deg)}
-.home-side-btn .hsb-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:900;color:#333;transform:rotate(-180deg);opacity:0}
+.home-side-btn .hsb-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.15;font-size:19px;font-weight:900;color:#333;transform:rotate(-180deg);opacity:0}
+.hsb-left .hsb-txt{font-size:15px} /* 「忘却ステータス」は2行なので少し小さく */
 .home-side-btn.show-label img{transform:rotate(180deg);opacity:0}
 .home-side-btn.show-label .hsb-txt{transform:rotate(0deg);opacity:1}
 .hsb-left{left:18px}
@@ -1202,24 +1203,25 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .sg-scroll::-webkit-scrollbar{display:none}
 .sg-track{position:relative;width:554px}
+.sg-tile{transform-origin:50% 50%;will-change:transform}
 .sg-road{position:absolute;left:0;top:0;pointer-events:none}
-.sg-deco{position:absolute;z-index:0;pointer-events:none;user-select:none;line-height:1;filter:drop-shadow(0 4px 4px rgba(0,0,0,.22))}
+.sg-deco{position:absolute;z-index:0;pointer-events:none;user-select:none;object-fit:contain;filter:drop-shadow(0 5px 5px rgba(0,0,0,.24))}
 .sg-tile{position:absolute;z-index:1;width:96px;height:96px;margin:-48px 0 0 -48px;border:none;background:transparent;padding:0;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
-.sg-disc{position:absolute;z-index:0;inset:0;border-radius:50%;background:linear-gradient(180deg,#FFEDB4,#FFC63F);
-  box-shadow:0 9px 0 #C3860F,0 13px 15px rgba(0,0,0,.3),inset 0 5px 10px rgba(255,255,255,.8),inset 0 -8px 12px rgba(0,0,0,.12);transition:transform .08s ease,box-shadow .08s ease}
-.sg-tile:active .sg-disc{transform:translateY(5px);box-shadow:0 4px 0 #C3860F,0 6px 10px rgba(0,0,0,.3),inset 0 5px 10px rgba(255,255,255,.8)}
+.sg-disc{position:absolute;z-index:0;inset:0;border-radius:50%;background:#FFC63F;
+  box-shadow:0 8px 0 #C3860F,0 11px 12px rgba(0,0,0,.26);transition:transform .08s ease,box-shadow .08s ease} /* 上のテカリは無し・下の影のみ */
+.sg-tile:active .sg-disc{transform:translateY(4px);box-shadow:0 4px 0 #C3860F,0 6px 9px rgba(0,0,0,.26)}
 .sg-num{position:absolute;z-index:1;left:0;right:0;bottom:11px;text-align:center;font-size:19px;font-weight:900;color:#7A4E00;text-shadow:0 1px 0 rgba(255,255,255,.65)}
-.sg-img{position:absolute;z-index:2;left:50%;top:-42px;width:94px;height:94px;transform:translateX(-50%);object-fit:contain;pointer-events:none;filter:drop-shadow(0 7px 7px rgba(0,0,0,.32))}
-.sg-noimg{position:absolute;z-index:2;left:50%;top:-30px;transform:translateX(-50%);font-size:44px;pointer-events:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.3))}
-.sg-tile.done .sg-disc{background:linear-gradient(180deg,#D6F5DD,#78D398);box-shadow:0 9px 0 #3B8A57,0 13px 15px rgba(0,0,0,.28),inset 0 5px 10px rgba(255,255,255,.75),inset 0 -8px 12px rgba(0,0,0,.1)}
+.sg-img{position:absolute;z-index:2;left:50%;top:-92px;width:118px;height:118px;transform:translateX(-50%);object-fit:contain;pointer-events:none;filter:drop-shadow(0 8px 7px rgba(0,0,0,.3))}
+.sg-noimg{position:absolute;z-index:2;left:50%;top:-72px;transform:translateX(-50%);font-size:56px;pointer-events:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.3))}
+.sg-tile.done .sg-disc{background:#78D398;box-shadow:0 8px 0 #3B8A57,0 11px 12px rgba(0,0,0,.24)}
 .sg-tile.done .sg-num{color:#1E5B36}
 .sg-rank{position:absolute;z-index:3;right:-3px;top:-3px;width:34px;height:34px;border-radius:50%;color:#fff;font-size:19px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.38);border:2px solid #fff}
 .sg-tile.now .sg-disc{animation:sgnow 1.6s ease-in-out infinite}
 @keyframes sgnow{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-.sg-here{position:absolute;left:50%;top:-76px;transform:translateX(-50%);background:#111;color:#fff;font-size:12px;font-weight:900;padding:5px 12px;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,.35);z-index:2}
-.sg-here::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-top-color:#111;border-bottom:0}
+.sg-here{position:absolute;left:50%;top:104px;transform:translateX(-50%);background:#111;color:#fff;font-size:12px;font-weight:900;padding:5px 12px;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,.35);z-index:2}
+.sg-here::after{content:"";position:absolute;left:50%;top:-6px;margin-left:-6px;border:6px solid transparent;border-bottom-color:#111;border-top:0}
 .sg-tile.lock{cursor:default}
-.sg-tile.lock .sg-disc{background:linear-gradient(180deg,#EDEDED,#BEBEBE);box-shadow:0 8px 0 #8C8C8C,0 10px 12px rgba(0,0,0,.22),inset 0 5px 10px rgba(255,255,255,.6)}
+.sg-tile.lock .sg-disc{background:#C9C9C9;box-shadow:0 8px 0 #8C8C8C,0 10px 11px rgba(0,0,0,.2)}
 .sg-tile.lock .sg-img,.sg-tile.lock .sg-noimg{filter:grayscale(1) opacity(.45) drop-shadow(0 4px 5px rgba(0,0,0,.2))}
 .sg-tile.lock .sg-num{color:#7c7c7c}
 .sg-lap{position:absolute;left:0;width:554px;text-align:center;pointer-events:none}
@@ -1324,7 +1326,7 @@ body.bigtext .set-d{font-size:13.5px}
         <button class="rr-btn rr-set" id="set-btn" onclick="openSettings()" aria-label="設定"><img src="icons/settings.webp" alt="設定" onerror="this.replaceWith(document.createTextNode('⚙'))"><span class="rr-txt">設定</span></button>
         <button class="rr-btn rr-map" id="map-btn" onclick="openRoomMap()" aria-label="ROOM一覧"><img src="icons/map.webp" alt="ROOM一覧" onerror="this.replaceWith(document.createTextNode('🗺'))"><span class="rr-txt">ROOM<br>一覧</span></button>
         <button class="rr-btn" id="cal-btn" onclick="openCalendar()"><img src="icons/calendar.webp" alt="カレンダー"><span class="rr-txt">カレンダー</span></button>
-        <button class="rr-btn" id="sp-btn" onclick="openSpecial()" aria-label="スペシャルモード"><img src="icons/game.webp" alt="スペシャル" onerror="this.replaceWith(document.createTextNode('🎮'))"><span class="rr-txt">スペシャル</span></button>
+        <button class="rr-btn" id="sp-btn" onclick="openSpecial()" aria-label="スペシャルモード"><img src="images-thumb/0731.webp" alt="スペシャル"><span class="rr-txt">スペシャル</span></button>
         <button class="rr-btn" id="rr-d5" onclick="openDaily5()" aria-label="今日の5問テスト"><span class="d5-ico"><b>5</b><i>問</i></span><span class="rr-txt">今日の<br>5問</span><span class="rr-badge d5-b" id="pb-d5" style="display:none">!</span></button>
       </div>
       <div class="reward-rail">
@@ -1349,7 +1351,7 @@ body.bigtext .set-d{font-size:13.5px}
       <div id="pull-hint">↓ さらに引くとホームに戻る</div>
       <div id="wb-search"><input id="wb-q" type="search" placeholder="単語をさがす（韓国語・日本語）" oninput="wbSearch(this.value)"><div id="wb-hits"></div></div>
       <div class="today-band" id="today-band" style="display:none"><div class="tb-label">最近学んだ単語</div><div class="tb-clip"><div class="tb-track" id="tb-track"></div></div></div><!-- 中身が入るまで非表示（空の白帯チラ見え防止） -->
-      <button class="home-side-btn hsb-left" onclick="renderRoomCurve()" aria-label="忘却曲線"><img src="images-thumb/0912.webp" alt=""><span class="hsb-txt">忘却曲線</span></button>
+      <button class="home-side-btn hsb-left" onclick="renderRoomCurve()" aria-label="忘却ステータス"><img src="images-thumb/0912.webp" alt=""><span class="hsb-txt">忘却<br>ステータス</span></button>
       <button class="start-button" onclick="onStartBtn()"><span class="sb-bubble" id="sb-bubble"></span><span class="sb-txt"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span><span class="sb-gear" aria-hidden="true">⚙️</span><span class="sb-back">戻る</span></button>
       <button class="home-side-btn hsb-right" onclick="enterListMode()" aria-label="単語帳"><img src="images-thumb/1290.webp" alt=""><span class="hsb-txt">単語帳</span></button>
       <div id="status-ov"></div>
@@ -2435,7 +2437,7 @@ function buildRoomSlides(){
       </div>
     </div>`;
   }).join("");
-  if(!_listMode)requestAnimationFrame(()=>sgScrollToCurrent(curSection)); // 現在のマスが見える位置から始める
+  if(!_listMode)requestAnimationFrame(()=>{sgHydrateAll();sgScrollToCurrent(curSection);}); // 道と遠近を計算し、現在のマスが見える位置から始める
   if(!el.dataset.bound){
     el.dataset.bound="1";
     // ホーム: 一定量引くと発動するプルダウン式（上引き=単語帳 / 下引き=ステータス）。単語帳内: 最上部からの下引きでホームへ戻る
@@ -3579,15 +3581,22 @@ function showCountdown(cb){
 const LS_D5="kwt_daily5_v1";
 const D5_N=5, D5_PLAN=["jk","kj","jk","kj","jk"]; // 全問4択（日→韓／韓→日を交互）
 let _d5={on:false,slot:"",key:""},_d5Timer=null;
-function d5Slot(ms){return new Date(ms).getHours()<12?"am":"pm";}
+const D5_AM=6,D5_PM=18; // 朝の部/夜の部の切り替え時刻
+function d5Slot(ms){const h=new Date(ms).getHours();return (h>=D5_AM&&h<D5_PM)?"am":"pm";}
 function d5SlotLabel(s){return s==="am"?"朝の部":"夜の部";}
-function d5SlotTime(s){return s==="am"?"0:00–11:59":"12:00–23:59";}
-function d5Key(ms){return dayKey(ms)+"#"+d5Slot(ms);}
+function d5SlotTime(s){return s==="am"?"6:00–17:59":"18:00–5:59";}
+function d5Key(ms){return dayKey(ms-D5_AM*3600000)+"#"+d5Slot(ms);} // 深夜0〜6時は前日の夜の部として扱う
 function loadD5(){try{return JSON.parse(localStorage.getItem(LS_D5)||"{}")||{};}catch(e){return{};}}
 function saveD5(o){const ks=Object.keys(o);if(ks.length>40)ks.slice(0,ks.length-40).forEach(k=>delete o[k]);_lsSet(LS_D5,JSON.stringify(o));} // 古い枠は間引き
 function d5Rec(ms){return loadD5()[d5Key(ms||Date.now())]||null;}
 function d5Used(ms){return !!d5Rec(ms);}
-function d5NextOpenAt(ms){const d=new Date(ms);if(d.getHours()<12)d.setHours(12,0,0,0);else{d.setDate(d.getDate()+1);d.setHours(0,0,0,0);}return d.getTime();}
+function d5NextOpenAt(ms){
+  const d=new Date(ms),h=d.getHours();
+  if(h<D5_AM)d.setHours(D5_AM,0,0,0);                              // 深夜 → 今日の6:00
+  else if(h<D5_PM)d.setHours(D5_PM,0,0,0);                         // 朝の部 → 今日の18:00
+  else{d.setDate(d.getDate()+1);d.setHours(D5_AM,0,0,0);}          // 夜の部 → 翌6:00
+  return d.getTime();
+}
 function d5Countdown(ms){let s=Math.max(0,Math.round((d5NextOpenAt(ms)-ms)/1000));const h=Math.floor(s/3600),m=Math.floor(s%3600/60);s=s%60;const p=n=>String(n).padStart(2,"0");return h+":"+p(m)+":"+p(s);}
 /* その日・その枠で出題を固定するための決定的乱数（＝「今日の5問」は何度開いても同じ） */
 function _d5Hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
@@ -3788,7 +3797,8 @@ function d5RareBurst(){
  * → 1周こなせば必ず全語が登場する（従来は正答率が低いと一周できなかった）。復習の混ざり方は従来どおり毎回3〜4問。 */
 const LS_BOARD="kwt_board_v1";
 const SG_QPT=12;                                   // 1マスの問題数
-const SG_STEP=134,SG_TOP=92,SG_AMP=148,SG_CX=277;  // マスの間隔・開始y・蛇行の振幅・中心x
+const SG_STEP=140,SG_TOP=104,SG_AMP=178,SG_CX=277;  // マスの間隔・端の余白・蛇行の振幅・中心x（下から上へ登る）
+const SG_FREQ=0.95,SG_FAR=0.40;                     // 蛇行の急さ・遠方の縮小率（斜め見の遠近感）
 const SG_DECO=["🌲","🌳","🌸","⭐","✨","🍀","🌿","🌼","🪨","🍄"];
 let _boardTile=null,_lastBoardTile=null;
 function boardLapSize(level,sec){ // 100語→12マス（8.33語/マス）。語数に比例して増減
@@ -3796,6 +3806,32 @@ function boardLapSize(level,sec){ // 100語→12マス（8.33語/マス）。語
   return Math.max(3,Math.ceil(n*SG_QPT/100));
 }
 function boardKey(level,sec){return level+"-"+String(sec).padStart(2,"0");}
+/* これまでの学習履歴からすごろくの進捗を復元（初回のみ）。
+ * 過去に12問を完走したテストを、そのROOMのマスとして古い順に埋める＝今までの積み上げぶんだけ進んだ状態から始まる。 */
+(function boardSeedFromHistory(){
+  try{
+    if(localStorage.getItem("kwt_boardseed_v1"))return;
+    localStorage.setItem("kwt_boardseed_v1","1");
+    if(localStorage.getItem(LS_BOARD))return;             // 既にすごろくを進めていれば触らない
+    const h=loadHistory();if(!h.length)return;
+    const m=secOfWord(),tests={};
+    h.forEach(r=>{
+      const k=m[r.wordId];if(!k||!r.testId)return;
+      const t=tests[r.testId]||(tests[r.testId]={sec:k,score:0,n:0,at:r.answeredAt||""});
+      t.score+=(r.score||0);t.n++;if((r.answeredAt||"")>t.at)t.at=r.answeredAt||t.at;
+    });
+    const per={};
+    Object.keys(tests).forEach(id=>{const t=tests[id];if(t.n<12)return;(per[t.sec]=per[t.sec]||[]).push(t);}); // 12問完走のみ1マスとして数える
+    const board={};
+    Object.keys(per).forEach(sec=>{
+      const [lv,num]=sec.split("-"),key=lv+"-"+String(num).padStart(2,"0");
+      const list=per[sec].sort((a,b)=>a.at<b.at?-1:1),tiles={};
+      list.forEach((t,i)=>{const sc=Math.min(100,Math.ceil(t.score));tiles[i+1]={rank:rankFor(sc),score:sc,at:t.at};});
+      board[key]={cleared:list.length,tiles};
+    });
+    if(Object.keys(board).length)_lsSet(LS_BOARD,JSON.stringify(board));
+  }catch(e){}
+})();
 function loadBoard(){try{return JSON.parse(localStorage.getItem(LS_BOARD)||"{}")||{};}catch(e){return{};}}
 function boardState(level,sec){const b=loadBoard()[boardKey(level,sec)];return{cleared:(b&&b.cleared)||0,tiles:(b&&b.tiles)||{}};}
 function boardVisible(level,sec){const L=boardLapSize(level,sec);return (Math.floor(boardState(level,sec).cleared/L)+1)*L;} // 現在の周ぶんまで表示（1周こなすと次の周が伸びる）
@@ -3843,70 +3879,133 @@ function buildBoardQuestions(){
   return makeQuestionsFromIds(out);
 }
 /* ---- 描画 ---- */
-function sgPos(i){return{x:Math.round(SG_CX+SG_AMP*Math.sin(i*0.66)),y:SG_TOP+i*SG_STEP};}
+/* マス1が最下部で、番号が増えるほど上へ登っていく（下から上へ遡る） */
+function sgPos(i,total){return{x:Math.round(SG_CX+SG_AMP*Math.sin(i*SG_FREQ)),y:SG_TOP+(total-1-i)*SG_STEP};}
+function sgTrackH(total){return SG_TOP*2+(total-1)*SG_STEP;}
 function sgTileImg(ids,fallbackIds){
   if(typeof WORD_IMG==="undefined")return null;
   for(const id of ids){const w=WORD_BY_ID[id];if(w&&WORD_IMG[w.ko])return WORD_IMG[w.ko];}
   for(const id of (fallbackIds||[])){const w=WORD_BY_ID[id];if(w&&WORD_IMG[w.ko])return WORD_IMG[w.ko];} // マスの上には常に何かが乗るようにする
   return null;
 }
-function sgRoadPath(pts){
-  let d="";
-  pts.forEach((p,i)=>{
-    if(i===0){d+="M"+p.x+" "+p.y;return;}
-    const a=pts[i-1],my=(a.y+p.y)/2;
-    d+=" C"+a.x+" "+my+" "+p.x+" "+my+" "+p.x+" "+p.y;
-  });
-  return d;
+/* 中心線を3次ベジェで細かくサンプリング（道の輪郭を作るため） */
+function sgSamples(pts){
+  const S=[];
+  for(let i=0;i<pts.length-1;i++){
+    const a=pts[i],b=pts[i+1],my=(a.y+b.y)/2;
+    const c1={x:a.x,y:my},c2={x:b.x,y:my};
+    for(let k=0;k<12;k++){
+      const t=k/12,u=1-t;
+      S.push({x:u*u*u*a.x+3*u*u*t*c1.x+3*u*t*t*c2.x+t*t*t*b.x,
+              y:u*u*u*a.y+3*u*u*t*c1.y+3*u*t*t*c2.y+t*t*t*b.y});
+    }
+  }
+  if(pts.length)S.push(pts[pts.length-1]);
+  return S;
 }
+/* 画面内の高さで奥行きを決める：下＝近い(等倍) / 上＝遠い(縮小＋上へ圧縮)。斜めから見た台形の道になる */
+function sgPersp(y,top,h){
+  const v=(y-top)/Math.max(1,h);                                  // 0=画面上端(遠い) 1=下端(近い)
+  const vp=v<=0?v*0.5:(v>=1?v:Math.pow(v,1.42));                  // 遠いほど上へ詰める
+  return{ty:(vp-v)*h,k:1-SG_FAR*(1-Math.max(0,Math.min(1,vp)))};
+}
+function sgScale(y,top,h){return sgPersp(y,top,h).k;}
+function sgRoadD(S,top,h,half){
+  const L=[],R=[];
+  S.forEach((p,i)=>{
+    const q=S[Math.min(S.length-1,i+1)],r=S[Math.max(0,i-1)];
+    const dx=q.x-r.x,dy=q.y-r.y,len=Math.hypot(dx,dy)||1;
+    const nx=-dy/len,ny=dx/len,pe=sgPersp(p.y,top,h),w=half*pe.k;
+    const cx=SG_CX+(p.x-SG_CX)*pe.k,cy=p.y+pe.ty; // 道も同じ遠近で内側へ寄せる
+    L.push((cx+nx*w).toFixed(1)+" "+(cy+ny*w).toFixed(1));
+    R.push((cx-nx*w).toFixed(1)+" "+(cy-ny*w).toFixed(1));
+  });
+  return "M"+L.join("L")+"L"+R.reverse().join("L")+"Z";
+}
+/* スクロールに合わせて道の台形とマスの大小を更新（近いほど大きく手前に） */
+function sgApplyDepth(sc){
+  if(!sc||!sc._sg)return;
+  const h=sc.clientHeight||1,top=sc.scrollTop,S=sc._sg.samples;
+  const put=(el)=>{
+    const q=sgPersp(el._y,top,h);
+    el.style.transform="translate("+((SG_CX-el._x)*(1-q.k)).toFixed(1)+"px,"+q.ty.toFixed(1)+"px) scale("+q.k.toFixed(3)+")";
+    return q.k;
+  };
+  sc._sg.tiles.forEach(t=>{t.style.zIndex=String(4+Math.round(put(t)*40));});
+  sc._sg.decos.forEach(put);
+  const road=sc._sg.road,edge=sc._sg.edge,line=sc._sg.line;
+  if(road)road.setAttribute("d",sgRoadD(S,top,h,27));
+  if(edge)edge.setAttribute("d",sgRoadD(S,top,h,34));
+  if(line)line.setAttribute("d",sgRoadD(S,top,h,3.4));
+}
+function sgBind(sc){
+  if(!sc||sc.dataset.sgbound)return;sc.dataset.sgbound="1";
+  let raf=0;
+  const on=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;sgApplyDepth(sc);});};
+  sc.addEventListener("scroll",on,{passive:true});
+}
+function sgHydrate(n){
+  const sc=document.querySelector('.room-slide[data-n="'+n+'"] .sg-scroll');if(!sc)return;
+  const tiles=[...sc.querySelectorAll(".sg-tile")],decos=[...sc.querySelectorAll(".sg-deco")];
+  tiles.forEach(t=>{t._x=parseFloat(t.dataset.x);t._y=parseFloat(t.dataset.y);});
+  decos.forEach(d=>{d._x=parseFloat(d.dataset.x);d._y=parseFloat(d.dataset.y);});
+  const pts=tiles.map(t=>({x:t._x,y:t._y})).sort((a,b)=>a.y-b.y);
+  sc._sg={tiles,decos,samples:sgSamples(pts),
+    road:sc.querySelector(".sg-asphalt"),edge:sc.querySelector(".sg-edge"),line:sc.querySelector(".sg-line")};
+  sgBind(sc);
+  sgApplyDepth(sc);
+}
+/* 沿道の自然物：すごろく専用に生成した3Dクレイ調の透過webp（木/もみの木/花/岩/雲/星） */
+const SG_DECO_IMG=["sgdeco/tree.webp","sgdeco/pine.webp","sgdeco/flower.webp","sgdeco/rock.webp","sgdeco/cloud.webp","sgdeco/star.webp"];
 function sgBoardHTML(n){
   const level=curLevel,L=boardLapSize(level,n),vis=boardVisible(level,n),st=boardState(level,n);
   const ids=((LEVEL_SECTIONS[level]||{})[n]||[]);
   const rnd=_d5Rng(_d5Hash("kwt-sg|"+level+"|"+n));
-  const pts=[],tiles=[],decos=[],laps=[];
+  const h=sgTrackH(vis);
+  const tiles=[],decos=[],laps=[];
   for(let i=0;i<vis;i++){
-    const g=i+1,p=sgPos(i);pts.push(p);
+    const g=i+1,p=sgPos(i,vis);
     const lap=Math.floor(i/L)+1,idx=i%L;
     const cover=boardTileWords(level,n,lap,idx);
     const src=sgTileImg(cover,ids);
     const done=!!st.tiles[g],now=(g===st.cleared+1),lock=g>st.cleared+1;
     const rank=done?st.tiles[g].rank:null;
-    tiles.push(`<button class="sg-tile${done?" done":""}${now?" now":""}${lock?" lock":""}" style="left:${p.x}px;top:${p.y}px"
-      onclick="sgTap(${n},${g})" aria-label="マス${g}">
-      ${src?`<img class="sg-img" src="${src}" alt="" loading="lazy" decoding="async">`:`<span class="sg-noimg">🃏</span>`}
-      <span class="sg-disc"></span><span class="sg-num">${g}</span>
-      ${rank?`<span class="sg-rank" style="background:${RANK_COLORS[rank]||"#555"}">${rank}</span>`:""}
-      ${now?`<span class="sg-here">いまここ</span>`:""}
-    </button>`);
-    if(idx===0)laps.push(`<div class="sg-lap" style="top:${p.y-SG_STEP*0.62}px"><span>${lap}周目</span></div>`);
-    // 自然物は道の反対側の外周へ（マス・道・左レールに被らせない）
-    for(let k=0;k<2;k++){
-      const side=p.x<SG_CX?1:-1,e=SG_DECO[Math.floor(rnd()*SG_DECO.length)];
-      const dist=k?(198+rnd()*46):(116+rnd()*54);
-      const x=Math.max(98,Math.min(456,p.x+side*dist));
-      const y=p.y-54+rnd()*112,sz=Math.round(22+rnd()*26);
-      decos.push(`<div class="sg-deco" style="left:${Math.round(x)}px;top:${Math.round(y)}px;font-size:${sz}px;opacity:${(0.6+rnd()*0.34).toFixed(2)}">${e}</div>`);
-    }
+    tiles.push('<button class="sg-tile'+(done?" done":"")+(now?" now":"")+(lock?" lock":"")+'" data-x="'+p.x+'" data-y="'+p.y+'" style="left:'+p.x+'px;top:'+p.y+'px"'
+      +' onclick="sgTap('+n+','+g+')" aria-label="マス'+g+'">'
+      +(src?'<img class="sg-img" src="'+src+'" alt="" loading="lazy" decoding="async">':'<span class="sg-noimg">🃏</span>')
+      +'<span class="sg-disc"></span><span class="sg-num">'+g+'</span>'
+      +(rank?'<span class="sg-rank" style="background:'+(RANK_COLORS[rank]||"#555")+'">'+rank+'</span>':"")
+      +(now?'<span class="sg-here">いまここ</span>':"")
+      +'</button>');
+    if(idx===0)laps.push('<div class="sg-lap" style="top:'+Math.round(p.y+SG_STEP*0.56)+'px"><span>'+lap+'周目</span></div>');
+    // 自然物は道の反対側の外周へ1マスにつき1つ（マス・道・左レールに被らせない）
+    const side=p.x<SG_CX?1:-1;
+    const dx=Math.max(96,Math.min(462,p.x+side*(132+rnd()*74)));
+    const dy=Math.round(p.y-58+rnd()*116),sz=Math.round(56+rnd()*46);
+    decos.push('<img class="sg-deco" src="'+SG_DECO_IMG[Math.floor(rnd()*SG_DECO_IMG.length)]+'" alt="" loading="lazy" decoding="async"'
+      +' data-x="'+Math.round(dx)+'" data-y="'+dy+'" style="left:'+Math.round(dx-sz/2)+'px;top:'+dy+'px;width:'+sz+'px;opacity:'+(0.82+rnd()*0.18).toFixed(2)+'" onerror="this.style.display=\'none\'">');
   }
-  const h=SG_TOP+vis*SG_STEP+40;
   const nn=String(n).padStart(2,"0");
-  return `<div class="sg-wrap">
-    <img class="sg-bg" src="rooms/${level}-${nn}.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'">
-    <div class="sg-scroll" data-n="${n}"><div class="sg-track" style="height:${h}px">
-      <svg class="sg-road" width="554" height="${h}" viewBox="0 0 554 ${h}" fill="none" aria-hidden="true">
-        <path d="${sgRoadPath(pts)}" stroke="rgba(0,0,0,.16)" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="${sgRoadPath(pts)}" stroke="rgba(255,255,255,.6)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="${sgRoadPath(pts)}" stroke="rgba(255,255,255,.9)" stroke-width="6" stroke-dasharray="14 17" stroke-linecap="round"/>
-      </svg>
-      ${laps.join("")}${decos.join("")}${tiles.join("")}
-    </div></div>
-  </div>`;
+  return '<div class="sg-wrap">'
+    +'<img class="sg-bg" src="rooms/'+level+'-'+nn+'.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">'
+    +'<div class="sg-scroll" data-n="'+n+'"><div class="sg-track" style="height:'+h+'px">'
+    +'<svg class="sg-road" width="554" height="'+h+'" viewBox="0 0 554 '+h+'" aria-hidden="true">'
+    +'<path class="sg-edge" d="" fill="rgba(0,0,0,.2)"/>'
+    +'<path class="sg-asphalt" d="" fill="rgba(255,255,255,.8)"/>'
+    +'<path class="sg-line" d="" fill="rgba(140,110,60,.42)"/>'
+    +'</svg>'
+    +laps.join("")+decos.join("")+tiles.join("")
+    +'</div></div></div>';
 }
 function sgScrollToCurrent(n){
   const sc=document.querySelector(`.room-slide[data-n="${n}"] .sg-scroll`);if(!sc)return;
-  const cur=sc.querySelector(".sg-tile.now")||sc.querySelector(".sg-tile.done:last-of-type");
-  if(cur)sc.scrollTop=Math.max(0,cur.offsetTop-sc.clientHeight*0.52);
+  const cur=sc.querySelector(".sg-tile.now");
+  // 下から上へ登るので、いまのマスは画面の下寄り（＝いちばん手前）に置く
+  sc.scrollTop=cur?Math.max(0,cur.offsetTop-sc.clientHeight*0.62):sc.scrollHeight;
+  sgApplyDepth(sc);
 }
+/* 全ROOMスライドの道と遠近を初期化（スライドを作り直すたびに呼ぶ） */
+function sgHydrateAll(){document.querySelectorAll(".room-slide .sg-scroll").forEach(sc=>sgHydrate(+sc.dataset.n));}
 function sgToast(msg){const t=document.createElement("div");t.className="sg-toast";t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),1900);}
 function sgTap(n,gidx){
   if(_counting){cancelHomeCountdown();return;}
@@ -5637,7 +5736,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v2.127 (2026-07-25)";
+const APP_VERSION="v2.128 (2026-07-25)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

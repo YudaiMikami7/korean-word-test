@@ -118,6 +118,33 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   });
   check(`1周クリアで次の12マスが出現 (${grown.tiles}マス / ${grown.laps.join(',')})`, grown.visible === 24 && grown.tiles === 24 && grown.laps.length === 2);
 
+  // --- 過去の履歴から進捗を復元 ---
+  const seeded = await page.evaluate(async () => {
+    localStorage.clear();
+    // 初級ROOM01で3回、ROOM02で1回の「12問完走」履歴を仕込む
+    const ids1 = LEVEL_SECTIONS.beginner[1], ids2 = LEVEL_SECTIONS.beginner[2], h = [];
+    const push = (ids, testId, score, day) => {
+      for (let i = 0; i < 12; i++) h.push({ wordId: ids[i], testId, score, answeredAt: '2026-07-' + String(day).padStart(2, '0') + 'T10:00:00.000Z' });
+    };
+    push(ids1, 't-a', 8, 10); push(ids1, 't-b', 6, 11); push(ids1, 't-c', 9, 12);
+    push(ids2, 't-d', 7, 13);
+    push(ids1, 't-short', 8, 14); h.length -= 6; // 6問しかない未完走テストは数えない
+    localStorage.setItem('kwt_history_v1', JSON.stringify(h));
+    return true;
+  });
+  await page.reload(); await page.waitForTimeout(1400);
+  await page.evaluate(() => document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove()));
+  const st = await page.evaluate(() => ({
+    r1: boardState('beginner', 1), r2: boardState('beginner', 2), r3: boardState('beginner', 3),
+    tiles: document.querySelectorAll('.room-slide[data-n="1"] .sg-tile.done').length,
+    now: document.querySelector('.room-slide[data-n="1"] .sg-tile.now')?.getAttribute('aria-label'),
+  }));
+  check(`過去3回ぶんが3マス進んだ状態になる (cleared=${st.r1.cleared})`, seeded && st.r1.cleared === 3 && st.tiles === 3);
+  check('未完走(6問)のテストはマスに数えない', st.r1.cleared === 3);
+  check(`別ROOMも個別に反映 (ROOM02=${st.r2.cleared} / ROOM03=${st.r3.cleared})`, st.r2.cleared === 1 && st.r3.cleared === 0);
+  check('復元したマスにランクが入る', !!st.r1.tiles['1'] && !!st.r1.tiles['1'].rank);
+  check('「いまここ」が4マス目', st.now === 'マス4');
+
   check('コンソールエラー無し', errors.length === 0);
   if (errors.length) console.log(errors);
 
