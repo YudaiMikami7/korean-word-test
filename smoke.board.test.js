@@ -273,6 +273,33 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     return worst < 1.15;
   }));
 
+  // --- 描画量の上限（ページが落ちないこと） ---
+  const load = await page.evaluate(async () => {
+    localStorage.clear();
+    const board = {};
+    for (let n = 1; n <= 27; n++) { const t = {}; for (let i = 1; i <= 24; i++) t[i] = { rank: 'B', score: 70, at: new Date().toISOString() }; board['middle-' + String(n).padStart(2, '0')] = { cleared: 24, tiles: t }; }
+    localStorage.setItem('kwt_board_v1', JSON.stringify(board));
+    localStorage.setItem('kwt_lastroom_v1', JSON.stringify({ level: 'middle', section: 1 }));
+    localStorage.setItem('kwt_coach_v1', '1');
+    return true;
+  }).then(() => page.reload()).then(() => page.waitForTimeout(2200)).then(() => page.evaluate(() => ({
+    tiles: document.querySelectorAll('.sg-tile').length,
+    nodes: document.getElementsByTagName('*').length,
+    layers: [...document.querySelectorAll('*')].filter(e => getComputedStyle(e).willChange === 'transform').length,
+  })));
+  check(`最重ケースでもGPUレイヤーを量産しない (${load.layers}枚)`, load.layers <= 4);
+  check(`すごろくは近傍ROOMのみ描画 (マス${load.tiles} / 要素${load.nodes})`, load.tiles <= 120 && load.nodes < 2000);
+  check('ROOMを次々移動しても描画され続ける', await page.evaluate(async () => {
+    for (const n of [5, 12, 20, 27, 3]) {
+      jumpRoom(n); await new Promise(r => setTimeout(r, 500));
+      const t = document.querySelectorAll(`.room-slide[data-n="${n}"] .sg-tile`).length;
+      const road = document.querySelector(`.room-slide[data-n="${n}"] .sg-road path[d]`);
+      if (!t || !road || !road.getAttribute('d')) return false;
+      if (document.querySelectorAll('.sg-tile').length > 160) return false; // 溜め込んでいない
+    }
+    return true;
+  }));
+
   check('コンソールエラー無し', errors.length === 0);
   if (errors.length) console.log(errors);
 
