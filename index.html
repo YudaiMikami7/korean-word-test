@@ -1297,12 +1297,30 @@ body.bigtext .set-d{font-size:13.5px}
 /* 現在地（＝スタートのマス）へ戻るボタン。すごろくを動かして「いまここ」を見失ったときだけ出る（画面のダブルタップでも戻れる）。
    下端56pxはマスクで薄くなるので、そこには掛からない高さに置く */
 /* z-indexはマスより上（マスは遠近に応じて4〜44が入る）。sg-wrap自身が重ね合わせ文脈なので外へは影響しない */
-.sg-home{position:absolute;right:10px;bottom:66px;z-index:60;border:none;padding:11px 22px 13px;border-radius:999px;
-  background:#111;color:#fff;font-size:26px;font-weight:900;letter-spacing:.1em;white-space:nowrap;cursor:pointer;font-family:inherit;
+/* 中身は文字を置かず、Googleマップの現在地ボタンと同じくコンパスの針アイコンだけ（黒座布団＋黄色枠は据え置き） */
+.sg-home{position:absolute;right:10px;bottom:66px;z-index:60;border:none;padding:0;width:62px;height:62px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:#111;color:#fff;cursor:pointer;font-family:inherit;
   box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 0 4px rgba(255,196,0,.95);
   opacity:0;pointer-events:none;transform:translateY(12px) scale(.86);transition:opacity .22s ease,transform .22s cubic-bezier(.34,1.5,.5,1)}
+.sg-home svg{width:32px;height:32px;display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
 .sg-home.on{opacity:1;pointer-events:auto;transform:none}
 .sg-home.on:active{transform:scale(.9)}
+/* 今日の5問（すごろく下・中央のカプセル）。現在地ボタンと同じ高さに置く */
+.sg-d5{position:absolute;left:50%;bottom:66px;z-index:60;border:none;padding:11px 26px 13px;border-radius:999px;
+  background:#fff;color:#111;font-size:26px;font-weight:900;letter-spacing:.08em;white-space:nowrap;cursor:pointer;font-family:inherit;
+  box-shadow:0 8px 18px rgba(0,0,0,.55);transform:translateX(-50%);transition:transform .16s ease,opacity .2s ease}
+.sg-d5:active{transform:translateX(-50%) scale(.93)}
+/* 文字はスタートボタンと同じく1文字ずつ回転 */
+.sg-d5 .sgd5-t span{display:inline-block;animation:sbchar 3s ease-in-out infinite;backface-visibility:hidden}
+.sg-d5 .sgd5-t span:nth-child(2){animation-delay:.12s}
+.sg-d5 .sgd5-t span:nth-child(3){animation-delay:.24s}
+.sg-d5 .sgd5-t span:nth-child(4){animation-delay:.36s}
+.sg-d5 .sgd5-t span:nth-child(5){animation-delay:.48s}
+.sg-d5 .d5-b{position:absolute;right:-2px;top:-2px;width:22px;height:22px;border-radius:50%;background:#FF8A00;color:#fff;
+  font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;line-height:1}
+.sg-d5.d5-off{background:#EDEDED;color:#9a9a9a;box-shadow:0 4px 10px rgba(0,0,0,.35)}
+.sg-d5.d5-off .sgd5-t span{animation:none}
 .home-wrap.status .sg-wrap,.home-wrap.hiderail .sg-wrap{opacity:0;pointer-events:none;transition:opacity .3s ease}
 
 /* 1周クリアの到達演出 */
@@ -1326,41 +1344,33 @@ body.bigtext .set-d{font-size:13.5px}
   letter-spacing:.06em;padding:5px 12px;border-radius:999px;pointer-events:none;white-space:nowrap}
 .sg-prog b{color:#FFD84D;font-size:14px}
 /* 今日の5問の連続記録 */
-.d5-streak{display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:900;color:#C24A00;margin-bottom:10px}
-.d5-streak b{font-size:20px}
+.d5-streak{display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:900;color:#C24A00;margin-top:3px}
+.d5-streak b{font-size:17px}
 
 /* ============================================================ 今日の5問テスト（朝の部・夜の部 各1回） ============================================================
  * 配色・角丸はアプリ既存トーン（プレゼント/結果画面）に合わせる: 白地＋#1a1a1a文字＋#FFC400/#E0831A差し色、角丸は最小限 */
-#rr-d5.d5-off{filter:grayscale(1);opacity:.55}
-.rr-badge.d5-b{background:#FF8A00}
-.rr-btn .d5-ico{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;border-radius:50%;
-  background:linear-gradient(160deg,#FFC94D,#FF7A00);color:#fff;transition:opacity .14s ease .15s}
-.rr-btn .d5-ico b{font-size:29px;font-weight:900;line-height:1;text-shadow:0 2px 0 rgba(0,0,0,.18)}
-.rr-btn .d5-ico i{font-style:normal;font-size:11px;font-weight:900;line-height:1;margin-top:2px;letter-spacing:.08em}
-.rr-btn.show-label .d5-ico{opacity:0;transition:opacity .14s ease}
-/* --- モーダル（プレゼントモーダルと同じ白地・角丸なし） --- */
-#d5-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
-#d5-modal.on{display:flex}
-.d5-card{width:320px;max-width:86vw;max-height:88vh;overflow-y:auto;background:#fff;color:#1a1a1a;border-radius:0;position:relative;
-  padding:22px 22px calc(22px + env(safe-area-inset-bottom));text-align:center;-webkit-overflow-scrolling:touch}
-.d5-h{font-size:20px;font-weight:900;letter-spacing:.04em}
-.d5-sub{font-size:12px;font-weight:800;color:#777;margin:4px 0 14px}
-.d5-close{position:absolute;right:4px;top:4px;width:46px;height:46px;border:none;background:rgba(0,0,0,.07);color:#333;font-size:24px;font-weight:900;cursor:pointer;line-height:1;font-family:inherit;border-radius:50%;display:flex;align-items:center;justify-content:center}
-.d5-close:active{background:rgba(0,0,0,.16)}
-.d5-slots{display:flex;gap:8px;margin-bottom:12px}
-.d5-slot{flex:1;padding:9px 6px;text-align:center;background:#F2F2F2;border:2px solid #E3E3E3}
+/* --- ポップアップ（画面いっぱいのモーダルではなく、ボタンから伸びる吹き出し） --- */
+#d5-modal{position:fixed;inset:0;z-index:400;display:none;background:rgba(0,0,0,.34)}
+#d5-modal.on{display:block}
+.d5-card{position:absolute;left:0;top:0;width:274px;max-width:88vw;background:#fff;color:#1a1a1a;border-radius:20px;
+  padding:14px 14px 13px;text-align:center;box-shadow:0 14px 34px rgba(0,0,0,.5)}
+.d5-card::after{content:"";position:absolute;left:var(--tx,50%);bottom:-11px;margin-left:-11px;border:11px solid transparent;border-top-color:#fff;border-bottom:0}
+.d5-card.flip::after{bottom:auto;top:-11px;border-top:0;border-bottom-color:#fff;border-bottom-width:11px}
+.d5-h{font-size:16px;font-weight:900;letter-spacing:.04em}
+.d5-close{position:absolute;right:2px;top:2px;width:38px;height:38px;border:none;background:transparent;color:#999;font-size:20px;font-weight:900;cursor:pointer;line-height:1;font-family:inherit;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.d5-close:active{background:rgba(0,0,0,.1)}
+.d5-slots{display:flex;gap:6px;margin:9px 0 10px}
+.d5-slot{flex:1;padding:7px 4px;text-align:center;background:#F2F2F2;border:2px solid #E3E3E3}
 .d5-slot.now{border-color:#FFC400;background:#FFF7E0}
 .d5-slot .d5-sl{font-size:11px;font-weight:900;color:#777;line-height:1.5}
-.d5-slot .d5-sv{font-size:14px;font-weight:900;margin-top:4px;color:#1a1a1a}
+.d5-slot .d5-sv{font-size:13px;font-weight:900;margin-top:3px;color:#1a1a1a}
 .d5-slot .d5-sv.ok{color:#E0831A}.d5-slot .d5-sv.no{color:#aaa}
-.d5-rules{background:#F6F6F6;padding:11px 13px;font-size:12.5px;font-weight:700;line-height:1.9;color:#333;margin-bottom:12px;text-align:left}
-.d5-rules b{color:#C24A00}
-.d5-go{width:100%;border:none;background:#000;color:#fff;font-size:17px;font-weight:900;padding:16px;cursor:pointer;font-family:inherit}
+.d5-go{width:100%;border:none;background:#000;color:#fff;font-size:16px;font-weight:900;padding:13px;cursor:pointer;font-family:inherit;border-radius:999px}
 .d5-go:active{background:#1c1c1c}
-.d5-wait{background:#F6F6F6;padding:12px;text-align:center}
+.d5-wait{background:#F6F6F6;padding:9px}
 .d5-wait .d5-wt{font-size:11px;font-weight:800;color:#777}
-.d5-wait .d5-wv{font-size:26px;font-weight:900;font-variant-numeric:tabular-nums;color:#1a1a1a;margin-top:2px}
-.d5-ghost{width:100%;margin-top:8px;border:2px solid #111;background:#fff;color:#111;font-size:14px;font-weight:800;padding:12px;cursor:pointer;font-family:inherit}
+.d5-wait .d5-wv{font-size:23px;font-weight:900;font-variant-numeric:tabular-nums;color:#1a1a1a;margin-top:2px}
+.d5-ghost{width:100%;margin-top:7px;border:2px solid #111;background:#fff;color:#111;font-size:13px;font-weight:800;padding:9px;cursor:pointer;font-family:inherit;border-radius:999px}
 .d5-ghost:active{background:#efefef}
 /* --- 回答受付フラッシュ（正誤は出さない） --- */
 #qstage .choice.d5-pick{box-shadow:0 0 0 4px #FFC400 inset}
@@ -1427,7 +1437,6 @@ body.bigtext .set-d{font-size:13.5px}
         <button class="rr-btn rr-map" id="map-btn" onclick="openRoomMap()" aria-label="ROOM一覧"><img src="icons/map.webp" alt="ROOM一覧" onerror="this.replaceWith(document.createTextNode('🗺'))"><span class="rr-txt">ROOM<br>一覧</span></button>
         <button class="rr-btn" id="cal-btn" onclick="openCalendar()"><img src="icons/calendar.webp" alt="カレンダー"><span class="rr-txt">カレンダー</span></button>
         <button class="rr-btn" id="sp-btn" onclick="openSpecial()" aria-label="スペシャルモード"><img src="images-thumb/0731.webp" alt="スペシャル"><span class="rr-txt">スペシャル</span></button>
-        <button class="rr-btn" id="rr-d5" onclick="openDaily5()" aria-label="今日の5問テスト"><span class="d5-ico"><b>5</b><i>問</i></span><span class="rr-txt">今日の<br>5問</span><span class="rr-badge d5-b" id="pb-d5" style="display:none">!</span></button>
       </div>
       <div class="reward-rail">
         <button class="rr-btn" id="rr-daily" onclick="openPresent('daily')"><img src="icons/bonus-daily.webp" alt="毎日"><span class="rr-txt">毎日<br>ボーナス</span><span class="rr-badge" id="pb-daily" style="display:none"></span></button>
@@ -3800,18 +3809,19 @@ function buildDaily5Questions(){
     return{word:w,type,choices:cs.choices,correct:type==="kj"?w.ja:w.ko,source:"daily5",cmeta:cs.meta};
   });
 }
-/* ---- 入口（ホーム左レールのボタン） ---- */
+/* ---- 入口（すごろく下・中央のカプセルボタン。スライドごとに1つずつ存在する） ---- */
 function updateD5Btn(){
-  const b=document.getElementById("rr-d5");if(!b)return;
   const used=d5Used();
-  b.classList.toggle("d5-off",used);
-  const bd=document.getElementById("pb-d5");if(bd)bd.style.display=used?"none":"flex";
+  document.querySelectorAll(".sg-d5").forEach(b=>{
+    b.classList.toggle("d5-off",used);
+    const bd=b.querySelector(".d5-b");if(bd)bd.style.display=used?"none":"flex";
+  });
 }
 function openDaily5(){
   const m=document.getElementById("d5-modal");
   if(!m.classList.contains("on"))pushNav("modal");
+  m.classList.add("on"); // 吹き出しの位置はレイアウト後に測るので、先に表示してから描く
   d5RenderModal();
-  m.classList.add("on");
   m.onclick=e=>{if(e.target===m)closeDaily5();};
   clearInterval(_d5Timer);
   _d5Timer=setInterval(()=>{
@@ -3830,16 +3840,41 @@ function d5RenderModal(){
   const body=rec
    ?`<div class="d5-wait"><div class="d5-wt">次の「今日の5問」まで</div><div class="d5-wv" id="d5-cd">${d5Countdown(now)}</div></div>
      ${rec.done?`<button class="d5-ghost" onclick="closeDaily5();d5ShowSaved()">この回の結果をもう一度見る</button>`:""}`
-   :`<div class="d5-rules">・<b>4択が5問</b>だけの一発勝負<br>・回答中は<b>正誤を表示しません</b><br>・5問目のあと、結果画面で<b>1問ずつ判定</b><br>・出題は<b>今日のこの枠で固定</b>です<br>・はじめると<b>1回ぶん消費</b>します</div>
-     <button class="d5-go" onclick="startDaily5()">${d5SlotLabel(slot)}をはじめる</button>`;
+   :`<button class="d5-go" onclick="startDaily5()">${d5SlotLabel(slot)}をはじめる</button>`;
   document.getElementById("d5-modal").innerHTML=`<div class="d5-card">
     <button class="d5-close" onclick="closeDaily5()" aria-label="閉じる">×</button>
     <div class="d5-h">今日の5問テスト</div>
-    <div class="d5-sub">朝と夜、1日2回だけ挑戦できます</div>
-    ${(()=>{const k=d5Streak();return k?`<div class="d5-streak"><img src="images-thumb/0773.webp" alt="" style="width:24px;height:24px;object-fit:contain">連続 <b>${k}</b> 日</div>`:"";})()}
+    ${(()=>{const k=d5Streak();return k?`<div class="d5-streak"><img src="images-thumb/0773.webp" alt="" style="width:20px;height:20px;object-fit:contain">連続 <b>${k}</b> 日</div>`:"";})()}
     <div class="d5-slots">${cell("am")}${cell("pm")}</div>
     ${body}</div>`;
+  d5AnchorBubble();
 }
+/* いま画面に見えている「今日の5問」ボタンを探す（ROOMスライドごとに同じボタンがある） */
+function d5AnchorBtn(){
+  const vw=innerWidth,vh=innerHeight;let best=null,bestA=0;
+  document.querySelectorAll(".sg-d5").forEach(b=>{
+    const r=b.getBoundingClientRect();
+    const a=Math.max(0,Math.min(r.right,vw)-Math.max(r.left,0))*Math.max(0,Math.min(r.bottom,vh)-Math.max(r.top,0));
+    if(a>bestA){bestA=a;best=b;}
+  });
+  return best;
+}
+/* 吹き出しをボタンの真上に置く（上に入らなければ下向きに反転、はみ出す側は画面内へ寄せる） */
+function d5AnchorBubble(){
+  const card=document.querySelector("#d5-modal .d5-card");if(!card)return;
+  const btn=d5AnchorBtn(),vw=innerWidth,vh=innerHeight,W=card.offsetWidth,H=card.offsetHeight,GAP=16,M=8;
+  let cx=vw/2,top,flip=false;
+  if(btn){
+    const r=btn.getBoundingClientRect();
+    cx=r.left+r.width/2;top=r.top-GAP-H;
+    if(top<M){top=Math.min(vh-H-M,r.bottom+GAP);flip=true;}
+  }else top=Math.max(M,(vh-H)/2);
+  const left=Math.max(M,Math.min(vw-W-M,Math.round(cx-W/2)));
+  card.style.left=left+"px";card.style.top=Math.round(Math.max(M,top))+"px";
+  card.style.setProperty("--tx",Math.round(Math.max(18,Math.min(W-18,cx-left)))+"px");
+  card.classList.toggle("flip",flip);
+}
+addEventListener("resize",()=>{const m=document.getElementById("d5-modal");if(m&&m.classList.contains("on"))d5AnchorBubble();});
 /* ---- 開始 ---- */
 function startDaily5(){
   if(d5Used()){d5RenderModal();return;}
@@ -4200,6 +4235,17 @@ function sgHydrate(n){
 }
 /* 沿道の自然物：すごろく専用に生成した3Dクレイ調の透過webp（木/もみの木/花/岩/雲/星） */
 const SG_DECO_IMG=["sgdeco/tree.webp","sgdeco/pine.webp","sgdeco/flower.webp","sgdeco/rock.webp","sgdeco/cloud.webp","sgdeco/star.webp"];
+/* 現在地ボタンの中身：文字は置かず、コンパスの針（右半分=黄／左半分=白）だけ */
+const SG_HOME_ICON='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+  +'<path d="M12 2.4 19.1 21.6 12 17.5Z" fill="#FFC400"/>'
+  +'<path d="M12 2.4 4.9 21.6 12 17.5Z" fill="#fff"/></svg>';
+/* 今日の5問（すごろく下・中央のカプセル）。スライドごとに描かれるのでidではなくclassで扱う */
+function sgD5HTML(){
+  const used=(typeof d5Used==="function")&&d5Used();
+  return '<button class="sg-d5'+(used?" d5-off":"")+'" onclick="openDaily5()" aria-label="今日の5問テスト">'
+    +'<span class="sgd5-t"><span>今</span><span>日</span><span>の</span><span>5</span><span>問</span></span>'
+    +'<span class="d5-b"'+(used?' style="display:none"':'')+'>!</span></button>';
+}
 function sgBoardHTML(n){
   const level=curLevel,L=boardLapSize(level,n),vis=boardVisible(level,n),st=boardState(level,n);
   const ids=((LEVEL_SECTIONS[level]||{})[n]||[]);
@@ -4239,7 +4285,8 @@ function sgBoardHTML(n){
     +'</svg>'
     +laps.join("")+decos.join("")+tiles.join("")
     +'</div></div>'
-    +'<button class="sg-home" onclick="sgScrollToCurrent('+n+',true)" aria-label="現在地に戻る">◎ 現在地</button>'
+    +'<button class="sg-home" onclick="sgScrollToCurrent('+n+',true)" aria-label="現在地に戻る">'+SG_HOME_ICON+'</button>'
+    +sgD5HTML()
     +'</div>';
 }
 /* 画像ファイルは正方形でも、被写体の形は縦長・横長とまちまちで、まわりの透明部分の量が画像ごとに違う。
@@ -6041,7 +6088,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v3.3 (2026-07-26)";
+const APP_VERSION="v3.4 (2026-07-27)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

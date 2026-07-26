@@ -42,8 +42,8 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   }));
 
   // --- 入口 ---
-  check('ホームに「今日の5問」ボタンがある', await page.evaluate(() => !!document.getElementById('rr-d5')));
-  check('未プレイなら残数バッジが出る', await page.evaluate(() => { renderHome(); return document.getElementById('pb-d5').style.display !== 'none'; }));
+  check('ホームに「今日の5問」ボタンがある', await page.evaluate(() => !!document.querySelector('.sg-d5')));
+  check('未プレイなら残数バッジが出る', await page.evaluate(() => { renderHome(); return document.querySelector('.sg-d5 .d5-b').style.display !== 'none'; }));
 
   await page.evaluate(() => openDaily5());
   await page.waitForTimeout(300);
@@ -137,7 +137,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check('次の枠までのカウントダウンが出る', await page.evaluate(() => { const e = document.getElementById('d5-cd'); return !!e && /^\d+:\d\d:\d\d$/.test(e.textContent.trim()); }));
   check('もう一度呼んでも開始できない', await page.evaluate(() => { const before = location.href; startDaily5(); return !document.getElementById('s-quiz').classList.contains('on'); }));
   check('結果を後から見返せる', await page.evaluate(() => { closeDaily5(); d5ShowSaved(); return document.querySelectorAll('#s-d5result .d5r-row.judged').length === 5; }));
-  check('ホームのボタンがグレーアウト', await page.evaluate(() => { show('s-home'); return document.getElementById('rr-d5').classList.contains('d5-off'); }));
+  check('ホームのボタンがグレーアウト', await page.evaluate(() => { show('s-home'); return document.querySelector('.sg-d5').classList.contains('d5-off'); }));
   // 単語帳: 見出し/旧戻るボタンを廃止し、カード枚数バー左の戻るへ移設
   check('単語帳の見出し・旧戻るボタンが無い', await page.evaluate(() => !document.querySelector('.wb-title') && !document.getElementById('wb-back2')));
   check('カード枚数バー左に戻るボタン', await page.evaluate(async () => {
