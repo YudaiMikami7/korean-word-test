@@ -1653,11 +1653,27 @@ const secId=n=>curLevel+"-"+String(n).padStart(2,"0");
 function sectionIds(){return LEVEL_SECTIONS[curLevel][curSection]||LEVEL_SECTIONS.middle[1];}
 function sectionPoolWords(){return sectionIds().map(id=>WORD_BY_ID[id]);}
 
+/* localStorageのJSONは「中身が変わっていなければ解析結果を使い回す」。
+ * 学習が進むとstats/履歴は各1MB近くになり、ホーム表示1回で合計27MB・放置中も30秒ごとに約15MBを
+ * 解析し直していた。PCのChromeでは一瞬でも、LINE等アプリ内ブラウザは解析とGCが桁違いに重く、
+ * ホーム復帰で画面が止まる主因になっていた。生文字列が同じ間は再解析しないことで根本を断つ。
+ * （保存すると生文字列が変わるので自動で作り直される＝別タブ・復元でも取りこぼしなし） */
+const _lsJsonCache={};
+function _lsJSON(key,fallback){
+  let raw=null;try{raw=localStorage.getItem(key);}catch(e){}
+  if(raw==null||raw==="")return fallback();
+  const c=_lsJsonCache[key];
+  if(c&&c.raw===raw)return c.val;
+  let v;try{v=JSON.parse(raw);}catch(e){v=null;}
+  if(v==null||typeof v!=="object")v=fallback();
+  _lsJsonCache[key]={raw,val:v};
+  return v;
+}
 /* Sectionごとの最高ランク保存 */
 const LS_SECTIONS="kwt_sections_v1";
 const RANK_VAL={S:5,A:4,B:3,C:2,D:1};
-function loadSections(){try{return JSON.parse(localStorage.getItem(LS_SECTIONS)||"{}");}catch(e){return{};}}
-function saveSections(s){localStorage.setItem(LS_SECTIONS,JSON.stringify(s));}
+function loadSections(){return _lsJSON(LS_SECTIONS,()=>({}));}
+function saveSections(s){_lsSetJSON(LS_SECTIONS,s);}
 function getSectionRec(n){
   const all=loadSections(),id=secId(n);
   return all[id]||{sectionId:id,level:curLevel,sectionNumber:n,wordIds:LEVEL_SECTIONS[curLevel][n]||[],bestRank:null,updatedAt:""};
@@ -1673,8 +1689,8 @@ function updateSectionRank(n,rank){
 const RANK_COLORS={S:"#FFC400",A:"#FF572F",B:"#1688FF",C:"#A05BD6",D:"#00924A"};
 /* XPは履歴の得点累計（減らない）。レベルLからL+1には L×100 XP 必要 */
 function loadBonus(){return parseInt(localStorage.getItem(LS_BONUS)||"0",10)||0;}
-function loadCards(){try{return JSON.parse(localStorage.getItem(LS_CARDS)||"{}")||{};}catch(e){return{};}}
-function addCards(wordId,n){if(n<=0)return;const c=loadCards();c[wordId]=(c[wordId]||0)+n;_lsSet(LS_CARDS,JSON.stringify(c));}
+function loadCards(){return _lsJSON(LS_CARDS,()=>({}));}
+function addCards(wordId,n){if(n<=0)return;const c=loadCards();c[wordId]=(c[wordId]||0)+n;_lsSetJSON(LS_CARDS,c);}
 function totalCards(){const c=loadCards();return Object.values(c).reduce((a,b)=>a+b,0);}
 function addBonus(n){localStorage.setItem(LS_BONUS,String(loadBonus()+n));}
 function xpInfo(){
@@ -1703,8 +1719,8 @@ function specialBonusFor(dt){
   if(m===11&&day===31)return{name:"大晦日",amount:200};
   return null;
 }
-function launchedDays(){try{return JSON.parse(localStorage.getItem(LS_LAUNCH)||"[]")||[];}catch(e){return[];}}
-function markLaunch(){const a=launchedDays(),tk=dayKey(Date.now());if(!a.includes(tk)){a.push(tk);if(a.length>420)a.splice(0,a.length-400);localStorage.setItem(LS_LAUNCH,JSON.stringify(a));}} // 400日ぶんだけ保持
+function launchedDays(){const a=_lsJSON(LS_LAUNCH,()=>[]);return Array.isArray(a)?a:[];}
+function markLaunch(){const a=launchedDays(),tk=dayKey(Date.now());if(!a.includes(tk)){a.push(tk);if(a.length>420)a.splice(0,a.length-400);_lsSetJSON(LS_LAUNCH,a);}} // 400日ぶんだけ保持
 /* その日に「12問を完了したテスト」の回数（履歴からtestIdごと12件以上を完了とみなす） */
 function doneCountByDay(){
   const by={};loadHistory().forEach(r=>{if(r.testId)(by[r.testId]=by[r.testId]||[]).push(r);});
@@ -1769,14 +1785,14 @@ function closeCalendar(){document.getElementById("calendar-modal").classList.rem
 const PRES_CATS=["daily","rank","level","pwr"];
 const PRES_LABEL={daily:"毎日ボーナス",rank:"テストのごほうび",level:"レベル・達成ボーナス",pwr:"PWRボーナス"};
 function _presentState(){
-  let o;try{o=JSON.parse(localStorage.getItem(LS_PRESENT)||"{}")||{};}catch(e){o={};}
+  const o=_lsJSON(LS_PRESENT,()=>({}));
   if(!Array.isArray(o.queue))o.queue=[];
   o.queue.forEach(it=>{ // 旧データ移行: catが無い項目に割り当て
     if(!it.cat)it.cat=(it.kind==="achv")?((it.title&&(it.title.includes("プレイ達成")||it.title.includes("ROOM")))?"level":"daily"):"rank";
   });
   return o;
 }
-function _savePresent(o){_lsSet(LS_PRESENT,JSON.stringify(o));}
+function _savePresent(o){_lsSetJSON(LS_PRESENT,o);}
 function totalTests(){const set=new Set();loadHistory().forEach(r=>{if(r.testId)set.add(r.testId);});let pruned=0;try{pruned=(JSON.parse(localStorage.getItem("kwt_histmeta_v1")||"{}").prunedTests)||0;}catch(e){}return set.size+pruned;}
 /* 回答履歴の間引き：90日より古い明細を削除（テスト数だけメタに繰入れ）。localStorage肥大と全走査の劣化を防ぐ */
 function pruneHistory(){
@@ -1792,7 +1808,7 @@ function pruneHistory(){
     const meta=JSON.parse(localStorage.getItem("kwt_histmeta_v1")||"{}");
     meta.prunedTests=(meta.prunedTests||0)+droppedTests;
     localStorage.setItem("kwt_histmeta_v1",JSON.stringify(meta));
-    localStorage.setItem(LS_HIST,JSON.stringify(keep));_histIdxCache=null;
+    localStorage.setItem(LS_HIST,JSON.stringify(keep));_histIdxCache=null;_roomSeriesCache={};
   }catch(e){}
 }
 let _secOfWord=null;
@@ -2205,12 +2221,16 @@ function pickRecoWord(n){
   const id=pool[_recoIdx%pool.length];_recoIdx++;
   return WORD_BY_ID[id]||null;
 }
-/* そのROOMの直近テスト得点(0-100)を古い順に返す（PWRグラフ用） */
+/* そのROOMの直近テスト得点(0-100)を古い順に返す（PWRグラフ用）。
+ * 3秒ごとの面回転から呼ばれるため、履歴全走査を毎回やらずROOM単位でキャッシュする（saveAnswerで無効化） */
+let _roomSeriesCache={};
 function roomScoreSeries(n){
+  const ck=curLevel+"|"+n;if(_roomSeriesCache[ck])return _roomSeriesCache[ck];
   const ids=new Set((n==="pq")?PRIQQ.ids:(LEVEL_SECTIONS[curLevel][n]||[])),byTest={};
   loadHistory().forEach(r=>{if(r.testId&&ids.has(r.wordId))(byTest[r.testId]=byTest[r.testId]||[]).push(r);});
-  return Object.values(byTest).map(a=>({at:a[a.length-1].answeredAt,total:Math.round(a.reduce((x,r)=>x+(r.score||0),0))}))
+  const out=Object.values(byTest).map(a=>({at:a[a.length-1].answeredAt,total:Math.round(a.reduce((x,r)=>x+(r.score||0),0))}))
     .sort((a,b)=>a.at.localeCompare(b.at)).slice(-8).map(t=>Math.max(0,Math.min(100,t.total)));
+  _roomSeriesCache[ck]=out;return out;
 }
 function _curSlideInner(){
   const el=document.getElementById("hv-rooms");if(!el)return null;
@@ -2510,7 +2530,7 @@ function buildRoomSlides(){
   </div>`;
   // ROOM01の左（難易度スライドの右）に特別ルーム プリQQ。通常ROOMのレイアウトを流用しプリティー化
   const pqrate=PRIQQ.total?Math.round(PRIQQ.learned/PRIQQ.total*100):0;
-  const pqlearned=PRIQQ.ids.filter(id=>(loadCards()[id]||0)>0).length;
+  const _pqc=loadCards();const pqlearned=PRIQQ.ids.filter(id=>(_pqc[id]||0)>0).length; // カードは1回だけ読む（語ごとに読み直さない）
   const specialSlide=`<div class="room-slide pq-slide" data-n="pq" style="background:#ffe3f1">
     <div class="slide-inner">
       <div class="rmenu-clip">
@@ -2756,6 +2776,14 @@ function flyPresentToRail(){
   setTimeout(()=>{fly.remove();updatePresent();target.classList.remove("suck");void target.offsetWidth;target.classList.add("suck");},1080);
 }
 
+/* まだ1問も解いていない人へ「おすすめの単語」を並べる（学習履歴が無く最近学んだ単語を出せない初回だけ）。
+ * いま開いているROOMの先頭から、絵が付いている語を優先して12語 */
+function recommendWords(){
+  const ids=(_onSpecial?PRIQQ.ids:(LEVEL_SECTIONS[curLevel][curSection]||[]))||[];
+  const ws=ids.map(id=>WORD_BY_ID[id]).filter(Boolean);
+  const withImg=ws.filter(w=>typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko]);
+  return (withImg.length>=8?withImg:ws).slice(0,12);
+}
 /* 今日学ぶべき単語の帯：忘却が進みPWR回復効率が高い語（urgent/review）を優先度順に12語流す */
 function buildTodayBand(){
   const band=document.getElementById("today-band"),track=document.getElementById("tb-track");
@@ -2773,6 +2801,11 @@ function buildTodayBand(){
     const ids=new Set(picks.map(x=>x.w.id));
     picks=picks.concat(all.filter(x=>!ids.has(x.w.id)).sort((a,b)=>b.ps-a.ps).slice(0,12-picks.length));
   }
+  // 初回（学習履歴ゼロ）は帯を空にせず「おすすめの単語」に切り替える。1語でも解けば以降は従来どおり
+  const reco=!picks.length;
+  if(reco)picks=recommendWords().map(w=>({w}));
+  const lab=band.querySelector(".tb-label");
+  if(lab)lab.textContent=reco?"おすすめの単語":"最近学んだ単語";
   if(!picks.length){band.style.display="none";_tbKey="";return;}
   band.style.display="block";
   const key=picks.map(x=>x.w.id).join(",");
@@ -3166,7 +3199,7 @@ const LS_HIST="kwt_history_v1", LS_PERFECT="kwt_perfect_v1", LS_USER="kwt_user_v
       LS_STATS="kwt_stats_v1", LS_PROG="kwt_progress_v1", LS_SESS="kwt_session_v1",
       LS_BONUS="kwt_bonus_v1", LS_PRESENT="kwt_present_v1", LS_CARDS="kwt_cards_v1", LS_LAUNCH="kwt_launch_v1", LS_LASTROOM="kwt_lastroom_v1", LS_SETTINGS="kwt_settings_v1";
 function getUserId(){let u=localStorage.getItem(LS_USER);if(!u){u="u-"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);localStorage.setItem(LS_USER,u);}return u;}
-function loadHistory(){try{return JSON.parse(localStorage.getItem(LS_HIST)||"[]");}catch(e){return[];}}
+function loadHistory(){const h=_lsJSON(LS_HIST,()=>[]);return Array.isArray(h)?h:[];}
 /* 保存の安全弁: 容量オーバー時は再生成可能な診断履歴を捨て→古い回答明細を強めに間引いて再試行し、学習の核(stats/cards)が静かに失われるのを防ぐ */
 function _lsSet(key,value){
   try{localStorage.setItem(key,value);return true;}
@@ -3179,13 +3212,19 @@ function _lsSet(key,value){
         const keep=h.slice(-500);
         meta.prunedTests=(meta.prunedTests||0)+new Set(h.slice(0,h.length-500).map(r=>r.testId)).size;
         localStorage.setItem("kwt_histmeta_v1",JSON.stringify(meta));
-        localStorage.setItem(LS_HIST,JSON.stringify(keep));_histIdxCache=null;
+        localStorage.setItem(LS_HIST,JSON.stringify(keep));_histIdxCache=null;_roomSeriesCache={};
       }
     }catch(_){}
     try{localStorage.setItem(key,value);return true;}catch(e2){return false;}
   }
 }
-function saveAnswer(rec){const h=loadHistory();h.push(rec);if(h.length>5000)h.splice(0,h.length-5000);_lsSet(LS_HIST,JSON.stringify(h));_histIdxCache=null;} // 回答明細も上限を設けて無制限成長を防ぐ
+/* JSONで保存し、解析キャッシュも同時に更新する（保存直後の読み直しで巨大JSONを解析し直さない） */
+function _lsSetJSON(key,obj){
+  const j=JSON.stringify(obj),ok=_lsSet(key,j);
+  if(ok)_lsJsonCache[key]={raw:j,val:obj};else delete _lsJsonCache[key];
+  return ok;
+}
+function saveAnswer(rec){const h=loadHistory();h.push(rec);if(h.length>5000)h.splice(0,h.length-5000);_lsSetJSON(LS_HIST,h);_histIdxCache=null;_roomSeriesCache={};} // 回答明細も上限を設けて無制限成長を防ぐ
 function getPerfectCount(){return parseInt(localStorage.getItem(LS_PERFECT)||"0",10);}
 function incPerfectCount(){const n=getPerfectCount()+1;localStorage.setItem(LS_PERFECT,String(n));return n;}
 
@@ -3209,8 +3248,8 @@ const MEMORY_CONFIG={
 };
 const DEFAULT_SCORE=0; // 互換: 未学習語の初期記憶スコア
 function clampN(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
-function loadStats(){try{return JSON.parse(localStorage.getItem(LS_STATS)||"{}");}catch(e){return{};}}
-function saveStats(s){_lsSet(LS_STATS,JSON.stringify(s));}
+function loadStats(){return _lsJSON(LS_STATS,()=>({}));}
+function saveStats(s){_lsSetJSON(LS_STATS,s);}
 function defaultStat(){const C=MEMORY_CONFIG;return{
   hasSeen:false,hasEverCorrect:false,
   memoryScore:C.initialMemoryScore,formingScore:C.initialFormingScore,
@@ -3290,12 +3329,11 @@ function reviewNeedCount(nowMs){const s=loadStats();return WORDS.filter(w=>displ
 
 /* --- 周回・出題進捗（Sectionごとに保持。旧単一形式はmiddle-01へ移行） --- */
 function _progAll(){
-  let all;try{all=JSON.parse(localStorage.getItem(LS_PROG)||"{}")||{};}catch(e){all={};}
-  if(all.cycleNumber!==undefined)all={"middle-01":all};
-  return all;
+  const all=_lsJSON(LS_PROG,()=>({}));
+  return (all.cycleNumber!==undefined)?{"middle-01":all}:all; // 旧単一形式はmiddle-01へ移行
 }
 function loadProgress(){return _progAll()[secId(curSection)]||{cycleNumber:1,served:[],lastTestIds:[],prevTestIds:[]};}
-function saveProgress(p){const all=_progAll();all[secId(curSection)]=p;_lsSet(LS_PROG,JSON.stringify(all));}
+function saveProgress(p){const all=_progAll();all[secId(curSection)]=p;_lsSetJSON(LS_PROG,all);}
 
 /* --- 直近セッションの変化（今回の変化タブ用） --- */
 function loadSession(){try{return JSON.parse(localStorage.getItem(LS_SESS)||"null");}catch(e){return null;}}
@@ -3718,8 +3756,8 @@ function d5Slot(ms){const h=new Date(ms).getHours();return (h>=D5_AM&&h<D5_PM)?"
 function d5SlotLabel(s){return s==="am"?"朝の部":"夜の部";}
 function d5SlotTime(s){return s==="am"?"5:00–16:59":"17:00–4:59";}
 function d5Key(ms){return dayKey(ms-D5_AM*3600000)+"#"+d5Slot(ms);} // 深夜0〜5時は前日の夜の部として扱う
-function loadD5(){try{return JSON.parse(localStorage.getItem(LS_D5)||"{}")||{};}catch(e){return{};}}
-function saveD5(o){const ks=Object.keys(o);if(ks.length>40)ks.slice(0,ks.length-40).forEach(k=>delete o[k]);_lsSet(LS_D5,JSON.stringify(o));} // 古い枠は間引き
+function loadD5(){return _lsJSON(LS_D5,()=>({}));}
+function saveD5(o){const ks=Object.keys(o);if(ks.length>40)ks.slice(0,ks.length-40).forEach(k=>delete o[k]);_lsSetJSON(LS_D5,o);} // 古い枠は間引き
 function d5Rec(ms){return loadD5()[d5Key(ms||Date.now())]||null;}
 /* 今日の5問を遊んだ日の連続記録（朝夜どちらか1回でもその日は達成） */
 function d5Streak(){
@@ -4012,10 +4050,10 @@ function boardKey(level,sec){return level+"-"+String(sec).padStart(2,"0");}
       if(want>(cur.cleared||0)){cur.cleared=want;changed=true;}
       board[key]=cur;
     });
-    if(changed)_lsSet(LS_BOARD,JSON.stringify(board));
+    if(changed)_lsSetJSON(LS_BOARD,board);
   }catch(e){}
 })();
-function loadBoard(){try{return JSON.parse(localStorage.getItem(LS_BOARD)||"{}")||{};}catch(e){return{};}}
+function loadBoard(){return _lsJSON(LS_BOARD,()=>({}));}
 function boardState(level,sec){const b=loadBoard()[boardKey(level,sec)];return{cleared:(b&&b.cleared)||0,tiles:(b&&b.tiles)||{}};}
 function boardVisible(level,sec){const L=boardLapSize(level,sec);return (Math.floor(boardState(level,sec).cleared/L)+1)*L;} // 現在の周ぶんまで表示（1周こなすと次の周が伸びる）
 function boardClear(t,rank,score){
@@ -4023,7 +4061,7 @@ function boardClear(t,rank,score){
   const prev=st.tiles[t.gidx];
   if(!prev||RANK_VAL[rank]>=RANK_VAL[prev.rank])st.tiles[t.gidx]={rank,score,at:new Date().toISOString()}; // 再挑戦は最高ランクを保持
   if(t.gidx===st.cleared+1)st.cleared=t.gidx;
-  all[k]=st;_lsSet(LS_BOARD,JSON.stringify(all));
+  all[k]=st;_lsSetJSON(LS_BOARD,all);
 }
 /* その周でこのマスが担当する語（周ごとに決定的シャッフルして均等配分＝1周で必ず全語を消化） */
 function boardTileWords(level,sec,lap,idx){
@@ -6003,7 +6041,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v3.2 (2026-07-26)";
+const APP_VERSION="v3.3 (2026-07-26)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -6105,8 +6143,8 @@ function _reducedMotion(){return !!(window.matchMedia&&matchMedia("(prefers-redu
     localStorage.setItem(LS_SETTINGS,JSON.stringify(s));
   }catch(e){}
 })();
-function loadSettings(){try{return Object.assign({tapAdvance:false,sound:true,slowTimer:false,ballsHome:false,ballsQuiz:true,bigText:false,gearMode:false},JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}"));}catch(e){return{tapAdvance:false,sound:true,ballsHome:false,ballsQuiz:true};}}
-function saveSettings(o){_lsSet(LS_SETTINGS,JSON.stringify(o));}
+function loadSettings(){return Object.assign({tapAdvance:false,sound:true,slowTimer:false,ballsHome:false,ballsQuiz:true,bigText:false,gearMode:false},_lsJSON(LS_SETTINGS,()=>({})));}
+function saveSettings(o){_lsSetJSON(LS_SETTINGS,o);}
 /* 復習リマインダー: 通知許可を取得して設定を保存（実際の定期送信は配信サーバが必要。ここは許可取得と受け皿まで） */
 function toggleReminder(){
   const st=loadSettings();

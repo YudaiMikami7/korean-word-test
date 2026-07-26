@@ -406,6 +406,48 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     return d5Streak() === 2;
   }));
 
+  // --- 初回ユーザーの帯は「おすすめの単語」 ---
+  const bandNew = await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); return true; })
+    .then(() => page.reload()).then(() => page.waitForTimeout(1600)).then(() => page.evaluate(() => {
+      document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove());
+      const b = document.getElementById('today-band');
+      return { shown: getComputedStyle(b).display !== 'none', label: b.querySelector('.tb-label').textContent,
+        cards: b.querySelectorAll('.tb-group:first-child .tb-card').length,
+        inRoom: [...b.querySelectorAll('.tb-group:first-child .tb-ko')].every(e => LEVEL_SECTIONS.beginner[1].some(id => WORD_BY_ID[id].ko === e.textContent)) };
+    }));
+  check('初回でも帯が出る', bandNew.shown);
+  check(`初回の見出しは「おすすめの単語」 (${bandNew.label})`, bandNew.label === 'おすすめの単語');
+  check(`おすすめが12語並ぶ (${bandNew.cards}語)`, bandNew.cards === 12);
+  check('おすすめは今いるROOMの単語', bandNew.inRoom);
+  check('1問でも学べば「最近学んだ単語」に戻る', await page.evaluate(() => {
+    const w = WORD_BY_ID[LEVEL_SECTIONS.beginner[1][3]];
+    const s = {}; s[w.id] = { hasSeen: true, hasEverCorrect: true, memoryScore: 45, stabilityHours: 12, wordDifficulty: 1,
+      lastReviewedAt: new Date(Date.now() - 2 * 86400000).toISOString(), reviewCount: 1, correctCount: 1 };
+    localStorage.setItem('kwt_stats_v1', JSON.stringify(s));
+    buildTodayBand();
+    const b = document.getElementById('today-band');
+    return b.querySelector('.tb-label').textContent === '最近学んだ単語' && b.querySelector('.tb-group .tb-ko').textContent === w.ko;
+  }));
+
+  // --- ホーム復帰で巨大JSONを解析し直さない（アプリ内ブラウザで固まる原因の回帰防止） ---
+  check('ホーム復帰でlocalStorageの再解析が起きない', await page.evaluate(async () => {
+    const s = {}, h = [];
+    BEGINNER_WORDS.forEach((w, i) => { s[w.id] = { hasSeen: true, hasEverCorrect: true, memoryScore: 30 + (i % 60), stabilityHours: 20, wordDifficulty: 1,
+      lastReviewedAt: new Date(Date.now() - 3600000).toISOString(), nextReviewAt: new Date().toISOString(), reviewCount: 3, correctCount: 2 }; });
+    for (let i = 0; i < 1200; i++) { const w = BEGINNER_WORDS[i % BEGINNER_WORDS.length];
+      h.push({ testId: 't' + Math.floor(i / 12), wordId: w.id, korean: w.ko, japanese: w.ja, isCorrect: true, score: 8,
+        answeredAt: new Date(Date.now() - (1200 - i) * 60000).toISOString(), answerStatus: 'correct', answerType: 'choice', responseTimeSec: 4 }); }
+    localStorage.setItem('kwt_stats_v1', JSON.stringify(s));
+    localStorage.setItem('kwt_history_v1', JSON.stringify(h));
+    show('s-home'); // 1回目でキャッシュを温める
+    let n = 0; const orig = JSON.parse;
+    JSON.parse = function (t) { if (typeof t === 'string' && t.length > 2000) n++; return orig.apply(this, arguments); };
+    show('s-result'); show('s-home');
+    await new Promise(r => setTimeout(r, 4000)); // 3秒ごとの面回転も含めて監視
+    JSON.parse = orig;
+    return n === 0;
+  }));
+
   check('コンソールエラー無し', errors.length === 0);
   if (errors.length) console.log(errors);
 
