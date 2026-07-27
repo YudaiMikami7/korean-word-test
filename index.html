@@ -69,9 +69,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .qhome{background:rgba(0,0,0,.8);border:none;color:#fff;width:32px;height:32px;font-size:16px;cursor:pointer;flex:0 0 auto}
 .qbar .prog{letter-spacing:.5px}
 .qbar .time{color:#FFFFFF;font-variant-numeric:tabular-nums;margin-left:auto;font-weight:800;font-size:14.3px} /* カウントダウンは1段太く(700→800)・1.1倍(13→14.3px) */
-.pbar{height:7px;margin:8px 18px 0;background:rgba(0,0,0,.42);border:1px solid rgba(0,0,0,.45);border-radius:4px;overflow:hidden;box-sizing:border-box} /* 進捗バー：問題が進むほど伸びる（時間バーの半分の高さ） */
+.pbar{height:7px;margin:8px 18px 0;background:rgba(0,0,0,.42);border-radius:4px;overflow:hidden;box-sizing:border-box} /* 進捗バー：問題が進むほど伸びる（枠線なし） */
 .pfill{height:100%;width:0;background:#F8B500;transition:width .45s cubic-bezier(.3,1.2,.4,1)} /* 山吹色 */
-.tbar{height:14px;margin:3px 18px 0;background:rgba(0,0,0,.42);border:1px solid rgba(0,0,0,.45);border-radius:4px;overflow:hidden;box-sizing:border-box} /* 黒枠の中に緑メーターが減る出題バー */
+.tbar{height:7px;margin:1.5px 18px 0;background:rgba(0,0,0,.42);border-radius:4px;overflow:hidden;box-sizing:border-box} /* 緑メーターが減る出題バー。黄色バーと同じ太さ・枠線なし・間のマージンは半分 */
 .tfill{height:100%;width:100%;background:#00FF37;transition:width .1s linear} /* 制限時間バーは緑（ホームのトンマナ）・黒枠内で減っていく */
 .tfill.warn{background:#FFC400}
 
@@ -114,7 +114,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* 回答後のハイライト：正解=赤 / 選んだ誤答=青 / その他=暗い灰色のまま。色は20%薄く(不透明度.8)、視認性は維持 */
 .choice.correct{background:rgba(255,59,59,.8);color:#fff}
 .choice.wrong{background:rgba(47,139,255,.8);color:#fff}
-.choice.elim{opacity:0;pointer-events:none;transition:opacity .35s ease} /* 時間経過で消える不正解（50/50風ヒント） */
+.choice.elim{opacity:.3;pointer-events:none;transition:opacity .35s ease} /* 時間経過で選べなくなる不正解（消さずに半透明のまま残す・50/50風ヒント） */
 
 /* 正解単語が降り積もる背景レイヤー（UIより背面・操作は透過） */
 #s-quiz{position:relative}
@@ -1350,8 +1350,32 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-trend .sgtr-t span:nth-child(7){animation-delay:.6s}
 .sg-trend .tr-b{position:absolute;right:-2px;top:-2px;width:22px;height:22px;border-radius:50%;background:#E0831A;color:#fff;
   font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;line-height:1}
-.sg-trend.tr-off{background:#EDEDED;color:#9a9a9a;box-shadow:0 4px 10px rgba(0,0,0,.35)}
-.sg-trend.tr-off .sgtr-t span{animation:none}
+/* トレンドも消化したら、5問ボタン(left:14px)の1つ右(14+68+8=90px)へ引っ込めて同じ丸にする */
+.sg-trend.tr-off{left:90px;bottom:12px;transform:none;width:68px;height:68px;padding:0;border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  background:#EDEDED;color:#9a9a9a;letter-spacing:0;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.sg-trend.tr-off:active{transform:scale(.93)}
+.sg-trend.tr-off .sgtr-t{display:none}
+.sg-trend .sgtr-mini{display:none}
+.sg-trend.tr-off .sgtr-mini{display:flex;flex-direction:column;align-items:center;line-height:1.1}
+.sg-trend.tr-off .sgtr-mini i{font-style:normal;font-size:19px;color:#C9C9C9}
+.sg-trend.tr-off .sgtr-mini b{font-size:10px;font-weight:900;color:#9a9a9a}
+/* --- 消化直後の演出 --- */
+/* 中央のカプセルが横に伸びながら縮み、左のアイコンへ吸い込まれるように収まる（--flyx＝中央から今の位置までの距離） */
+@keyframes sgFlyLeft{
+  0%{transform:translateX(var(--flyx)) scaleX(1.9) scaleY(.86)}
+  46%{transform:translateX(calc(var(--flyx) * .34)) scaleX(2.15) scaleY(.6)}
+  78%{transform:translateX(-6px) scaleX(.86) scaleY(1.12)}
+  100%{transform:none}
+}
+.sg-fbtn.sg-fly{animation:sgFlyLeft .62s cubic-bezier(.3,.9,.32,1) both}
+/* 引っ込んだ後に、トレンドボタンがキラっと登場する */
+@keyframes sgPopIn{0%{opacity:0;transform:translateX(-50%) scale(.2)}62%{opacity:1;transform:translateX(-50%) scale(1.14)}100%{opacity:1;transform:translateX(-50%) scale(1)}}
+.sg-trend.tr-pop{animation:sgPopIn .46s cubic-bezier(.34,1.5,.5,1) both}
+@keyframes sgSparkle{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(0)}30%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.9) rotate(120deg)}}
+.sg-spark{position:absolute;left:50%;top:50%;width:150px;height:150px;pointer-events:none;z-index:61;
+  background:radial-gradient(circle,rgba(255,255,255,.95) 0%,rgba(255,224,120,.55) 26%,rgba(255,196,0,0) 62%);
+  animation:sgSparkle .72s ease-out forwards}
 .home-wrap.status .sg-wrap,.home-wrap.hiderail .sg-wrap,
 .home-wrap.status .sg-fbtn,.home-wrap.hiderail .sg-fbtn{opacity:0;pointer-events:none;transition:opacity .3s ease}
 
@@ -3414,6 +3438,10 @@ function sfxClaim(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)
 /* --- 今日の5問テスト用 --- */
 function sfxD5Ack(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;_tone(c,660,t,0.06,0.13,"square");} // 回答受付（正誤を示さない中立音）
 function sfxD5Roll(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;[0,0.07,0.14].forEach((d,i)=>_tone(c,440+i*40,t+d,0.05,0.09,"square"));} // 判定前のドラムロール風
+/* 「ピロロン」＝トレンドボタン登場音（短い上昇3音＋キラっとした余韻） */
+function sfxTrendPop(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;
+  [1046.5,1396.9,2093].forEach((f,i)=>_tone(c,f,t+i*0.075,0.22,0.15,"triangle"));
+  _tone(c,3136,t+0.24,0.5,0.06,"sine");}
 function sfxRare(){ // レア演出音：高速上昇アルペジオ＋キラキラの余韻
   if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;
   [1046.5,1318.5,1568,2093,2637].forEach((f,i)=>_tone(c,f,t+i*0.055,0.42,0.15,"triangle"));
@@ -3712,7 +3740,7 @@ function show(id){
     if(_ballLog.length)homeRain();
     else if(QR.balls.some(b=>b.layer==="home-rain")&&!QR.raf){QR.active="home-rain";QR.calm=0;QR.last=0;QR.raf=requestAnimationFrame(qrStep);} // 途中で離脱した玉を着地させる
   }
-  if(id==="s-home")renderHome();
+  if(id==="s-home"){renderHome();playHomeBtnFly();} // 今日の5問／トレンドを終えた直後は、ボタンが左へ引っ込む演出を出す
 }
 
 /* ============================================================ テスト進行 ============================================================ */
@@ -3871,6 +3899,34 @@ function updateTrendBtn(){
     const bd=b.querySelector(".tr-b");if(bd)bd.style.display=used?"none":"flex";
   });
 }
+/* ---- 消化直後の演出：中央のカプセルが左のアイコン位置へ吸い込まれ、続けてトレンドボタンがキラっと登場する ---- */
+let _sgFly={d5:false,trend:false}; // finishDaily5 / finishTrend で立て、ホームへ戻った時に一度だけ再生
+function _sgFlyBtn(btn){
+  const host=btn.offsetParent||btn.parentNode;if(!host)return;
+  const r=btn.getBoundingClientRect(),hr=host.getBoundingClientRect();
+  btn.style.setProperty("--flyx",((hr.left+hr.width/2)-(r.left+r.width/2)).toFixed(1)+"px"); // 中央のカプセル位置からの距離
+  btn.classList.remove("sg-fly");void btn.offsetWidth;btn.classList.add("sg-fly");
+}
+function _sgSpark(btn){
+  const host=btn.offsetParent||btn.parentNode;if(!host)return;
+  const r=btn.getBoundingClientRect(),hr=host.getBoundingClientRect();
+  const s=document.createElement("div");s.className="sg-spark";
+  s.style.left=(r.left+r.width/2-hr.left)+"px";s.style.top=(r.top+r.height/2-hr.top)+"px";
+  host.appendChild(s);setTimeout(()=>s.remove(),900);
+}
+function playHomeBtnFly(){
+  if(_sgFly.d5){
+    _sgFly.d5=false;
+    document.querySelectorAll(".sg-d5.d5-off").forEach(_sgFlyBtn);
+    if(trendAvailable()&&!trendUsed())setTimeout(()=>{ // 引っ込んだ後に「ピロロン」＋キラで登場
+      document.querySelectorAll(".sg-trend.on:not(.tr-off)").forEach(b=>{
+        b.classList.remove("tr-pop");void b.offsetWidth;b.classList.add("tr-pop");_sgSpark(b);
+      });
+      sfxTrendPop();
+    },660);
+  }
+  if(_sgFly.trend){_sgFly.trend=false;document.querySelectorAll(".sg-trend.tr-off").forEach(_sgFlyBtn);}
+}
 function openDaily5(){
   const m=document.getElementById("d5-modal");
   if(!m.classList.contains("on"))pushNav("modal");
@@ -4023,7 +4079,7 @@ function finishTrend(){
   all[_d5.key]={slot:"trend",finished:new Date().toISOString(),correct:nCorrect,total:items.length,done:true,items};
   saveTrend(all);
   _d5={on:false,mode:"",slot:"",key:""};
-  updateTrendBtn();
+  updateTrendBtn();_sgFly.trend=true; // ホームへ戻ったらトレンドボタンも左へ引っ込める
   if(typeof track==="function")track("trend_complete",{correct:nCorrect});
   d5RenderResult(all[trendDayKey()],true,true);
 }
@@ -4070,7 +4126,7 @@ function finishDaily5(){
   const rec={slot:_d5.slot,started:prev.started||new Date().toISOString(),finished:new Date().toISOString(),
     correct:nCorrect,total:items.length,done:true,items};
   all[_d5.key]=rec;saveD5(all);
-  _d5.on=false;
+  _d5.on=false;_sgFly.d5=true; // ホームへ戻ったらカプセルを左へ吸い込む→トレンドボタン登場
   updateDiagnosis(); // タイプ診断だけ更新（ランク／プレゼントは通常テスト専用）
   if(typeof track==="function")track("daily5_complete",{slot:rec.slot,correct:nCorrect});
   d5RenderResult(rec,true);
@@ -4389,9 +4445,9 @@ function sgHydrate(n){
 }
 /* 沿道の自然物：すごろく専用に生成した3Dクレイ調の透過webp（木/もみの木/花/岩/雲/星） */
 const SG_DECO_IMG=["sgdeco/tree.webp","sgdeco/pine.webp","sgdeco/flower.webp","sgdeco/rock.webp","sgdeco/cloud.webp","sgdeco/star.webp"];
-/* 現在地ボタンの中身：文字は置かず、コンパスの針（右半分=黄／左半分=白）だけ */
+/* 現在地ボタンの中身：文字は置かず、コンパスの針（白一色）だけ */
 const SG_HOME_ICON='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
-  +'<path d="M12 2.4 19.1 21.6 12 17.5Z" fill="#FFC400"/>'
+  +'<path d="M12 2.4 19.1 21.6 12 17.5Z" fill="#fff"/>'
   +'<path d="M12 2.4 4.9 21.6 12 17.5Z" fill="#fff"/></svg>';
 /* 今日の5問（すごろく下・中央のカプセル）。スライドごとに描かれるのでidではなくclassで扱う */
 function sgD5HTML(){
@@ -4408,6 +4464,7 @@ function sgTrendHTML(){
   const used=(typeof trendUsed==="function")&&trendUsed();
   return '<button class="sg-fbtn sg-trend'+(on?" on":"")+(used?" tr-off":"")+'" onclick="openTrend()" aria-label="今日のトレンド問題">'
     +'<span class="sgtr-t"><span>今</span><span>日</span><span>の</span><span>ト</span><span>レ</span><span>ン</span><span>ド</span></span>'
+    +'<span class="sgtr-mini" aria-hidden="true"><i>✓</i><b>トレンド</b></span>'
     +'<span class="tr-b"'+(used?' style="display:none"':'')+'>!</span></button>';
 }
 function sgBoardHTML(n){
@@ -5258,13 +5315,13 @@ function _tick(){
   if(!answered)_maybeEliminate(remain,limit);
   if(remain<=0){clearInterval(timer);if(!answered)submit("timeout","");}
 }
-/* 4択のみ：制限時間が半分過ぎたら不正解を1つ、残り1/5（10秒なら2秒）で更にもう1つ薄く消す（50/50風ヒント） */
+/* 4択のみ：残り1/4（10秒なら2.5秒）で不正解を1つ、残り1/8（同1.25秒）で更にもう1つ半透明にして選べなくする（50/50風ヒント） */
 function _maybeEliminate(remain,limit){
   if(_d5.on)return; // 今日の5問は一発勝負のため50/50ヒントを出さない
   const q=state&&state.questions&&state.questions[state.idx];
   if(!q||(q.type!=="kj"&&q.type!=="jk"))return;
   const wrap=document.querySelector("#qstage .choices");if(!wrap)return;
-  const want=(remain<=limit*0.2)?2:(remain<=limit*0.5)?1:0;
+  const want=(remain<=limit*0.125)?2:(remain<=limit*0.25)?1:0;
   let done=wrap.querySelectorAll(".choice.elim").length;
   if(done>=want)return;
   const cands=[...wrap.querySelectorAll(".choice:not(.elim)")].filter(b=>b.dataset.v!==q.correct);
@@ -5311,35 +5368,43 @@ function renderQuestion(){
 }
 
 function pick(v){const q=state.questions[state.idx];submit(v===q.correct?"correct":"incorrect",v);}
-/* ドラッグ選択: 触れた選択肢を黄色く光らせ（候補）、指を滑らせて離した位置の選択肢で確定。選択肢外で離すと取り消し */
+/* ドラッグ選択: 触れた選択肢を黄色く光らせ（候補）、指を滑らせて離した位置の選択肢で確定。選択肢外で離すと取り消し
+   タッチの開始位置は選択肢の上でなくてよい（問題文や余白から撫で始めても、指の下の選択肢が光り、離した所で確定する） */
 function bindChoiceDrag(){
   const wrap=document.querySelector("#qstage .choices");if(!wrap)return;
+  const stage=document.getElementById("s-quiz")||wrap;
   let active=false;
-  const choices=[...wrap.querySelectorAll(".choice")];
+  if(stage._choiceDragBound)return; // 出題ごとに選択肢は作り直されるが、監視は画面(#s-quiz)側に一度だけ張る
+  stage._choiceDragBound=true;
+  const curWrap=()=>document.querySelector("#qstage .choices"); // いま出ている選択肢（毎問リビルドされる）
   // 指の直下の選択肢。無ければ縦位置が最も近い選択肢（隙間12pxを押しても選べるように）
   const choiceAt=(x,y)=>{
-    const hit=document.elementsFromPoint(x,y).find(el=>el.classList&&el.classList.contains("choice")&&wrap.contains(el));
+    const w=curWrap();if(!w)return null;
+    const hit=document.elementsFromPoint(x,y).find(el=>el.classList&&el.classList.contains("choice")&&w.contains(el));
     if(hit)return hit;
-    let best=null,bd=1e9;choices.forEach(b=>{if(b.classList.contains("elim"))return;const r=b.getBoundingClientRect();const d=y<r.top?r.top-y:(y>r.bottom?y-r.bottom:0);if(d<bd&&d<24){bd=d;best=b;}});
+    let best=null,bd=1e9;w.querySelectorAll(".choice").forEach(b=>{if(b.classList.contains("elim"))return;const r=b.getBoundingClientRect();const d=y<r.top?r.top-y:(y>r.bottom?y-r.bottom:0);if(d<bd&&d<24){bd=d;best=b;}});
     return best;
   };
-  const setCand=btn=>wrap.querySelectorAll(".choice").forEach(b=>b.classList.toggle("cand",b===btn));
-  const clearCand=()=>wrap.querySelectorAll(".choice.cand").forEach(b=>b.classList.remove("cand"));
-  wrap.addEventListener("pointerdown",e=>{
-    if(answered)return;
-    const btn=choiceAt(e.clientX,e.clientY);if(!btn)return;
-    active=true;try{wrap.setPointerCapture(e.pointerId);}catch(_){}
-    setCand(btn);e.preventDefault();
+  const setCand=btn=>{const w=curWrap();if(w)w.querySelectorAll(".choice").forEach(b=>b.classList.toggle("cand",b===btn));};
+  const clearCand=()=>{const w=curWrap();if(w)w.querySelectorAll(".choice.cand").forEach(b=>b.classList.remove("cand"));};
+  stage.addEventListener("pointerdown",e=>{
+    if(answered||!curWrap())return;
+    // 選択肢以外のUI（上部バーの戻る/スイッチ・音声ボタンなど）は素通し
+    const t=e.target;
+    if(t&&t.closest&&(t.closest(".qbar")||t.closest("button:not(.choice)")||t.closest("input,textarea")))return;
+    active=true;try{stage.setPointerCapture(e.pointerId);}catch(_){}
+    setCand(choiceAt(e.clientX,e.clientY)); // 選択肢の外から撫で始めてもよい（この時点では候補なしでも可）
+    e.preventDefault();
   });
-  wrap.addEventListener("pointermove",e=>{if(active)setCand(choiceAt(e.clientX,e.clientY));}); // 指の下の選択肢に候補を移動（外れたら候補なし）
+  stage.addEventListener("pointermove",e=>{if(active)setCand(choiceAt(e.clientX,e.clientY));}); // 指の下の選択肢に候補を移動（外れたら候補なし）
   const finish=e=>{
     if(!active)return;active=false;
     const btn=choiceAt(e.clientX,e.clientY);
     clearCand();
     if(btn&&!answered)pick(btn.dataset.v); // 離した位置で確定。選択肢外なら何もしない
   };
-  wrap.addEventListener("pointerup",finish);
-  wrap.addEventListener("pointercancel",()=>{active=false;clearCand();});
+  stage.addEventListener("pointerup",finish);
+  stage.addEventListener("pointercancel",()=>{active=false;clearCand();});
 }
 
 /* 回答送信（二重送信防止） */
@@ -6265,7 +6330,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v3.5 (2026-07-28)";
+const APP_VERSION="v3.6 (2026-07-28)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
