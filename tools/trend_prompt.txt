@@ -1,0 +1,25 @@
+あなたは k-tango（韓国語単語テストアプリ）の「今日のトレンド問題」を毎日更新する担当です。
+作業ディレクトリ: C:\Users\myuda\original-app-all\korean-word-test
+
+手順:
+1. 今日の日付を `date '+%Y-%m-%d'` で取得する（TZ指定はしない。5時台に走るのでその日の日付でよい）。
+2. X（旧Twitter）のK-POP関連トレンドを調べ、その日よく流れている言い回し・単語から
+   韓国語の単語を5つピックアップする。
+   - まず WebSearch で「K-POP トレンド X 今日」「케이팝 실시간 트렌드」等を調べる。
+   - 可能なら Playwright（skill: playwright）で https://x.com/search?q=%EC%BC%80%EC%9D%B4%ED%8C%9D&f=live などの
+     ライブ検索も見る。ログインが必要で入れない場合はWebSearchの結果だけで判断してよい（そこで止まらない）。
+   - 単語はアプリの学習素材なので、実在する韓国語の一般語・K-POP文脈語にする。
+     固有名詞（グループ名・人名）や卑語は入れない。
+   - 過去に出した単語は trend-words.js に残っているので、直近7日ぶんと重複しないようにする。
+3. 5語を trend.json に書く（配列。ko=韓国語 / ja=日本語の意味 / read=カナ読み / note=その日の文脈メモ1行）。
+4. `node tools/gen_trend.js <YYYY-MM-DD> "<その日のトピック名>" trend.json` を実行する。
+5. `node smoke.trend.test.js` を回して全部PASSすることを確認する。落ちたら直してから進む。
+6. trend.json を削除し、`git add -A && git commit -m "今日のトレンド問題: <YYYY-MM-DD>"` して
+   `git push origin master` する。
+7. `powershell -ExecutionPolicy Bypass -File C:\Users\myuda\_sandbox\ktango_deploy_cf.ps1` で
+   Cloudflare（https://k-tango.com/）へデプロイし、反映を確認する。
+
+禁止:
+- SNSへの投稿・メール送信など社外に出る操作はしない（更新するのはアプリの単語データだけ）。
+- words-beginner.js / words-middle.js / words-images.js には触らない。
+- trend-words.js の過去の日付ぶんは消さない（追記のみ）。

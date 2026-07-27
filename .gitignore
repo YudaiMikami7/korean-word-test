@@ -21,3 +21,5 @@ regen_list.json
 worst48.json
 _regen_targets.json
 _regen_sheet.png
+tools/daily_trend.log
+trend.json
