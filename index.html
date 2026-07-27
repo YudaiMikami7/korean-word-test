@@ -1298,7 +1298,11 @@ body.bigtext .set-d{font-size:13.5px}
    下端56pxはマスクで薄くなるので、そこには掛からない高さに置く */
 /* z-indexはマスより上（マスは遠近に応じて4〜44が入る）。sg-wrap自身が重ね合わせ文脈なので外へは影響しない */
 /* 中身は文字を置かず、Googleマップの現在地ボタンと同じくコンパスの針アイコンだけ（黒座布団＋黄色枠は据え置き） */
-.sg-home{position:absolute;right:10px;bottom:66px;z-index:60;border:none;padding:0;width:62px;height:62px;border-radius:50%;
+/* 現在地／今日の5問／今日のトレンドの3ボタンは、すごろくの器(.sg-wrap＝左右24px内側・はみ出しを切る)ではなく
+   スライド直下に置く。こうするとアイコン群(.reward-rail)と同じ左右14pxに揃えられる。
+   bottom:12px は旧「器の中で bottom:66px」と同じ高さ（器は下端が54px下に出ている） */
+/* 丸の大きさ(68px)と横位置(14px)は右のアイコン群(.reward-rail .rr-btn)に揃える */
+.sg-home{position:absolute;right:14px;bottom:12px;z-index:60;border:none;padding:0;width:68px;height:68px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   background:#111;color:#fff;cursor:pointer;font-family:inherit;
   box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 0 4px rgba(255,196,0,.95);
@@ -1307,7 +1311,7 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-home.on{opacity:1;pointer-events:auto;transform:none}
 .sg-home.on:active{transform:scale(.9)}
 /* 今日の5問（すごろく下・中央のカプセル）。現在地ボタンと同じ高さに置く */
-.sg-d5{position:absolute;left:50%;bottom:66px;z-index:60;border:none;padding:11px 26px 13px;border-radius:999px;
+.sg-d5{position:absolute;left:50%;bottom:12px;z-index:60;border:none;padding:11px 26px 13px;border-radius:999px;
   background:#fff;color:#111;font-size:26px;font-weight:900;letter-spacing:.08em;white-space:nowrap;cursor:pointer;font-family:inherit;
   box-shadow:0 8px 18px rgba(0,0,0,.55);transform:translateX(-50%);transition:transform .16s ease,opacity .2s ease}
 .sg-d5:active{transform:translateX(-50%) scale(.93)}
@@ -1319,9 +1323,37 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-d5 .sgd5-t span:nth-child(5){animation-delay:.48s}
 .sg-d5 .d5-b{position:absolute;right:-2px;top:-2px;width:22px;height:22px;border-radius:50%;background:#FF8A00;color:#fff;
   font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;line-height:1}
-.sg-d5.d5-off{background:#EDEDED;color:#9a9a9a;box-shadow:0 4px 10px rgba(0,0,0,.35)}
-.sg-d5.d5-off .sgd5-t span{animation:none}
-.home-wrap.status .sg-wrap,.home-wrap.hiderail .sg-wrap{opacity:0;pointer-events:none;transition:opacity .3s ease}
+/* 朝の部・夜の部を消化して挑戦できないあいだは、カプセルをやめて左のアイコン群(.reward-rail-left .rr-btn)と
+   同じ丸（68px・白・同じ影）にし、横位置(left:14px)も縦位置(bottom:66px＝現在地ボタンと同じ)も揃える。
+   中央のカプセル位置は「今日のトレンド問題」ボタン(.sg-trend)が引き継ぐ */
+.sg-d5.d5-off{left:14px;bottom:12px;transform:none;width:68px;height:68px;padding:0;border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  background:#fff;color:#9a9a9a;letter-spacing:0;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.sg-d5.d5-off:active{transform:scale(.93)}
+.sg-d5.d5-off .sgd5-t{display:none}
+.sg-d5 .sgd5-mini{display:none}
+.sg-d5.d5-off .sgd5-mini{display:flex;flex-direction:column;align-items:center;line-height:1.1}
+.sg-d5.d5-off .sgd5-mini i{font-style:normal;font-size:19px;color:#C9C9C9}
+.sg-d5.d5-off .sgd5-mini b{font-size:11px;font-weight:900;color:#9a9a9a}
+/* 今日のトレンド問題（中央カプセル・黄色）。5問を消化した日だけ出る */
+.sg-trend{position:absolute;left:50%;bottom:12px;z-index:60;border:none;padding:11px 22px 13px;border-radius:999px;
+  background:#FFC400;color:#2b1a00;font-size:22px;font-weight:900;letter-spacing:.06em;white-space:nowrap;cursor:pointer;font-family:inherit;
+  box-shadow:0 8px 18px rgba(0,0,0,.55);transform:translateX(-50%);display:none}
+.sg-trend.on{display:block}
+.sg-trend:active{transform:translateX(-50%) scale(.93)}
+.sg-trend .sgtr-t span{display:inline-block;animation:sbchar 3s ease-in-out infinite;backface-visibility:hidden}
+.sg-trend .sgtr-t span:nth-child(2){animation-delay:.1s}
+.sg-trend .sgtr-t span:nth-child(3){animation-delay:.2s}
+.sg-trend .sgtr-t span:nth-child(4){animation-delay:.3s}
+.sg-trend .sgtr-t span:nth-child(5){animation-delay:.4s}
+.sg-trend .sgtr-t span:nth-child(6){animation-delay:.5s}
+.sg-trend .sgtr-t span:nth-child(7){animation-delay:.6s}
+.sg-trend .tr-b{position:absolute;right:-2px;top:-2px;width:22px;height:22px;border-radius:50%;background:#E0831A;color:#fff;
+  font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;line-height:1}
+.sg-trend.tr-off{background:#EDEDED;color:#9a9a9a;box-shadow:0 4px 10px rgba(0,0,0,.35)}
+.sg-trend.tr-off .sgtr-t span{animation:none}
+.home-wrap.status .sg-wrap,.home-wrap.hiderail .sg-wrap,
+.home-wrap.status .sg-fbtn,.home-wrap.hiderail .sg-fbtn{opacity:0;pointer-events:none;transition:opacity .3s ease}
 
 /* 1周クリアの到達演出 */
 .lapdone{position:fixed;inset:0;z-index:560;background:rgba(0,0,0,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -1356,6 +1388,17 @@ body.bigtext .set-d{font-size:13.5px}
   padding:14px 14px 13px;text-align:center;box-shadow:0 14px 34px rgba(0,0,0,.5)}
 .d5-card::after{content:"";position:absolute;left:var(--tx,50%);bottom:-11px;margin-left:-11px;border:11px solid transparent;border-top-color:#fff;border-bottom:0}
 .d5-card.flip::after{bottom:auto;top:-11px;border-top:0;border-bottom-color:#fff;border-bottom-width:11px}
+/* 左端のボタン（消化後の丸い「今日の5問」）から出したときは、しっぽを左下向きにしてボタンを指す */
+.d5-card.edge-l::after{border-top-color:#fff;border-right-color:#fff;border-left-color:transparent}
+.d5-card.edge-r::after{border-top-color:#fff;border-left-color:#fff;border-right-color:transparent}
+/* --- 今日のトレンド問題（黄色いカプセルから出す吹き出し） --- */
+.tr-topic{font-size:11.5px;font-weight:800;color:#777;margin-top:3px;line-height:1.4}
+.tr-list{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:9px 0 10px}
+.tr-w{background:#FFF7E0;border:2px solid #FFE39A;padding:4px 8px;line-height:1.2;text-align:center}
+.tr-w b{display:block;font-size:14px;font-weight:900;color:#1a1a1a}
+.tr-w span{display:block;font-size:9.5px;font-weight:800;color:#8a7a4a}
+.d5-go.tr-go{background:#FFC400;color:#2b1a00}
+.d5-go.tr-go:active{background:#F0B800}
 .d5-h{font-size:16px;font-weight:900;letter-spacing:.04em}
 .d5-close{position:absolute;right:2px;top:2px;width:38px;height:38px;border:none;background:transparent;color:#999;font-size:20px;font-weight:900;cursor:pointer;line-height:1;font-family:inherit;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .d5-close:active{background:rgba(0,0,0,.1)}
@@ -1512,6 +1555,7 @@ body.bigtext .set-d{font-size:13.5px}
 <script src="words-images.js"></script>
 <script src="words-imgbox.js"></script>
 <script src="words-beginner.js"></script>
+<script src="trend-words.js"></script>
 <script>
 /* ============================================================ 単語データ 100語 ============================================================ */
 const WORDS=[
@@ -3695,7 +3739,7 @@ function confirmQuit(){
   const t0=performance.now();
   clearInterval(timer); // ダイアログ表示中はタイマーを完全停止（裏で時間切れにならないように）
   const m=document.createElement("div");m.className="appconfirm";
-  m.innerHTML=`<div class="ac-card"><div class="ac-t">${_d5.on?"今日の5問を中断しますか？<br><span style=\"font-size:13px;font-weight:700;opacity:.8\">この枠はもう挑戦できません</span>":"テストを中断して<br>ホームに戻りますか？"}</div>
+  m.innerHTML=`<div class="ac-card"><div class="ac-t">${(_d5.on&&_d5.mode==="trend")?"今日のトレンド問題を中断しますか？":_d5.on?"今日の5問を中断しますか？<br><span style=\"font-size:13px;font-weight:700;opacity:.8\">この枠はもう挑戦できません</span>":"テストを中断して<br>ホームに戻りますか？"}</div>
     <div class="ac-btns"><button class="btn ac-stop" id="ac-yes">はい</button><button class="btn ghost" id="ac-no">いいえ</button></div></div>`;
   document.body.appendChild(m);
   const resume=()=>{if(!answered){qStart+=performance.now()-t0;resumeTimer();}m.remove();}; // 停止していた分を差し戻して計時再開
@@ -3816,6 +3860,16 @@ function updateD5Btn(){
     b.classList.toggle("d5-off",used);
     const bd=b.querySelector(".d5-b");if(bd)bd.style.display=used?"none":"flex";
   });
+  updateTrendBtn();
+}
+/* 今日のトレンド問題ボタン：5問を消化した日だけ中央に出す（消化済みならグレー） */
+function updateTrendBtn(){
+  const on=trendAvailable(),used=trendUsed();
+  document.querySelectorAll(".sg-trend").forEach(b=>{
+    b.classList.toggle("on",on);
+    b.classList.toggle("tr-off",used);
+    const bd=b.querySelector(".tr-b");if(bd)bd.style.display=used?"none":"flex";
+  });
 }
 function openDaily5(){
   const m=document.getElementById("d5-modal");
@@ -3850,9 +3904,9 @@ function d5RenderModal(){
   d5AnchorBubble();
 }
 /* いま画面に見えている「今日の5問」ボタンを探す（ROOMスライドごとに同じボタンがある） */
-function d5AnchorBtn(){
+function d5AnchorBtn(sel){
   const vw=innerWidth,vh=innerHeight;let best=null,bestA=0;
-  document.querySelectorAll(".sg-d5").forEach(b=>{
+  document.querySelectorAll(sel||".sg-d5").forEach(b=>{
     const r=b.getBoundingClientRect();
     const a=Math.max(0,Math.min(r.right,vw)-Math.max(r.left,0))*Math.max(0,Math.min(r.bottom,vh)-Math.max(r.top,0));
     if(a>bestA){bestA=a;best=b;}
@@ -3860,9 +3914,9 @@ function d5AnchorBtn(){
   return best;
 }
 /* 吹き出しをボタンの真上に置く（上に入らなければ下向きに反転、はみ出す側は画面内へ寄せる） */
-function d5AnchorBubble(){
+function d5AnchorBubble(sel){
   const card=document.querySelector("#d5-modal .d5-card");if(!card)return;
-  const btn=d5AnchorBtn(),vw=innerWidth,vh=innerHeight,W=card.offsetWidth,H=card.offsetHeight,GAP=16,M=8;
+  const btn=d5AnchorBtn(sel),vw=innerWidth,vh=innerHeight,W=card.offsetWidth,H=card.offsetHeight,GAP=16,M=8;
   let cx=vw/2,top,flip=false;
   if(btn){
     const r=btn.getBoundingClientRect();
@@ -3871,16 +3925,116 @@ function d5AnchorBubble(){
   }else top=Math.max(M,(vh-H)/2);
   const left=Math.max(M,Math.min(vw-W-M,Math.round(cx-W/2)));
   card.style.left=left+"px";card.style.top=Math.round(Math.max(M,top))+"px";
-  card.style.setProperty("--tx",Math.round(Math.max(18,Math.min(W-18,cx-left)))+"px");
+  const tx=Math.round(Math.max(18,Math.min(W-18,cx-left)));
+  card.style.setProperty("--tx",tx+"px");
   card.classList.toggle("flip",flip);
+  // ボタンが画面の左端／右端に寄っているときは、しっぽも斜め（左下向き／右下向き）にしてボタンを指す
+  card.classList.toggle("edge-l",!flip&&tx<W*0.28);
+  card.classList.toggle("edge-r",!flip&&tx>W*0.72);
 }
 addEventListener("resize",()=>{const m=document.getElementById("d5-modal");if(m&&m.classList.contains("on"))d5AnchorBubble();});
+/* ============================================================ 今日のトレンド問題 ============================================================
+ * ・Xで流れているK-POPのトレンドから拾った5単語（trend-words.js）で遊ぶ、1日1回のおまけモード
+ * ・出題の骨格・結果画面は「今日の5問」と同じものを使う（_d5.mode==="trend"）
+ * ・単語帳の外の言葉なので、記憶エンジン（忘却/形成）・単語カード・回答履歴には入れない */
+const LS_TREND="kwt_trend_v1";
+/* 1日の区切りは5:00（今日の5問と同じ）。trend-words.js のキーと突き合わせるので0埋めのYYYY-MM-DDで作る
+   （アプリ内の dayKey() は "2026-7-8" 形式なので、そのままでは日付の大小比較に使えない） */
+function trendDayKey(ms){
+  const d=new Date((ms||Date.now())-D5_AM*3600000),p=n=>String(n).padStart(2,"0");
+  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());
+}
+/* その日ぶんが無ければ、いちばん新しい日付ぶんで遊べるようにする */
+function trendEntry(ms){
+  if(typeof TREND_WORDS==="undefined"||!TREND_WORDS)return null;
+  const k=trendDayKey(ms),e=TREND_WORDS[k];
+  if(e&&e.words&&e.words.length)return Object.assign({},e,{key:k,fresh:true});
+  const all=Object.keys(TREND_WORDS).sort();
+  const past=all.filter(x=>x<=k);
+  const lk=past.length?past[past.length-1]:all[0]; // 過去ぶんが無ければいちばん古いぶんで遊べるようにする
+  const le=lk?TREND_WORDS[lk]:null;
+  return (le&&le.words&&le.words.length)?Object.assign({},le,{key:lk,fresh:false}):null;
+}
+function trendAvailable(ms){return !!trendEntry(ms)&&d5Used(ms);} // 今日の5問を終えた日だけ出す
+function loadTrend(){return _lsJSON(LS_TREND,()=>({}));}
+function saveTrend(o){const ks=Object.keys(o);if(ks.length>40)ks.slice(0,ks.length-40).forEach(k=>delete o[k]);_lsSetJSON(LS_TREND,o);}
+function trendRec(ms){return loadTrend()[trendDayKey(ms)]||null;}
+function trendUsed(ms){return !!trendRec(ms);}
+function trendWords(){
+  const e=trendEntry();if(!e)return[];
+  return e.words.slice(0,D5_N).map((w,i)=>({id:"trend-"+e.key+"-"+i,ko:w.ko,ja:w.ja,read:w.read||"",note:w.note||""}));
+}
+function buildTrendQuestions(){
+  const pool=levelAllWords(),ws=trendWords();
+  return ws.map((w,i)=>{
+    const type=D5_PLAN[i]||"jk";
+    const cs=buildChoiceSet(w,pool,type==="kj"?"ja":"ko");
+    return{word:w,type,choices:cs.choices,correct:type==="kj"?w.ja:w.ko,source:"trend",trend:true,cmeta:cs.meta};
+  });
+}
+/* ---- 入口（中央の黄色いカプセル） ---- */
+function openTrend(){
+  const m=document.getElementById("d5-modal");
+  if(!m.classList.contains("on"))pushNav("modal");
+  m.classList.add("on");
+  trendRenderModal();
+  m.onclick=e=>{if(e.target===m)closeDaily5();};
+}
+function trendRenderModal(){
+  const e=trendEntry(),rec=trendRec();
+  const list=trendWords().map(w=>`<div class="tr-w"><b>${esc(w.ko)}</b><span>${esc(w.read||"")}</span></div>`).join("");
+  const body=rec
+   ?`<div class="d5-wait"><div class="d5-wt">今日のトレンド問題</div><div class="d5-wv">${rec.correct} / ${rec.total} 正解</div></div>
+     <button class="d5-ghost" onclick="closeDaily5();trendShowSaved()">この回の結果をもう一度見る</button>`
+   :`<button class="d5-go tr-go" onclick="startTrend()">トレンド5問をはじめる</button>`;
+  document.getElementById("d5-modal").innerHTML=`<div class="d5-card tr-card">
+    <button class="d5-close" onclick="closeDaily5()" aria-label="閉じる">×</button>
+    <div class="d5-h">今日のトレンド問題</div>
+    <div class="tr-topic">${esc((e&&e.topic)||"")}${(e&&!e.fresh)?"（最新ぶん）":""}</div>
+    <div class="tr-list">${list}</div>
+    ${body}</div>`;
+  d5AnchorBubble(".sg-trend");
+}
+function startTrend(){
+  if(trendUsed()){trendRenderModal();return;}
+  closeDaily5();
+  const now=Date.now(),qs=buildTrendQuestions();
+  if(!qs.length)return;
+  _d5={on:true,mode:"trend",slot:"trend",key:trendDayKey(now)};
+  state={questions:qs,idx:0,results:[],testId:"tr-"+now.toString(36),userId:getUserId(),
+    cycleNumber:loadProgress().cycleNumber||1,isReview:false,daily5:true,trend:true,
+    conditionBefore:Math.round(overallCondition(now)),reviewBefore:reviewNeedCount(now),
+    pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level,pq:false};
+  _pqQuiz=false;_cdSkip=false;
+  sfxStart();
+  qrStopRain();qrClearLayer("q-rain");QR.active="q-rain";
+  updateAdvBtn();
+  show("s-quiz");
+  showCountdown(()=>renderQuestion());
+}
+function finishTrend(){
+  clearInterval(timer);
+  const R=state.results,qs=state.questions;
+  const items=R.map((r,i)=>({n:i+1,type:(qs[i]&&qs[i].type)||"jk",
+    q:((qs[i]&&qs[i].type)==="kj")?r.korean:r.japanese,
+    your:r.userAnswer||"",correct:r.correctAnswer,status:r.answerStatus,ok:!!r.isCorrect,ko:r.korean,ja:r.japanese}));
+  const nCorrect=items.filter(x=>x.ok).length;
+  const all=loadTrend();
+  all[_d5.key]={slot:"trend",finished:new Date().toISOString(),correct:nCorrect,total:items.length,done:true,items};
+  saveTrend(all);
+  _d5={on:false,mode:"",slot:"",key:""};
+  updateTrendBtn();
+  if(typeof track==="function")track("trend_complete",{correct:nCorrect});
+  d5RenderResult(all[trendDayKey()],true,true);
+}
+function trendShowSaved(){const r=trendRec();if(r&&r.done)d5RenderResult(r,false,true);}
+
 /* ---- 開始 ---- */
 function startDaily5(){
   if(d5Used()){d5RenderModal();return;}
   closeDaily5();
   const now=Date.now();
-  _d5={on:true,slot:d5Slot(now),key:d5Key(now)};
+  _d5={on:true,mode:"d5",slot:d5Slot(now),key:d5Key(now)};
   const all=loadD5();all[_d5.key]={slot:_d5.slot,started:new Date(now).toISOString(),correct:0,total:D5_N,done:false,items:[]};saveD5(all); // 開始時点で1回ぶん消費
   updateD5Btn();
   state={questions:buildDaily5Questions(),idx:0,results:[],testId:"d5-"+now.toString(36),userId:getUserId(),
@@ -3930,7 +4084,7 @@ const D5_CHEER=[
   "今回はウォームアップ。まだ挽回できます🌱"
 ];
 function d5PickCheer(n){return n>=5?D5_CHEER[0]:n===4?D5_CHEER[1]:n===3?D5_CHEER[2]:n===2?D5_CHEER[3]:D5_CHEER[4];}
-function d5RenderResult(rec,animate){
+function d5RenderResult(rec,animate,isTrend){
   const SYM={correct:["○","o"],incorrect:["×","x"],unknown:["－","u"],timeout:["△","t"]};
   const rows=rec.items.map((it,i)=>{
     const sy=SYM[it.status]||["×","x"];
@@ -3948,8 +4102,8 @@ function d5RenderResult(rec,animate){
   // 通常の結果画面（.res / .res-head / .btn）と同じ骨格・同じ配色を使う
   document.getElementById("s-d5result").innerHTML=`<div class="res">
     <div class="res-head">
-      <div style="font-size:15px;font-weight:900">今日の5問テスト・${d5SlotLabel(rec.slot)}</div>
-      <div style="font-size:12px;font-weight:800;color:var(--faint);margin-top:2px">${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}${(()=>{const k=d5Streak();return k?`　🔥 連続 ${k} 日`:"";})()}</div>
+      <div style="font-size:15px;font-weight:900">${isTrend?"今日のトレンド問題":"今日の5問テスト・"+d5SlotLabel(rec.slot)}</div>
+      <div style="font-size:12px;font-weight:800;color:var(--faint);margin-top:2px">${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}${isTrend?`　${esc((trendEntry()||{}).topic||"")}`:(()=>{const k=d5Streak();return k?`　🔥 連続 ${k} 日`:"";})()}</div>
       <div class="d5r-phase">
         <div class="d5r-judging"${animate?"":' style="opacity:0"'}>判定中…</div>
         <div class="d5r-score${animate?"":" shown"}">
@@ -3961,7 +4115,7 @@ function d5RenderResult(rec,animate){
     <div class="d5r-list">${rows}</div>
     <div class="res-btns">
       <button class="btn pri full" onclick="show('s-home')">ホームに戻る</button>
-      <button class="btn ter" onclick="show('s-home');openDaily5()">次に挑戦できる時間を見る</button>
+      <button class="btn ter" onclick="show('s-home');${isTrend?"openTrend()":"openDaily5()"}">${isTrend?"今日のトレンド単語をもう一度見る":"次に挑戦できる時間を見る"}</button>
     </div>
   </div>`;
   show("s-d5result");
@@ -4242,9 +4396,19 @@ const SG_HOME_ICON='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false
 /* 今日の5問（すごろく下・中央のカプセル）。スライドごとに描かれるのでidではなくclassで扱う */
 function sgD5HTML(){
   const used=(typeof d5Used==="function")&&d5Used();
-  return '<button class="sg-d5'+(used?" d5-off":"")+'" onclick="openDaily5()" aria-label="今日の5問テスト">'
+  return '<button class="sg-fbtn sg-d5'+(used?" d5-off":"")+'" onclick="openDaily5()" aria-label="今日の5問テスト">'
     +'<span class="sgd5-t"><span>今</span><span>日</span><span>の</span><span>5</span><span>問</span></span>'
-    +'<span class="d5-b"'+(used?' style="display:none"':'')+'>!</span></button>';
+    +'<span class="sgd5-mini" aria-hidden="true"><i>✓</i><b>5問</b></span>'
+    +'<span class="d5-b"'+(used?' style="display:none"':'')+'>!</span></button>'
+    +sgTrendHTML();
+}
+/* 今日のトレンド問題（5問を消化したあと、カプセルの位置に出る黄色いボタン） */
+function sgTrendHTML(){
+  const on=(typeof trendAvailable==="function")&&trendAvailable();
+  const used=(typeof trendUsed==="function")&&trendUsed();
+  return '<button class="sg-fbtn sg-trend'+(on?" on":"")+(used?" tr-off":"")+'" onclick="openTrend()" aria-label="今日のトレンド問題">'
+    +'<span class="sgtr-t"><span>今</span><span>日</span><span>の</span><span>ト</span><span>レ</span><span>ン</span><span>ド</span></span>'
+    +'<span class="tr-b"'+(used?' style="display:none"':'')+'>!</span></button>';
 }
 function sgBoardHTML(n){
   const level=curLevel,L=boardLapSize(level,n),vis=boardVisible(level,n),st=boardState(level,n);
@@ -4285,9 +4449,10 @@ function sgBoardHTML(n){
     +'</svg>'
     +laps.join("")+decos.join("")+tiles.join("")
     +'</div></div>'
-    +'<button class="sg-home" onclick="sgScrollToCurrent('+n+',true)" aria-label="現在地に戻る">'+SG_HOME_ICON+'</button>'
-    +sgD5HTML()
-    +'</div>';
+    +'</div>'
+    // 3ボタンは器の外（スライド直下）に置いてアイコン群と左右位置を揃える
+    +'<button class="sg-fbtn sg-home" onclick="sgScrollToCurrent('+n+',true)" aria-label="現在地に戻る">'+SG_HOME_ICON+'</button>'
+    +sgD5HTML();
 }
 /* 画像ファイルは正方形でも、被写体の形は縦長・横長とまちまちで、まわりの透明部分の量が画像ごとに違う。
  * 枠の角に番号とランクを置くと、絵が横長の画像では両者が離れて見えてしまうので、
@@ -4320,7 +4485,8 @@ function sgHomeTop(sc){
 }
 /* 現在地から離れているあいだだけ「現在地」ボタンを出す */
 function sgSyncHome(sc){
-  const btn=sc.parentNode&&sc.parentNode.querySelector(".sg-home");if(!btn)return;
+  const host=sc.closest(".slide-inner")||sc.parentNode; // 現在地ボタンは器の外（スライド直下）にある
+  const btn=host&&host.querySelector(".sg-home");if(!btn)return;
   const off=Math.abs(sc.scrollTop-sgHomeTop(sc))>90;
   if(off!==btn.classList.contains("on"))btn.classList.toggle("on",off);
 }
@@ -4347,7 +4513,10 @@ function fillNearbyBoards(){
   // 離れたROOMは器に戻してDOMを解放する
   document.querySelectorAll('.room-slide .sg-scroll').forEach(sc=>{
     const n=+sc.dataset.n;if(keep.has(n))return;
-    const wrap=sc.closest('.sg-wrap');if(wrap)wrap.outerHTML='<div class="sg-wrap" data-sglazy="'+n+'"></div>';
+    const wrap=sc.closest('.sg-wrap');if(!wrap)return;
+    const host=wrap.parentNode;
+    if(host)host.querySelectorAll(':scope > .sg-fbtn').forEach(b=>b.remove()); // 器の外に出した3ボタンも一緒に片付ける
+    wrap.outerHTML='<div class="sg-wrap" data-sglazy="'+n+'"></div>';
   });
 }
 function sgToast(msg){const t=document.createElement("div");t.className="sg-toast";t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),1900);}
@@ -5110,7 +5279,7 @@ function renderQuestion(){
   // 遷移時に音声を止めない（長い単語が途中で切れないよう最後まで再生させる）。
   // 重複防止は次の正解時に speakKorean() 側の stopSpeak() が担う。
   const q=state.questions[state.idx];
-  document.getElementById("prog").textContent=(_d5.on?"今日の5問　":"")+(state.idx+1)+" / "+((state.questions&&state.questions.length)||12);
+  document.getElementById("prog").textContent=(_d5.on?(_d5.mode==="trend"?"今日のトレンド　":"今日の5問　"):"")+(state.idx+1)+" / "+((state.questions&&state.questions.length)||12);
   const _qa=document.getElementById("qadv");if(_qa)_qa.style.visibility=_d5.on?"hidden":"visible";
   const _pf=document.getElementById("pfill");if(_pf)_pf.style.width=((state.idx+1)/((state.questions&&state.questions.length)||12)*100)+"%"; // 進捗バー（山吹色）を伸ばす // 出題番号と同時にスイッチ表示（今日の5問は正誤表示が無いので隠す）
   const stage=document.getElementById("qstage");
@@ -5182,6 +5351,14 @@ function submit(status,userAnswer){
   const isCorrect=status==="correct";
   const isHint=!!q.isHintProvided;
   const score=scoreFor(q.type,isCorrect,elapsed,isHint);
+  // 今日のトレンド問題は単語帳の外の言葉なので、記憶スコア・単語カード・回答履歴には一切入れない
+  if(q.trend){
+    state.results.push({userId:state.userId,wordId:q.word.id,testId:state.testId,questionNumber:state.idx+1,
+      korean:q.word.ko,japanese:q.word.ja,userAnswer:userAnswer||"",correctAnswer:q.correct,
+      answerStatus:status,isCorrect,questionSource:"trend",
+      responseTimeSec:Math.round(elapsed*10)/10,score,answeredAt:new Date().toISOString()});
+    d5AfterAnswer(status,userAnswer);return;
+  }
   // ---- タイプ診断用の誤答メタ ----
   let distractorType=null,selectedWrongWordId=null,writingErrorType=null,writingErrorDetail=null;
   if(q.type!=="w"){
@@ -5518,8 +5695,8 @@ function writingAnsHTML(status,q,userAnswer){
   return `<div class="ovans">${spk}<div class="oa-ko correct">${ko}</div></div>`;
 }
 function afterAnswer(){
-  if(_d5.on){ // 今日の5問（5問で終了 → 専用結果画面へ）
-    if(state.idx>=state.questions.length-1){finishDaily5();return;}
+  if(_d5.on){ // 今日の5問／今日のトレンド問題（5問で終了 → 専用結果画面へ）
+    if(state.idx>=state.questions.length-1){if(_d5.mode==="trend")finishTrend();else finishDaily5();return;}
     state.idx++;renderQuestion();return;
   }
   if(state.idx>=11){finishTest();return;}
@@ -6088,7 +6265,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v3.4 (2026-07-27)";
+const APP_VERSION="v3.5 (2026-07-28)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

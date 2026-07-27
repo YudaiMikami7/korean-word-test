@@ -220,7 +220,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     .then(() => page.reload()).then(() => page.waitForTimeout(1500)).then(() => page.evaluate(async () => {
       document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove());
       const sc = document.querySelector(`.room-slide[data-n="${curSection}"] .sg-scroll`);
-      const btn = sc.parentNode.querySelector('.sg-home');
+      const btn = sc.closest('.slide-inner').querySelector('.sg-home'); // 3ボタンは器の外（スライド直下）
       const atHome = !btn.classList.contains('on');           // 現在地に居るあいだは出ない
       sc.scrollTop = 0; await new Promise(r => setTimeout(r, 120));
       const away = btn.classList.contains('on');              // 離れると出る
