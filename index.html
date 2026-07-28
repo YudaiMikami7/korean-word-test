@@ -69,8 +69,34 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .qhome{background:rgba(0,0,0,.8);border:none;color:#fff;width:32px;height:32px;font-size:16px;cursor:pointer;flex:0 0 auto}
 .qbar .prog{letter-spacing:.5px}
 .qbar .time{color:#FFFFFF;font-variant-numeric:tabular-nums;margin-left:auto;font-weight:800;font-size:14.3px} /* カウントダウンは1段太く(700→800)・1.1倍(13→14.3px) */
-.pbar{height:7px;margin:8px 18px 0;background:rgba(0,0,0,.42);border-radius:4px;overflow:hidden;box-sizing:border-box} /* 進捗バー：問題が進むほど伸びる（枠線なし） */
-.pfill{height:100%;width:0;background:#F8B500;transition:width .45s cubic-bezier(.3,1.2,.4,1)} /* 山吹色 */
+/* 進捗＝山吹色のメーターは廃止。正解するとキャラが1歩ぶん前へ進む（マリオ風に景色が右から左へ流れ、キャラ自身は歩いて見える） */
+.pbar{position:relative;height:48px;margin:8px 18px 0;border-radius:10px;overflow:hidden;box-sizing:border-box;--rp:0;
+  background:linear-gradient(180deg,#3FA7EA,#8ACFF6 60%,#C6E9FF);box-shadow:inset 0 0 0 2px rgba(0,0,0,.22)}
+.rn-sky,.rn-hill,.rn-ground{position:absolute;left:0;right:0;pointer-events:none;background-repeat:repeat-x;
+  transition:background-position 1s cubic-bezier(.22,.85,.3,1)} /* --rp が増えるほど背景が左へ流れる＝前進 */
+/* 遠景の雲はゆっくり、丘は中くらい、足元の地面はいちばん速く流す（多層パララックス） */
+.rn-sky{top:2px;height:15px;background-size:166px 15px;background-position:calc(var(--rp) * -20px) 0;
+  background-image:radial-gradient(circle at 24px 13px,#fff 5.5px,transparent 6px),
+                   radial-gradient(circle at 36px 14px,#fff 7px,transparent 7.5px),
+                   radial-gradient(circle at 120px 12px,rgba(255,255,255,.82) 4.5px,transparent 5px)}
+.rn-hill{bottom:11px;height:15px;background-size:152px 15px;background-position:calc(var(--rp) * -48px) 0;
+  background-image:radial-gradient(ellipse 32px 13px at 34px 16px,#2F8B58 99%,transparent 100%),
+                   radial-gradient(ellipse 42px 15px at 110px 17px,#24714A 99%,transparent 100%)}
+.rn-ground{bottom:0;height:11px;background-size:28px 11px;background-position:calc(var(--rp) * -92px) 0;
+  background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.17) 0 14px,rgba(255,255,255,.16) 14px 28px),
+                   linear-gradient(180deg,#63BE47 0 4px,#8A5C33 4px)}
+.rn-char{position:absolute;left:30%;bottom:9px;width:29px;height:29px;object-fit:contain;transform:translateX(-50%);
+  filter:drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 2px 3px rgba(0,0,0,.45));pointer-events:none}
+.rn-char.step{animation:rnStep .62s ease-in-out}   /* 正解＝2歩ぶん、その場で歩く（前進は景色の流れで見せる） */
+.rn-char.trip{animation:rnTrip .45s ease}          /* 不正解＝つまずいて進めない */
+@keyframes rnStep{
+  0%{transform:translateX(-50%) translateY(0) rotate(0)}
+  22%{transform:translateX(-50%) translateY(-6px) rotate(9deg)}
+  44%{transform:translateX(-50%) translateY(0) rotate(2deg)}
+  68%{transform:translateX(-50%) translateY(-6px) rotate(-9deg)}
+  88%{transform:translateX(-50%) translateY(0) rotate(-2deg)}
+  100%{transform:translateX(-50%) translateY(0) rotate(0)}}
+@keyframes rnTrip{0%,100%{transform:translateX(-50%) rotate(0)}30%{transform:translateX(-50%) rotate(-14deg)}70%{transform:translateX(-50%) rotate(9deg)}}
 .tbar{height:7px;margin:1.5px 18px 0;background:rgba(0,0,0,.42);border-radius:4px;overflow:hidden;box-sizing:border-box} /* 緑メーターが減る出題バー。黄色バーと同じ太さ・枠線なし・間のマージンは半分 */
 .tfill{height:100%;width:100%;background:#00FF37;transition:width .1s linear} /* 制限時間バーは緑（ホームのトンマナ）・黒枠内で減っていく */
 .tfill.warn{background:#FFC400}
@@ -1253,19 +1279,39 @@ body.bigtext .set-d{font-size:13.5px}
 .sp-memo-count{font-size:32px;font-weight:900;color:#FFC400;min-height:38px}
 
 /* ============================================================ スペシャル問題：シューティング（テストの中に1問だけ混ざるミニゲーム） ============================================================
- * 下＝日本語の大砲3つ（丸の中に単語画像／その下に日本語）、上＝韓国語の風船3つ。
- * 大砲は左右スワイプ（ダイヤル）で傾き、タップ（連打）で発射。正しい組み合わせで5発当てると割れる。 */
+ * 青ROOM: 下＝日本語の大砲3つ／上＝韓国語の風船3つ（組み合わせを当てる）
+ * 赤ROOM: 上＝韓国語の風船1つ（出題）／下＝日本語の大砲4つ（4択）。正解の大砲で撃つ。
+ * 大砲は左右スワイプ（ダイヤル）で傾き、タップ（連打）で発射。5発当てると割れ、割れた位置から玉が落ちてくる。
+ * 背景はスペシャル感のある夜景（星空＋月＋シルエットの木）。 */
 .shg{position:relative;flex:1;min-height:0;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
 .shg-lead{position:absolute;left:0;right:0;top:4px;z-index:5;padding:0 8px;text-align:center;font-size:clamp(11.5px,3.2vw,13px);font-weight:800;line-height:1.6;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6);pointer-events:none}
 .shg-lead b{color:#FFD84D}
-/* --- 風船（韓国語の的） --- */
-.shg-bal{position:absolute;width:92px;height:104px;margin:-52px 0 0 -46px;border-radius:50% 50% 46% 46%;z-index:3;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#fff;
-  background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.9),rgba(255,255,255,.12) 44%,rgba(0,0,0,.22) 100%),var(--shc,#FF5D8F);
-  box-shadow:0 8px 18px rgba(0,0,0,.35)}
-.shg-bal::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-6px;border:6px solid transparent;border-top-color:var(--shc,#FF5D8F);border-bottom:0}
-.shg-ko{font-size:22px;font-weight:900;line-height:1.1;padding:0 6px;text-align:center;word-break:break-all;text-shadow:0 2px 4px rgba(0,0,0,.45)}
-.shg-need{font-size:11px;font-weight:900;background:rgba(0,0,0,.38);border-radius:999px;padding:1px 9px;letter-spacing:.04em}
+/* --- スペシャルな景色（夜空→夕焼け→地面） --- */
+.shg-scene{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  background:linear-gradient(180deg,#140b3a 0%,#2d1461 30%,#5c2280 56%,#c04b6a 78%,#ff9a58 92%,#ffd08a 100%)}
+.shg-stars{position:absolute;left:0;right:0;top:0;height:62%;opacity:.85;animation:shgTwinkle 3.6s ease-in-out infinite;
+  background-image:radial-gradient(#fff 1.3px,transparent 1.5px),radial-gradient(rgba(255,255,255,.72) 1px,transparent 1.2px);
+  background-size:67px 59px,41px 43px;background-position:0 0,19px 24px}
+@keyframes shgTwinkle{0%,100%{opacity:.85}50%{opacity:.5}}
+.shg-moon{position:absolute;right:9%;top:8%;width:56px;height:56px;border-radius:50%;
+  background:radial-gradient(circle at 36% 34%,#fff,#ffeeb5 58%,#ffcf62);box-shadow:0 0 38px rgba(255,224,150,.8)}
+.shg-hills{position:absolute;left:-4%;right:-4%;bottom:14%;height:20%;
+  background:radial-gradient(ellipse 42% 100% at 22% 100%,#3a1c63 99%,transparent 100%),
+             radial-gradient(ellipse 46% 84% at 74% 100%,#33195a 99%,transparent 100%)}
+.shg-land{position:absolute;left:0;right:0;bottom:0;height:15%;background:linear-gradient(180deg,#241145,#120827);
+  box-shadow:0 -2px 0 rgba(255,255,255,.16)}
+.shg-tree{position:absolute;bottom:11%;width:54px;object-fit:contain;opacity:.5;filter:brightness(0) saturate(0)}
+/* --- 風船（韓国語の的）：まん丸・色はフラットにシンプルに --- */
+.shg-bal{position:absolute;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;z-index:3;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#fff;
+  background:var(--shc,#FF6B81);box-shadow:inset -7px -9px 0 rgba(0,0,0,.10),0 8px 16px rgba(0,0,0,.3)}
+.shg-bal::before{content:"";position:absolute;left:21px;top:17px;width:19px;height:13px;border-radius:50%;
+  background:rgba(255,255,255,.5);transform:rotate(-26deg)} /* 小さなハイライトひとつだけ */
+.shg-bal::after{content:"";position:absolute;left:50%;bottom:-7px;margin-left:-5px;border:5px solid transparent;border-top-color:var(--shc,#FF6B81);border-bottom:0}
+.shg-ko{font-size:21px;font-weight:900;line-height:1.1;padding:0 8px;text-align:center;word-break:break-all;text-shadow:0 2px 4px rgba(0,0,0,.4)}
+.shg-need{font-size:11px;font-weight:900;background:rgba(0,0,0,.34);border-radius:999px;padding:1px 9px;letter-spacing:.04em}
+.shg.four .shg-bal{width:150px;height:150px;margin:-75px 0 0 -75px}
+.shg.four .shg-ko{font-size:27px}
 .shg-bal.hit{animation:shgHit .22s ease}
 .shg-bal.bad{animation:shgBad .3s ease}
 .shg-bal.pop{animation:shgPop .34s ease forwards}
@@ -1274,27 +1320,48 @@ body.bigtext .set-d{font-size:13.5px}
 @keyframes shgPop{to{transform:scale(1.8);opacity:0}}
 .shg-frag{position:absolute;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;z-index:4;pointer-events:none;animation:shgFrag .5s ease-out forwards}
 @keyframes shgFrag{to{transform:translate(var(--fx),var(--fy)) scale(.3);opacity:0}}
+/* 割れた風船の中から玉が出てきて落ちる（ホームに積もる玉と同じ見た目のカプセル） */
+.shg-ball{position:absolute;width:68px;height:68px;margin:-34px 0 0 -34px;border-radius:50%;z-index:5;pointer-events:none;
+  background:rgba(255,255,255,.58);box-shadow:inset 0 -6px 12px rgba(0,0,0,.08),0 6px 14px rgba(0,0,0,.3);
+  display:flex;align-items:center;justify-content:center;animation:shgBallDrop 1.15s cubic-bezier(.45,.02,.75,.5) forwards}
+.shg-ball img{width:72%;height:72%;object-fit:contain}
+.shg-ball span{font-size:30px}
+@keyframes shgBallDrop{
+  0%{transform:translateY(0) scale(.35);opacity:0}
+  14%{transform:translateY(0) scale(1);opacity:1}
+  82%{transform:translateY(var(--fall,360px)) scale(1);opacity:1}
+  90%{transform:translateY(var(--fall,360px)) scaleX(1.22) scaleY(.78);opacity:1}
+  100%{transform:translateY(calc(var(--fall,360px) - 10px)) scale(1);opacity:0}
+}
 /* --- 弾 --- */
 .shg-bullet{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:3px;z-index:2;pointer-events:none;
   background:#fff;box-shadow:0 0 10px rgba(255,255,255,.9)}
-/* --- 大砲（日本語） --- */
-.shg-cn{position:absolute;width:104px;margin-left:-52px;z-index:3;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
-.shg-piv{position:relative;height:72px;transform-origin:50% 100%;transition:none}
-.shg-barrel{position:absolute;left:50%;bottom:0;width:24px;height:62px;margin-left:-12px;border-radius:6px 6px 3px 3px;
-  background:linear-gradient(180deg,#fff,#cfcfcf);box-shadow:0 3px 8px rgba(0,0,0,.45)}
+/* --- 大砲（日本語）：砲身→付け根→本体を段差なくつなげ、画像は置かず本体の位置に日本語を出す --- */
+.shg-cn{position:absolute;width:112px;z-index:3;cursor:pointer;text-align:center;transform:translateX(-50%);-webkit-tap-highlight-color:transparent}
+.shg.four .shg-cn{width:min(104px,24vw)}
+.shg-piv{position:relative;height:64px;transform-origin:50% 100%;transition:none}
+.shg-barrel{position:absolute;left:50%;bottom:-8px;width:26px;height:72px;margin-left:-13px;border-radius:9px 9px 0 0;
+  background:linear-gradient(90deg,#93a0b2,#f4f8fd 40%,#8c99ac);box-shadow:0 3px 8px rgba(0,0,0,.4)}
+.shg-barrel::after{content:"";position:absolute;left:-5px;right:-5px;top:-4px;height:10px;border-radius:5px;
+  background:linear-gradient(90deg,#8c99ac,#fff 42%,#7d8a9d)} /* ノズル先端のリング */
 .shg-barrel.kick{animation:shgKick .13s ease}
 @keyframes shgKick{0%{transform:translateY(9px)}100%{transform:translateY(0)}}
-.shg-aim{position:absolute;left:50%;bottom:60px;width:0;height:120px;margin-left:-1px;border-left:3px dashed rgba(255,255,255,.42)}
-.shg-circ{position:relative;width:86px;height:86px;margin:2px auto 0;border-radius:50%;background:rgba(0,0,0,.62);
-  box-shadow:0 0 0 3px rgba(255,255,255,.85),0 6px 14px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;overflow:hidden}
-.shg-circ img{width:78px;height:78px;object-fit:contain}
-.shg-noimg{font-size:40px}
-/* 意味が長い語（「突き刺す、（写真を）撮る、…」等）でも画面外へ伸びないよう2行で打ち切る */
-.shg-ja{margin-top:4px;font-size:15px;font-weight:900;color:#fff;text-shadow:0 2px 5px rgba(0,0,0,.6);line-height:1.25;word-break:break-all;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-height:38px}
-.shg-cn:active .shg-circ{transform:scale(.95)}
+.shg-aim{position:absolute;left:50%;bottom:62px;width:0;height:120px;margin-left:-1px;border-left:3px dashed rgba(255,255,255,.42)}
+/* 本体（台座）。砲身の付け根に重ねて一体に見せる */
+.shg-base{position:relative;z-index:2;width:80px;height:32px;margin:-11px auto 0;border-radius:18px 18px 10px 10px;
+  background:linear-gradient(180deg,#f6f9fd,#aab5c5);box-shadow:0 5px 11px rgba(0,0,0,.42),inset 0 2px 0 rgba(255,255,255,.95)}
+.shg-base::after{content:"";position:absolute;left:50%;top:-7px;margin-left:-19px;width:38px;height:16px;border-radius:9px 9px 0 0;
+  background:linear-gradient(180deg,#e6ecf4,#c3cddb)} /* 砲身とのつなぎ目（首） */
+.shg.four .shg-base{width:66px;height:28px}
+/* 画像の丸は廃止。その位置に日本語を置く（長い意味は2行で打ち切り） */
+.shg-ja{position:relative;z-index:1;margin:6px auto 0;width:100%;padding:7px 6px;border-radius:12px;
+  background:rgba(9,5,28,.7);box-shadow:0 0 0 2px rgba(255,255,255,.82),0 6px 14px rgba(0,0,0,.45);
+  font-size:16px;font-weight:900;color:#fff;line-height:1.25;word-break:break-all;text-align:center;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:42px;box-sizing:border-box}
+.shg.four .shg-ja{font-size:14px;padding:6px 4px;min-height:38px}
+.shg-cn:active .shg-ja{transform:scale(.95)}
 .shg-cn.done{opacity:.4;pointer-events:none}
-.shg-cn.done .shg-circ{box-shadow:0 0 0 3px rgba(55,224,138,.9)}
+.shg-cn.done .shg-ja{box-shadow:0 0 0 3px rgba(55,224,138,.9)}
 .shg-clear{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%) scale(.4);opacity:0;z-index:6;pointer-events:none;
   font-size:58px;font-weight:900;color:#FFD84D;letter-spacing:.06em;text-shadow:0 4px 14px rgba(0,0,0,.6)}
 .shg-clear.on{animation:shgClear .5s cubic-bezier(.34,1.5,.5,1) forwards}
@@ -1345,13 +1412,22 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-here span:nth-child(3){animation-delay:.3s}
 .sg-here span:nth-child(4){animation-delay:.45s}
 .sg-here::after{content:"";position:absolute;left:50%;bottom:-10px;margin-left:-10px;border:10px solid transparent;border-top-color:#111;border-bottom:0}
-/* スペシャル問題が出ているROOMのスタート：青枠・白座布団・青文字＋「スペシャル問題発生中！」の吹き出し */
+/* スペシャル問題が出ているROOMのスタート：白座布団＋色枠（青＝風船マッチ／赤＝4択シューティング） */
 .sg-here.sp{background:#fff;color:#1868FF;box-shadow:0 6px 16px rgba(0,0,0,.35),0 0 0 4px #1868FF}
 .sg-here.sp::after{border-top-color:#fff}
-.sg-spbub{position:absolute;z-index:6;left:50%;top:-348px;background:#fff;color:#1868FF;border:4px solid #1868FF;border-radius:999px;
-  font-size:24px;font-weight:900;letter-spacing:.02em;padding:7px 20px 9px;white-space:nowrap;
-  box-shadow:0 6px 16px rgba(0,0,0,.3);animation:sgherebob 1.6s ease-in-out infinite;animation-delay:.2s}
-.sg-spbub::after{content:"";position:absolute;left:50%;bottom:-14px;margin-left:-10px;border:10px solid transparent;border-top-color:#1868FF;border-bottom:0}
+.sg-here.sp-red{color:#E4002B;box-shadow:0 6px 16px rgba(0,0,0,.35),0 0 0 4px #E4002B}
+/* 「スペシャル問題発生中！」はスタート（＝吹き出し型）の上に吹き出しを重ねると変なので、斜めのリボン帯にする */
+.sg-spbub{position:absolute;z-index:6;left:50%;top:-352px;white-space:nowrap;
+  font-size:24px;font-weight:900;letter-spacing:.03em;color:#fff;padding:10px 30px;
+  background:linear-gradient(135deg,#0B44C4,#54A9FF 52%,#0B44C4);
+  clip-path:polygon(0 0,100% 0,calc(100% - 15px) 50%,100% 100%,0 100%,15px 50%);
+  box-shadow:0 9px 20px rgba(0,0,0,.38);text-shadow:0 2px 4px rgba(0,0,0,.35);
+  animation:sgribbon 1.9s ease-in-out infinite}
+.sg-spbub.red{background:linear-gradient(135deg,#B3001B,#FF7A5A 52%,#B3001B)}
+.sg-spbub i{font-style:normal;display:inline-block;margin:0 6px;animation:sgspark 1.1s ease-in-out infinite}
+.sg-spbub i:last-child{animation-delay:.55s}
+@keyframes sgribbon{0%,100%{transform:translateX(-50%) rotate(-4deg) translateY(0)}50%{transform:translateX(-50%) rotate(-4deg) translateY(-9px)}}
+@keyframes sgspark{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.78)}}
 .sg-tile.lock{cursor:default}
 .sg-tile.lock .sg-img,.sg-tile.lock .sg-noimg{filter:grayscale(1) drop-shadow(0 6px 6px rgba(0,0,0,.26))}
 .sg-tile.lock .sg-num{color:rgba(255,255,255,.55)}
@@ -1615,7 +1691,8 @@ body.bigtext .set-d{font-size:13.5px}
   <!-- QUIZ -->
   <div class="screen" id="s-quiz">
     <div class="qbar"><button class="qhome" onclick="confirmQuit()" aria-label="テストを中断">‹</button><span class="prog" id="prog">1 / 12</span><button class="qadv" id="qadv" onclick="toggleAdvMode()" aria-label="回答後の進み方を切り替え"><span>タップで次へ</span><span class="qsw" id="qsw"><i></i></span></button><span class="time" id="time">10.0</span></div>
-    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+    <!-- 進捗＝キャラが歩いて進む帯（正解するとキャラが1歩ぶん前進し、景色が右から左へ流れる） -->
+    <div class="pbar" id="pbar" aria-hidden="true"><div class="rn-sky"></div><div class="rn-hill"></div><div class="rn-ground"></div><img class="rn-char" id="rn-char" src="characters/analyzing.svg" alt=""></div>
     <div class="tbar"><div class="tfill" id="tfill"></div></div>
     <div class="qstage" id="qstage"></div>
   </div>
@@ -3864,7 +3941,8 @@ function startTest(reviewIds){
   const now=Date.now();
   const conditionBefore=Math.round(overallCondition(now)),reviewBefore=reviewNeedCount(now);
   const qs=reviewIds&&reviewIds.length?buildReviewQuestions(reviewIds):buildQuestions();
-  if(!_d5.on&&!_pqQuiz&&!_onSpecial&&isSpecialSection(curLevel,curSection))insertShootQuestion(qs); // スペシャル問題発生中のROOMだけ13問目としてシューティングを差し込む
+  const _spk=(!_d5.on&&!_pqQuiz&&!_onSpecial)?specialKind(curLevel,curSection):"";
+  if(_spk)insertShootQuestion(qs,_spk); // スペシャル問題発生中のROOMだけ13問目としてシューティングを差し込む（青=風船マッチ／赤=4択）
   const prog=loadProgress();
   state={questions:qs,idx:0,results:[],testId:"t-"+Date.now().toString(36),userId:getUserId(),
     cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level,pq:_pqQuiz};
@@ -3873,6 +3951,7 @@ function startTest(reviewIds){
   if(typeof track==="function")track("quiz_start",{review:!!(reviewIds&&reviewIds.length)}); // ファネル起点（GA_ID設定時のみ）
   qrStopRain();qrClearLayer("q-rain");QR.active="q-rain"; // クイズ側の積もりをリセット（ホームの山は保持）
   updateAdvBtn();
+  runnerReset(); // 進捗キャラをスタート位置へ戻す（カウントダウンを省く経路でも必ず初期化する）
   show("s-quiz");
   if(skipCd)renderQuestion(); // カウントダウンはホームで済んでいるので直接1問目へ
   else showCountdown(()=>renderQuestion());
@@ -3885,7 +3964,7 @@ function showCountdown(cb){
   document.getElementById("time").textContent="";
   const qa=document.getElementById("qadv");if(qa)qa.style.visibility="hidden"; // スイッチは出題番号が出るまで隠す
   const fill=document.getElementById("tfill");if(fill){fill.className="tfill";fill.style.width="100%";}
-  const pf=document.getElementById("pfill");if(pf)pf.style.width="0%";
+  runnerReset();
   let n=3;_counting=true; // カウントダウン中フラグ（この間の戻るは確認なしで即ホームへ）
   const draw=()=>{stage.innerHTML=`<div class="cdown"><span class="cnum">${n}</span></div>`;};
   draw();
@@ -4548,18 +4627,54 @@ function sgTrendHTML(){
     +'<span class="sgtr-mini" aria-hidden="true"><i>✓</i><b>トレンド</b></span>'
     +'<span class="tr-b"'+(used?' style="display:none"':'')+'>!</span></button>';
 }
-/* スペシャル問題：毎日、初級で1ROOM・中級で1ROOMだけランダムに「スペシャル問題発生中！」になる。
- * そのROOMのテストには5〜11問目のどこかにシューティングが1問だけ混ざる（採点・記憶スコアには入らない）。 */
-function specialSection(level){
+/* スペシャル問題：初級・中級それぞれで2ROOMだけ「スペシャル問題発生中！」になる。
+ *   青ROOM … 韓国語の風船3つ × 日本語の大砲3つ（組み合わせ当て）
+ *   赤ROOM … 韓国語の風船1つ（出題）× 日本語の大砲4つ（4択）
+ * そのROOMのテストには5〜11問目のどこかにシューティングが1問だけ混ざる（採点・記憶スコアには入らない）。
+ * テストを1本（12問／13問）終えるたびに、4つとも別のROOMへ入れ替わる。 */
+const LS_SPECIAL="kwt_special_v3";
+let _spCache=null;
+function _spPick(level,exclude){
   const secs=Object.keys(LEVEL_SECTIONS[level]||{}).map(Number).filter(x=>x>0).sort((a,b)=>a-b);
   if(!secs.length)return 0;
-  const rnd=_d5Rng(_d5Hash("kwt-special|"+level+"|"+dayKey(Date.now())));
-  return secs[Math.floor(rnd()*secs.length)];
+  const pool=secs.filter(n=>exclude.indexOf(n)<0);
+  const src=pool.length?pool:secs; // ROOMが少ない級でも必ず1つ返す
+  return src[Math.floor(Math.random()*src.length)];
 }
-function isSpecialSection(level,n){return specialSection(level)===+n;}
+function _spRoll(prev){
+  const o={};
+  ["beginner","middle"].forEach(lv=>{
+    const p=(prev&&prev[lv])||{};
+    const blue=_spPick(lv,[p.blue,p.red].filter(Boolean));           // 直前と同じROOMは避ける
+    const red=_spPick(lv,[p.blue,p.red,blue].filter(Boolean));
+    o[lv]={blue,red};
+  });
+  return o;
+}
+function specialRooms(){
+  if(_spCache)return _spCache;
+  let o=null;try{o=JSON.parse(localStorage.getItem(LS_SPECIAL)||"null");}catch(e){}
+  if(!o||!o.beginner||!o.middle||!o.beginner.blue||!o.middle.blue){
+    o=_spRoll(null);try{localStorage.setItem(LS_SPECIAL,JSON.stringify(o));}catch(e){}
+  }
+  _spCache=o;return o;
+}
+/* テストを1本終えるたびに呼ぶ：スペシャルROOMを全部ほかのROOMへ切り替える */
+function rerollSpecial(){
+  const o=_spRoll(specialRooms());
+  try{localStorage.setItem(LS_SPECIAL,JSON.stringify(o));}catch(e){}
+  _spCache=o;return o;
+}
+function specialKind(level,n){
+  const o=specialRooms()[level]||{};
+  return (+n===o.blue)?"blue":(+n===o.red)?"red":"";
+}
+function specialSection(level){return specialRooms()[level].blue;}
+function isSpecialSection(level,n){return !!specialKind(level,n);}
 function sgBoardHTML(n){
   const level=curLevel,L=boardLapSize(level,n),vis=boardVisible(level,n),st=boardState(level,n);
-  const sp=isSpecialSection(level,n); // このROOMはスペシャル問題発生中か
+  const spk=specialKind(level,n); // ""＝通常 / "blue"＝風船マッチ / "red"＝4択シューティング
+  const sp=!!spk;
   const ids=((LEVEL_SECTIONS[level]||{})[n]||[]);
   const rnd=_d5Rng(_d5Hash("kwt-sg|"+level+"|"+n));
   const h=sgTrackH(vis);
@@ -4576,8 +4691,8 @@ function sgBoardHTML(n){
       +(src?'<img class="sg-img" src="'+src+'" alt="" loading="lazy" decoding="async" onload="sgFitBadges(this)">':'<span class="sg-noimg">🃏</span>')
       +'<span class="sg-num">'+g+'</span>'
       +(rank?'<span class="sg-rank" style="background:'+(RANK_COLORS[rank]||"#555")+'">'+rank+'</span>':"")
-      +(now?'<span class="sg-here'+(sp?" sp":"")+'"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span>':"")
-      +((now&&sp)?'<span class="sg-spbub">スペシャル問題発生中！</span>':"")
+      +(now?'<span class="sg-here'+(sp?" sp":"")+(spk==="red"?" sp-red":"")+'"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span>':"")
+      +((now&&sp)?'<span class="sg-spbub'+(spk==="red"?" red":"")+'"><i>✦</i>スペシャル問題発生中！<i>✦</i></span>':"")
       +'</button>');
     if(idx===0)laps.push('<div class="sg-lap" style="top:'+Math.round(p.y+SG_STEP*0.56)+'px"><span>'+lap+'周目</span></div>');
     // 自然物は道の反対側の外周へ1マスにつき1つ（マス・道・左レールに被らせない）
@@ -5397,6 +5512,28 @@ function spSpell(){
   round();
 }
 
+/* ============================================================ 進捗＝歩くキャラ ============================================================
+ * 山吹色のメーターは廃止。正解するとキャラが1歩ぶん前へ進む＝景色（雲・丘・地面）が右から左へ流れ、
+ * キャラ自身はその場で歩いているように見える（マリオ風の横スクロール）。不正解はつまずいて進めない。 */
+let _runSteps=0;
+function runnerReset(){
+  _runSteps=0;
+  const bar=document.getElementById("pbar");if(bar)bar.style.setProperty("--rp",0);
+  const ch=document.getElementById("rn-char");
+  if(ch){
+    ch.classList.remove("step","trip");
+    try{ch.src=charPathFor(computeDiagnosis());}catch(e){} // 自分の16タイプのキャラが歩く（未診断はanalyzing）
+  }
+}
+function runnerStep(ok){
+  const bar=document.getElementById("pbar");if(!bar)return;
+  if(ok)_runSteps++;
+  bar.style.setProperty("--rp",_runSteps);
+  const ch=document.getElementById("rn-char");if(!ch)return;
+  ch.classList.remove("step","trip");void ch.offsetWidth; // 連続再生できるようアニメを巻き戻す
+  ch.classList.add(ok?"step":"trip");
+}
+
 function curLimit(){const base=state.questions[state.idx].type==="w"?20:10;return Math.round(base*(loadSettings().slowTimer?1.5:1));} // じっくりモードは1.5倍
 
 function _tick(){
@@ -5430,9 +5567,9 @@ function renderQuestion(){
   const q=state.questions[state.idx];
   document.getElementById("prog").textContent=(_d5.on?(_d5.mode==="trend"?"今日のトレンド　":"今日の5問　"):"")+(state.idx+1)+" / "+((state.questions&&state.questions.length)||12);
   const _qa=document.getElementById("qadv");if(_qa)_qa.style.visibility=_d5.on?"hidden":"visible";
-  const _pf=document.getElementById("pfill");if(_pf)_pf.style.width=((state.idx+1)/((state.questions&&state.questions.length)||12)*100)+"%"; // 進捗バー（山吹色）を伸ばす // 出題番号と同時にスイッチ表示（今日の5問は正誤表示が無いので隠す）
+  // 進捗は「キャラが歩いて進む」帯で表す（山吹色メーターは廃止）。出題番号と同時にスイッチ表示（今日の5問は正誤表示が無いので隠す）
   const stage=document.getElementById("qstage");
-  if(q.type==="sg"){renderShoot(q,stage);return;} // スペシャル問題（シューティング）：制限時間なし・採点なし
+  if(q.type==="sg"||q.type==="sg4"){renderShoot(q,stage);return;} // スペシャル問題（シューティング）：制限時間なし・採点なし
   if(q.type==="kj"||q.type==="jk"){
     const display=q.type==="kj"?q.word.ko:q.word.ja;
     stage.innerHTML=`
@@ -5507,11 +5644,31 @@ function bindChoiceDrag(){
  * ・意味の合う風船に正しい大砲の弾を5発当てると割れる。撃ちまちがえると必要な数がその分ふえる（5発誤爆＝10発）
  * ・記憶スコア・履歴・採点には一切入れない（お楽しみ枠）。3つ割ると次の問題へ進む */
 const SHG_NEED=5, SHG_SPEED=780, SHG_MAXANG=72, SHG_COOL=110; // 必要弾数／弾速(px/秒)／可動域(±度)／連打の最短間隔(ms)
-const SHG_COLORS=["#FF5D8F","#4FC3F7","#FFC400"];
+const SHG_COLORS=["#FF6B81","#38BDF8","#FBBF24"];
+const SHG_COLOR4="#FF6B81"; // 4択版（赤ROOM）の風船
 let _shg=null;
 
-/* 12問のうち3語を借りて、5問目〜11問目のどこかにシューティングを差し込む（画像のある語を優先） */
-function insertShootQuestion(qs){
+/* 意味が多い語は最初の意味だけ（大砲に収める）。かっこ内の読点では切らない */
+function shgJa(s){
+  s=String(s);let d=0;
+  for(let i=0;i<s.length;i++){const c=s[i];
+    if(c==="（"||c==="(")d++;
+    else if(c==="）"||c===")")d--;
+    else if((c==="、"||c===",")&&d<=0)return s.slice(0,i);}
+  return s;
+}
+/* 12問のうちの語を借りて、5問目〜11問目のどこかにシューティングを1問差し込む
+ *   kind="blue" … 風船3つ×大砲3つの組み合わせ当て（画像のある語を優先）
+ *   kind="red"  … 風船1つ（韓国語の出題）×大砲4つ（日本語の4択） */
+function insertShootQuestion(qs,kind){
+  const at=()=>4+Math.floor(Math.random()*7); // 0起点4〜10＝5問目〜11問目
+  if(kind==="red"){
+    const cand=qs.filter(q=>q&&q.type==="kj"&&q.choices&&q.choices.length>=4&&q.word);
+    if(!cand.length)return qs;
+    const src=cand[Math.floor(Math.random()*cand.length)];
+    qs.splice(at(),0,{type:"sg4",word:src.word,opts:src.choices.slice(0,4),correct:src.correct});
+    return qs;
+  }
   const hasImg=w=>typeof WORD_IMG!=="undefined"&&!!WORD_IMG[w.ko];
   const cand=qs.map(q=>q&&q.word).filter(w=>w&&w.ko&&w.ja);
   const words=[],seen=new Set();
@@ -5519,36 +5676,53 @@ function insertShootQuestion(qs){
     if(!seen.has(w.id)){seen.add(w.id);words.push(w);}
   });
   if(words.length<3)return qs;
-  qs.splice(4+Math.floor(Math.random()*7),0,{type:"sg",shoot:words.slice(0,3)}); // 0起点4〜10＝5問目〜11問目
+  qs.splice(at(),0,{type:"sg",shoot:words.slice(0,3)});
   return qs;
+}
+/* スペシャルな景色（夜空＋月＋シルエットの木） */
+function shgSceneHTML(){
+  return `<div class="shg-scene"><div class="shg-stars"></div><div class="shg-moon"></div><div class="shg-hills"></div><div class="shg-land"></div>`
+    +`<img class="shg-tree" src="sgdeco/pine.webp" alt="" style="left:4%;width:58px" onerror="this.style.display='none'">`
+    +`<img class="shg-tree" src="sgdeco/tree.webp" alt="" style="left:17%;width:44px;bottom:12%" onerror="this.style.display='none'">`
+    +`<img class="shg-tree" src="sgdeco/pine.webp" alt="" style="right:6%;width:50px" onerror="this.style.display='none'">`
+    +`<img class="shg-tree" src="sgdeco/rock.webp" alt="" style="right:22%;width:34px;bottom:10%;opacity:.4" onerror="this.style.display='none'">`
+    +`</div>`;
 }
 function renderShoot(q,stage){
   answered=true;clearInterval(timer); // 制限時間なし（誤ってsubmitされないようにも閉じておく）
   const tt=document.getElementById("time");if(tt)tt.textContent="";
   const tf=document.getElementById("tfill");if(tf){tf.className="tfill";tf.style.width="100%";}
-  const ws=q.shoot,slots=shuffle([0,1,2]); // 風船の並びは大砲と別順
-  const img=w=>(typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko])?`<img src="${WORD_IMG[w.ko]}" alt="">`:`<span class="shg-noimg">🃏</span>`;
-  const ja=w=>{ // 意味が多い語は最初の意味だけ（丸の下に収める）。かっこ内の読点では切らない
-    const s=String(w.ja);let d=0;
-    for(let i=0;i<s.length;i++){const c=s[i];
-      if(c==="（"||c==="(")d++;
-      else if(c==="）"||c===")")d--;
-      else if((c==="、"||c===",")&&d<=0)return s.slice(0,i);}
-    return s;
-  };
-  stage.innerHTML=`<div class="shg" id="shg">
-    <div class="shg-lead">スペシャル問題！　<b>日本語の大砲</b>→意味の合う<b>韓国語の風船</b><br>左右スワイプで狙う／タップで発射（正しい弾5発で割れる）</div>
-    ${slots.map((wi,s)=>`<div class="shg-bal" data-w="${wi}" style="--shc:${SHG_COLORS[s]}"><span class="shg-ko">${esc(ws[wi].ko)}</span><span class="shg-need">残り${SHG_NEED}</span></div>`).join("")}
-    ${ws.map((w,i)=>`<div class="shg-cn" data-i="${i}"><div class="shg-piv"><div class="shg-aim"></div><div class="shg-barrel"></div></div><div class="shg-circ">${img(w)}</div><div class="shg-ja">${esc(ja(w))}</div></div>`).join("")}
+  const four=q.type==="sg4";
+  let lead,bals,cans,words;
+  if(four){
+    const opts=shuffle(q.opts.slice());
+    const ci=opts.indexOf(q.correct);
+    words=opts.map(()=>q.word); // 割れる風船は1つ（出題語）
+    lead=`スペシャル問題！　上の<b>韓国語</b>に合う<b>日本語の大砲</b>を選んで撃つ<br>左右スワイプで狙う／タップで発射（正しい弾5発で割れる）`;
+    bals=`<div class="shg-bal" data-w="${ci}" style="--shc:${SHG_COLOR4}"><span class="shg-ko">${esc(q.word.ko)}</span><span class="shg-need">残り${SHG_NEED}</span></div>`;
+    cans=opts.map((t,i)=>`<div class="shg-cn" data-i="${i}"><div class="shg-piv"><div class="shg-aim"></div><div class="shg-barrel"></div></div><div class="shg-base"></div><div class="shg-ja">${esc(shgJa(t))}</div></div>`).join("");
+  }else{
+    const ws=q.shoot,slots=shuffle([0,1,2]); // 風船の並びは大砲と別順
+    words=ws;
+    lead=`スペシャル問題！　<b>日本語の大砲</b>→意味の合う<b>韓国語の風船</b><br>左右スワイプで狙う／タップで発射（正しい弾5発で割れる）`;
+    bals=slots.map((wi,s)=>`<div class="shg-bal" data-w="${wi}" style="--shc:${SHG_COLORS[s]}"><span class="shg-ko">${esc(ws[wi].ko)}</span><span class="shg-need">残り${SHG_NEED}</span></div>`).join("");
+    cans=ws.map((w,i)=>`<div class="shg-cn" data-i="${i}"><div class="shg-piv"><div class="shg-aim"></div><div class="shg-barrel"></div></div><div class="shg-base"></div><div class="shg-ja">${esc(shgJa(w.ja))}</div></div>`).join("");
+  }
+  stage.innerHTML=`<div class="shg${four?" four":""}" id="shg">
+    ${shgSceneHTML()}
+    <div class="shg-lead">${lead}</div>
+    ${bals}
+    ${cans}
     <div class="shg-clear" id="shg-clear">CLEAR!</div>
   </div>`;
   const root=document.getElementById("shg");
-  _shg={root,bullets:[],balloons:[],cannons:[],raf:0,last:0,t:0,done:false,endT:null,W:root.clientWidth,H:root.clientHeight};
+  _shg={root,four,bullets:[],balloons:[],cannons:[],raf:0,last:0,t:0,done:false,endT:null,W:root.clientWidth,H:root.clientHeight};
   root.querySelectorAll(".shg-bal").forEach(el=>{
-    _shg.balloons.push({el,wi:+el.dataset.w,need:el.querySelector(".shg-need"),remain:SHG_NEED,alive:true,x:0,y:0,y0:0,r:46});
+    _shg.balloons.push({el,wi:+el.dataset.w,word:four?q.word:words[+el.dataset.w],need:el.querySelector(".shg-need"),
+      remain:SHG_NEED,alive:true,x:0,y:0,y0:0,r:(el.offsetWidth||96)/2});
   });
   root.querySelectorAll(".shg-cn").forEach(el=>{
-    const c={el,i:+el.dataset.i,piv:el.querySelector(".shg-piv"),barrel:el.querySelector(".shg-barrel"),ang:0,x:0,y:0,done:false,last:0};
+    const c={el,i:+el.dataset.i,piv:el.querySelector(".shg-piv"),barrel:el.querySelector(".shg-barrel"),ang:0,x:0,y:0,done:false,last:0,touched:false};
     _shg.cannons.push(c);shgBind(c);
   });
   shgLayout();
@@ -5559,11 +5733,24 @@ function renderShoot(q,stage){
 function shgLayout(){
   const g=_shg;if(!g||!g.root.isConnected)return;
   g.W=g.root.clientWidth;g.H=g.root.clientHeight;
-  const lanes=[0.18,0.5,0.82].map(f=>Math.round(g.W*f));
-  const top=Math.max(118,Math.round(g.H*0.22)); // 上の案内文に風船がかぶらない高さ
-  g.balloons.forEach((b,i)=>{b.x=lanes[i];b.y0=top+(i===1?-16:0);b.el.style.left=b.x+"px";b.el.style.top=b.y0+"px";});
+  const lanes=g.four?[0.125,0.375,0.625,0.875].map(f=>Math.round(g.W*f)):[0.18,0.5,0.82].map(f=>Math.round(g.W*f));
+  const top=Math.max(g.four?152:118,Math.round(g.H*(g.four?0.26:0.22))); // 上の案内文に風船がかぶらない高さ
+  g.balloons.forEach((b,i)=>{
+    b.r=(b.el.offsetWidth||96)/2;
+    b.x=g.four?Math.round(g.W*0.5):lanes[i];b.y0=top+(!g.four&&i===1?-16:0);
+    b.el.style.left=b.x+"px";b.el.style.top=b.y0+"px";
+  });
   const cnTop=Math.max(Math.round(g.H*0.52),g.H-236);
-  g.cannons.forEach((c,i)=>{c.el.style.left=lanes[i]+"px";c.el.style.top=cnTop+"px";c.x=lanes[i];c.y=cnTop+72;}); // 砲の付け根＝.shg-piv(72px)の下端
+  g.cannons.forEach((c,i)=>{c.el.style.left=lanes[i]+"px";c.el.style.top=cnTop+"px";c.x=lanes[i];c.y=cnTop+64;}); // 砲の付け根＝.shg-piv(64px)の下端
+  // 4択版は的が1つなので、触っていない砲は最初から的の方を向けておく（タップだけで当たる）
+  if(g.four&&g.balloons[0]){
+    const b=g.balloons[0];
+    g.cannons.forEach(c=>{
+      if(c.touched)return;
+      c.ang=Math.max(-SHG_MAXANG,Math.min(SHG_MAXANG,Math.atan2(b.x-c.x,c.y-b.y0)*180/Math.PI));
+      c.piv.style.transform="rotate("+c.ang.toFixed(1)+"deg)";
+    });
+  }
 }
 function shgFrame(ts){
   const g=_shg;if(!g)return;
@@ -5595,6 +5782,7 @@ function shgHit(b,ci){
       +";--fx:"+Math.round(Math.cos(a)*70)+"px;--fy:"+Math.round(Math.sin(a)*70)+"px";
     g.root.appendChild(f);setTimeout(()=>f.remove(),520);
   }
+  shgDropBall(b); // 割れた位置から玉が出てきて落ちる
   setTimeout(()=>b.el.remove(),340);
   const cn=g.cannons.find(c=>c.i===b.wi);if(cn){cn.done=true;cn.el.classList.add("done");}
   try{sfxCorrect();}catch(e){}
@@ -5605,12 +5793,25 @@ function shgHit(b,ci){
     g.endT=setTimeout(shootAdvance,1200);
   }
 }
+/* 風船が割れたら、その位置から単語玉が出てきて地面へ落ちる（ホームに積もる玉と同じ見た目） */
+function shgDropBall(b){
+  const g=_shg;if(!g||!g.root||!g.root.isConnected)return;
+  const w=b.word||{};
+  const src=(typeof WORD_IMG!=="undefined"&&w.ko)?WORD_IMG[w.ko]:null;
+  const el=document.createElement("div");el.className="shg-ball";
+  const bg=(typeof roomBg==="function")?roomBg(curSection):null;
+  if(bg)el.style.background=bg+"D9"; // ROOM色85%（玉のカプセルと同じ塗り）
+  el.style.left=b.x+"px";el.style.top=b.y+"px";
+  el.style.setProperty("--fall",Math.max(120,Math.round(g.H-42-b.y))+"px");
+  el.innerHTML=src?`<img src="${src}" alt="">`:`<span>🃏</span>`;
+  g.root.appendChild(el);setTimeout(()=>el.remove(),1300);
+}
 function shgFire(c){
   const g=_shg;if(!g||g.done||c.done)return;
   const now=performance.now();if(now-c.last<SHG_COOL)return;c.last=now; // 連打ぶんだけ出る（最短0.11秒間隔）
   const a=c.ang*Math.PI/180;
   const el=document.createElement("div");el.className="shg-bullet";
-  const p={el,ci:c.i,x:c.x+Math.sin(a)*58,y:c.y-Math.cos(a)*58,vx:Math.sin(a)*SHG_SPEED,vy:-Math.cos(a)*SHG_SPEED};
+  const p={el,ci:c.i,x:c.x+Math.sin(a)*66,y:c.y-Math.cos(a)*66,vx:Math.sin(a)*SHG_SPEED,vy:-Math.cos(a)*SHG_SPEED}; // 砲口＝付け根から66px先
   el.style.left=p.x+"px";el.style.top=p.y+"px";
   g.root.appendChild(el);g.bullets.push(p);
   if(g.bullets.length>26){const o=g.bullets.shift();o.el.remove();}
@@ -5630,6 +5831,7 @@ function shgBind(c){
     if(id===null||e.pointerId!==id)return;
     const dx=e.clientX-sx;
     moved=Math.max(moved,Math.abs(dx));
+    if(moved>=10)c.touched=true; // 自分で狙いを付けた砲は、以後の自動照準（4択版）で上書きしない
     c.ang=Math.max(-SHG_MAXANG,Math.min(SHG_MAXANG,sa-dx*0.55));
     c.piv.style.transform="rotate("+c.ang.toFixed(1)+"deg)";
   });
@@ -5661,6 +5863,7 @@ function submit(status,userAnswer){
   const isCorrect=status==="correct";
   const isHint=!!q.isHintProvided;
   const score=scoreFor(q.type,isCorrect,elapsed,isHint);
+  runnerStep(isCorrect); // 正解なら景色が流れてキャラが1歩前へ／不正解はつまずくだけ
   // 今日のトレンド問題は単語帳の外の言葉なので、記憶スコア・単語カード・回答履歴には一切入れない
   if(q.trend){
     state.results.push({userId:state.userId,wordId:q.word.id,testId:state.testId,questionNumber:state.idx+1,
@@ -6073,6 +6276,7 @@ function pickResultCheer(totalDisp,nCorrect,newCnt){
   return pool[Math.floor(Math.random()*pool.length)];
 }
 function finishTest(){
+  rerollSpecial(); // 1本（12問／13問）終えるたびにスペシャルROOMを別のROOMへ入れ替える
   const R=state.results,totalRaw=R.reduce((a,r)=>a+r.score,0),total=Math.ceil(totalRaw),rank=rankFor(total); // 小数は切り上げ
   const totalDisp=total;
   const nCorrect=R.filter(r=>r.isCorrect).length,nWrong=12-nCorrect;
@@ -6575,7 +6779,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v3.8 (2026-07-28)";
+const APP_VERSION="v3.9 (2026-07-29)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

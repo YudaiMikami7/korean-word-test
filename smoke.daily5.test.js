@@ -165,18 +165,25 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
       && getComputedStyle(cells[0]).boxShadow.includes('rgb(224, 131, 26)');
     closeCalendar(); return ok;
   }));
-  // 出題画面の進捗メータ（山吹色・進むほど伸びる）
-  check('進捗メータが山吹色で伸びる', await page.evaluate(async () => {
+  // 出題画面の進捗＝歩くキャラ（山吹色メーターは廃止。正解のたびに景色が右から左へ流れる）
+  check('正解のたびにキャラが前へ進む（山吹色メーターは廃止）', await page.evaluate(async () => {
     curLevel = 'beginner'; curSection = 1;
     _boardTile = { level: 'beginner', sec: 1, gidx: boardState('beginner', 1).cleared + 1 };
     startTest(); clearInterval(timer); renderQuestion();
-    const pf = document.getElementById('pfill');
-    const c = getComputedStyle(pf).backgroundColor;
-    const w1 = parseFloat(pf.style.width);
-    state.idx = 5; renderQuestion(); clearInterval(timer);
-    const w2 = parseFloat(pf.style.width);
+    if (document.getElementById('pfill')) return false;            // 旧メーターが残っていないこと
+    const bar = document.getElementById('pbar');
+    const rp = () => parseFloat(bar.style.getPropertyValue('--rp') || 0);
+    const start = rp();
+    const q = state.questions[state.idx];
+    answered = false; startTimer(); submit('correct', q.type === 'w' ? q.word.ko : q.correct);
+    const afterOk = rp();
+    document.querySelectorAll('.overlay').forEach(o => o.remove()); clearTimeout(ovTimer); afterAnswer(); clearInterval(timer);
+    const q2 = state.questions[state.idx];
+    answered = false; startTimer(); submit('incorrect', q2.type === 'w' ? '' : 'ちがう');
+    const afterNg = rp();
+    document.querySelectorAll('.overlay').forEach(o => o.remove()); clearTimeout(ovTimer);
     quitTest();
-    return c === 'rgb(248, 181, 0)' && Math.abs(w1 - 100 / 12) < 0.5 && Math.abs(w2 - 600 / 12) < 0.5;
+    return start === 0 && afterOk === 1 && afterNg === 1; // 正解で+1・不正解は据え置き
   }));
 
   check('コンソールエラー無し', errors.length === 0);

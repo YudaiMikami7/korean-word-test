@@ -45,13 +45,33 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
       ph: p.getBoundingClientRect().height, th: t.getBoundingClientRect().height,
       pBorder: cs(p).borderTopWidth, tBorder: cs(t).borderTopWidth,
       gap: t.getBoundingClientRect().top - p.getBoundingClientRect().bottom,
-      tfill: cs(document.getElementById('tfill')).backgroundColor
+      tfill: cs(document.getElementById('tfill')).backgroundColor,
+      pfill: !!document.getElementById('pfill'),
+      char: !!document.getElementById('rn-char'), ground: !!document.querySelector('.rn-ground')
     };
   });
   check(`メーターに黒枠線がない (${bars.pBorder} / ${bars.tBorder})`, parseFloat(bars.pBorder) === 0 && parseFloat(bars.tBorder) === 0);
-  check(`緑メーターが黄色メーターと同じ太さ (${bars.th.toFixed(1)} vs ${bars.ph.toFixed(1)})`, near(bars.th, bars.ph, 0.6));
-  check(`黄色と緑の間のマージンが半分(3→1.5px) (${bars.gap.toFixed(2)})`, near(bars.gap, 1.5, 0.4));
+  check('山吹色の進捗メーターは廃止されている', !bars.pfill);
+  check(`代わりにキャラが歩く景色の帯がある (高さ${bars.ph.toFixed(1)}px)`, bars.char && bars.ground && bars.ph > 30);
+  check(`帯と緑メーターの間のマージンが1.5px (${bars.gap.toFixed(2)})`, near(bars.gap, 1.5, 0.4));
   check('緑メーターの色は据え置き', bars.tfill === 'rgb(0, 255, 55)');
+
+  // 正解＝キャラが1歩前進（景色が右から左へ流れる）／不正解＝つまずいて進まない
+  const runner = await page.evaluate(async () => {
+    const bar = document.getElementById('pbar'), ch = document.getElementById('rn-char');
+    const rp = () => parseFloat(bar.style.getPropertyValue('--rp') || 0);
+    const posOf = () => getComputedStyle(document.querySelector('.rn-ground')).backgroundPositionX;
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    const start = rp(), pos0 = posOf();
+    runnerStep(true); const afterOk = rp(), cls1 = ch.className;
+    await wait(1300); const pos1 = posOf(); // 景色の流れは1秒かけて動くので終わるまで待つ
+    runnerStep(false); const afterNg = rp(), cls2 = ch.className;
+    return { start, afterOk, afterNg, cls1, cls2, pos0, pos1, src: ch.getAttribute('src') };
+  });
+  check(`正解でキャラが1歩前へ (${runner.start} → ${runner.afterOk})`, runner.afterOk === runner.start + 1 && /step/.test(runner.cls1));
+  check(`景色が右から左へ流れる (${runner.pos0} → ${runner.pos1})`, parseFloat(runner.pos1) < parseFloat(runner.pos0));
+  check(`不正解では進まない (${runner.afterOk} → ${runner.afterNg})`, runner.afterNg === runner.afterOk && /trip/.test(runner.cls2));
+  check(`歩くのは自分のキャラ (${runner.src})`, /^characters\//.test(runner.src || ''));
 
   // ===== 選択肢の間引き（残り1/4で1つ・1/8で2つ・半透明で残る） =====
   const elim = await page.evaluate(async () => {
