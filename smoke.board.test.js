@@ -77,12 +77,13 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   const played = await page.evaluate(async () => {
     _boardTile = { level: 'beginner', sec: 1, gidx: 1 };
     startTest(); clearInterval(timer); renderQuestion();
-    const ids = state.questions.map(q => q.word.id);
+    const ids = state.questions.filter(q => q.word).map(q => q.word.id); // スペシャル問題(シューティング)は単語問題ではないので除く
     const assigned = boardTileWords('beginner', 1, 1, 0);
     const coverIncluded = assigned.every(id => ids.includes(id));
-    for (let i = 0; i < 12; i++) {
-      answered = false; clearInterval(timer); startTimer();
+    for (let i = 0, n = state.questions.length; i < n; i++) {
       const q = state.questions[state.idx];
+      if (q.type === 'sg') { shootAdvance(); continue; }
+      answered = false; clearInterval(timer); startTimer();
       submit('correct', q.type === 'w' ? q.word.ko : q.correct);
       document.querySelectorAll('.overlay').forEach(o => o.remove()); clearTimeout(ovTimer);
       afterAnswer();
@@ -368,9 +369,10 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     curLevel = 'beginner'; curSection = 1;
     _boardTile = { level: 'beginner', sec: 1, gidx: 12 };
     startTest(); clearInterval(timer); renderQuestion();
-    for (let i = 0; i < 12; i++) {
-      answered = false; clearInterval(timer); startTimer();
+    for (let i = 0, n = state.questions.length; i < n; i++) {
       const q = state.questions[state.idx];
+      if (q.type === 'sg') { shootAdvance(); continue; }
+      answered = false; clearInterval(timer); startTimer();
       submit('correct', q.type === 'w' ? q.word.ko : q.correct);
       document.querySelectorAll('.overlay').forEach(o => o.remove()); clearTimeout(ovTimer); afterAnswer();
     }

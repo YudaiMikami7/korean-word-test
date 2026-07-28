@@ -1252,6 +1252,54 @@ body.bigtext .set-d{font-size:13.5px}
 .sp-memo-ja{font-size:18px;font-weight:800;color:#FFD86B}
 .sp-memo-count{font-size:32px;font-weight:900;color:#FFC400;min-height:38px}
 
+/* ============================================================ スペシャル問題：シューティング（テストの中に1問だけ混ざるミニゲーム） ============================================================
+ * 下＝日本語の大砲3つ（丸の中に単語画像／その下に日本語）、上＝韓国語の風船3つ。
+ * 大砲は左右スワイプ（ダイヤル）で傾き、タップ（連打）で発射。正しい組み合わせで5発当てると割れる。 */
+.shg{position:relative;flex:1;min-height:0;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+.shg-lead{position:absolute;left:0;right:0;top:4px;z-index:5;padding:0 8px;text-align:center;font-size:clamp(11.5px,3.2vw,13px);font-weight:800;line-height:1.6;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6);pointer-events:none}
+.shg-lead b{color:#FFD84D}
+/* --- 風船（韓国語の的） --- */
+.shg-bal{position:absolute;width:92px;height:104px;margin:-52px 0 0 -46px;border-radius:50% 50% 46% 46%;z-index:3;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#fff;
+  background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.9),rgba(255,255,255,.12) 44%,rgba(0,0,0,.22) 100%),var(--shc,#FF5D8F);
+  box-shadow:0 8px 18px rgba(0,0,0,.35)}
+.shg-bal::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-6px;border:6px solid transparent;border-top-color:var(--shc,#FF5D8F);border-bottom:0}
+.shg-ko{font-size:22px;font-weight:900;line-height:1.1;padding:0 6px;text-align:center;word-break:break-all;text-shadow:0 2px 4px rgba(0,0,0,.45)}
+.shg-need{font-size:11px;font-weight:900;background:rgba(0,0,0,.38);border-radius:999px;padding:1px 9px;letter-spacing:.04em}
+.shg-bal.hit{animation:shgHit .22s ease}
+.shg-bal.bad{animation:shgBad .3s ease}
+.shg-bal.pop{animation:shgPop .34s ease forwards}
+@keyframes shgHit{0%{transform:scale(1)}45%{transform:scale(.88)}100%{transform:scale(1)}}
+@keyframes shgBad{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@keyframes shgPop{to{transform:scale(1.8);opacity:0}}
+.shg-frag{position:absolute;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;z-index:4;pointer-events:none;animation:shgFrag .5s ease-out forwards}
+@keyframes shgFrag{to{transform:translate(var(--fx),var(--fy)) scale(.3);opacity:0}}
+/* --- 弾 --- */
+.shg-bullet{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:3px;z-index:2;pointer-events:none;
+  background:#fff;box-shadow:0 0 10px rgba(255,255,255,.9)}
+/* --- 大砲（日本語） --- */
+.shg-cn{position:absolute;width:104px;margin-left:-52px;z-index:3;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
+.shg-piv{position:relative;height:72px;transform-origin:50% 100%;transition:none}
+.shg-barrel{position:absolute;left:50%;bottom:0;width:24px;height:62px;margin-left:-12px;border-radius:6px 6px 3px 3px;
+  background:linear-gradient(180deg,#fff,#cfcfcf);box-shadow:0 3px 8px rgba(0,0,0,.45)}
+.shg-barrel.kick{animation:shgKick .13s ease}
+@keyframes shgKick{0%{transform:translateY(9px)}100%{transform:translateY(0)}}
+.shg-aim{position:absolute;left:50%;bottom:60px;width:0;height:120px;margin-left:-1px;border-left:3px dashed rgba(255,255,255,.42)}
+.shg-circ{position:relative;width:86px;height:86px;margin:2px auto 0;border-radius:50%;background:rgba(0,0,0,.62);
+  box-shadow:0 0 0 3px rgba(255,255,255,.85),0 6px 14px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.shg-circ img{width:78px;height:78px;object-fit:contain}
+.shg-noimg{font-size:40px}
+/* 意味が長い語（「突き刺す、（写真を）撮る、…」等）でも画面外へ伸びないよう2行で打ち切る */
+.shg-ja{margin-top:4px;font-size:15px;font-weight:900;color:#fff;text-shadow:0 2px 5px rgba(0,0,0,.6);line-height:1.25;word-break:break-all;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-height:38px}
+.shg-cn:active .shg-circ{transform:scale(.95)}
+.shg-cn.done{opacity:.4;pointer-events:none}
+.shg-cn.done .shg-circ{box-shadow:0 0 0 3px rgba(55,224,138,.9)}
+.shg-clear{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%) scale(.4);opacity:0;z-index:6;pointer-events:none;
+  font-size:58px;font-weight:900;color:#FFD84D;letter-spacing:.06em;text-shadow:0 4px 14px rgba(0,0,0,.6)}
+.shg-clear.on{animation:shgClear .5s cubic-bezier(.34,1.5,.5,1) forwards}
+@keyframes shgClear{to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+
 /* ============================================================ すごろく（ROOM中央・縦スクロール） ============================================================
  * 1マス＝1テスト(12問)。丸いマスが蛇行してつながり、上から下へ進む。マスの上には常に単語画像が乗る。
  * 1周＝12マス（ROOM末尾など語数の少ない部屋は語数に比例して短くなる）。1周こなすと次の周のマスが下に伸びる。 */
@@ -1297,6 +1345,13 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-here span:nth-child(3){animation-delay:.3s}
 .sg-here span:nth-child(4){animation-delay:.45s}
 .sg-here::after{content:"";position:absolute;left:50%;bottom:-10px;margin-left:-10px;border:10px solid transparent;border-top-color:#111;border-bottom:0}
+/* スペシャル問題が出ているROOMのスタート：青枠・白座布団・青文字＋「スペシャル問題発生中！」の吹き出し */
+.sg-here.sp{background:#fff;color:#1868FF;box-shadow:0 6px 16px rgba(0,0,0,.35),0 0 0 4px #1868FF}
+.sg-here.sp::after{border-top-color:#fff}
+.sg-spbub{position:absolute;z-index:6;left:50%;top:-348px;background:#fff;color:#1868FF;border:4px solid #1868FF;border-radius:999px;
+  font-size:24px;font-weight:900;letter-spacing:.02em;padding:7px 20px 9px;white-space:nowrap;
+  box-shadow:0 6px 16px rgba(0,0,0,.3);animation:sgherebob 1.6s ease-in-out infinite;animation-delay:.2s}
+.sg-spbub::after{content:"";position:absolute;left:50%;bottom:-14px;margin-left:-10px;border:10px solid transparent;border-top-color:#1868FF;border-bottom:0}
 .sg-tile.lock{cursor:default}
 .sg-tile.lock .sg-img,.sg-tile.lock .sg-noimg{filter:grayscale(1) drop-shadow(0 6px 6px rgba(0,0,0,.26))}
 .sg-tile.lock .sg-num{color:rgba(255,255,255,.55)}
@@ -3796,6 +3851,7 @@ function confirmQuit(){
 function quitTest(){
   clearInterval(timer);clearTimeout(ovTimer);_counting=false;
   _gearActive=false;clearInterval(_gearTimer);
+  if(typeof shgStop==="function")shgStop(); // スペシャル問題のシューティングも止める
   _d5.on=false; // 今日の5問を中断（枠は開始時点で消費済みなのでやり直しはできない）
   _boardTile=null; // すごろくのマスも解除（クリア扱いにしない）
   document.querySelectorAll(".overlay,.d5-ack").forEach(e=>e.remove());
@@ -3808,6 +3864,7 @@ function startTest(reviewIds){
   const now=Date.now();
   const conditionBefore=Math.round(overallCondition(now)),reviewBefore=reviewNeedCount(now);
   const qs=reviewIds&&reviewIds.length?buildReviewQuestions(reviewIds):buildQuestions();
+  if(!_d5.on&&!_pqQuiz&&!_onSpecial&&isSpecialSection(curLevel,curSection))insertShootQuestion(qs); // スペシャル問題発生中のROOMだけ13問目としてシューティングを差し込む
   const prog=loadProgress();
   state={questions:qs,idx:0,results:[],testId:"t-"+Date.now().toString(36),userId:getUserId(),
     cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level,pq:_pqQuiz};
@@ -4491,8 +4548,18 @@ function sgTrendHTML(){
     +'<span class="sgtr-mini" aria-hidden="true"><i>✓</i><b>トレンド</b></span>'
     +'<span class="tr-b"'+(used?' style="display:none"':'')+'>!</span></button>';
 }
+/* スペシャル問題：毎日、初級で1ROOM・中級で1ROOMだけランダムに「スペシャル問題発生中！」になる。
+ * そのROOMのテストには5〜11問目のどこかにシューティングが1問だけ混ざる（採点・記憶スコアには入らない）。 */
+function specialSection(level){
+  const secs=Object.keys(LEVEL_SECTIONS[level]||{}).map(Number).filter(x=>x>0).sort((a,b)=>a-b);
+  if(!secs.length)return 0;
+  const rnd=_d5Rng(_d5Hash("kwt-special|"+level+"|"+dayKey(Date.now())));
+  return secs[Math.floor(rnd()*secs.length)];
+}
+function isSpecialSection(level,n){return specialSection(level)===+n;}
 function sgBoardHTML(n){
   const level=curLevel,L=boardLapSize(level,n),vis=boardVisible(level,n),st=boardState(level,n);
+  const sp=isSpecialSection(level,n); // このROOMはスペシャル問題発生中か
   const ids=((LEVEL_SECTIONS[level]||{})[n]||[]);
   const rnd=_d5Rng(_d5Hash("kwt-sg|"+level+"|"+n));
   const h=sgTrackH(vis);
@@ -4509,7 +4576,8 @@ function sgBoardHTML(n){
       +(src?'<img class="sg-img" src="'+src+'" alt="" loading="lazy" decoding="async" onload="sgFitBadges(this)">':'<span class="sg-noimg">🃏</span>')
       +'<span class="sg-num">'+g+'</span>'
       +(rank?'<span class="sg-rank" style="background:'+(RANK_COLORS[rank]||"#555")+'">'+rank+'</span>':"")
-      +(now?'<span class="sg-here"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span>':"")
+      +(now?'<span class="sg-here'+(sp?" sp":"")+'"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span>':"")
+      +((now&&sp)?'<span class="sg-spbub">スペシャル問題発生中！</span>':"")
       +'</button>');
     if(idx===0)laps.push('<div class="sg-lap" style="top:'+Math.round(p.y+SG_STEP*0.56)+'px"><span>'+lap+'周目</span></div>');
     // 自然物は道の反対側の外周へ1マスにつき1つ（マス・道・左レールに被らせない）
@@ -5364,6 +5432,7 @@ function renderQuestion(){
   const _qa=document.getElementById("qadv");if(_qa)_qa.style.visibility=_d5.on?"hidden":"visible";
   const _pf=document.getElementById("pfill");if(_pf)_pf.style.width=((state.idx+1)/((state.questions&&state.questions.length)||12)*100)+"%"; // 進捗バー（山吹色）を伸ばす // 出題番号と同時にスイッチ表示（今日の5問は正誤表示が無いので隠す）
   const stage=document.getElementById("qstage");
+  if(q.type==="sg"){renderShoot(q,stage);return;} // スペシャル問題（シューティング）：制限時間なし・採点なし
   if(q.type==="kj"||q.type==="jk"){
     const display=q.type==="kj"?q.word.ko:q.word.ja;
     stage.innerHTML=`
@@ -5430,6 +5499,158 @@ function bindChoiceDrag(){
   stage.addEventListener("pointerup",finish);
   stage.addEventListener("pointercancel",()=>{active=false;clearCand();});
 }
+
+/* ============================================================ スペシャル問題：シューティング ============================================================
+ * スペシャル発生中のROOM（初級1つ・中級1つ／毎日入替）のテストにだけ、5〜11問目のどこかに1問だけ混ざる。
+ * ・下＝日本語の大砲3つ（丸の中に単語画像、その下に日本語）／上＝韓国語の風船3つ
+ * ・大砲は左右スワイプ（ダイヤル：右へ向けたいときは右から左へ払う）で傾き、タップ＝1発。連打ぶんだけ出る
+ * ・意味の合う風船に正しい大砲の弾を5発当てると割れる。撃ちまちがえると必要な数がその分ふえる（5発誤爆＝10発）
+ * ・記憶スコア・履歴・採点には一切入れない（お楽しみ枠）。3つ割ると次の問題へ進む */
+const SHG_NEED=5, SHG_SPEED=780, SHG_MAXANG=72, SHG_COOL=110; // 必要弾数／弾速(px/秒)／可動域(±度)／連打の最短間隔(ms)
+const SHG_COLORS=["#FF5D8F","#4FC3F7","#FFC400"];
+let _shg=null;
+
+/* 12問のうち3語を借りて、5問目〜11問目のどこかにシューティングを差し込む（画像のある語を優先） */
+function insertShootQuestion(qs){
+  const hasImg=w=>typeof WORD_IMG!=="undefined"&&!!WORD_IMG[w.ko];
+  const cand=qs.map(q=>q&&q.word).filter(w=>w&&w.ko&&w.ja);
+  const words=[],seen=new Set();
+  shuffle(cand.filter(hasImg)).concat(shuffle(cand.filter(w=>!hasImg(w)))).forEach(w=>{
+    if(!seen.has(w.id)){seen.add(w.id);words.push(w);}
+  });
+  if(words.length<3)return qs;
+  qs.splice(4+Math.floor(Math.random()*7),0,{type:"sg",shoot:words.slice(0,3)}); // 0起点4〜10＝5問目〜11問目
+  return qs;
+}
+function renderShoot(q,stage){
+  answered=true;clearInterval(timer); // 制限時間なし（誤ってsubmitされないようにも閉じておく）
+  const tt=document.getElementById("time");if(tt)tt.textContent="";
+  const tf=document.getElementById("tfill");if(tf){tf.className="tfill";tf.style.width="100%";}
+  const ws=q.shoot,slots=shuffle([0,1,2]); // 風船の並びは大砲と別順
+  const img=w=>(typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko])?`<img src="${WORD_IMG[w.ko]}" alt="">`:`<span class="shg-noimg">🃏</span>`;
+  const ja=w=>{ // 意味が多い語は最初の意味だけ（丸の下に収める）。かっこ内の読点では切らない
+    const s=String(w.ja);let d=0;
+    for(let i=0;i<s.length;i++){const c=s[i];
+      if(c==="（"||c==="(")d++;
+      else if(c==="）"||c===")")d--;
+      else if((c==="、"||c===",")&&d<=0)return s.slice(0,i);}
+    return s;
+  };
+  stage.innerHTML=`<div class="shg" id="shg">
+    <div class="shg-lead">スペシャル問題！　<b>日本語の大砲</b>→意味の合う<b>韓国語の風船</b><br>左右スワイプで狙う／タップで発射（正しい弾5発で割れる）</div>
+    ${slots.map((wi,s)=>`<div class="shg-bal" data-w="${wi}" style="--shc:${SHG_COLORS[s]}"><span class="shg-ko">${esc(ws[wi].ko)}</span><span class="shg-need">残り${SHG_NEED}</span></div>`).join("")}
+    ${ws.map((w,i)=>`<div class="shg-cn" data-i="${i}"><div class="shg-piv"><div class="shg-aim"></div><div class="shg-barrel"></div></div><div class="shg-circ">${img(w)}</div><div class="shg-ja">${esc(ja(w))}</div></div>`).join("")}
+    <div class="shg-clear" id="shg-clear">CLEAR!</div>
+  </div>`;
+  const root=document.getElementById("shg");
+  _shg={root,bullets:[],balloons:[],cannons:[],raf:0,last:0,t:0,done:false,endT:null,W:root.clientWidth,H:root.clientHeight};
+  root.querySelectorAll(".shg-bal").forEach(el=>{
+    _shg.balloons.push({el,wi:+el.dataset.w,need:el.querySelector(".shg-need"),remain:SHG_NEED,alive:true,x:0,y:0,y0:0,r:46});
+  });
+  root.querySelectorAll(".shg-cn").forEach(el=>{
+    const c={el,i:+el.dataset.i,piv:el.querySelector(".shg-piv"),barrel:el.querySelector(".shg-barrel"),ang:0,x:0,y:0,done:false,last:0};
+    _shg.cannons.push(c);shgBind(c);
+  });
+  shgLayout();
+  window.addEventListener("resize",shgLayout);
+  _shg.raf=requestAnimationFrame(shgFrame);
+}
+/* 風船・大砲の位置は器の実寸から決める（画面サイズが変わったら測り直す） */
+function shgLayout(){
+  const g=_shg;if(!g||!g.root.isConnected)return;
+  g.W=g.root.clientWidth;g.H=g.root.clientHeight;
+  const lanes=[0.18,0.5,0.82].map(f=>Math.round(g.W*f));
+  const top=Math.max(118,Math.round(g.H*0.22)); // 上の案内文に風船がかぶらない高さ
+  g.balloons.forEach((b,i)=>{b.x=lanes[i];b.y0=top+(i===1?-16:0);b.el.style.left=b.x+"px";b.el.style.top=b.y0+"px";});
+  const cnTop=Math.max(Math.round(g.H*0.52),g.H-236);
+  g.cannons.forEach((c,i)=>{c.el.style.left=lanes[i]+"px";c.el.style.top=cnTop+"px";c.x=lanes[i];c.y=cnTop+72;}); // 砲の付け根＝.shg-piv(72px)の下端
+}
+function shgFrame(ts){
+  const g=_shg;if(!g)return;
+  if(!g.root.isConnected){shgStop();return;} // 画面が入れ替わったら自動で止まる
+  const dt=Math.min(0.05,(ts-(g.last||ts))/1000);g.last=ts;g.t+=dt;
+  g.balloons.forEach((b,i)=>{if(!b.alive)return;b.y=b.y0+Math.sin(g.t*1.7+i*1.1)*8;b.el.style.top=b.y+"px";}); // ふわふわ上下（当たり判定もこの位置）
+  for(let k=g.bullets.length-1;k>=0;k--){
+    const p=g.bullets[k];
+    p.x+=p.vx*dt;p.y+=p.vy*dt;
+    if(p.x<-24||p.x>g.W+24||p.y<-40||p.y>g.H+24){p.el.remove();g.bullets.splice(k,1);continue;}
+    p.el.style.left=p.x+"px";p.el.style.top=p.y+"px";
+    const b=g.balloons.find(b=>b.alive&&Math.hypot(b.x-p.x,b.y-p.y)<b.r+7);
+    if(b){p.el.remove();g.bullets.splice(k,1);shgHit(b,p.ci);}
+  }
+  g.raf=requestAnimationFrame(shgFrame);
+}
+/* 当たり：正しい大砲なら残り-1、まちがいなら残り+1 */
+function shgHit(b,ci){
+  const g=_shg;
+  if(b.wi===ci){b.remain--;b.el.classList.remove("hit");void b.el.offsetWidth;b.el.classList.add("hit");sfxShgHit();}
+  else{b.remain++;b.el.classList.remove("bad");void b.el.offsetWidth;b.el.classList.add("bad");try{sfxIncorrect();}catch(e){}}
+  b.need.textContent="残り"+Math.max(0,b.remain);
+  if(b.remain>0)return;
+  b.alive=false;b.el.classList.add("pop");
+  for(let i=0;i<10;i++){ // 割れたときの破片
+    const f=document.createElement("div");f.className="shg-frag";
+    const a=Math.PI*2*i/10;
+    f.style.cssText="left:"+b.x+"px;top:"+b.y+"px;background:"+getComputedStyle(b.el).getPropertyValue("--shc")
+      +";--fx:"+Math.round(Math.cos(a)*70)+"px;--fy:"+Math.round(Math.sin(a)*70)+"px";
+    g.root.appendChild(f);setTimeout(()=>f.remove(),520);
+  }
+  setTimeout(()=>b.el.remove(),340);
+  const cn=g.cannons.find(c=>c.i===b.wi);if(cn){cn.done=true;cn.el.classList.add("done");}
+  try{sfxCorrect();}catch(e){}
+  if(g.balloons.every(x=>!x.alive)){
+    g.done=true;
+    const cl=document.getElementById("shg-clear");if(cl)cl.classList.add("on");
+    try{sfxRare();}catch(e){}
+    g.endT=setTimeout(shootAdvance,1200);
+  }
+}
+function shgFire(c){
+  const g=_shg;if(!g||g.done||c.done)return;
+  const now=performance.now();if(now-c.last<SHG_COOL)return;c.last=now; // 連打ぶんだけ出る（最短0.11秒間隔）
+  const a=c.ang*Math.PI/180;
+  const el=document.createElement("div");el.className="shg-bullet";
+  const p={el,ci:c.i,x:c.x+Math.sin(a)*58,y:c.y-Math.cos(a)*58,vx:Math.sin(a)*SHG_SPEED,vy:-Math.cos(a)*SHG_SPEED};
+  el.style.left=p.x+"px";el.style.top=p.y+"px";
+  g.root.appendChild(el);g.bullets.push(p);
+  if(g.bullets.length>26){const o=g.bullets.shift();o.el.remove();}
+  c.barrel.classList.remove("kick");void c.barrel.offsetWidth;c.barrel.classList.add("kick");
+  sfxShgShot();
+}
+/* 砲台の操作：撫でると傾く（ダイヤル＝右へ向けたいときは右から左へ払う）／動かさずに離すと発射 */
+function shgBind(c){
+  let id=null,sx=0,sa=0,moved=0;
+  c.el.addEventListener("pointerdown",e=>{
+    if(!_shg||_shg.done||c.done)return;
+    id=e.pointerId;sx=e.clientX;sa=c.ang;moved=0;
+    try{c.el.setPointerCapture(id);}catch(_){}
+    e.preventDefault();e.stopPropagation();
+  });
+  c.el.addEventListener("pointermove",e=>{
+    if(id===null||e.pointerId!==id)return;
+    const dx=e.clientX-sx;
+    moved=Math.max(moved,Math.abs(dx));
+    c.ang=Math.max(-SHG_MAXANG,Math.min(SHG_MAXANG,sa-dx*0.55));
+    c.piv.style.transform="rotate("+c.ang.toFixed(1)+"deg)";
+  });
+  c.el.addEventListener("pointerup",e=>{
+    if(id===null||e.pointerId!==id)return;
+    try{c.el.releasePointerCapture(id);}catch(_){}
+    id=null;
+    if(moved<10)shgFire(c); // 狙いを変えずに離した＝タップ＝1発
+  });
+  c.el.addEventListener("pointercancel",()=>{id=null;});
+}
+function sfxShgShot(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;_tone(c,230,t,0.06,0.09,"square");}
+function sfxShgHit(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;_tone(c,1046,t,0.05,0.08,"triangle");}
+function shgStop(){
+  if(!_shg)return;
+  cancelAnimationFrame(_shg.raf);clearTimeout(_shg.endT);
+  window.removeEventListener("resize",shgLayout);
+  _shg=null;
+}
+/* シューティングを終えて次の問題へ（結果・記憶スコアには何も残さない） */
+function shootAdvance(){shgStop();afterAnswer();}
 
 /* 回答送信（二重送信防止） */
 function submit(status,userAnswer){
@@ -5789,7 +6010,7 @@ function afterAnswer(){
     if(state.idx>=state.questions.length-1){if(_d5.mode==="trend")finishTrend();else finishDaily5();return;}
     state.idx++;renderQuestion();return;
   }
-  if(state.idx>=11){finishTest();return;}
+  if(state.idx>=((state.questions&&state.questions.length)||12)-1){finishTest();return;} // 通常12問／スペシャル問題入りは13問
   state.idx++;renderQuestion();
 }
 
@@ -6354,7 +6575,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v3.7 (2026-07-28)";
+const APP_VERSION="v3.8 (2026-07-28)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

@@ -33,7 +33,7 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   await page.waitForTimeout(400);
   // 4択の問題が出るまで送る
   await page.evaluate(() => {
-    for (let i = 0; i < 12 && state.questions[state.idx].type === 'w'; i++) { state.idx++; }
+    for (let i = 0; i < 12 && !['kj', 'jk'].includes(state.questions[state.idx].type); i++) { state.idx++; } // 書き取り・スペシャル問題は飛ばす
     renderQuestion(); clearInterval(timer);
   });
   await page.waitForTimeout(300);

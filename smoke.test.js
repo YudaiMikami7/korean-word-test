@@ -24,12 +24,12 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   // 起動: ホーム表示
   check('起動→ホーム表示', await page.evaluate(() => document.getElementById('s-home').classList.contains('on')));
 
-  // テスト: 12問完走→結果
+  // テスト: 完走→結果（スペシャル問題発生中のROOMはシューティング1問を含む13問）
   await page.evaluate(() => { curLevel = 'beginner'; startTest(); clearInterval(timer); renderQuestion(); });
   await page.waitForTimeout(200);
-  await page.evaluate(() => { for (let i = 0; i < 12; i++) { answered = false; clearInterval(timer); startTimer(); const q = state.questions[state.idx]; submit('correct', q.type === 'w' ? q.word.ko : q.correct); document.querySelectorAll('.overlay').forEach(o => o.remove()); clearTimeout(ovTimer); afterAnswer(); } });
+  await page.evaluate(() => { const n = state.questions.length; for (let i = 0; i < n; i++) { const q = state.questions[state.idx]; if (q.type === 'sg') { shootAdvance(); continue; } answered = false; clearInterval(timer); startTimer(); submit('correct', q.type === 'w' ? q.word.ko : q.correct); document.querySelectorAll('.overlay').forEach(o => o.remove()); clearTimeout(ovTimer); afterAnswer(); } });
   await page.waitForTimeout(500);
-  check('12問完走→結果画面', await page.evaluate(() => document.getElementById('s-result').classList.contains('on')));
+  check('完走→結果画面', await page.evaluate(() => document.getElementById('s-result').classList.contains('on')));
   check('結果スクロールなし(小画面想定)', await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight + 2));
 
   // 単語帳: 一覧→3列グリッド
