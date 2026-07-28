@@ -1367,6 +1367,52 @@ body.bigtext .set-d{font-size:13.5px}
 .shg-clear.on{animation:shgClear .5s cubic-bezier(.34,1.5,.5,1) forwards}
 @keyframes shgClear{to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 
+/* ============================================================ スペシャル問題：パズル穴うめ（緑ROOM） ============================================================
+ * 日本語の意味に対する韓国語を、1文字だけ抜いたジグソーパズルとして出す。
+ * 抜けた場所と同じ形のピースが4つ並び、正しいピースを選んではめる。全12問がこの形式。 */
+.pz{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-start;padding:3vh 12px calc(14px + env(safe-area-inset-bottom));overflow:hidden;user-select:none;-webkit-user-select:none}
+.pz-lead{font-size:13px;font-weight:800;color:#BFF3D6;letter-spacing:.04em;text-align:center;line-height:1.5;
+  background:rgba(4,58,34,.5);border-radius:999px;padding:6px 16px;box-shadow:0 0 0 2px rgba(94,227,155,.45)}
+.pz-ja{margin-top:2.4vh;font-size:clamp(26px,7.4vw,38px);font-weight:800;color:#fff;text-align:center;line-height:1.25;
+  text-shadow:0 2px 6px rgba(0,0,0,.5);word-break:break-all}
+/* 単語の板（ピースが並ぶ台紙） */
+.pz-board{margin-top:2.6vh;display:flex;align-items:center;justify-content:center;padding:14px 10px;border-radius:20px;
+  background:rgba(2,44,26,.42);box-shadow:0 0 0 3px rgba(94,227,155,.35),0 10px 24px rgba(0,0,0,.3)}
+.pz-cell{position:relative;width:var(--pw);height:calc(var(--pw)*.84);flex:0 0 auto;
+  -webkit-clip-path:url(#pzclip);clip-path:url(#pzclip);
+  background:linear-gradient(160deg,#3FBF7A,#1B7A4A 62%,#12603A);
+  display:flex;align-items:center;justify-content:center}
+.pz-cell+.pz-cell{margin-left:calc(var(--pw)*-.26)}
+.pz-gap{flex:0 0 auto;width:calc(var(--pw)*.16)} /* 分かち書きの空白 */
+.pz-cell>span{font-size:calc(var(--pw)*.42);font-weight:900;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.4);
+  transform:translateX(calc(var(--pw)*-.01))}
+/* 抜けているマス（穴）：同じ形をくり抜いた凹み */
+.pz-cell.hole{background:rgba(94,227,155,.85)}
+.pz-cell.hole::before{content:"";position:absolute;inset:0;-webkit-clip-path:url(#pzclip);clip-path:url(#pzclip);
+  background:#06301D;transform:scale(.93);animation:pzHole 1.5s ease-in-out infinite}
+@keyframes pzHole{0%,100%{opacity:1}50%{opacity:.72}}
+.pz-cell.hole.filled::before{opacity:1;animation:none;background:linear-gradient(160deg,#FFE07A,#F0A824 62%,#D98A10)}
+.pz-cell.hole.filled>span{position:relative;z-index:1;animation:pzSnap .34s cubic-bezier(.34,1.5,.5,1) both}
+@keyframes pzSnap{0%{transform:translateY(-26px) scale(1.25);opacity:.2}100%{transform:translateY(0) scale(1);opacity:1}}
+/* 選ぶピース（バラのピース4つ） */
+.pz-tray{margin-top:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%;max-width:520px;padding-top:16px}
+.pz-p{position:relative;width:100%;aspect-ratio:1/.84;border:none;padding:0;font-family:inherit;cursor:pointer;
+  -webkit-clip-path:url(#pzclip);clip-path:url(#pzclip);
+  background:linear-gradient(160deg,#6FE3A4,#23A365 60%,#17784A);
+  display:flex;align-items:center;justify-content:center;
+  animation:pzIn .3s cubic-bezier(.34,1.4,.5,1) both}
+.pz-p:nth-child(2){animation-delay:.05s}
+.pz-p:nth-child(3){animation-delay:.1s}
+.pz-p:nth-child(4){animation-delay:.15s}
+@keyframes pzIn{0%{opacity:0;transform:translateY(18px)}100%{opacity:1;transform:translateY(0)}}
+.pz-p>span{font-size:clamp(22px,7vw,34px);font-weight:900;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.35);
+  transform:translateX(-4%)}
+.pz-p:active{filter:brightness(1.15)}
+.pz-p.correct{background:linear-gradient(160deg,#FF7B7B,#E03636 60%,#B71C1C)}  /* ○=赤（結果表示と統一） */
+.pz-p.wrong{background:linear-gradient(160deg,#7FB8FF,#2F8BFF 60%,#1B62C4)}   /* ×=青 */
+.pz-p.gone{opacity:.25}
+
 /* ============================================================ すごろく（ROOM中央・縦スクロール） ============================================================
  * 1マス＝1テスト(12問)。丸いマスが蛇行してつながり、上から下へ進む。マスの上には常に単語画像が乗る。
  * 1周＝12マス（ROOM末尾など語数の少ない部屋は語数に比例して短くなる）。1周こなすと次の周のマスが下に伸びる。 */
@@ -1412,10 +1458,11 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-here span:nth-child(3){animation-delay:.3s}
 .sg-here span:nth-child(4){animation-delay:.45s}
 .sg-here::after{content:"";position:absolute;left:50%;bottom:-10px;margin-left:-10px;border:10px solid transparent;border-top-color:#111;border-bottom:0}
-/* スペシャル問題が出ているROOMのスタート：白座布団＋色枠（青＝風船マッチ／赤＝4択シューティング） */
+/* スペシャル問題が出ているROOMのスタート：白座布団＋色枠（青＝風船マッチ／赤＝4択シューティング／緑＝パズル穴うめ） */
 .sg-here.sp{background:#fff;color:#1868FF;box-shadow:0 6px 16px rgba(0,0,0,.35),0 0 0 4px #1868FF}
 .sg-here.sp::after{border-top-color:#fff}
 .sg-here.sp-red{color:#E4002B;box-shadow:0 6px 16px rgba(0,0,0,.35),0 0 0 4px #E4002B}
+.sg-here.sp-green{color:#00A150;box-shadow:0 6px 16px rgba(0,0,0,.35),0 0 0 4px #00A150}
 /* 「スペシャル問題発生中！」はスタート（＝吹き出し型）の上に吹き出しを重ねると変なので、斜めのリボン帯にする */
 .sg-spbub{position:absolute;z-index:6;left:50%;top:-352px;white-space:nowrap;
   font-size:24px;font-weight:900;letter-spacing:.03em;color:#fff;padding:10px 30px;
@@ -1424,6 +1471,7 @@ body.bigtext .set-d{font-size:13.5px}
   box-shadow:0 9px 20px rgba(0,0,0,.38);text-shadow:0 2px 4px rgba(0,0,0,.35);
   animation:sgribbon 1.9s ease-in-out infinite}
 .sg-spbub.red{background:linear-gradient(135deg,#B3001B,#FF7A5A 52%,#B3001B)}
+.sg-spbub.green{background:linear-gradient(135deg,#046C3C,#5FE39B 52%,#046C3C)}
 .sg-spbub i{font-style:normal;display:inline-block;margin:0 6px;animation:sgspark 1.1s ease-in-out infinite}
 .sg-spbub i:last-child{animation-delay:.55s}
 @keyframes sgribbon{0%,100%{transform:translateX(-50%) rotate(-4deg) translateY(0)}50%{transform:translateX(-50%) rotate(-4deg) translateY(-9px)}}
@@ -1718,6 +1766,12 @@ body.bigtext .set-d{font-size:13.5px}
 <div id="history-modal"></div>
 <div id="map-modal"></div>
 <div id="rotate-hint">📱 縦向きでのご利用がおすすめです</div>
+<!-- パズル穴うめ（緑ROOM）のピース形。左が凹・右が凸で、横に並べるとかみ合う。穴もピースも同じ形を使う -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs>
+  <clipPath id="pzclip" clipPathUnits="objectBoundingBox">
+    <path d="M0.12,0.03 H0.86 V0.36 C1.02,0.36 1.02,0.64 0.86,0.64 V0.97 H0.12 V0.64 C0.28,0.64 0.28,0.36 0.12,0.36 Z"/>
+  </clipPath>
+</defs></svg>
 
 <script src="words-middle.js"></script>
 <script src="words-images.js"></script>
@@ -3830,8 +3884,8 @@ function buildReviewQuestions(ids){
   const prog=loadProgress(); prog.prevTestIds=prog.lastTestIds||[]; prog.lastTestIds=list.map(c=>c.id); saveProgress(prog);
   return makeQuestionsFromIds(list);
 }
-const DIRECTION={jk:"jp_to_kr",kj:"kr_to_jp",w:"jp_to_kr"};
-const ANS_TYPE={jk:"choice",kj:"choice",w:"writing"};
+const DIRECTION={jk:"jp_to_kr",kj:"kr_to_jp",w:"jp_to_kr",pz:"jp_to_kr"};
+const ANS_TYPE={jk:"choice",kj:"choice",w:"writing",pz:"choice"};
 
 /* 採点 */
 function scoreFor(type,isCorrect,t,isHint){
@@ -3942,7 +3996,8 @@ function startTest(reviewIds){
   const conditionBefore=Math.round(overallCondition(now)),reviewBefore=reviewNeedCount(now);
   const qs=reviewIds&&reviewIds.length?buildReviewQuestions(reviewIds):buildQuestions();
   const _spk=(!_d5.on&&!_pqQuiz&&!_onSpecial)?specialKind(curLevel,curSection):"";
-  if(_spk)insertShootQuestion(qs,_spk); // スペシャル問題発生中のROOMだけ13問目としてシューティングを差し込む（青=風船マッチ／赤=4択）
+  if(_spk==="green")toPuzzleQuestions(qs); // 緑ROOM＝12問すべてがジグソーパズルの穴うめ
+  else if(_spk)insertShootQuestion(qs,_spk); // 青・赤ROOMは13問目としてシューティングを差し込む（青=風船マッチ／赤=4択）
   const prog=loadProgress();
   state={questions:qs,idx:0,results:[],testId:"t-"+Date.now().toString(36),userId:getUserId(),
     cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level,pq:_pqQuiz};
@@ -4627,12 +4682,13 @@ function sgTrendHTML(){
     +'<span class="sgtr-mini" aria-hidden="true"><i>✓</i><b>トレンド</b></span>'
     +'<span class="tr-b"'+(used?' style="display:none"':'')+'>!</span></button>';
 }
-/* スペシャル問題：初級・中級それぞれで2ROOMだけ「スペシャル問題発生中！」になる。
+/* スペシャル問題：初級・中級それぞれで3ROOMだけ「スペシャル問題発生中！」になる。
  *   青ROOM … 韓国語の風船3つ × 日本語の大砲3つ（組み合わせ当て）
  *   赤ROOM … 韓国語の風船1つ（出題）× 日本語の大砲4つ（4択）
- * そのROOMのテストには5〜11問目のどこかにシューティングが1問だけ混ざる（採点・記憶スコアには入らない）。
- * テストを1本（12問／13問）終えるたびに、4つとも別のROOMへ入れ替わる。 */
-const LS_SPECIAL="kwt_special_v3";
+ *   緑ROOM … ジグソーパズルの穴うめ（12問すべてがこの形式）
+ * 青・赤ROOMのテストには5〜11問目のどこかにシューティングが1問だけ混ざる（採点・記憶スコアには入らない）。
+ * テストを1本終えるたびに、6つとも別のROOMへ入れ替わる。 */
+const LS_SPECIAL="kwt_special_v4";
 let _spCache=null;
 function _spPick(level,exclude){
   const secs=Object.keys(LEVEL_SECTIONS[level]||{}).map(Number).filter(x=>x>0).sort((a,b)=>a-b);
@@ -4645,16 +4701,17 @@ function _spRoll(prev){
   const o={};
   ["beginner","middle"].forEach(lv=>{
     const p=(prev&&prev[lv])||{};
-    const blue=_spPick(lv,[p.blue,p.red].filter(Boolean));           // 直前と同じROOMは避ける
-    const red=_spPick(lv,[p.blue,p.red,blue].filter(Boolean));
-    o[lv]={blue,red};
+    const blue=_spPick(lv,[p.blue,p.red,p.green].filter(Boolean));   // 直前と同じROOMは避ける
+    const red=_spPick(lv,[p.blue,p.red,p.green,blue].filter(Boolean));
+    const green=_spPick(lv,[p.blue,p.red,p.green,blue,red].filter(Boolean));
+    o[lv]={blue,red,green};
   });
   return o;
 }
 function specialRooms(){
   if(_spCache)return _spCache;
   let o=null;try{o=JSON.parse(localStorage.getItem(LS_SPECIAL)||"null");}catch(e){}
-  if(!o||!o.beginner||!o.middle||!o.beginner.blue||!o.middle.blue){
+  if(!o||!o.beginner||!o.middle||!o.beginner.blue||!o.middle.blue||!o.beginner.green||!o.middle.green){
     o=_spRoll(null);try{localStorage.setItem(LS_SPECIAL,JSON.stringify(o));}catch(e){}
   }
   _spCache=o;return o;
@@ -4667,13 +4724,13 @@ function rerollSpecial(){
 }
 function specialKind(level,n){
   const o=specialRooms()[level]||{};
-  return (+n===o.blue)?"blue":(+n===o.red)?"red":"";
+  return (+n===o.blue)?"blue":(+n===o.red)?"red":(+n===o.green)?"green":"";
 }
 function specialSection(level){return specialRooms()[level].blue;}
 function isSpecialSection(level,n){return !!specialKind(level,n);}
 function sgBoardHTML(n){
   const level=curLevel,L=boardLapSize(level,n),vis=boardVisible(level,n),st=boardState(level,n);
-  const spk=specialKind(level,n); // ""＝通常 / "blue"＝風船マッチ / "red"＝4択シューティング
+  const spk=specialKind(level,n); // ""＝通常 / "blue"＝風船マッチ / "red"＝4択シューティング / "green"＝パズル穴うめ
   const sp=!!spk;
   const ids=((LEVEL_SECTIONS[level]||{})[n]||[]);
   const rnd=_d5Rng(_d5Hash("kwt-sg|"+level+"|"+n));
@@ -4691,8 +4748,8 @@ function sgBoardHTML(n){
       +(src?'<img class="sg-img" src="'+src+'" alt="" loading="lazy" decoding="async" onload="sgFitBadges(this)">':'<span class="sg-noimg">🃏</span>')
       +'<span class="sg-num">'+g+'</span>'
       +(rank?'<span class="sg-rank" style="background:'+(RANK_COLORS[rank]||"#555")+'">'+rank+'</span>':"")
-      +(now?'<span class="sg-here'+(sp?" sp":"")+(spk==="red"?" sp-red":"")+'"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span>':"")
-      +((now&&sp)?'<span class="sg-spbub'+(spk==="red"?" red":"")+'"><i>✦</i>スペシャル問題発生中！<i>✦</i></span>':"")
+      +(now?'<span class="sg-here'+(sp?" sp":"")+(spk==="red"?" sp-red":"")+(spk==="green"?" sp-green":"")+'"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span>':"")
+      +((now&&sp)?'<span class="sg-spbub'+(spk==="red"?" red":"")+(spk==="green"?" green":"")+'"><i>✦</i>スペシャル問題発生中！<i>✦</i></span>':"")
       +'</button>');
     if(idx===0)laps.push('<div class="sg-lap" style="top:'+Math.round(p.y+SG_STEP*0.56)+'px"><span>'+lap+'周目</span></div>');
     // 自然物は道の反対側の外周へ1マスにつき1つ（マス・道・左レールに被らせない）
@@ -5570,6 +5627,7 @@ function renderQuestion(){
   // 進捗は「キャラが歩いて進む」帯で表す（山吹色メーターは廃止）。出題番号と同時にスイッチ表示（今日の5問は正誤表示が無いので隠す）
   const stage=document.getElementById("qstage");
   if(q.type==="sg"||q.type==="sg4"){renderShoot(q,stage);return;} // スペシャル問題（シューティング）：制限時間なし・採点なし
+  if(q.type==="pz"){renderPuzzle(q,stage);startTimer();return;} // スペシャル問題（パズル穴うめ）：採点は通常どおり
   if(q.type==="kj"||q.type==="jk"){
     const display=q.type==="kj"?q.word.ko:q.word.ja;
     stage.innerHTML=`
@@ -5854,6 +5912,85 @@ function shgStop(){
 /* シューティングを終えて次の問題へ（結果・記憶スコアには何も残さない） */
 function shootAdvance(){shgStop();afterAnswer();}
 
+/* ============================================================ スペシャル問題：パズル穴うめ（緑ROOM） ============================================================
+ * 緑ROOMのテストは12問すべてがこの形式。日本語の意味に対する韓国語を、1文字だけ抜いたジグソーパズルにして出す。
+ * 2文字なら1文字目か2文字目のどちらかが抜ける。抜けた穴と同じ形のピースが4つ並び、正しいものをはめる。
+ * 通常の四択と同じく採点・記憶スコアに入る（出題形式が変わるだけ）。 */
+const PZ_HANGUL=/[가-힣]/;
+/* 12問をまるごとパズル形式に組み替える（配列を書き換える） */
+function toPuzzleQuestions(qs){
+  const pool=(typeof levelAllWords==="function")?levelAllWords():[];
+  qs.forEach((q,i)=>{
+    if(!q||!q.word||!q.word.ko)return;
+    const chars=[...q.word.ko];
+    const spots=chars.map((c,k)=>PZ_HANGUL.test(c)?k:-1).filter(k=>k>=0);
+    if(!spots.length)return; // ハングルが無い語（まず無い）はそのままの形式で出す
+    const hole=spots[Math.floor(Math.random()*spots.length)];
+    const correct=chars[hole];
+    q.type="pz";q.pz={hole,chars};q.correct=correct;q.cmeta=null;
+    q.choices=shuffle(pzChoices(correct,hole,pool,q.word));
+  });
+  return qs;
+}
+/* まぎらわしいピースを3つ：同じ位置に来る文字を優先し、無ければ他の語の任意の文字から */
+function pzChoices(correct,hole,pool,word){
+  const out=[correct],seen=new Set([correct]);
+  const push=c=>{if(c&&PZ_HANGUL.test(c)&&!seen.has(c)){seen.add(c);out.push(c);}};
+  const samePos=[],anyPos=[];
+  shuffle(pool.slice()).forEach(w=>{
+    if(!w||!w.ko||w.id===(word&&word.id))return;
+    const cs=[...w.ko].filter(c=>PZ_HANGUL.test(c));
+    if(!cs.length)return;
+    if(hole<cs.length)samePos.push(cs[hole]);
+    anyPos.push(cs[Math.floor(Math.random()*cs.length)]);
+  });
+  for(const c of samePos){if(out.length>=4)break;push(c);}
+  for(const c of anyPos){if(out.length>=4)break;push(c);}
+  const FALLBACK=[..."가나다라마바사아자차카타파하거너더러머버서어저"];
+  for(const c of FALLBACK){if(out.length>=4)break;push(c);}
+  return out.slice(0,4);
+}
+function renderPuzzle(q,stage){
+  const chars=q.pz.chars,hole=q.pz.hole;
+  const n=chars.filter(c=>PZ_HANGUL.test(c)).length;
+  const pw=`min(104px,calc((100vw - 64px)/${(0.74*n+0.26).toFixed(2)}))`; // 語が長いほどピースを小さく
+  const cells=chars.map((c,k)=>{
+    if(!PZ_HANGUL.test(c))return `<span class="pz-gap"></span>`; // 分かち書きの空白などはすき間にする
+    if(k===hole)return `<span class="pz-cell hole"><span></span></span>`;
+    return `<span class="pz-cell"><span>${esc(c)}</span></span>`;
+  }).join("");
+  const pieces=q.choices.map(c=>`<button class="pz-p" data-v="${esc(c)}" onclick="if(!answered)pzPick(this)"><span>${esc(c)}</span></button>`).join("");
+  stage.innerHTML=`<div class="pz">
+    <div class="pz-lead">スペシャル問題！　抜けたピースをはめてハングルを完成させよう</div>
+    <div class="pz-ja">${esc(q.word.ja)}</div>
+    <div class="pz-board" style="--pw:${pw}">${cells}</div>
+    <div class="pz-tray">${pieces}</div>
+    <button class="unknown" onclick="submit('unknown','')">わからない</button>
+  </div>`;
+}
+/* ピースをタップ＝その文字で回答（はめる動きを見せてから通常の採点へ） */
+function pzPick(el){
+  if(answered)return;
+  const v=el.dataset.v;
+  pzFillHole(v);
+  el.classList.add("gone");
+  pick(v);
+}
+function pzFillHole(ch){
+  const hole=document.querySelector("#qstage .pz-cell.hole");if(!hole)return;
+  const s=hole.querySelector("span");if(s)s.textContent=ch;
+  hole.classList.remove("filled");void hole.offsetWidth;hole.classList.add("filled");
+}
+/* 正誤表示：正しいピース＝赤／選んだ誤答＝青（四択と統一）。穴には必ず正解の文字を入れて見せる */
+function pzHighlight(q,status,userAnswer){
+  document.querySelectorAll("#qstage .pz-p").forEach(btn=>{
+    const v=btn.dataset.v;
+    if(v===q.correct)btn.classList.add("correct");
+    else if(status==="incorrect"&&v===userAnswer)btn.classList.add("wrong");
+  });
+  pzFillHole(q.correct);
+}
+
 /* 回答送信（二重送信防止） */
 function submit(status,userAnswer){
   if(answered)return;answered=true;clearInterval(timer);
@@ -5974,7 +6111,8 @@ function showOverlay(status,q,userAnswer){
   if(q.type==="w"){
     inner+=writingAnsHTML(status,q,userAnswer);
   }else{
-    highlightChoices(q,status,userAnswer); // 実際の選択肢ボタンを色分け（赤=正解 / 青=選んだ誤答）
+    if(q.type==="pz")pzHighlight(q,status,userAnswer); // パズルはピースを色分け＋穴に正解の文字を入れる
+    else highlightChoices(q,status,userAnswer); // 実際の選択肢ボタンを色分け（赤=正解 / 青=選んだ誤答）
   }
   const tap=loadSettings().tapAdvance;
   if(tap)inner+='<div class="tap-next">タップで次へ ›</div>';
@@ -6779,7 +6917,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v3.9 (2026-07-29)";
+const APP_VERSION="v4.0 (2026-07-29)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

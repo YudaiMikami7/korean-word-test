@@ -29,7 +29,13 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
     /fill="#fff"/.test(SG_HOME_ICON) && !/FFC400|#fc0|yellow/i.test(SG_HOME_ICON)));
 
   // ===== 出題画面へ =====
-  await page.evaluate(() => { curLevel = 'beginner'; startTest(); clearInterval(timer); renderQuestion(); });
+  // スペシャル問題発生中のROOM（緑＝12問すべてパズル）を引くと4択が1問も無いので、通常ROOMを選んでから始める
+  await page.evaluate(() => {
+    curLevel = 'beginner';
+    const secs = Object.keys(LEVEL_SECTIONS.beginner).map(Number).filter(n => n > 0);
+    curSection = secs.find(n => !isSpecialSection('beginner', n)) || curSection;
+    startTest(); clearInterval(timer); renderQuestion();
+  });
   await page.waitForTimeout(400);
   // 4択の問題が出るまで送る
   await page.evaluate(() => {
