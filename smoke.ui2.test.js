@@ -120,7 +120,7 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   });
   await page.waitForTimeout(120);
   const fly = await page.evaluate(() => {
-    const b = document.querySelector('.room-slide[data-n="' + curSection + '"] .sg-d5');
+    const b = document.querySelector('.sg-d5'); // home-wrap直下のフロート1組
     return { hasFly: b.classList.contains('sg-fly'), flyx: parseFloat(b.style.getPropertyValue('--flyx')) };
   });
   check('5問ボタンが左へ吸い込まれるアニメが走る', fly.hasFly);
@@ -128,7 +128,7 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
 
   await page.waitForTimeout(1100);
   const pop = await page.evaluate(() => {
-    const t = document.querySelector('.room-slide[data-n="' + curSection + '"] .sg-trend');
+    const t = document.querySelector('.sg-trend');
     return { on: t.classList.contains('on'), pop: t.classList.contains('tr-pop'), spark: !!document.querySelector('.sg-spark') || true };
   });
   check('引っ込んだ後にトレンドボタンが登場する', pop.on && pop.pop);
@@ -144,8 +144,7 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   await page.waitForTimeout(1000);
   const off = await page.evaluate(() => {
     const vis = el => { const r = el.getBoundingClientRect(); return { l: r.left, b: r.bottom, w: r.width, h: r.height }; };
-    const slide = document.querySelector('.room-slide[data-n="' + curSection + '"]');
-    const d5 = slide.querySelector('.sg-d5'), tr = slide.querySelector('.sg-trend');
+    const d5 = document.querySelector('.sg-d5'), tr = document.querySelector('.sg-trend');
     return { d5: vis(d5), tr: vis(tr), trOff: tr.classList.contains('tr-off') };
   });
   check('消化後のトレンドボタンがグレーの丸になる', off.trOff && near(off.tr.w, off.d5.w, 2) && near(off.tr.h, off.d5.h, 2));

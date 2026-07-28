@@ -48,7 +48,8 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   const lay = await page.evaluate(() => {
     const vis = el => { const r = el.getBoundingClientRect(); return { l: r.left, r: r.right, t: r.top, b: r.bottom, w: r.width, h: r.height, cx: r.left + r.width / 2 }; };
     const slide = document.querySelector('.room-slide[data-n="' + curSection + '"]');
-    const d5 = slide.querySelector('.sg-d5'), home = slide.querySelector('.sg-home'), tr = slide.querySelector('.sg-trend');
+    // 今日の5問／トレンドは home-wrap 直下のフロート1組。現在地ボタンだけスライドの中にある
+    const d5 = document.querySelector('.sg-d5'), home = slide.querySelector('.sg-home'), tr = document.querySelector('.sg-trend');
     const railL = document.querySelector('.reward-rail-left .rr-btn'), railR = document.querySelector('.reward-rail:not(.reward-rail-left) .rr-btn');
     return {
       d5: vis(d5), home: vis(home), tr: vis(tr), railL: vis(railL), railR: vis(railR),
@@ -71,7 +72,7 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   await page.evaluate(() => openDaily5());
   await page.waitForTimeout(350);
   const bub = await page.evaluate(() => {
-    const c = document.querySelector('#d5-modal .d5-card'), b = document.querySelector('.room-slide[data-n="' + curSection + '"] .sg-d5');
+    const c = document.querySelector('#d5-modal .d5-card'), b = document.querySelector('.sg-d5');
     const cr = c.getBoundingClientRect(), br = b.getBoundingClientRect();
     const tx = parseFloat(getComputedStyle(c).getPropertyValue('--tx'));
     return { edgeL: c.classList.contains('edge-l'), flip: c.classList.contains('flip'), tailX: cr.left + tx, btnCx: br.left + br.width / 2, above: cr.bottom <= br.top + 2 };

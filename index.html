@@ -190,6 +190,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* ===== ホーム（602×1178基準・サーモンピンク背景・絶対配置） ===== */
 #s-home{background:#E3A38D;flex-direction:row;justify-content:center;align-items:flex-start;overflow:hidden;transition:background-color .5s ease}
 .home-wrap{position:relative;flex:0 0 auto;width:602px;height:1178px;background:#E3A38D;
+  /* 今日の5問／トレンドのフロート位置：スライド(.slide-inner top:225px/height:686px)の下端12pxと同じ高さ
+     ＝1178-(225+686)+12=279px。単語帳への上昇(--lift)・ステータスへの下降(--down×2.2)には従来どおり追従する */
+  --fbtm:calc(279px - var(--lift,0px) - var(--down,0px) * 2.2);
   transform-origin:top center;color:#FFFFFF;font-weight:800; /* 見本はExtraBold相当 */
   transition:background-color .5s ease;
   font-family:"LINESeedJP","LINESeedKR","Hiragino Kaku Gothic ProN",sans-serif}
@@ -198,6 +201,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .home-wrap .gfill,.dash-head .gfill{height:100%;border-radius:999px;transition:width .5s ease;width:0}
 /* ステータスバーのPWRメータ：最大値→0へ徐々に減り、それを繰り返すドレイン演出（数値は実PWRを別途表示） */
 #hv-pwrfill{transition:none;animation:pwrDrain 10s linear infinite}
+#hv-pwrfill.pwr0{animation:none;width:0} /* PWRが0のときは「減り続ける」演出を止める（減るものが無いのに減って見えるため） */
 @keyframes pwrDrain{0%{width:100%}100%{width:0%}}
 /* ヘッダー（さらに上へ。茶色領域は黒80%透過。4色ドットは廃止） */
 .avatar-circle{position:absolute;left:40px;top:44px;width:114px;height:114px;border-radius:50%;background:#fff;border:5px solid rgba(0,0,0,.8);box-sizing:border-box;overflow:hidden;cursor:pointer;z-index:2} /* 背景=タイプ/PWRページと同じグレー */
@@ -412,18 +416,19 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rr-btn img{width:86%;height:86%;object-fit:contain}
 .rr-set{font-size:34px;color:#555;line-height:1} /* 白背景に映る濃色 */
 /* リールの各ボタンもアイコン⇄日本語ラベルを中身のZ軸回転で入替（タイミングはボタンごとにランダム） */
-.rr-btn img{transition:opacity .14s ease .15s}      /* 戻るとき=アイコンは後から出す */
-.rr-btn .rr-txt{transition:opacity .14s ease}        /* 戻るとき=文字は先に消す */
-.rr-btn.show-label img{transition:opacity .14s ease} /* 進むとき=アイコンは先に消す */
-.rr-btn.show-label .rr-txt{transition:opacity .14s ease .15s} /* 進むとき=文字は後から出す */
+/* 入替は待たされて見えないよう素早く。文字が消えきる前にアイコンが出はじめるくらいの重なりにする */
+.rr-btn img{transition:opacity .1s ease .05s}       /* 戻るとき=アイコンは後から出す */
+.rr-btn .rr-txt{transition:opacity .09s ease}        /* 戻るとき=文字は先に消す */
+.rr-btn.show-label img{transition:opacity .09s ease} /* 進むとき=アイコンは先に消す */
+.rr-btn.show-label .rr-txt{transition:opacity .1s ease .05s} /* 進むとき=文字は後から出す */
 .rr-btn .rr-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:900;color:#333;line-height:1.2;padding:3px;text-align:center;opacity:0;box-sizing:border-box}
 .rr-btn.show-label img{opacity:0}
 .rr-btn.show-label .rr-txt{opacity:1}
 /* 設定マークだけは従来どおり回転で切り替える */
-#set-btn img{transition:transform .3s ease,opacity .14s ease .15s}
-#set-btn .rr-txt{transition:transform .3s ease,opacity .14s ease}
-#set-btn.show-label img{transition:transform .3s ease,opacity .14s ease}
-#set-btn.show-label .rr-txt{transition:transform .3s ease,opacity .14s ease .15s}
+#set-btn img{transition:transform .22s ease,opacity .1s ease .05s}
+#set-btn .rr-txt{transition:transform .22s ease,opacity .09s ease}
+#set-btn.show-label img{transition:transform .22s ease,opacity .09s ease}
+#set-btn.show-label .rr-txt{transition:transform .22s ease,opacity .1s ease .05s}
 #set-btn .rr-txt{transform:rotate(-180deg)}
 #set-btn.show-label img{transform:rotate(180deg)}
 #set-btn.show-label .rr-txt{transform:rotate(0deg)}
@@ -850,12 +855,16 @@ body.bigtext .set-d{font-size:13.5px}
 @keyframes cgshine{0%{opacity:0;left:-120%}45%{opacity:.95}100%{opacity:0;left:160%}}
 /* 結果の単語一覧＝獲得カード風グリッド（正誤記号＋記憶率＋変化つき） */
 .res-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:2px} /* 4列→3列にして1枚を大きく */
-.rc-card{position:relative;aspect-ratio:3/3.5;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.25);padding:5px;box-sizing:border-box}
-.rc-card img{width:76%;height:44%;object-fit:contain}
+/* 左右マージンは詰める。min-width:0＝中身（意味の長い日本語など）の最小幅で列が広がるのを断ち、
+   3列を必ず器の幅に収める（列が広がると器が横スクロールして「大きく描かれている」ように見えていた） */
+.rc-card{position:relative;aspect-ratio:3/3.5;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.25);padding:5px 2px;box-sizing:border-box;min-width:0;overflow:hidden}
+/* 器を画像とぴったり同じ大きさにして、正誤記号を画像の左上の角へ重ねる */
+.rc-imgw{position:relative;height:46%;max-width:100%;display:flex;align-items:center;justify-content:center}
+.rc-imgw img{height:100%;width:auto;object-fit:contain}
 .rc-card .cg-noimg{font-size:26px}
-.rc-sym{position:absolute;top:2px;left:7px;font-size:21px;font-weight:900;text-shadow:0 1px 2px rgba(0,0,0,.15)}
-.rc-ko{font-size:15px;font-weight:900;color:#333;white-space:nowrap;overflow:hidden;max-width:94%;text-overflow:ellipsis;margin-top:3px}
-.rc-ja{font-size:11px;font-weight:700;color:#7a6a4a;white-space:nowrap;overflow:hidden;max-width:94%;text-overflow:ellipsis;margin-top:1px} /* 日本語の意味 */
+.rc-sym{position:absolute;top:-2px;left:-7px;font-size:21px;font-weight:900;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.15);z-index:1} /* 画像の左上角に重ねる（カードからはみ出すと切れるので寄せ量は控えめ） */
+.rc-ko{font-size:15px;font-weight:900;color:#333;white-space:nowrap;overflow:hidden;max-width:100%;text-overflow:ellipsis;margin-top:3px}
+.rc-ja{font-size:11px;font-weight:700;color:#7a6a4a;white-space:nowrap;overflow:hidden;max-width:100%;text-overflow:ellipsis;margin-top:1px} /* 日本語の意味 */
 .rc-foot{display:flex;gap:6px;align-items:baseline;justify-content:center;margin-top:1px}
 .rc-cards{font-size:11px;font-weight:900;color:#b8862b}
 .rc-delta{font-size:11px;font-weight:900} /* 記憶率の増減（±%）色はインラインで緑/赤 */
@@ -878,7 +887,7 @@ body.bigtext .set-d{font-size:13.5px}
 .res-sess b{color:var(--text)}
 .btn.dark{background:rgba(0,0,0,.8);color:#fff}
 .btn.dark:active{background:rgba(0,0,0,.65)}
-.res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;margin:10px 0;border:none;border-radius:0;-webkit-overflow-scrolling:touch} /* カードグリッドの上下とも境界線は無し（カード上の黒線を撤去） */
+.res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;margin:10px 0;border:none;border-radius:0;-webkit-overflow-scrolling:touch} /* カードグリッドの上下とも境界線は無し（カード上の黒線を撤去）。左右幅は固定＝横スクロールさせない */
 /* 出題表はコンパクト表示（ボタン群がスクロールなしで見えるよう縦を圧縮） */
 .rtab{width:100%;border-collapse:collapse;font-size:13px;background:rgba(0,0,0,.65)}
 .rtab th,.rtab td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
@@ -1310,8 +1319,9 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-home svg{width:32px;height:32px;display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
 .sg-home.on{opacity:1;pointer-events:auto;transform:none}
 .sg-home.on:active{transform:scale(.9)}
-/* 今日の5問（すごろく下・中央のカプセル）。現在地ボタンと同じ高さに置く */
-.sg-d5{position:absolute;left:50%;bottom:12px;z-index:60;border:none;padding:11px 26px 13px;border-radius:999px;
+/* 今日の5問（すごろく下・中央のカプセル）。現在地ボタンと同じ高さに置く。
+   ROOMを切り替えても動かないよう、スライドの中ではなく home-wrap 直下のフロート1組にしてある */
+.sg-d5{position:absolute;left:50%;bottom:var(--fbtm);z-index:60;border:none;padding:11px 26px 13px;border-radius:999px;
   background:#fff;color:#111;font-size:26px;font-weight:900;letter-spacing:.08em;white-space:nowrap;cursor:pointer;font-family:inherit;
   box-shadow:0 8px 18px rgba(0,0,0,.55);transform:translateX(-50%);transition:transform .16s ease,opacity .2s ease}
 .sg-d5:active{transform:translateX(-50%) scale(.93)}
@@ -1326,7 +1336,7 @@ body.bigtext .set-d{font-size:13.5px}
 /* 朝の部・夜の部を消化して挑戦できないあいだは、カプセルをやめて左のアイコン群(.reward-rail-left .rr-btn)と
    同じ丸（68px・白・同じ影）にし、横位置(left:14px)も縦位置(bottom:66px＝現在地ボタンと同じ)も揃える。
    中央のカプセル位置は「今日のトレンド問題」ボタン(.sg-trend)が引き継ぐ */
-.sg-d5.d5-off{left:14px;bottom:12px;transform:none;width:68px;height:68px;padding:0;border-radius:50%;
+.sg-d5.d5-off{left:14px;bottom:var(--fbtm);transform:none;width:68px;height:68px;padding:0;border-radius:50%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
   background:#fff;color:#9a9a9a;letter-spacing:0;box-shadow:0 2px 6px rgba(0,0,0,.12)}
 .sg-d5.d5-off:active{transform:scale(.93)}
@@ -1336,7 +1346,7 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-d5.d5-off .sgd5-mini i{font-style:normal;font-size:19px;color:#C9C9C9}
 .sg-d5.d5-off .sgd5-mini b{font-size:11px;font-weight:900;color:#9a9a9a}
 /* 今日のトレンド問題（中央カプセル・黄色）。5問を消化した日だけ出る */
-.sg-trend{position:absolute;left:50%;bottom:12px;z-index:60;border:none;padding:11px 22px 13px;border-radius:999px;
+.sg-trend{position:absolute;left:50%;bottom:var(--fbtm);z-index:60;border:none;padding:11px 22px 13px;border-radius:999px;
   background:#FFC400;color:#2b1a00;font-size:22px;font-weight:900;letter-spacing:.06em;white-space:nowrap;cursor:pointer;font-family:inherit;
   box-shadow:0 8px 18px rgba(0,0,0,.55);transform:translateX(-50%);display:none}
 .sg-trend.on{display:block}
@@ -1351,7 +1361,7 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-trend .tr-b{position:absolute;right:-2px;top:-2px;width:22px;height:22px;border-radius:50%;background:#E0831A;color:#fff;
   font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;line-height:1}
 /* トレンドも消化したら、5問ボタン(left:14px)の1つ右(14+68+8=90px)へ引っ込めて同じ丸にする */
-.sg-trend.tr-off{left:90px;bottom:12px;transform:none;width:68px;height:68px;padding:0;border-radius:50%;
+.sg-trend.tr-off{left:90px;bottom:var(--fbtm);transform:none;width:68px;height:68px;padding:0;border-radius:50%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
   background:#EDEDED;color:#9a9a9a;letter-spacing:0;box-shadow:0 2px 6px rgba(0,0,0,.12)}
 .sg-trend.tr-off:active{transform:scale(.93)}
@@ -1527,6 +1537,8 @@ body.bigtext .set-d{font-size:13.5px}
       <button class="rm-arrow rm-prev" id="rm-prev" onclick="stepRoom(-1)" aria-label="前のページへ">‹</button>
       <button class="rm-arrow rm-next" id="rm-next" onclick="stepRoom(1)" aria-label="次のページへ">›</button>
       <button class="wb-back" id="wb-back" onclick="exitListMode()" aria-label="ホームに戻る">‹</button>
+      <!-- 今日の5問／今日のトレンド：スライドごとに置かず、home-wrap直下のフロート1組で全ページ共通 -->
+      <div id="home-fbtn"></div>
       <div id="pull-hint">↓ さらに引くとホームに戻る</div>
       <div id="wb-search"><input id="wb-q" type="search" placeholder="単語をさがす（韓国語・日本語）" oninput="wbSearch(this.value)"><div id="wb-hits"></div></div>
       <div class="today-band" id="today-band" style="display:none"><div class="tb-label">最近学んだ単語</div><div class="tb-clip"><div class="tb-track" id="tb-track"></div></div></div><!-- 中身が入るまで非表示（空の白帯チラ見え防止） -->
@@ -2033,6 +2045,8 @@ function updatePwrFine(){
   num.textContent=v.toFixed(2)+"%"; // 数値は実PWRを0.01%桁で表示（バーはCSSで最大→0を徐々に繰り返しドレイン）
   const dn=document.getElementById("hv-pwrdown");
   if(dn)dn.textContent=v>0?`PWRが0.01%減るまで あと${Math.ceil(10-el%10)}秒`:"";
+  const bar=document.getElementById("hv-pwrfill"); // 0のときはバーのドレイン演出も止める
+  if(bar){const zero=!(v>0);bar.classList.toggle("pwr0",zero);if(zero)bar.style.width="0%";}
 }
 setInterval(()=>{if(document.hidden)return;const h=document.getElementById("s-home");if(h&&h.classList.contains("on"))updatePwrFine();},300); // タブ非表示中は動かさない
 function pwrOverall(){
@@ -2763,7 +2777,8 @@ function updateHomeStats(){
   document.getElementById("hv-xpfill").style.width=Math.min(100,Math.round(xp.cur/xp.next*100))+"%";
   const pw=pwrOverallExact();
   document.getElementById("hv-pwrval").textContent=pw.toFixed(2)+"%";
-  document.getElementById("hv-pwrfill").style.width=pw+"%";
+  const _pwf=document.getElementById("hv-pwrfill");
+  _pwf.style.width=pw+"%";_pwf.classList.toggle("pwr0",!(pw>0)); // PWR=0ならドレイン演出を止める
   const nr=document.getElementById("hv-nextrev");if(nr)nr.textContent=nextReviewInfo();
 }
 function renderHome(){
@@ -2778,6 +2793,8 @@ function renderHome(){
   applyHomeBg();
   scaleHome();
   updatePresent();
+  const _fb=document.getElementById("home-fbtn"); // 今日の5問／トレンドはスライドではなくホーム直下のフロート（作り直すと演出が飛ぶので初回だけ）
+  if(_fb&&!_fb.firstChild)_fb.innerHTML=sgD5HTML();
   updateD5Btn(); // 今日の5問：残り回数バッジ／消化済みのグレーアウト
   checkAchievements();
   calibratePwr(); // ホーム表示のたびに実測し直し、以降は固定速度で減算
@@ -3886,6 +3903,8 @@ function updateD5Btn(){
   const used=d5Used();
   document.querySelectorAll(".sg-d5").forEach(b=>{
     b.classList.toggle("d5-off",used);
+    // ボタンは作り直さないフロートなので、演出クラス(animation-fill-mode:both)が残るとtransformを固定してしまう。枠が開いたら外す
+    if(!used)b.classList.remove("sg-fly");
     const bd=b.querySelector(".d5-b");if(bd)bd.style.display=used?"none":"flex";
   });
   updateTrendBtn();
@@ -3896,6 +3915,9 @@ function updateTrendBtn(){
   document.querySelectorAll(".sg-trend").forEach(b=>{
     b.classList.toggle("on",on);
     b.classList.toggle("tr-off",used);
+    // 登場(tr-pop)・引っ込み(sg-fly)の演出はfill:bothでtransformを固定し続ける。
+    // 丸に引っ込んだら登場ぶんを、中央カプセルに戻ったら引っ込みぶんを外して、位置ズレを防ぐ
+    b.classList.remove(used?"tr-pop":"sg-fly");
     const bd=b.querySelector(".tr-b");if(bd)bd.style.display=used?"none":"flex";
   });
 }
@@ -3981,7 +4003,9 @@ function d5AnchorBubble(sel){
   }else top=Math.max(M,(vh-H)/2);
   const left=Math.max(M,Math.min(vw-W-M,Math.round(cx-W/2)));
   card.style.left=left+"px";card.style.top=Math.round(Math.max(M,top))+"px";
-  const tx=Math.round(Math.max(18,Math.min(W-18,cx-left)));
+  // しっぽ（11px）はカードの角丸(20px)に掛かると根元が欠けて見えるので、必ず平らな辺の上に収める
+  const TAIL=11,RAD=20,PAD=RAD+TAIL+2;
+  const tx=Math.round(Math.max(PAD,Math.min(W-PAD,cx-left)));
   card.style.setProperty("--tx",tx+"px");
   card.classList.toggle("flip",flip);
   // ボタンが画面の左端／右端に寄っているときは、しっぽも斜め（左下向き／右下向き）にしてボタンを指す
@@ -4507,9 +4531,9 @@ function sgBoardHTML(n){
     +laps.join("")+decos.join("")+tiles.join("")
     +'</div></div>'
     +'</div>'
-    // 3ボタンは器の外（スライド直下）に置いてアイコン群と左右位置を揃える
-    +'<button class="sg-fbtn sg-home" onclick="sgScrollToCurrent('+n+',true)" aria-label="現在地に戻る">'+SG_HOME_ICON+'</button>'
-    +sgD5HTML();
+    // 現在地ボタンは器の外（スライド直下）に置いてアイコン群と左右位置を揃える
+    // （今日の5問／トレンドはROOMごとに変わらないので、home-wrap直下のフロート1組に移してある）
+    +'<button class="sg-fbtn sg-home" onclick="sgScrollToCurrent('+n+',true)" aria-label="現在地に戻る">'+SG_HOME_ICON+'</button>';
 }
 /* 画像ファイルは正方形でも、被写体の形は縦長・横長とまちまちで、まわりの透明部分の量が画像ごとに違う。
  * 枠の角に番号とランクを置くと、絵が横長の画像では両者が離れて見えてしまうので、
@@ -5521,7 +5545,8 @@ function showOverlay(status,q,userAnswer){
   ov.className="overlay"+(q.type==="w"?" backdrop":"");
   const OVSYM={correct:["o","○"],incorrect:["x","×"],unknown:["u","－"],timeout:["t","△"]};
   const os=OVSYM[status]||["x","×"]; // わからない=－ / 時間切れ=△ を正しく出す（結果・履歴表と統一）
-  let inner=`<div class="ovsym ${os[0]}">${os[1]}</div>`;
+  // 書き取りの「わからない」だけは記号を出さない（大きな「－」が正解の下の灰色の角丸の板に見えてしまうため）
+  let inner=(q.type==="w"&&status==="unknown")?"":`<div class="ovsym ${os[0]}">${os[1]}</div>`;
   if(q.type==="w"){
     inner+=writingAnsHTML(status,q,userAnswer);
   }else{
@@ -5862,8 +5887,7 @@ function finishTest(){
     const memDelta=Math.round(dAfter-dBefore); // 記憶率の増減（±）＝テスト前後の記憶率の差
     const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[r.korean])?`<img src="${WORD_IMG[r.korean]}" alt="">`:`<div class="cg-noimg">🃏</div>`;
     return `<div class="rc-card">
-      <span class="rc-sym" style="color:${syc}">${sy[0]}</span>
-      ${img}
+      <div class="rc-imgw"><span class="rc-sym" style="color:${syc}">${sy[0]}</span>${img}</div>
       <div class="rc-ko">${esc(r.korean)}</div>
       <div class="rc-ja">${esc(r.japanese)}</div>
       <div class="rc-foot"><span class="rc-cards">${cardsGot}枚</span><span class="rc-delta" style="color:${memDelta>=0?'#1FAD62':'#FF6B6B'}">${memDelta>0?'+':''}${memDelta}%</span></div>
@@ -6330,7 +6354,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v3.6 (2026-07-28)";
+const APP_VERSION="v3.7 (2026-07-28)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
