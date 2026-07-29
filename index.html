@@ -69,24 +69,33 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .qhome{background:rgba(0,0,0,.8);border:none;color:#fff;width:32px;height:32px;font-size:16px;cursor:pointer;flex:0 0 auto}
 .qbar .prog{letter-spacing:.5px}
 .qbar .time{color:#FFFFFF;font-variant-numeric:tabular-nums;margin-left:auto;font-weight:800;font-size:14.3px} /* カウントダウンは1段太く(700→800)・1.1倍(13→14.3px) */
-/* 進捗＝山吹色のメーターは廃止。正解するとキャラが1歩ぶん前へ進む（マリオ風に景色が右から左へ流れ、キャラ自身は歩いて見える） */
+/* 進捗＝山吹色のメーターは廃止。正解するとキャラが1歩ぶん前へ進む（景色が右から左へ流れ、キャラ自身は歩いて見える）。
+   背景は作り込まず、空＝ベタ1色＋地面のみの引き算デザイン（色数を減らして単語カードを主役にする） */
 .pbar{position:relative;height:48px;margin:8px 18px 0;border-radius:10px;overflow:hidden;box-sizing:border-box;--rp:0;
-  background:linear-gradient(180deg,#3FA7EA,#8ACFF6 60%,#C6E9FF);box-shadow:inset 0 0 0 2px rgba(0,0,0,.22)}
-.rn-sky,.rn-hill,.rn-ground{position:absolute;left:0;right:0;pointer-events:none;background-repeat:repeat-x;
-  transition:background-position 1s cubic-bezier(.22,.85,.3,1)} /* --rp が増えるほど背景が左へ流れる＝前進 */
-/* 遠景の雲はゆっくり、丘は中くらい、足元の地面はいちばん速く流す（多層パララックス） */
-.rn-sky{top:2px;height:15px;background-size:166px 15px;background-position:calc(var(--rp) * -20px) 0;
-  background-image:radial-gradient(circle at 24px 13px,#fff 5.5px,transparent 6px),
-                   radial-gradient(circle at 36px 14px,#fff 7px,transparent 7.5px),
-                   radial-gradient(circle at 120px 12px,rgba(255,255,255,.82) 4.5px,transparent 5px)}
-.rn-hill{bottom:11px;height:15px;background-size:152px 15px;background-position:calc(var(--rp) * -48px) 0;
-  background-image:radial-gradient(ellipse 32px 13px at 34px 16px,#2F8B58 99%,transparent 100%),
-                   radial-gradient(ellipse 42px 15px at 110px 17px,#24714A 99%,transparent 100%)}
-.rn-ground{bottom:0;height:11px;background-size:28px 11px;background-position:calc(var(--rp) * -92px) 0;
-  background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.17) 0 14px,rgba(255,255,255,.16) 14px 28px),
-                   linear-gradient(180deg,#63BE47 0 4px,#8A5C33 4px)}
-.rn-char{position:absolute;left:30%;bottom:9px;width:29px;height:29px;object-fit:contain;transform:translateX(-50%);
-  filter:drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 2px 3px rgba(0,0,0,.45));pointer-events:none}
+  background:#CFE6F2}
+.rn-ground{position:absolute;left:0;right:0;pointer-events:none;background-repeat:repeat-x;
+  transition:background-position 1s cubic-bezier(.22,.85,.3,1)} /* --rp が増えるほど地面が左へ流れる＝前進 */
+.rn-ground{bottom:0;height:10px;background-size:28px 10px;background-position:calc(var(--rp) * -92px) 0;
+  background-image:repeating-linear-gradient(90deg,#7FB56B 0 14px,#6EA45B 14px 28px)}
+.rn-char{position:absolute;left:30%;bottom:9px;width:29px;height:29px;transform:translateX(-50%);
+  display:flex;align-items:center;justify-content:center;font-size:23px;line-height:1;
+  filter:drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 2px 3px rgba(0,0,0,.35));pointer-events:none}
+.rn-char img{width:100%;height:100%;object-fit:contain;display:block}
+/* 進む先には「いま出ている単語のカード」が置いてある。正解＝キャラのほうへ飛んできて獲得／不正解＝パンとはじけて消える */
+.rn-card{position:absolute;right:12px;bottom:9px;max-width:42%;height:28px;padding:0 8px;border-radius:5px;
+  background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:900;color:#2b2b2b;white-space:nowrap;overflow:hidden;opacity:0;pointer-events:none;--fly:-120px}
+.rn-card.on{animation:rnCardIn .28s ease both}
+.rn-card.got{animation:rnCardGot .62s cubic-bezier(.3,.9,.3,1) forwards}
+.rn-card.pop{animation:rnCardPop .42s ease forwards}
+.rn-card.pop::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:3px solid rgba(255,255,255,.9);
+  animation:rnBurst .42s ease-out forwards}
+@keyframes rnCardIn{0%{opacity:0;transform:translateX(14px)}100%{opacity:1;transform:none}}
+@keyframes rnCardGot{0%{opacity:1;transform:none}
+  70%{opacity:1;transform:translateX(calc(var(--fly) * .82)) translateY(-6px) scale(.6) rotate(-10deg)}
+  100%{opacity:0;transform:translateX(var(--fly)) translateY(0) scale(.18) rotate(-14deg)}}
+@keyframes rnCardPop{0%{opacity:1;transform:none}30%{opacity:1;transform:scale(1.3) rotate(4deg)}100%{opacity:0;transform:scale(.25) rotate(-6deg)}}
+@keyframes rnBurst{0%{opacity:.9;transform:scale(.4)}100%{opacity:0;transform:scale(1.5)}}
 .rn-char.step{animation:rnStep .62s ease-in-out}   /* 正解＝2歩ぶん、その場で歩く（前進は景色の流れで見せる） */
 .rn-char.trip{animation:rnTrip .45s ease}          /* 不正解＝つまずいて進めない */
 @keyframes rnStep{
@@ -310,6 +319,17 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rm-prev::before{border-width:14px 17px 14px 0;border-color:transparent rgba(255,255,255,.95) transparent transparent}
 .rm-next::before{border-width:14px 0 14px 17px;border-color:transparent transparent transparent rgba(255,255,255,.95)}
 .rm-arrow:active{transform:scale(.84)}
+/* まだ1度もROOMを切りかえていない間だけ、矢印を左右に揺らして「ここは横に動く」と伝える
+   （動かすのは中の三角＝::beforeだけ。ボタン自体は動かさないのでタップ位置がぶれない） */
+.home-wrap.roomhint-on .rm-prev::before{animation:rmNudgeL 1.7s ease-in-out infinite}
+.home-wrap.roomhint-on .rm-next::before{animation:rmNudgeR 1.7s ease-in-out infinite}
+@keyframes rmNudgeL{0%,100%{transform:translateX(0)}50%{transform:translateX(-5px)}}
+@keyframes rmNudgeR{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+#room-hint{position:absolute;left:50%;top:calc(158px + var(--lift,0px));transform:translateX(-50%);z-index:6;
+  background:rgba(0,0,0,.72);color:#fff;font-size:20px;font-weight:900;padding:9px 20px;border-radius:999px;
+  white-space:nowrap;pointer-events:none;transition:opacity .35s ease,top .35s ease}
+#room-hint.off{opacity:0}
+.home-wrap.status #room-hint,.home-wrap.hiderail #room-hint,.home-wrap.pager-on #room-hint{opacity:0}
 .rm-prev{left:4px}
 .rm-next{right:4px}
 .rm-arrow.off{opacity:0;pointer-events:none} /* 端のスライドでは、それ以上進めない側を消す */
@@ -527,12 +547,15 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .coach-pg{display:none}
 .coach-pg.on{display:block;animation:cpgin .28s ease both}
 @keyframes cpgin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.coach-ico{font-size:44px;text-align:center;line-height:1}
-.coach-h{font-size:19px;font-weight:900;text-align:center;margin:6px 0 4px;text-wrap:balance}
-.coach-sub{font-size:13.5px;font-weight:800;color:#666;text-align:center;line-height:1.55;text-wrap:balance}
-.coach-list{margin-top:12px;font-size:14px;font-weight:800;line-height:1.85}
-.coach-list div{display:flex;gap:8px;align-items:flex-start}
-.coach-list i{font-style:normal;flex:0 0 auto}
+.coach-h{font-size:19px;font-weight:900;text-align:center;margin:2px 0 4px;text-wrap:balance}
+.coach-sub{font-size:12.5px;font-weight:800;color:#666;text-align:center;line-height:1.5;text-wrap:balance}
+/* 絵と矢印の流れ図（文章を読ませずに手順を見せる） */
+.coach-flow{display:flex;align-items:flex-start;justify-content:center;gap:2px;margin:12px 0 10px}
+.cf-i{flex:0 1 auto;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px}
+.cf-i i{font-style:normal;font-size:36px;line-height:1}
+.cf-i span{font-size:11.5px;font-weight:900;color:#333;text-align:center;line-height:1.3}
+.cf-a{flex:0 0 auto;margin:16px 3px 0;width:0;height:0;border-style:solid;border-width:6px 0 6px 10px;border-color:transparent transparent transparent #c4c4c4}
+.coach-tip{margin-top:11px;background:#F5F5F5;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:800;color:#444;text-align:center;line-height:1.45}
 .coach-dots{display:flex;gap:6px;justify-content:center;margin-top:16px}
 .coach-dots span{width:7px;height:7px;border-radius:50%;background:#d5d5d5}
 .coach-dots span.on{background:#1a1a1a;width:18px;border-radius:999px}
@@ -545,6 +568,8 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
    触らなければ D5_AUTO_SEC 秒で始まり、「戻る」で中断できる（中断してももう一度タッチすれば始められる） */
 .d5auto{position:fixed;inset:0;z-index:610;background:rgba(0,0,0,.34);opacity:0;transition:opacity .2s ease}
 .d5auto.on{opacity:1}
+.d5a-note{font-size:12px;font-weight:800;color:#444;line-height:1.55;background:#F6F6F6;border-radius:10px;padding:7px 8px;margin-bottom:8px;text-wrap:balance}
+.d5a-note b{color:#C24A00}
 .d5a-cd{font-size:11.5px;font-weight:800;color:#777;line-height:1.5}
 .d5a-cd b{font-size:20px;font-weight:900;color:#1a1a1a;font-variant-numeric:tabular-nums;margin:0 3px}
 .d5a-bar{height:5px;background:#EDEDED;overflow:hidden;margin:7px 0 9px}
@@ -875,14 +900,17 @@ body.bigtext .set-d{font-size:13.5px}
 /* ===== result (fixed, only list scrolls) ===== */
 .res{flex:1 1 auto;min-height:0;width:100%;display:flex;flex-direction:column;padding:14px 18px calc(10px + env(safe-area-inset-bottom))} /* 100dvh固定をやめ画面領域内に収める（ページスクロール撲滅） */
 .res-head{flex:0 0 auto;text-align:center;background:rgba(255,255,255,.28);border-radius:14px;padding:7px 8px} /* 背後の玉と干渉しないよう白下敷き */
-.res-top{display:flex;align-items:center;justify-content:center;gap:14px}
-.rank-c{width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:45px;font-weight:900;color:#fff}
+/* 左＝メダル＋点数、右＝メーター2本（レベル／PWR）を縦に並べる */
+.res-top{display:flex;align-items:center;justify-content:center;gap:12px}
+.res-idw{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px}
+.res-meters{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:7px}
+.rank-c{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:900;color:#fff}
 /* ランクをメダル風に：金リング＋光沢、登場時に回転しながらポップ */
 .rank-medal{position:relative;box-shadow:0 0 0 4px rgba(255,255,255,.85),0 0 0 7px rgba(255,196,0,.9),0 6px 16px rgba(0,0,0,.35)}
 .rank-medal::after{content:"";position:absolute;inset:6px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%);pointer-events:none}
 .rank-medal.in{animation:medalpop .7s cubic-bezier(.34,1.6,.5,1)}
 @keyframes medalpop{0%{transform:scale(.2) rotate(-220deg);opacity:0}60%{opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
-.res-score{font-size:36px;font-weight:900}
+.res-score{font-size:27px;font-weight:900;line-height:1.1;white-space:nowrap}
 .res-score b{font-weight:900}
 /* 結果ボタン：アニメーション(惑星)なし。落ち着いた白黒の座布団で優先度だけを静かに示す。
    優先度  ①最優先=もう一度挑戦(黒塗り) ＞ ②シェア(白抜き枠) ＞ ③PWR/ホーム(淡いゴースト) */
@@ -931,7 +959,7 @@ body.bigtext .set-d{font-size:13.5px}
 .speakable{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .speakable.speaking{box-shadow:0 0 0 3px #2F6FE0}
 .res-spkhint{flex:0 0 auto;margin:8px auto 0;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.55);color:#333;font-size:11.5px;font-weight:800;width:fit-content}
-.res-score span{font-size:16px;color:var(--faint);font-weight:800}
+.res-score span{font-size:13px;color:var(--faint);font-weight:800}
 .res-params{display:flex;justify-content:center;gap:28px;margin-top:10px}
 .rp{display:flex;flex-direction:column;align-items:center;gap:4px}
 .rp-num{font-size:22px;font-weight:800;line-height:1}
@@ -939,23 +967,24 @@ body.bigtext .set-d{font-size:13.5px}
 .rp-g{width:120px;height:15px;background:#333;border-radius:999px;padding:3px;box-sizing:border-box}
 .rp-g div{height:100%;border-radius:999px}
 .res-right{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
-.res-pwr{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
+.res-pwr{display:flex;align-items:center;gap:7px;margin:0}
 .res-pwr .pwr-g div{transition:width .9s ease}
-.res-pwr .pwr-lab,.res-pwr .pwr-val{font-size:15px} /* メータ縮小に合わせ文字も小さく */
-.res-pwr .pwr-g{width:180px;height:12px;padding:2px}
+.res-pwr .pwr-lab,.res-pwr .pwr-val{font-size:13px;flex:0 0 auto} /* メータ縮小に合わせ文字も小さく */
+.res-pwr .pwr-g{flex:1 1 auto;width:auto;min-width:40px;height:11px;padding:2px}
 .pwr-delta{font-size:18px;font-weight:900}
-.res-pwr .pwr-delta{font-size:14px}
-.res-counts{display:flex;flex-direction:column;align-items:flex-start;gap:1px;font-size:17px;font-weight:900;line-height:1.15} /* 点数の右に 上=正解数 / 下=不正解数 */
-/* 結果画面の獲得XP：どれだけ増えたかが一目で分かるよう大きく出す */
-.res-xp{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:8px;flex-wrap:wrap}
-.res-xp-gain{font-size:34px;font-weight:900;color:#37E08A;line-height:1;text-shadow:0 3px 12px rgba(55,224,138,.4)}
-.res-xp-gain span{font-size:16px;margin-left:2px}
+.res-pwr .pwr-delta{font-size:20px;flex:0 0 auto} /* 「+5」は増えた実感の要なので大きく出す */
+.res-counts{display:flex;flex-direction:row;align-items:baseline;justify-content:center;gap:8px;font-size:14px;font-weight:900;line-height:1.15} /* 点数の下に 正解数 / 不正解数 */
+/* 結果画面のレベルメーター：獲得XPはレベルメーターの右に、控えめな大きさで出す */
+.res-xp{display:flex;align-items:center;gap:7px;margin:0}
+.res-xp-gain{font-size:19px;font-weight:900;color:#37E08A;line-height:1;flex:0 0 auto;text-shadow:0 2px 8px rgba(55,224,138,.35)}
+.res-xp-gain span{font-size:11px;margin-left:1px}
 .res-xp-gain.pop{animation:xppop .5s cubic-bezier(.2,1.6,.4,1) both}
-.res-xp-bar{display:flex;align-items:center;gap:6px}
-.res-xp-lv{font-size:14px;font-weight:900;color:#fff}
-.res-xp-g{width:96px;height:8px;border-radius:999px;background:rgba(255,255,255,.22);overflow:hidden}
+.res-xp-bar{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:6px}
+.res-xp-lv{font-size:13px;font-weight:900;color:#fff;flex:0 0 auto}
+.res-xp-n{flex:0 0 auto}
+.res-xp-g{flex:1 1 auto;width:auto;min-width:40px;height:7px;border-radius:999px;background:rgba(255,255,255,.22);overflow:hidden}
 .res-xp-g div{height:100%;background:#37E08A;border-radius:999px;transition:width .8s ease}
-.res-xp-n{font-size:11.5px;font-weight:800;color:var(--faint)}
+.res-xp-n{font-size:10px;font-weight:800;color:var(--faint)}
 .res-sess{margin-top:8px;font-size:12.5px;color:var(--faint);font-weight:700}
 .res-sess b{color:var(--text)}
 .btn.dark{background:rgba(0,0,0,.8);color:#fff}
@@ -1298,15 +1327,17 @@ body.bigtext .set-d{font-size:13.5px}
 /* レベルアップの演出 */
 .lvup{position:fixed;inset:0;z-index:640;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.62);opacity:0;transition:opacity .3s ease}
 .lvup.on{opacity:1}
-.lu-card{position:relative;background:linear-gradient(160deg,#fff,#eef7ff);border-radius:26px;padding:26px 38px 22px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.45);transform:scale(.65);transition:transform .45s cubic-bezier(.34,1.65,.5,1)}
+/* Lv.の表記はホーム／ステータスと同じ「黒地に白文字」で統一（青文字はここだけ浮いていた） */
+.lu-card{position:relative;background:rgba(0,0,0,.86);border-radius:26px;padding:26px 38px 22px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.5);transform:scale(.65);transition:transform .45s cubic-bezier(.34,1.65,.5,1)}
 .lvup.on .lu-card{transform:scale(1)}
-.lu-lab{font-size:16px;font-weight:900;color:#1B6FD1;letter-spacing:2px}
-.lu-num{color:#0F63C4;line-height:1;margin:6px 0 2px}
+.lu-lab{font-size:16px;font-weight:900;color:#fff;letter-spacing:2px}
+.lu-num{color:#fff;line-height:1;margin:6px 0 2px}
 .lu-num small{font-size:26px;font-weight:900;margin-right:4px}
 .lu-num b{font-size:86px;font-weight:900}
-.lu-arrow{font-size:15px;font-weight:900;color:#7a8ba0;margin-bottom:4px}
-.lu-msg{font-size:13.5px;font-weight:800;color:#666;margin:2px 0 16px}
-.lu-card .btn{padding:13px 26px;font-size:15px;border-radius:14px}
+.lu-arrow{font-size:15px;font-weight:900;color:rgba(255,255,255,.6);margin-bottom:4px}
+.lu-msg{font-size:13.5px;font-weight:800;color:rgba(255,255,255,.75);margin:2px 0 16px}
+.lu-card .btn{padding:13px 26px;font-size:15px;border-radius:14px;background:#fff;color:#111;font-weight:900}
+.lu-card .btn:active{background:#e6e6e6}
 .sp-res-btns{width:min(320px,86vw);display:flex;flex-direction:column;gap:10px;margin-top:6px}
 .sp-res-btns button{border:none;border-radius:999px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit}
 .sp-res-btns .sp-again{background:#FFC400;color:#3a2c00}
@@ -1451,9 +1482,10 @@ body.bigtext .set-d{font-size:13.5px}
 /* 単語の板（ピースが並ぶ台紙） */
 .pz-board{margin-top:2.6vh;display:flex;align-items:center;justify-content:center;padding:14px 10px;border-radius:20px;
   background:rgba(2,44,26,.42);box-shadow:0 0 0 3px rgba(94,227,155,.35),0 10px 24px rgba(0,0,0,.3)}
+/* ピースはテカらせない（グラデーション＝光沢をやめ、ベタ1色のシンプルな面にする） */
 .pz-cell{position:relative;width:var(--pw);height:calc(var(--pw)*.84);flex:0 0 auto;
   -webkit-clip-path:url(#pzclip);clip-path:url(#pzclip);
-  background:linear-gradient(160deg,#3FBF7A,#1B7A4A 62%,#12603A);
+  background:#1F7E4E;
   display:flex;align-items:center;justify-content:center}
 .pz-cell+.pz-cell{margin-left:calc(var(--pw)*-.26)}
 .pz-gap{flex:0 0 auto;width:calc(var(--pw)*.16)} /* 分かち書きの空白 */
@@ -1464,14 +1496,14 @@ body.bigtext .set-d{font-size:13.5px}
 .pz-cell.hole::before{content:"";position:absolute;inset:0;-webkit-clip-path:url(#pzclip);clip-path:url(#pzclip);
   background:#06301D;transform:scale(.93);animation:pzHole 1.5s ease-in-out infinite}
 @keyframes pzHole{0%,100%{opacity:1}50%{opacity:.72}}
-.pz-cell.hole.filled::before{opacity:1;animation:none;background:linear-gradient(160deg,#FFE07A,#F0A824 62%,#D98A10)}
+.pz-cell.hole.filled::before{opacity:1;animation:none;background:#EFAE22}
 .pz-cell.hole.filled>span{position:relative;z-index:1;animation:pzSnap .34s cubic-bezier(.34,1.5,.5,1) both}
 @keyframes pzSnap{0%{transform:translateY(-26px) scale(1.25);opacity:.2}100%{transform:translateY(0) scale(1);opacity:1}}
 /* 選ぶピース（バラのピース4つ） */
 .pz-tray{margin-top:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%;max-width:520px;padding-top:16px}
 .pz-p{position:relative;width:100%;aspect-ratio:1/.84;border:none;padding:0;font-family:inherit;cursor:pointer;
   -webkit-clip-path:url(#pzclip);clip-path:url(#pzclip);
-  background:linear-gradient(160deg,#6FE3A4,#23A365 60%,#17784A);
+  background:#2AA268;
   display:flex;align-items:center;justify-content:center;
   animation:pzIn .3s cubic-bezier(.34,1.4,.5,1) both}
 .pz-p:nth-child(2){animation-delay:.05s}
@@ -1481,8 +1513,8 @@ body.bigtext .set-d{font-size:13.5px}
 .pz-p>span{font-size:clamp(22px,7vw,34px);font-weight:900;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.35);
   transform:translateX(-4%)}
 .pz-p:active{filter:brightness(1.15)}
-.pz-p.correct{background:linear-gradient(160deg,#FF7B7B,#E03636 60%,#B71C1C)}  /* ○=赤（結果表示と統一） */
-.pz-p.wrong{background:linear-gradient(160deg,#7FB8FF,#2F8BFF 60%,#1B62C4)}   /* ×=青 */
+.pz-p.correct{background:#E03636}  /* ○=赤（結果表示と統一） */
+.pz-p.wrong{background:#2F8BFF}    /* ×=青 */
 .pz-p.gone{opacity:.25}
 
 /* ============================================================ すごろく（ROOM中央・縦スクロール） ============================================================
@@ -1794,6 +1826,8 @@ body.bigtext .set-d{font-size:13.5px}
       <!-- 隣のページへ：スライドごとに置かず、home-wrap直下のフロート1組で全ページ共通 -->
       <button class="rm-arrow rm-prev" id="rm-prev" onclick="stepRoom(-1)" aria-label="前のページへ">‹</button>
       <button class="rm-arrow rm-next" id="rm-next" onclick="stepRoom(1)" aria-label="次のページへ">›</button>
+      <!-- ROOMが横に並んでいることは触ってみないと分からないので、1度も切りかえていない間だけヒントを出す -->
+      <div id="room-hint" style="display:none">◀　スワイプでROOMを切りかえ　▶</div>
       <button class="wb-back" id="wb-back" onclick="exitListMode()" aria-label="ホームに戻る">‹</button>
       <!-- 今日の5問／今日のトレンド：スライドごとに置かず、home-wrap直下のフロート1組で全ページ共通 -->
       <div id="home-fbtn"></div>
@@ -1819,7 +1853,7 @@ body.bigtext .set-d{font-size:13.5px}
   <div class="screen" id="s-quiz">
     <div class="qbar"><button class="qhome" onclick="confirmQuit()" aria-label="テストを中断">‹</button><span class="prog" id="prog">1 / 12</span><button class="qadv" id="qadv" onclick="toggleAdvMode()" aria-label="回答後の進み方を切り替え"><span>タップで次へ</span><span class="qsw" id="qsw"><i></i></span></button><span class="time" id="time">10.0</span></div>
     <!-- 進捗＝キャラが歩いて進む帯（正解するとキャラが1歩ぶん前進し、景色が右から左へ流れる） -->
-    <div class="pbar" id="pbar" aria-hidden="true"><div class="rn-sky"></div><div class="rn-hill"></div><div class="rn-ground"></div><img class="rn-char" id="rn-char" src="characters/analyzing.svg" alt=""></div>
+    <div class="pbar" id="pbar" aria-hidden="true"><div class="rn-ground"></div><div class="rn-card" id="rn-card"></div><div class="rn-char" id="rn-char">🐥</div></div>
     <div class="tbar"><div class="tfill" id="tfill"></div></div>
     <div class="qstage" id="qstage"></div>
   </div>
@@ -2530,6 +2564,30 @@ function syncRoomPager(){
   const c=center(a)+(center(b)-center(a))*(dotPos-lo);
   p.scrollLeft=c-p.clientWidth/2;
 }
+/* ROOMは左右スワイプで切りかわる、と分かるまでのヒント（1度でも切りかえたら二度と出さない） */
+const LS_ROOMHINT="kwt_roomhint_v1";
+let _roomHintIdx=null; // ヒントを出した時点のスライド位置（起動時のプログラム的スクロールで消えないよう、ここから動いたら消す）
+function initRoomHint(){
+  const h=document.getElementById("room-hint");if(!h)return;
+  if(localStorage.getItem(LS_ROOMHINT)){h.style.display="none";return;}
+  h.style.display="";h.classList.remove("off");
+  const el=document.getElementById("hv-rooms");
+  _roomHintIdx=el?Math.round(el.scrollLeft/602):null;
+  const hw=document.getElementById("homewrap");if(hw)hw.classList.add("roomhint-on");
+}
+/* 実際に隣のROOMへ動いたときだけ消す（起動直後の位置合わせスクロールでは消さない） */
+function maybeDismissRoomHint(idx){
+  if(_roomHintIdx===null)return;
+  if(idx!==_roomHintIdx)dismissRoomHint();
+}
+function dismissRoomHint(){
+  const h=document.getElementById("room-hint");if(!h||h.style.display==="none")return;
+  _roomHintIdx=null;
+  try{localStorage.setItem(LS_ROOMHINT,"1");}catch(e){}
+  h.classList.add("off");
+  const hw=document.getElementById("homewrap");if(hw)hw.classList.remove("roomhint-on");
+  setTimeout(()=>{h.style.display="none";},400);
+}
 function showRoomPager(){
   if(_listMode)return; // 単語帳モード中は出さない
   const p=document.getElementById("room-pager");if(!p)return;
@@ -2841,13 +2899,17 @@ function wbPickHit2(id){const q=document.getElementById("wb-q2");if(q)q.value=""
 function wbResetPanel(){const q=document.getElementById("wb-q2");if(q)q.value="";const p=document.getElementById("wb-panel");if(p)p.classList.remove("searching","typing");const hw=document.getElementById("homewrap");if(hw)hw.classList.remove("wb-typing");const box=document.getElementById("wb-hits2");if(box)box.innerHTML="";}
 /* 初回だけ表示する使い方ガイド（LINEから開いた人がここで初めてアプリに触るので、
    1枚の文字列ではなく「ROOMという道を進む → 遊びながら覚える → 数字の見かた」の3ページで見せる） */
+/* 文章で説明せず、絵と矢印の流れ図で「やること」だけを見せる（読ませない＝3秒で分かるガイド） */
 const COACH_PAGES=[
-  {ico:"🏠",h:"ROOMという部屋を<br>1つずつ進んでいきます",sub:"1ROOM＝約100単語。<br>すごろくの道に沿ってマスを進むと、そのROOMの単語が全部出てきます。",
-   list:["▶️|まん中のスタートでテスト（12問）","↔️|左右スワイプでROOMを切りかえ","🏠|ROOM番号タップでROOM一覧"]},
-  {ico:"🎮",h:"えらばなくても<br>今日の分は出てきます",sub:"その日はじめて開くと「今日の5問」が自動ではじまります。まずはそれだけでOK。",
-   list:["🎁|左のアイコンからゲームで楽しく学べる（XPがもらえます）","🔥|終わったら「今日のトレンド問題」も出ます","📖|右下ボタン / 上スワイプで単語帳"]},
-  {ico:"⚡",h:"数字の見かた",sub:"PWRは「いま覚えている度合い」。忘れかけると自動で下がり、復習に出てきます。",
-   list:["⚡|左上のPWR … ROOM全体の記憶の強さ","🔵|Lv.とXP … 解くほどたまってレベルが上がる","⬇️|下スワイプ / Lv.タップでステータス","🅰️|ランク円タップでテスト履歴"]}
+  {h:"ROOMを1つずつ進みます",sub:"1ROOM＝約100単語",
+   flow:[["🏠","ROOM"],["🎯","テスト12問"],["🏆","ROOMクリア"]],
+   tip:"◀ 左右スワイプでROOMを切りかえ ▶"},
+  {h:"開くと自動ではじまります",sub:"今日の5問が自動ではじまります。まずはそれだけでOK",
+   flow:[["🌅","ひらく"],["✏️","今日の5問"],["🎮","ゲーム"]],
+   tip:"🎮 左のアイコンからゲームでXPがもらえます"},
+  {h:"数字の見かた",sub:"PWR＝いま覚えている度合い／XP＝解くほどたまる",
+   flow:[["⚡","PWR"],["🔵","Lv.とXP"],["⬇️","ステータス"]],
+   tip:"⬇️ 下スワイプ／Lv.タップでステータス"}
 ];
 let _coachIdx=0;
 function showCoach(){
@@ -2855,10 +2917,10 @@ function showCoach(){
   const el=document.createElement("div");el.className="coach";el.id="coach";
   el.innerHTML=`<div class="coach-in">
     ${COACH_PAGES.map((p,i)=>`<div class="coach-pg${i===0?" on":""}" data-i="${i}">
-      <div class="coach-ico">${p.ico}</div>
       <div class="coach-h">${p.h}</div>
+      <div class="coach-flow">${p.flow.map((f,k)=>`${k?'<div class="cf-a"></div>':""}<div class="cf-i"><i>${f[0]}</i><span>${f[1]}</span></div>`).join("")}</div>
       <div class="coach-sub">${p.sub}</div>
-      <div class="coach-list">${p.list.map(s=>{const a=s.split("|");return `<div><i>${a[0]}</i><span>${a[1]}</span></div>`;}).join("")}</div>
+      <div class="coach-tip">${p.tip}</div>
     </div>`).join("")}
     <div class="coach-dots">${COACH_PAGES.map((_,i)=>`<span class="${i===0?"on":""}"></span>`).join("")}</div>
     <div class="coach-nav">
@@ -3034,6 +3096,7 @@ function buildRoomSlides(){
       document.getElementById("homewrap").classList.toggle("pq-active",onSp);
       applyBgAll(idx===0?LEVEL_SLIDE_BG:(onSp?"#ffe3f1":roomBg(idx-1)));
       syncRoomArrows(); // 両端では進めない側の三角を消す
+      maybeDismissRoomHint(idx); // 隣のROOMへ動けた＝スワイプのヒントはもう要らない
       if(idx>=1)showRoomPager(); // ルーム切替中は丸ページャーを表示（難易度スライドは除く）
       _clearReco(); // 切替時は前スライドのおすすめ表示を戻す
       clearTimeout(_roomScrollT);
@@ -3089,7 +3152,7 @@ function renderHome(){
   updateHomeStats();
   buildRoomSlides();
   attachHomeRain(); // スライド再構築後に玉レイヤーを差し直し（玉は保持）
-  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();setTimeout(maybeCoach,900);setTimeout(maybeAutoDaily5,1500);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋初回コーチ＋今日の5問の自動スタート＋バックアップ提案
+  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();initRoomHint();setTimeout(maybeCoach,900);setTimeout(maybeAutoDaily5,1500);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋ROOMスワイプのヒント＋初回コーチ＋今日の5問の自動スタート＋バックアップ提案
   buildTodayBand();
   applyHomeBg();
   scaleHome();
@@ -4507,6 +4570,8 @@ function showAutoD5Splash(){
     <div class="d5-h">今日の5問テスト</div>
     ${streak}
     <div class="d5-slots">${cell("am")}${cell("pm")}</div>
+    <!-- 毎回出す説明：朝の部・夜の部があり、それぞれ1日1回だけということが分かればよい -->
+    <div class="d5a-note">朝の部・夜の部の<b>1日2回</b>。<br>それぞれ<b>1回だけ</b>挑戦できる5問です。</div>
     <div class="d5a-cd">あと<b id="d5a-sec">${D5_AUTO_SEC}</b>秒で${d5SlotLabel(slot)}がはじまります</div>
     <div class="d5a-bar"><div id="d5a-fill"></div></div>
     <button class="d5-go" onclick="closeAutoD5(true)">いますぐはじめる</button>
@@ -5829,19 +5894,42 @@ function spSpell(){
  * 山吹色のメーターは廃止。正解するとキャラが1歩ぶん前へ進む＝景色（雲・丘・地面）が右から左へ流れ、
  * キャラ自身はその場で歩いているように見える（マリオ風の横スクロール）。不正解はつまずいて進めない。 */
 let _runSteps=0;
+const RN_DUMMY="🐥"; // 診断が済むまでの仮キャラ（虫眼鏡＝分析中アイコンが歩くと意味が伝わらないため、ダミーの動物にする）
 function runnerReset(){
   _runSteps=0;
   const bar=document.getElementById("pbar");if(bar)bar.style.setProperty("--rp",0);
   const ch=document.getElementById("rn-char");
   if(ch){
     ch.classList.remove("step","trip");
-    try{ch.src=charPathFor(computeDiagnosis());}catch(e){} // 自分の16タイプのキャラが歩く（未診断はanalyzing）
+    // 診断が済んでいれば自分の16タイプのキャラ、まだならダミーの動物が歩く
+    let d=null;try{d=computeDiagnosis();}catch(e){}
+    if(d&&d.complete)ch.innerHTML=`<img src="${charPathFor(d)}" alt="">`;
+    else ch.textContent=RN_DUMMY;
   }
+  runnerCard(null);
+}
+/* 進む先に、いま出ている単語のカードを1枚置く（正解すると獲得できる＝何のために歩いているかが見える） */
+function runnerCard(ko){
+  const cd=document.getElementById("rn-card");if(!cd)return;
+  cd.classList.remove("on","got","pop");void cd.offsetWidth; // アニメを巻き戻す
+  if(!ko){cd.textContent="";return;}
+  cd.textContent=ko;
+  cd.classList.add("on");
 }
 function runnerStep(ok){
   const bar=document.getElementById("pbar");if(!bar)return;
   if(ok)_runSteps++;
   bar.style.setProperty("--rp",_runSteps);
+  // カードの行方：正解＝キャラのほうへ飛んで獲得／不正解＝その場ではじけて消える
+  const cd=document.getElementById("rn-card");
+  if(cd&&cd.classList.contains("on")){
+    if(ok){
+      const chr=document.getElementById("rn-char");
+      if(chr){const c=cd.getBoundingClientRect(),h=chr.getBoundingClientRect();
+        cd.style.setProperty("--fly",Math.round((h.left+h.width/2)-(c.left+c.width/2))+"px");}
+      cd.classList.add("got");
+    }else cd.classList.add("pop");
+  }
   const ch=document.getElementById("rn-char");if(!ch)return;
   ch.classList.remove("step","trip");void ch.offsetWidth; // 連続再生できるようアニメを巻き戻す
   ch.classList.add(ok?"step":"trip");
@@ -5880,6 +5968,7 @@ function renderQuestion(){
   // 遷移時に音声を止めない（長い単語が途中で切れないよう最後まで再生させる）。
   // 重複防止は次の正解時に speakKorean() 側の stopSpeak() が担う。
   const q=state.questions[state.idx];
+  runnerCard(q&&q.word?q.word.ko:null); // 進む先に「いまの単語カード」を置く（正解で獲得／不正解ではじける）
   document.getElementById("prog").textContent=(_d5.on?(_d5.mode==="trend"?"今日のトレンド　":"今日の5問　"):"")+(state.idx+1)+" / "+((state.questions&&state.questions.length)||12);
   const _qa=document.getElementById("qadv");if(_qa)_qa.style.visibility=_d5.on?"hidden":"visible";
   // 進捗は「キャラが歩いて進む」帯で表す（山吹色メーターは廃止）。出題番号と同時にスイッチ表示（今日の5問は正誤表示が無いので隠す）
@@ -6732,19 +6821,24 @@ function finishTest(){
   document.getElementById("s-result").innerHTML=`
    <div class="res">${firstBanner}
     <div class="res-head">
+      <!-- 左＝メダルと点数／右＝レベル・PWRの2本のメーターを縦に並べる（メダルの下にメーターが伸びる形をやめた） -->
       <div class="res-top">
-        <div class="rank-c rank-medal" style="background:${RANK_COLORS[rank]||"#555"}">${rank}</div>
-        <div class="res-score"><b id="res-score-n" data-to="${totalDisp}">0</b><span> / 100</span></div>
-        <div class="res-counts">
-          <span style="color:#FF3B3B">○ ${nCorrect}</span>
-          <span style="color:#2F6FE0">× ${nWrong}</span>
+        <div class="res-idw">
+          <div class="rank-c rank-medal" style="background:${RANK_COLORS[rank]||"#555"}">${rank}</div>
+          <div class="res-score"><b id="res-score-n" data-to="${totalDisp}">0</b><span> / 100</span></div>
+          <div class="res-counts">
+            <span style="color:#FF3B3B">○ ${nCorrect}</span>
+            <span style="color:#2F6FE0">× ${nWrong}</span>
+          </div>
+        </div>
+        <div class="res-meters">
+          <div class="res-xp">
+            <div class="res-xp-bar"><div class="res-xp-lv">Lv.${xpNow.level}</div><div class="res-xp-g"><div id="res-xpfill" style="width:0%"></div></div><span class="res-xp-n">${xpNow.cur} / ${xpNow.next}</span></div>
+            <div class="res-xp-gain" id="res-xp-gain" data-to="${xpGain}">+0<span> XP</span></div>
+          </div>
+          <div class="res-pwr"><span class="pwr-lab">PWR</span><div class="pwr-g"><div id="res-pwrfill" style="background:#00FF37;width:${pwrBefore}%"></div></div><span class="pwr-val">${pwrAfter}%</span><span class="pwr-delta" style="color:${pwrDelta>=0?"#1FAD62":"#FF6B6B"}">${pwrDelta>0?"+":""}${pwrDelta}</span></div>
         </div>
       </div>
-      <div class="res-xp">
-        <div class="res-xp-gain" id="res-xp-gain" data-to="${xpGain}">+0<span> XP</span></div>
-        <div class="res-xp-bar"><div class="res-xp-lv">Lv.${xpNow.level}</div><div class="res-xp-g"><div id="res-xpfill" style="width:0%"></div></div><span class="res-xp-n">${xpNow.cur} / ${xpNow.next}</span></div>
-      </div>
-      <div class="res-pwr"><span class="pwr-lab">PWR</span><div class="pwr-g"><div id="res-pwrfill" style="background:#00FF37;width:${pwrBefore}%"></div></div><span class="pwr-val">${pwrAfter}%</span><span class="pwr-delta" style="color:${pwrDelta>=0?"#1FAD62":"#FF6B6B"}">${pwrDelta>0?"+":""}${pwrDelta}</span></div>
       <div class="res-cheer">${pickResultCheer(totalDisp,nCorrect,R.filter(r=>(r.displayMemoryScoreBefore||0)===0).length)}</div>
     </div>
     ${typeUpd}
@@ -7198,7 +7292,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v4.3 (2026-07-29)";
+const APP_VERSION="v4.4 (2026-07-29)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

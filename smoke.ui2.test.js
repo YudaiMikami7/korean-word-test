@@ -69,15 +69,22 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
     const posOf = () => getComputedStyle(document.querySelector('.rn-ground')).backgroundPositionX;
     const wait = ms => new Promise(r => setTimeout(r, ms));
     const start = rp(), pos0 = posOf();
-    runnerStep(true); const afterOk = rp(), cls1 = ch.className;
+    const card = document.getElementById('rn-card');
+    runnerCard('사랑'); const cardOn = card.classList.contains('on') && card.textContent === '사랑';
+    runnerStep(true); const afterOk = rp(), cls1 = ch.className, cardGot = card.classList.contains('got');
     await wait(1300); const pos1 = posOf(); // 景色の流れは1秒かけて動くので終わるまで待つ
-    runnerStep(false); const afterNg = rp(), cls2 = ch.className;
-    return { start, afterOk, afterNg, cls1, cls2, pos0, pos1, src: ch.getAttribute('src') };
+    runnerCard('물');
+    runnerStep(false); const afterNg = rp(), cls2 = ch.className, cardPop = card.classList.contains('pop');
+    return { start, afterOk, afterNg, cls1, cls2, pos0, pos1, cardOn, cardGot, cardPop,
+             img: ch.querySelector('img') ? ch.querySelector('img').getAttribute('src') : null, txt: ch.textContent.trim() };
   });
   check(`正解でキャラが1歩前へ (${runner.start} → ${runner.afterOk})`, runner.afterOk === runner.start + 1 && /step/.test(runner.cls1));
   check(`景色が右から左へ流れる (${runner.pos0} → ${runner.pos1})`, parseFloat(runner.pos1) < parseFloat(runner.pos0));
   check(`不正解では進まない (${runner.afterOk} → ${runner.afterNg})`, runner.afterNg === runner.afterOk && /trip/.test(runner.cls2));
-  check(`歩くのは自分のキャラ (${runner.src})`, /^characters\//.test(runner.src || ''));
+  check(`未診断のうちはダミーの動物が歩く (${runner.txt})`, !runner.img && runner.txt.length > 0);
+  check('進む先に単語カードが出る', runner.cardOn);
+  check('正解でカードを獲得する演出', runner.cardGot);
+  check('不正解でカードがはじけて消える', runner.cardPop);
 
   // ===== 選択肢の間引き（残り1/4で1つ・1/8で2つ・半透明で残る） =====
   const elim = await page.evaluate(async () => {

@@ -122,7 +122,7 @@ const FILE = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '
     return { to: parseInt(el.dataset.to, 10), size: parseFloat(getComputedStyle(el).fontSize), txt: el.textContent };
   });
   check(`獲得XPが0より大きい (${xpRes.to} XP)`, xpRes.to > 0);
-  check(`獲得XPの字が大きい (${xpRes.size}px)`, xpRes.size >= 30);
+  check(`獲得XPは控えめな大きさ (${xpRes.size}px)`, xpRes.size >= 15 && xpRes.size <= 24); // メール指示でレベル・XPは小さくした
   check('Lv.と次のレベルまでのゲージも出る', await page.evaluate(() => !!document.querySelector('.res-xp-lv') && !!document.getElementById('res-xpfill')));
   check('レベルアップ演出が出せる', await page.evaluate(() => { showLevelUp(3, 2); const ok = !!document.querySelector('.lvup') && /LEVEL UP/.test(document.querySelector('.lvup').textContent); closeLevelUp(); return ok; }));
 
