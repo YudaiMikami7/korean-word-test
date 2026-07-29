@@ -56,10 +56,12 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check('設定が画面内に収まる', await page.evaluate(() => { const c = document.querySelector('.set-card'); const r = c.getBoundingClientRect(); return r.top >= -1 && r.bottom <= window.innerHeight + 1; }));
   await page.evaluate(() => closeSettings());
 
-  // 中断ダイアログ（連続学習の豪華演出・カード獲得演出が出ていたら閉じる）
-  await page.evaluate(() => { document.querySelectorAll('.streak-cel,.cardget').forEach(o => o.remove()); });
+  // 中断ダイアログ（お祝い系の演出が出ていたら閉じる：連続学習／カード獲得／レベルアップ／初回の紹介）
+  const clearCelebrations = () => page.evaluate(() => { document.querySelectorAll('.streak-cel,.cardget,.lvup,.fcust,.pbub,.stepnote,.tapavatar').forEach(o => o.remove()); });
+  await clearCelebrations();
   await page.evaluate(() => { startTest(); clearInterval(timer); renderQuestion(); });
   await page.waitForTimeout(200);
+  await clearCelebrations(); // レベルアップ等は結果画面から遅れて出るので、クリック直前にもう一度払う
   await page.click('.qhome');
   await page.waitForTimeout(200);
   check('中断確認ダイアログ表示', await page.evaluate(() => !!document.querySelector('.appconfirm')));

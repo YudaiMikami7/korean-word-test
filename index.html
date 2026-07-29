@@ -115,6 +115,13 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .qmain{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:8vh 20px 0;text-align:center}
 .qword{font-size:clamp(34px,9vw,46px);font-weight:800;line-height:1.25;word-break:break-all;text-shadow:0 2px 6px rgba(0,0,0,.5),0 0 2px rgba(0,0,0,.4)} /* 白文字が背景色で埋もれないよう黒影 */
 .qword.ja{font-weight:600}
+/* 中断ダイアログを出している間は問題文を伏せる（ただの横棒にする）。
+   タイマーも止まるので、そのまま眺めて考えてから再開する＝ズルができないように（メール指示 2026-07-29） */
+#s-quiz.paused .qword,#s-quiz.paused .pz-ja,#s-quiz.paused .whint,#s-quiz.paused .shg-lead{color:transparent!important;text-shadow:none!important;position:relative}
+#s-quiz.paused .qword::after,#s-quiz.paused .pz-ja::after,#s-quiz.paused .whint::after,#s-quiz.paused .shg-lead::after{
+  content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(62%,240px);height:.36em;min-height:10px;border-radius:999px;background:rgba(255,255,255,.62)}
+#s-quiz.paused .pz-board,#s-quiz.paused .winput,#s-quiz.paused .shg-ja{visibility:hidden} /* 綴りが見えていると同じくズルになるので一緒に伏せる */
 /* 出題の入場アニメ（書き取り等の問題文）：メニュー切り替えのように右からスッと出す（毎問リビルドで再生） */
 @keyframes qEnter{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
 #s-quiz .qstage .qmain{animation:qEnter .30s cubic-bezier(.33,1,.68,1) both}
@@ -153,6 +160,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .choice.correct{background:rgba(255,59,59,.8);color:#fff}
 .choice.wrong{background:rgba(47,139,255,.8);color:#fff}
 .choice.elim{opacity:.3;pointer-events:none;transition:opacity .35s ease} /* 時間経過で選べなくなる不正解（消さずに半透明のまま残す・50/50風ヒント） */
+.choice.elim.spk-on{opacity:.62;pointer-events:auto} /* 回答後は薄い選択肢もタップで発音できる（次へは進まない） */
 
 /* 正解単語が降り積もる背景レイヤー（UIより背面・操作は透過） */
 #s-quiz{position:relative}
@@ -411,6 +419,50 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 @keyframes suckpop{0%{transform:scale(1)}35%{transform:scale(1.45)}100%{transform:scale(1)}}
 .rr-btn.suck{animation:suckpop .5s ease}
 @keyframes toastin{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+/* テスト後にホームへ戻ったときの流れ（メール指示 2026-07-29）
+   ①プレゼントのアイコンから白い吹き出しで「プレゼントが届きました」→消える
+   ②「新しいステップに進みました」＋いまクリアしたマスの絵がモノクロ→カラーに戻る
+   （黒地に白の全画面ポップアップはやめた） */
+.pbub{position:fixed;z-index:520;background:#fff;color:#1a1a1a;font-size:16px;font-weight:900;padding:12px 18px;border-radius:16px;
+  box-shadow:0 10px 26px rgba(0,0,0,.28);white-space:nowrap;pointer-events:none;
+  animation:pbubin .42s cubic-bezier(.34,1.6,.5,1) both}
+.pbub::after{content:"";position:absolute;right:-9px;top:50%;margin-top:-8px;border:8px solid transparent;border-left-color:#fff;border-right:0}
+.pbub.out{opacity:0;transform:scale(.9);transition:opacity .35s ease,transform .35s ease}
+@keyframes pbubin{from{opacity:0;transform:scale(.55) translateX(20px)}to{opacity:1;transform:scale(1) translateX(0)}}
+.stepnote{position:absolute;left:50%;top:206px;transform:translateX(-50%);z-index:20;background:#fff;color:#1a1a1a;
+  font-size:21px;font-weight:900;padding:14px 26px;border-radius:999px;box-shadow:0 10px 28px rgba(0,0,0,.32);
+  white-space:nowrap;pointer-events:none;animation:toastpop .5s cubic-bezier(.34,1.7,.5,1)}
+.stepnote.out{opacity:0;transform:translateX(-50%) scale(.9);transition:opacity .4s ease,transform .4s ease}
+.sg-img.recolor{animation:sgRecolor 1.6s ease-out both}
+@keyframes sgRecolor{
+  0%{filter:grayscale(1) brightness(1.06)}
+  35%{filter:grayscale(.45) brightness(1.4) drop-shadow(0 0 26px rgba(255,215,100,.95)) drop-shadow(0 0 48px rgba(255,175,0,.7))}
+  100%{filter:grayscale(0) brightness(1) drop-shadow(0 8px 7px rgba(0,0,0,.3))}
+}
+/* 初回だけ流す紹介（カスタマイズ完了 → タイプ診断 → あなただけの12問） */
+.fcust{position:fixed;inset:0;z-index:645;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);opacity:0;transition:opacity .3s ease}
+.fcust.on{opacity:1}
+.fc-card{position:relative;background:#fff;color:#1a1a1a;border-radius:24px;padding:26px 26px 20px;width:min(340px,84vw);text-align:center;
+  box-shadow:0 24px 70px rgba(0,0,0,.45);transform:scale(.68);transition:transform .42s cubic-bezier(.34,1.65,.5,1)}
+.fcust.on .fc-card{transform:scale(1)}
+.fc-ico{font-size:44px;line-height:1}
+.fc-h{font-size:19px;font-weight:900;margin-top:8px;line-height:1.4;text-wrap:balance}
+.fc-s{font-size:13px;font-weight:800;color:#666;margin-top:8px;line-height:1.6;text-wrap:balance}
+.fc-code{display:flex;gap:6px;justify-content:center;margin:12px 0 2px}
+.fc-code span{font-size:40px;font-weight:900;line-height:1}
+.fc-job{font-size:15px;font-weight:900;color:#333}
+.fc-btn{margin-top:16px;width:100%;border:none;border-radius:999px;padding:13px;font-size:15px;font-weight:900;font-family:inherit;background:#1a1a1a;color:#fff;cursor:pointer}
+/* 「左上のアイコンをタップ」を指す矢印つきの吹き出し */
+.tapavatar{position:absolute;left:38px;top:170px;z-index:40;background:#fff;color:#1a1a1a;font-size:15px;font-weight:900;
+  padding:11px 16px;border-radius:14px;box-shadow:0 8px 22px rgba(0,0,0,.3);white-space:nowrap;pointer-events:none;
+  animation:tapavin .4s cubic-bezier(.34,1.6,.5,1) both}
+.tapavatar::after{content:"";position:absolute;left:30px;top:-9px;border:9px solid transparent;border-bottom-color:#fff;border-top:0}
+.tapavatar.out{opacity:0;transition:opacity .4s ease}
+@keyframes tapavin{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.avatar-circle.spot{animation:avspot 1.5s ease-in-out 3}
+@keyframes avspot{0%,100%{box-shadow:0 0 0 0 rgba(255,196,0,0)}50%{box-shadow:0 0 0 10px rgba(255,196,0,.55)}}
+.sg-here.spot{animation:sgherebob 1.6s ease-in-out infinite,hereSpot 1.1s ease-in-out 4} /* 「あなただけの12問」からスタートへ誘導 */
+@keyframes hereSpot{0%,100%{box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 0 4px rgba(255,196,0,.95)}50%{box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 0 14px rgba(255,196,0,.45)}}
 /* 今日学ぶべき単語の帯：スタートボタン上に半透明白、カードが左→右に流れる */
 .today-band{position:absolute;left:14px;top:962px;width:452px;height:170px;border-radius:14px;overflow:hidden;background:rgba(255,255,255,.6);z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease} /* 白帯は白寄り60%（背後の玉と重なっても見づらくならない） */
 .tb-clip{position:absolute;left:0;top:-5px;width:452px;height:175px;overflow:hidden;display:flex;align-items:flex-end}
@@ -419,11 +471,11 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .tb-track{display:flex;animation:tbflow 30s linear infinite;will-change:transform;backface-visibility:hidden;margin-bottom:8px}
 .tb-group{display:flex;gap:12px;padding:0 6px;flex:0 0 auto} /* 同一グループ2連結で-50%＝ちょうど1周＝つなぎ目ゼロ */
 @keyframes tbflow{from{transform:translateX(0)}to{transform:translateX(-50%)}} /* 右→左 */
-.tb-card{position:relative;flex:0 0 auto;background:rgba(255,255,255,.92);border-radius:14px;padding:8px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:118px;pointer-events:auto;cursor:pointer}
+.tb-card{position:relative;flex:0 0 auto;background:linear-gradient(160deg,#fff,#ffe9c2);box-shadow:0 3px 8px rgba(0,0,0,.25);border-radius:12px;padding:8px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:118px;pointer-events:auto;cursor:pointer}
 .tb-imgspace{width:60px;height:12px;flex:0 0 auto} /* 白座布団は上から40%(48px)削減。画像・下部テキストの画面上の位置は不変 */
 .tb-img{position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:120px;height:120px;object-fit:contain;display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,.2))} /* 2倍サイズ・カード上部からはみ出すポップアウト */
 .tb-ko{font-size:21px;font-weight:900;color:#222;line-height:1.15}
-.tb-ja{font-size:12px;font-weight:700;color:#666;margin-top:1px;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-ja{font-size:12px;font-weight:700;color:#7a6a4a;margin-top:1px;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* 単語一覧モード：スワイプ連動（--lift/--pはhome-wrapに設定） */
 .home-wrap .slide-inner{transform:translateY(var(--lift,0px));transition:transform .35s ease}
 #calendar-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
@@ -529,15 +581,16 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* 単語帳: 3列グリッド（縦スクロール）＋動的演出（カスケード出現・画像のゆらぎ） */
 .wb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:92px 10px;padding:96px 10px 24px} /* 長い単語でも3列とも同幅・画面からはみ出さない */
 .wb-card{min-width:0;max-width:100%}
-.wb-card{position:relative;background:rgba(255,255,255,.95);border-radius:18px;padding:8px 10px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a;animation:wbin .5s ease backwards} /* content-visibilityはpaint封じ込めでポップアウト画像が切れるため不使用（軽量化は現在ROOM±1のみ描画で担保） */
+/* 単語帳のカードは結果画面の「獲得した単語カード」(.rc-card)と同じ見た目に揃える（メール指示 2026-07-29） */
+.wb-card{position:relative;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a;box-shadow:0 3px 8px rgba(0,0,0,.25);animation:wbin .5s ease backwards} /* content-visibilityはpaint封じ込めでポップアウト画像が切れるため不使用（軽量化は現在ROOM±1のみ描画で担保） */
 @keyframes wbin{from{opacity:0;transform:translateY(18px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
 .wb-imgspace{width:90px;height:60px;flex:0 0 auto} /* 画像の下半分ぶんの席を確保（韓国語と重ならない） */
 .wb-img{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:150px;height:150px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18));animation:wbbob 3.2s ease-in-out infinite}
 @keyframes wbbob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
 .wb-img.sil{filter:brightness(0) opacity(.5)} /* 未獲得はシルエット */
 .wb-ko{font-size:27px;font-weight:900;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wb-ja{font-size:14px;font-weight:700;color:#666;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wb-info{display:flex;gap:8px;font-size:13px;font-weight:800;color:#888;margin-top:3px;line-height:1}
+.wb-ja{font-size:14px;font-weight:700;color:#7a6a4a;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb-info{display:flex;gap:8px;font-size:13px;font-weight:900;color:#b8862b;margin-top:3px;line-height:1}
 .wb-rate.ms-stable{color:#1FAD62}.wb-rate.ms-review{color:#C79A00}.wb-rate.ms-urgent{color:#E0433B}
 .mutehint{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;font-size:13px;font-weight:800;padding:8px 16px;border-radius:999px;z-index:500;opacity:0;pointer-events:none;transition:opacity .3s ease}
 .mutehint.on{opacity:1}
@@ -591,7 +644,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .wbh-ko{font-size:20px}
 .wbh-ja{font-size:13px;color:#666;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wbh-room{font-size:11px;color:#999;flex:0 0 auto}
-.wd-nav{position:absolute;top:46%;transform:translateY(-50%);z-index:5;width:44px;height:64px;border:none;border-radius:12px;background:rgba(0,0,0,.35);color:#fff;font-size:26px;font-weight:900;cursor:pointer}
+.wd-nav{position:absolute;top:33%;transform:translateY(-50%);z-index:5;width:44px;height:64px;border:none;border-radius:12px;background:rgba(0,0,0,.35);color:#fff;font-size:26px;font-weight:900;cursor:pointer}
 .wd-prev{left:6px}.wd-next{right:6px}
 /* 文字サイズ 大 モード */
 body.bigtext .choice{font-size:25px}
@@ -647,8 +700,9 @@ body.bigtext .set-d{font-size:13.5px}
 .ac-t{font-size:16px;font-weight:900;line-height:1.7;margin-bottom:16px}
 .ac-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .ac-btns .btn{padding:12px;font-size:14px;border-radius:999px}
-.ac-btns .ac-stop{background:#fff;color:#1a1a1a;border:1px solid rgba(0,0,0,.08);font-weight:900;box-shadow:0 2px 6px rgba(0,0,0,.22)} /* 中断=白カード上でも浮いて見える白座布団に黒文字 */
-.ac-card{background:#f3f4f6} /* カードを淡グレーにして白の中断ボタンをくっきり見せる */
+/* 中断＝白座布団に黒文字。淡グレー地＋影で浮かせるのはやめ、白地＋黒枠線で輪郭を出す（メール指示 2026-07-29） */
+.ac-btns .ac-stop{background:#fff;color:#1a1a1a;border:2px solid #111;font-weight:900;box-shadow:none}
+.ac-card{background:#fff;border:2px solid #111;box-shadow:none}
 /* 横向き案内（非ブロッキング） */
 #rotate-hint{display:none;position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:700;background:rgba(0,0,0,.8);color:#fff;font-size:13px;font-weight:800;padding:9px 16px;border-radius:999px;pointer-events:none}
 @media (orientation:landscape) and (max-height:540px){#rotate-hint{display:block}}
@@ -958,7 +1012,6 @@ body.bigtext .set-d{font-size:13.5px}
 /* カードをタップ＝その単語の韓国語を読み上げる（結果画面から発音を確かめられるように） */
 .speakable{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .speakable.speaking{box-shadow:0 0 0 3px #2F6FE0}
-.res-spkhint{flex:0 0 auto;margin:8px auto 0;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.55);color:#333;font-size:11.5px;font-weight:800;width:fit-content}
 .res-score span{font-size:13px;color:var(--faint);font-weight:800}
 .res-params{display:flex;justify-content:center;gap:28px;margin-top:10px}
 .rp{display:flex;flex-direction:column;align-items:center;gap:4px}
@@ -966,25 +1019,24 @@ body.bigtext .set-d{font-size:13.5px}
 .rp-num i{font-style:normal;font-size:13px;margin-left:2px}
 .rp-g{width:120px;height:15px;background:#333;border-radius:999px;padding:3px;box-sizing:border-box}
 .rp-g div{height:100%;border-radius:999px}
-.res-right{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
-.res-pwr{display:flex;align-items:center;gap:7px;margin:0}
-.res-pwr .pwr-g div{transition:width .9s ease}
-.res-pwr .pwr-lab,.res-pwr .pwr-val{font-size:13px;flex:0 0 auto} /* メータ縮小に合わせ文字も小さく */
-.res-pwr .pwr-g{flex:1 1 auto;width:auto;min-width:40px;height:11px;padding:2px}
 .pwr-delta{font-size:18px;font-weight:900}
-.res-pwr .pwr-delta{font-size:20px;flex:0 0 auto} /* 「+5」は増えた実感の要なので大きく出す */
-.res-counts{display:flex;flex-direction:row;align-items:baseline;justify-content:center;gap:8px;font-size:14px;font-weight:900;line-height:1.15} /* 点数の下に 正解数 / 不正解数 */
-/* 結果画面のレベルメーター：獲得XPはレベルメーターの右に、控えめな大きさで出す */
-.res-xp{display:flex;align-items:center;gap:7px;margin:0}
-.res-xp-gain{font-size:19px;font-weight:900;color:#37E08A;line-height:1;flex:0 0 auto;text-shadow:0 2px 8px rgba(55,224,138,.35)}
-.res-xp-gain span{font-size:11px;margin-left:1px}
+.res-right{display:flex;flex-direction:column;align-items:flex-start;gap:4px} /* 「過去の結果」画面で使用 */
+.res-counts{display:flex;flex-direction:row;align-items:baseline;gap:8px;font-size:14px;font-weight:900;line-height:1.15} /* 点数の右に 正解数 / 不正解数 */
+/* 右側は上＝点数と正誤／下＝メーター2本 */
+.res-side{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:6px}
+.res-scorerow{display:flex;align-items:baseline;gap:12px}
+/* レベル(XP)とPWRはステータス画面（ホームのヘッダー）と同じ見た目に統一：
+   黒の座布団／右揃えラベル／#333の溝に太いゲージ／XPは黄・PWRは緑（メール指示 2026-07-29） */
+.res-meters{display:flex;flex-direction:column;gap:6px;background:rgba(0,0,0,.8);border-radius:16px;padding:8px 12px}
+.res-mrow{display:flex;align-items:center;gap:8px}
+.res-mlab{flex:0 0 auto;min-width:42px;text-align:right;font-size:13px;font-weight:900;color:#fff;line-height:1}
+.res-mg{flex:1 1 auto;min-width:36px;height:14px;background:#333;border-radius:999px;padding:3px;box-sizing:border-box}
+.res-mfill{height:100%;border-radius:999px;width:0;transition:width .8s ease}
+.res-mval{flex:0 0 auto;font-size:12px;font-weight:800;color:#fff;line-height:1;font-variant-numeric:tabular-nums}
+.res-mgain{flex:0 0 auto;font-size:16px;font-weight:900;line-height:1;min-width:46px;text-align:right}
+.res-mgain span{font-size:10px;margin-left:1px}
+.res-xp-gain{color:#FFFF37} /* 獲得XPもステータスのXPと同じ黄色（緑は見づらかった） */
 .res-xp-gain.pop{animation:xppop .5s cubic-bezier(.2,1.6,.4,1) both}
-.res-xp-bar{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:6px}
-.res-xp-lv{font-size:13px;font-weight:900;color:#fff;flex:0 0 auto}
-.res-xp-n{flex:0 0 auto}
-.res-xp-g{flex:1 1 auto;width:auto;min-width:40px;height:7px;border-radius:999px;background:rgba(255,255,255,.22);overflow:hidden}
-.res-xp-g div{height:100%;background:#37E08A;border-radius:999px;transition:width .8s ease}
-.res-xp-n{font-size:10px;font-weight:800;color:var(--faint)}
 .res-sess{margin-top:8px;font-size:12.5px;color:var(--faint);font-weight:700}
 .res-sess b{color:var(--text)}
 .btn.dark{background:rgba(0,0,0,.8);color:#fff}
@@ -1077,23 +1129,49 @@ body.bigtext .set-d{font-size:13.5px}
 .wd-scroll::-webkit-scrollbar{display:none}
 .wd-slide{flex:0 0 100%;width:100%;scroll-snap-align:start;overflow-y:auto;padding:4px 16px 24px;box-sizing:border-box;-webkit-overflow-scrolling:touch}
 .wd-top{display:flex;justify-content:center;align-items:baseline;gap:22px;font-size:19px;font-weight:900;margin:2px 0 4px}
-/* 単語詳細：カード型（画像左・小さめ／右に韓国語＋日本語） */
-.wd-card{display:flex;align-items:center;gap:16px;background:rgba(255,255,255,.14);border-radius:20px;padding:16px;margin:4px 16px 2px}
-.wd-cimg{position:relative;flex:0 0 auto;width:118px;height:118px}
-.wd-cimg .wd-img2{width:100%;height:100%;object-fit:contain}
-.wd-cimg .wd-img2.noimg{display:flex;align-items:center;justify-content:center;font-size:52px}
-.wd-cimg .wd-spk{position:absolute;top:-4px;right:-4px;margin:0;background:rgba(0,0,0,.5)}
-.wd-cinfo{flex:1;min-width:0}
-.wd-cmeta{display:flex;gap:14px;font-size:15px;font-weight:900;margin-bottom:4px}
-/* 単語詳細 上部ページャー（番号＋韓国語。横スクロールのみ・見切れ防止で縦幅を確保） */
-.rp-pager{flex:0 0 auto;display:flex;gap:12px;align-items:center;overflow-x:auto;overflow-y:hidden;touch-action:pan-x;scrollbar-width:none;padding:14px 16px 12px}
+/* 単語詳細：結果画面の獲得カードと同じ「1枚の大きなカード」。
+   上段＝獲得したカードの枚数と音声マーク／中央＝大きい絵／下＝韓国語・日本語・記憶率（メール指示 2026-07-29） */
+.wd-card{background:linear-gradient(160deg,#fff,#ffe9c2);color:#1a1a1a;border-radius:22px;padding:12px 16px 16px;margin:4px 16px 2px;
+  box-shadow:0 6px 18px rgba(0,0,0,.28);text-align:center}
+.wd-cbar{display:flex;align-items:center;justify-content:center;gap:10px}
+.wd-cards{font-size:14px;font-weight:900;color:#8a6414}
+.wd-cards b{font-size:20px;margin:0 2px}
+.wd-cimg{position:relative;width:100%;height:190px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.wd-cimg .wd-img2{max-width:100%;height:100%;object-fit:contain}
+.wd-cimg .wd-img2.noimg{display:flex;align-items:center;justify-content:center;font-size:64px}
+/* 単語詳細 上部ページャー（隣の単語も「韓国語＋日本語の小さいカード」で並べる） */
+.rp-pager{flex:0 0 auto;display:flex;gap:8px;align-items:stretch;overflow-x:auto;overflow-y:hidden;touch-action:pan-x;scrollbar-width:none;padding:12px 16px 10px}
 .rp-pager::-webkit-scrollbar{display:none}
-.rp-pager .wd-dot{flex:0 0 auto;flex-direction:column;gap:1px;min-width:auto;height:auto}
-.rp-pager .wd-dn{font-size:12px;font-weight:800;opacity:.85;line-height:1}
-.rp-pager .wd-dk{font-size:16px;font-weight:900;white-space:nowrap;line-height:1.1}
-.wd-ko2{text-align:left;font-size:34px;font-weight:800;line-height:1.1}
-.wd-ja2{text-align:left;font-size:19px;font-weight:800;color:rgba(255,255,255,.92);margin-top:3px}
-.wd-spk{background:rgba(0,0,0,.35);border:none;border-radius:50%;width:38px;height:38px;font-size:18px;margin-left:10px;vertical-align:middle;cursor:pointer;color:#fff}
+.rp-pager .wd-dot{flex:0 0 auto;flex-direction:column;justify-content:center;gap:1px;min-width:78px;height:auto;
+  background:rgba(255,255,255,.9);color:#1a1a1a;border-radius:12px;padding:7px 10px;text-shadow:none;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);transition:transform .18s ease,box-shadow .18s ease}
+.rp-pager .wd-dot.cur{transform:scale(1.06);box-shadow:0 0 0 3px #FFC400,0 3px 10px rgba(0,0,0,.3)}
+.rp-pager .wd-dk{font-size:17px;font-weight:900;white-space:nowrap;line-height:1.15}
+.rp-pager .wd-dj{font-size:11px;font-weight:800;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;line-height:1.2}
+.wd-ko2{text-align:center;font-size:44px;font-weight:900;line-height:1.1;color:#1a1a1a}
+.wd-ja2{text-align:center;font-size:24px;font-weight:800;color:#5c5142;margin-top:2px}
+/* 記憶率は数字だけだと量が伝わらないので、言葉のラベル＋バーで「どれくらい」を見せる */
+.wd-crate{display:flex;align-items:center;gap:9px;margin-top:10px}
+.wd-rlab{flex:0 0 auto;font-size:13px;font-weight:900;color:#7a6a4a}
+.wd-rg{flex:1 1 auto;height:12px;background:rgba(0,0,0,.13);border-radius:999px;overflow:hidden}
+.wd-rf{height:100%;border-radius:999px;background:#1FAD62;transition:width .6s ease}
+.wd-rf.ms-review{background:#C79A00}.wd-rf.ms-urgent{background:#E0433B}
+.wd-rval{flex:0 0 auto;font-size:20px;font-weight:900;line-height:1}
+.wd-rval i{font-style:normal;font-size:12px;margin-left:1px}
+.wd-rval.ms-stable{color:#1FAD62}.wd-rval.ms-review{color:#B08800}.wd-rval.ms-urgent{color:#D33127}
+/* 単語詳細のROOM見出し（単語帳ページと同じくROOMの情報が分かるように） */
+.wd-room{display:flex;align-items:center;gap:10px;margin:0 16px;background:rgba(255,255,255,.16);border-radius:999px;padding:7px 16px}
+.wd-room .wr-no{font-size:19px;font-weight:900;letter-spacing:1px}
+.wd-room .wr-m{font-size:13px;font-weight:800;color:rgba(255,255,255,.9)}
+.wd-room .wr-rank{margin-left:auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:900;color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 4px rgba(255,196,0,.9)}
+/* 学習履歴：日付の見出しは省き、時間・得点・記憶率は大きく太く */
+.hdir{font-size:13px;font-weight:900;white-space:nowrap}
+.hdir i{font-style:normal;margin:0 2px;opacity:.7}
+#s-wdetail .htab td.num{font-size:16px;font-weight:900}
+#s-wdetail .htab th.num{font-size:12px}
+.wd-spk{background:rgba(0,0,0,.35);border:none;border-radius:50%;width:38px;height:38px;font-size:18px;margin-left:10px;vertical-align:middle;cursor:pointer;color:#fff;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.spk-svg{vertical-align:-.18em} /* 文字と並べたときのベースライン合わせ（音声マークは全部この白シルエット） */
 .wd-ex{margin:10px 16px 0;background:rgba(255,255,255,.14);border-radius:12px;padding:10px 14px;text-align:center}
 .wd-ex-ko{font-size:19px;font-weight:800}
 .wd-ex-ja{font-size:13px;font-weight:700;color:rgba(255,255,255,.85);margin-top:3px}
@@ -1689,7 +1767,7 @@ body.bigtext .set-d{font-size:13.5px}
 .lap-btns .lb-next{background:#FFC400;color:#2b1a00}
 .lap-btns .lb-stay{background:transparent;border:2px solid rgba(255,255,255,.45);color:#fff}
 /* ROOMごとのすごろく進捗チップ（スクロールしない） */
-.sg-prog{position:absolute;left:50%;transform:translateX(-50%);top:8px;z-index:4;background:rgba(0,0,0,.42);color:#fff;font-size:12px;font-weight:900;
+.sg-prog{position:absolute;left:50%;transform:translateX(-50%);top:112px;z-index:4;background:rgba(0,0,0,.62);color:#fff;font-size:12px;font-weight:900;
   letter-spacing:.06em;padding:5px 12px;border-radius:999px;pointer-events:none;white-space:nowrap}
 .sg-prog b{color:#FFD84D;font-size:14px}
 /* 今日の5問の連続記録 */
@@ -2735,7 +2813,7 @@ function fillAvatarJob(){
   el.textContent=(TYPE_INFO[code]||[""])[0]||"分析中";
 }
 let _avatarTimer=null,_avatarStep=0;
-const _AVATAR_SEQ=["char","mbti","char","job"]; // キャラ50%・MBTI25%・職業25%
+const _AVATAR_SEQ=["char","mbti"]; // キャラ⇄MBTIコードの2面だけ。職業名（「暗号解読者」等の日本語）は出さない（メール指示 2026-07-29）
 function startAvatarFlip(){if(_avatarTimer)return;_avatarTimer=setInterval(()=>{
   const c=document.querySelector(".avatar-circle");if(!c)return;
   if(!document.getElementById("s-home").classList.contains("on")||_statusMode)return;
@@ -3190,11 +3268,90 @@ let _homeNotice=null;
 function showHomeNotice(n){
   const wrap=document.getElementById("homewrap");if(!wrap)return;
   if(n.type==="streak"){showStreakCelebration(loginStreak());return;} // 連続日数アップは豪華演出
-  const old=document.getElementById("home-toast");if(old)old.remove();
-  const el=document.createElement("div");el.id="home-toast";el.className="home-toast big";el.textContent="🎁 プレゼントが届きました";
+  // プレゼント→新ステップ→（初回だけ）タイプ診断の紹介、の順に流す
+  showPresentBubble(()=>showStepAdvance(()=>{if(n.first)showFirstIntro();}));
+}
+/* ①プレゼントのアイコンから白い吹き出しを出す（全画面の黒ポップアップは廃止） */
+function showPresentBubble(done){
+  document.querySelectorAll(".pbub").forEach(e=>e.remove());
+  const cat=PRES_CATS.find(c=>presentsAvailable(c)>0)||"rank";
+  const target=document.getElementById("rr-"+cat);
+  const el=document.createElement("div");el.className="pbub";el.textContent="🎁 プレゼントが届きました";
+  document.body.appendChild(el);
+  if(target){
+    const r=target.getBoundingClientRect();
+    el.style.top=Math.round(r.top+r.height/2-el.offsetHeight/2)+"px";
+    el.style.left=Math.round(Math.max(8,r.left-el.offsetWidth-14))+"px";
+    target.classList.remove("suck");void target.offsetWidth;target.classList.add("suck");
+  }else{el.style.top="200px";el.style.left="20px";}
+  updatePresent(); // 受け取り待ちの数バッジを更新
+  setTimeout(()=>{el.classList.add("out");setTimeout(()=>{el.remove();done&&done();},380);},1800);
+}
+/* ②「新しいステップに進みました」＋いまクリアしたマスの絵をモノクロ→カラーへ戻す */
+function showStepAdvance(done){
+  const bt=_lastBoardTile;
+  if(bt){
+    const sl=document.querySelector('.room-slide[data-n="'+bt.sec+'"]')||document;
+    const tile=sl.querySelector('.sg-tile[aria-label="マス'+bt.gidx+'"]');
+    const im=tile&&tile.querySelector(".sg-img");
+    if(im){im.classList.remove("recolor");void im.offsetWidth;im.classList.add("recolor");}
+  }
+  const wrap=document.getElementById("homewrap");
+  if(!wrap){done&&done();return;}
+  document.querySelectorAll(".stepnote").forEach(e=>e.remove());
+  const el=document.createElement("div");el.className="stepnote";el.textContent="✨ 新しいステップに進みました";
   wrap.appendChild(el);
-  setTimeout(flyPresentToRail,420); // プレゼントがアイコンへ吸い込まれる演出
-  setTimeout(()=>{el.classList.add("out");setTimeout(()=>el.remove(),450);},3200);
+  setTimeout(()=>{el.classList.add("out");setTimeout(()=>{el.remove();done&&done();},420);},2000);
+}
+/* ③初回だけ：カスタマイズ完了 → タイプ診断の紹介 → 「あなただけの12問」で次へ誘導 */
+function showFirstIntro(){
+  document.querySelectorAll(".fcust").forEach(e=>e.remove());
+  closeLevelUp(); // レベルアップの全面表示と重ならないように先に閉じる
+  const d=computeDiagnosis();
+  const code=d.complete?d.code:AXES.map((ax,i)=>d.axes[i].code||ax.R).join("");
+  const job=(TYPE_INFO[code]||[""])[0]||"";
+  const pages=[
+    {ico:"🏠",h:"最初のカスタマイズが終わりました",s:"ここから先は<b>あなただけの部屋</b>です。<br>解くほど部屋が育って、単語カードが集まります。"},
+    {ico:"🔍",h:"あなたのタイプを診断しました",
+     s:"1回目の解き方から、いまのあなたのタイプを出しました。<br><b>左上のアイコンをタップ</b>すると、いつでも見られます。",
+     code:code,job:job},
+    {ico:"✨",h:"あなただけの12問を選びました",s:"1回目の結果をもとに、<b>いまのあなたに効く12問</b>を選んであります。<br>そのままスタートを押してください。"}
+  ];
+  const ov=document.createElement("div");ov.className="fcust";
+  document.body.appendChild(ov);
+  let i=0;
+  const draw=()=>{
+    const pg=pages[i];
+    const sp=c=>'<span style="color:'+(AXIS_COLORS[c]||"#333")+'">'+c+'</span>';
+    const codeHTML=pg.code?'<div class="fc-code">'+[...pg.code].map(sp).join("")+'</div>'+(pg.job?'<div class="fc-job">'+esc(pg.job)+'</div>':""):"";
+    ov.innerHTML='<div class="fc-card"><div class="fc-ico">'+pg.ico+'</div><div class="fc-h">'+pg.h+'</div>'
+      +codeHTML+'<div class="fc-s">'+pg.s+'</div>'
+      +'<button class="fc-btn" id="fc-next">'+(i<pages.length-1?"次へ":"はじめる")+'</button></div>';
+    ov.querySelector("#fc-next").onclick=()=>{
+      if(i===1)spotAvatar();       // タイプの回は、閉じるときに左上アイコンを光らせて場所を教える
+      if(i<pages.length-1){i++;draw();return;}
+      ov.classList.remove("on");setTimeout(()=>ov.remove(),300);
+      spotStart();                 // 最後は「あなただけの12問」＝スタートへ誘導
+    };
+  };
+  draw();
+  requestAnimationFrame(()=>ov.classList.add("on"));
+}
+/* 左上アイコンを光らせ「タップすると見られます」の吹き出しを出す */
+function spotAvatar(){
+  const av=document.querySelector(".avatar-circle");
+  if(av){av.classList.remove("spot");void av.offsetWidth;av.classList.add("spot");}
+  const wrap=document.getElementById("homewrap");if(!wrap)return;
+  document.querySelectorAll(".tapavatar").forEach(e=>e.remove());
+  const el=document.createElement("div");el.className="tapavatar";el.textContent="タップするとあなたのタイプが見られます";
+  wrap.appendChild(el);
+  setTimeout(()=>{el.classList.add("out");setTimeout(()=>el.remove(),420);},4200);
+}
+/* スタート（すごろくの現在地）を目立たせて次へ誘導 */
+function spotStart(){
+  const here=document.querySelector(".room-slide .sg-tile.now .sg-here");
+  if(here){here.classList.remove("spot");void here.offsetWidth;here.classList.add("spot");}
+  if(typeof sgScrollToCurrent==="function")try{sgScrollToCurrent(curSection);}catch(e){}
 }
 /* 連続学習日数アップの豪華演出：大きな日数カウントアップ＋炎、カレンダー導線 */
 function showStreakCelebration(streak){
@@ -4180,13 +4337,16 @@ function confirmQuit(){
   if(_gearActive){gearConfirmQuit();return;} // 歯車モードは専用タイマーを止めて確認
   const t0=performance.now();
   clearInterval(timer); // ダイアログ表示中はタイマーを完全停止（裏で時間切れにならないように）
+  if(typeof shgPause==="function")shgPause(true); // シューティングも止める（弾・風船が動き続けない）
+  const _qs=document.getElementById("s-quiz");if(_qs)_qs.classList.add("paused"); // 問題文を横棒で伏せる
   const m=document.createElement("div");m.className="appconfirm";
   m.innerHTML=`<div class="ac-card"><div class="ac-t">${(_d5.on&&_d5.mode==="trend")?"今日のトレンド問題を中断しますか？":_d5.on?"今日の5問を中断しますか？<br><span style=\"font-size:13px;font-weight:700;opacity:.8\">この枠はもう挑戦できません</span>":"テストを中断して<br>ホームに戻りますか？"}</div>
     <div class="ac-btns"><button class="btn ac-stop" id="ac-yes">はい</button><button class="btn ghost" id="ac-no">いいえ</button></div></div>`;
   document.body.appendChild(m);
-  const resume=()=>{if(!answered){qStart+=performance.now()-t0;resumeTimer();}m.remove();}; // 停止していた分を差し戻して計時再開
+  const unpause=()=>{const e=document.getElementById("s-quiz");if(e)e.classList.remove("paused");if(typeof shgPause==="function")shgPause(false);};
+  const resume=()=>{unpause();if(!answered){qStart+=performance.now()-t0;resumeTimer();}m.remove();}; // 停止していた分を差し戻して計時再開
   m.querySelector("#ac-no").onclick=resume;
-  m.querySelector("#ac-yes").onclick=()=>{m.remove();quitTest();};
+  m.querySelector("#ac-yes").onclick=()=>{unpause();m.remove();quitTest();};
   m.onclick=e=>{if(e.target===m)resume();};
 }
 /* 出題中にホームへ戻る（タイマー・音声・○×表示を止めて中断） */
@@ -4368,7 +4528,29 @@ function openDaily5(){
     el.textContent=d5Countdown(Date.now());
   },1000);
 }
-function closeDaily5(){document.getElementById("d5-modal").classList.remove("on");clearInterval(_d5Timer);_d5Timer=null;}
+function closeDaily5(){document.getElementById("d5-modal").classList.remove("on");clearInterval(_d5Timer);_d5Timer=null;d5StopCountdown();}
+/* 「今日の5問」「今日のトレンド」は吹き出しが出た時点で10秒のカウントダウンを始め、
+   触らなければそのまま始まる。中断してから開き直したときも同じ（メール指示 2026-07-29） */
+let _d5CdTimer=null,_d5CdTo=null;
+function d5StopCountdown(){if(_d5CdTimer){clearInterval(_d5CdTimer);_d5CdTimer=null;}if(_d5CdTo){clearTimeout(_d5CdTo);_d5CdTo=null;}}
+function d5CountdownHTML(label){
+  return `<div class="d5a-cd">あと<b id="d5a-sec">${D5_AUTO_SEC}</b>秒で${label}がはじまります</div>
+    <div class="d5a-bar"><div id="d5a-fill"></div></div>`;
+}
+function d5StartCountdown(go){
+  d5StopCountdown();
+  const open=()=>{const m=document.getElementById("d5-modal");return !!(m&&m.classList.contains("on"));};
+  requestAnimationFrame(()=>{const f=document.getElementById("d5a-fill");if(f){f.style.transition="width "+D5_AUTO_SEC+"s linear";f.style.width="100%";}});
+  let left=D5_AUTO_SEC;
+  _d5CdTimer=setInterval(()=>{
+    left--;
+    const e=document.getElementById("d5a-sec");
+    if(!e||!open()){d5StopCountdown();return;}
+    e.textContent=Math.max(0,left);
+    if(left<=0)d5StopCountdown();
+  },1000);
+  _d5CdTo=setTimeout(()=>{const ok=open();d5StopCountdown();if(ok)go();},D5_AUTO_SEC*1000);
+}
 function d5RenderModal(){
   const now=Date.now(),slot=d5Slot(now),rec=d5Rec(now),all=loadD5(),dk=dayKey(now);
   const cell=(s)=>{const r=all[dk+"#"+s];
@@ -4378,6 +4560,7 @@ function d5RenderModal(){
    ?`<div class="d5-wait"><div class="d5-wt">次の「今日の5問」まで</div><div class="d5-wv" id="d5-cd">${d5Countdown(now)}</div></div>
      <button class="d5-ghost" onclick="closeDaily5();d5ShowSaved()">この回の結果をもう一度見る</button>`
    :`${rec?`<div class="d5-again">中断した分は、もう一度はじめられます</div>`:""}
+     ${d5CountdownHTML(d5SlotLabel(slot))}
      <button class="d5-go" onclick="startDaily5()">${d5SlotLabel(slot)}をはじめる</button>`;
   document.getElementById("d5-modal").innerHTML=`<div class="d5-card">
     <button class="d5-close" onclick="closeDaily5()" aria-label="閉じる">×</button>
@@ -4386,6 +4569,8 @@ function d5RenderModal(){
     <div class="d5-slots">${cell("am")}${cell("pm")}</div>
     ${body}</div>`;
   d5AnchorBubble();
+  if(!(rec&&rec.done))d5StartCountdown(()=>startDaily5()); // 触らなければ10秒で始まる
+  else d5StopCountdown();
 }
 /* いま画面に見えている「今日の5問」ボタンを探す（ROOMスライドごとに同じボタンがある） */
 function d5AnchorBtn(sel){
@@ -4476,7 +4661,7 @@ function trendRenderModal(){
   const body=rec
    ?`<div class="d5-wait"><div class="d5-wt">今日のトレンド問題</div><div class="d5-wv">${rec.correct} / ${rec.total} 正解</div></div>
      <button class="d5-ghost" onclick="closeDaily5();trendShowSaved()">この回の結果をもう一度見る</button>`
-   :`<button class="d5-go tr-go" onclick="startTrend()">トレンド5問をはじめる</button>`;
+   :`${d5CountdownHTML("トレンド5問")}<button class="d5-go tr-go" onclick="startTrend()">トレンド5問をはじめる</button>`;
   document.getElementById("d5-modal").innerHTML=`<div class="d5-card tr-card">
     <button class="d5-close" onclick="closeDaily5()" aria-label="閉じる">×</button>
     <div class="d5-h">今日のトレンド問題</div>
@@ -4484,6 +4669,8 @@ function trendRenderModal(){
     <div class="tr-list">${list}</div>
     ${body}</div>`;
   d5AnchorBubble(".sg-trend");
+  if(!rec)d5StartCountdown(()=>startTrend()); // 触らなければ10秒で始まる
+  else d5StopCountdown();
 }
 function startTrend(){
   if(trendUsed()){trendRenderModal();return;}
@@ -4658,7 +4845,7 @@ function d5RenderResult(rec,animate,isTrend){
       <div class="d5r-no">Q${it.n}</div>
       <div class="d5r-mid">
         <div class="d5r-q">${esc(it.q)}</div>
-        <div class="d5r-a">あなた：<i class="${it.ok?"ok":""}">${esc(yours)}</i>　／　正解：<b>${esc(it.correct)}</b><span class="d5r-spk">🔊 タップで発音</span></div>
+        <div class="d5r-a">あなた：<i class="${it.ok?"ok":""}">${esc(yours)}</i>　／　正解：<b>${esc(it.correct)}</b><span class="d5r-spk">${spkSvg(14)} タップで発音</span></div>
       </div>
       <div class="d5r-mk ${sy[1]}">${sy[0]}</div>
     </div>`;
@@ -4733,6 +4920,9 @@ function d5RareBurst(){
 const LS_BOARD="kwt_board_v1";
 const SG_QPT=12;                                   // 1マスの問題数
 const SG_STEP=178,SG_TOP=120,SG_AMP=178,SG_CX=277;  // マスの間隔・端の余白・蛇行の振幅・中心x（下から上へ登る）
+/* いちばん上のマス（＝そのROOMの最後の問題）は、絵が上へ186px・スタートの吹き出しが268px はみ出す。
+   そのぶんの余白を道の上に足しておかないと、スクロールしきっても絵が見切れる（メール指示 2026-07-29） */
+const SG_HEADROOM=300;
 const SG_FREQ=0.95,SG_FAR=0.34;                     // 蛇行の急さ・遠方の縮小率（斜め見の遠近感）
 const SG_DECO=["🌲","🌳","🌸","⭐","✨","🍀","🌿","🌼","🪨","🍄"];
 let _boardTile=null,_lastBoardTile=null,_lapDone=null;
@@ -4855,8 +5045,8 @@ function buildBoardQuestions(){
 }
 /* ---- 描画 ---- */
 /* マス1が最下部で、番号が増えるほど上へ登っていく（下から上へ遡る） */
-function sgPos(i,total){return{x:Math.round(SG_CX+SG_AMP*Math.sin(i*SG_FREQ)),y:SG_TOP+(total-1-i)*SG_STEP};}
-function sgTrackH(total){return SG_TOP*2+(total-1)*SG_STEP;}
+function sgPos(i,total){return{x:Math.round(SG_CX+SG_AMP*Math.sin(i*SG_FREQ)),y:SG_TOP+SG_HEADROOM+(total-1-i)*SG_STEP};}
+function sgTrackH(total){return SG_TOP*2+SG_HEADROOM+(total-1)*SG_STEP;}
 function sgTileImg(ids,fallbackIds){
   if(typeof WORD_IMG==="undefined")return null;
   for(const id of ids){const w=WORD_BY_ID[id];if(w&&WORD_IMG[w.ko])return WORD_IMG[w.ko];}
@@ -5054,9 +5244,10 @@ function sgBoardHTML(n){
       +' data-x="'+Math.round(dx)+'" data-y="'+dy+'" style="left:'+Math.round(dx-sz/2)+'px;top:'+dy+'px;width:'+sz+'px;opacity:'+(0.82+rnd()*0.18).toFixed(2)+'" onerror="this.style.display=\'none\'">');
   }
   const nn=String(n).padStart(2,"0");
-  return '<div class="sg-wrap">'
+  // 進捗チップは .sg-wrap の外に出す（器の上端40pxはぼかしマスクが掛かっていて文字が読めなかった）
+  return '<div class="sg-prog">'+(Math.floor(st.cleared/L)+1)+'周目 <b>'+(st.cleared%L)+'</b> / '+L+'</div>'
+    +'<div class="sg-wrap">'
     +'<img class="sg-bg" src="rooms/'+level+'-'+nn+'.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">'
-    +'<div class="sg-prog">'+(Math.floor(st.cleared/L)+1)+'周目 <b>'+(st.cleared%L)+'</b> / '+L+'</div>'
     +'<div class="sg-scroll" data-n="'+n+'"><div class="sg-track" style="height:'+h+'px">'
     +'<svg class="sg-road" width="554" height="'+h+'" viewBox="0 0 554 '+h+'" aria-hidden="true">'
     +'<path class="sg-edge" d="" fill="rgba(151,120,72,.34)"/>'
@@ -5414,7 +5605,7 @@ function spWordListHTML(words){
   const seen=new Set(),out=[];
   (words||[]).forEach(w=>{if(w&&w.ko&&!seen.has(w.ko)){seen.add(w.ko);out.push(w);}});
   if(!out.length)return "";
-  return `<div class="sp-res-wrap"><div class="sp-res-wh">🔊 単語をタップで発音</div><div class="sp-res-words">${
+  return `<div class="sp-res-wrap"><div class="sp-res-wh">${spkSvg(15)} 単語をタップで発音</div><div class="sp-res-words">${
     out.map(w=>`<button class="sp-res-w speakable" data-id="${w.id||0}" data-ko="${esc(w.ko)}"><span class="sp-res-w-ko">${esc(w.ko)}</span><span class="sp-res-w-ja">${esc(w.ja||"")}</span></button>`).join("")
   }</div></div>`;
 }
@@ -5522,7 +5713,7 @@ function spListen(){
     let opts=[{t:w.ja,c:1}].concat(_spDistractors(w,3).map(t=>({t,c:0})));opts=shuffle(opts);
     e.innerHTML=_spTop('🔊 発音マッチ',(idx+1)+' / '+N)+`<div class="sp-body">
       <div class="sp-q">聞こえた韓国語の意味は？</div>
-      <button class="sp-opt" style="width:auto;padding:14px 28px;font-size:26px" id="sp-play">🔊 もう一度きく</button>
+      <button class="sp-opt" style="width:auto;padding:14px 28px;font-size:26px" id="sp-play">${spkSvg(24)} もう一度きく</button>
       <div class="sp-opts" id="sp-opts">${opts.map(o=>`<button class="sp-opt" data-c="${o.c}">${esc(o.t)}</button>`).join('')}</div></div>`;
     const play=()=>{try{speakKorean(w);}catch(e){}};
     document.getElementById('sp-play').onclick=play;_spTimeout(play,300);
@@ -5815,7 +6006,7 @@ function spKaruta(){
     const w=pool[idx%pool.length];let cards=[{t:w.ja,c:1}].concat(_spDistractors(w,5).map(t=>({t,c:0})));cards=shuffle(cards);
     e.innerHTML=_spTop('🎴 かるた',(idx+1)+' / '+N)+`<div class="sp-body">
       <div class="sp-q">読み上げを聞いて、合う札をとろう</div>
-      <button class="sp-opt" style="width:auto;padding:12px 26px" id="sp-play">🔊 もう一度きく</button>
+      <button class="sp-opt" style="width:auto;padding:12px 26px" id="sp-play">${spkSvg(24)} もう一度きく</button>
       <div class="sp-karu" id="sp-karu">${cards.map(c=>`<button class="sp-kcard" data-c="${c.c}">${esc(c.t)}</button>`).join('')}</div></div>`;
     const play=()=>{try{speakKorean(w);}catch(e){}};document.getElementById('sp-play').onclick=play;_spTimeout(play,320);
     e.querySelectorAll('#sp-karu .sp-kcard').forEach(b=>{b.onclick=()=>{
@@ -5878,7 +6069,7 @@ function spSpell(){
     let opts=shuffle([...set]).map(t=>({t,c:t===w.ko?1:0}));
     e.innerHTML=_spTop('🔍 まちがい探し',(idx+1)+' / '+N)+`<div class="sp-body">
       <div class="sp-q">正しいつづりはどれ？／意味＝${esc(w.ja)}</div>
-      <button class="sp-opt" style="width:auto;padding:10px 22px" id="sp-play">🔊 きく</button>
+      <button class="sp-opt" style="width:auto;padding:10px 22px" id="sp-play">${spkSvg(20)} きく</button>
       <div class="sp-opts" id="sp-opts">${opts.map(o=>`<button class="sp-opt" data-c="${o.c}">${esc(o.t)}</button>`).join('')}</div></div>`;
     const play=()=>{try{speakKorean(w);}catch(e){}};document.getElementById('sp-play').onclick=play;_spTimeout(play,320);
     e.querySelectorAll('#sp-opts .sp-opt').forEach(b=>{b.onclick=()=>{
@@ -6157,8 +6348,15 @@ function shgLayout(){
     });
   }
 }
-function shgFrame(ts){
+/* 中断ダイアログの間はシューティングも凍らせる（弾も風船も動かさない） */
+function shgPause(on){
   const g=_shg;if(!g)return;
+  g.paused=!!on;
+  if(on){cancelAnimationFrame(g.raf);g.raf=0;}
+  else if(!g.raf){g.last=0;g.raf=requestAnimationFrame(shgFrame);}
+}
+function shgFrame(ts){
+  const g=_shg;if(!g||g.paused)return;
   if(!g.root.isConnected){shgStop();return;} // 画面が入れ替わったら自動で止まる
   const dt=Math.min(0.05,(ts-(g.last||ts))/1000);g.last=ts;g.t+=dt;
   g.balloons.forEach((b,i)=>{if(!b.alive)return;b.y=b.y0+Math.sin(g.t*1.7+i*1.1)*8;b.el.style.top=b.y+"px";}); // ふわふわ上下（当たり判定もこの位置）
@@ -6491,7 +6689,13 @@ function showOverlay(status,q,userAnswer){
     }
     if(!loadSettings().tapAdvance)return; // 自動送り待ち中の他タップは無視
     if(q.type!=="w"){ // オーバーレイ越しに選択肢を叩いたらその単語の韓国語音声（次へは進まない）
-      const hit=els.find(el=>el.classList&&el.classList.contains("choice"));
+      let hit=els.find(el=>el.classList&&el.classList.contains("choice"));
+      // 時間経過で薄くなった選択肢(.elim)は pointer-events:none なので elementsFromPoint に出てこない。
+      // 座標で拾い直し、薄い選択肢を押したときも「次へ進まず音声が鳴る」ようにする（メール指示 2026-07-29）
+      if(!hit)hit=[...document.querySelectorAll("#qstage .choice")].find(el=>{
+        const r=el.getBoundingClientRect();
+        return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+      });
       if(hit){speakChoiceKo(q,hit.dataset.v);return;}
     }
     advance();
@@ -6659,7 +6863,12 @@ function qrStep(ts){
 
 /* 回答後（タップで次へ設定時）用：選択肢右端の音声マークと、選択肢の韓国語読み上げ */
 const SPK_SVG='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3z" fill="#fff"/><path d="M16 8.6a4.2 4.2 0 010 6.8M18.6 6.2a7.6 7.6 0 010 11.6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
-function addChoiceSpeakers(){document.querySelectorAll("#qstage .choice").forEach(b=>{if(!b.querySelector(".chspk"))b.insertAdjacentHTML("beforeend",`<span class="chspk">${SPK_SVG}</span>`);});}
+/* 音声マークは絵文字をやめ、どこでも同じ白いシルエットを使う（メール指示 2026-07-29）。大きさだけ呼び出し側で変える */
+function spkSvg(s){return SPK_SVG.replace('width="20" height="20"','width="'+s+'" height="'+s+'" class="spk-svg"');}
+function addChoiceSpeakers(){document.querySelectorAll("#qstage .choice").forEach(b=>{
+  b.classList.add("spk-on"); // 薄くなった選択肢も押せる濃さに戻す（音声を鳴らすため）
+  if(!b.querySelector(".chspk"))b.insertAdjacentHTML("beforeend",`<span class="chspk">${SPK_SVG}</span>`);
+});}
 function speakChoiceKo(q,v){
   try{
     let ko=null;
@@ -6680,7 +6889,8 @@ function highlightChoices(q,status,userAnswer){
 /* 書き取り：正解=赤文字 / 不正解=入力(青)+正解(赤) / わからない・時間切れ=正解(赤)のみ */
 function writingAnsHTML(status,q,userAnswer){
   const ko=esc(q.word.ko);
-  // タップで次へ設定時は音声再生ボタンを正解の「上」に独立した列として置く（正解と同じ位置に重ねない・押しても次に進まない）
+  // タップで次へ設定時は音声再生ボタンを正解の「下」に独立した列として置く
+  // （誤答＝×の行の上に付くと「×の音声」に見えるため。メール指示 2026-07-29）
   const spk=loadSettings().tapAdvance?`<div class="oa-spkrow"><button class="oa-spk" aria-label="音声を再生（2度押しでゆっくり）" onclick="event.stopPropagation();speakSmart(WORD_BY_ID[${q.word.id}].ko)">${SPK_SVG}<span class="oa-spktxt">音声</span></button></div>`:"";
   if(status==="incorrect"){
     let close="";
@@ -6689,12 +6899,12 @@ function writingAnsHTML(status,q,userAnswer){
     }catch(e){} // 音の近さのヒント文言は出さない（意味近似のみ表示）
     return `<div class="ovans">${close}
       <div class="oa-row"><div class="oa-lab">入力</div><div class="oa-ko wrong">${esc(userAnswer)||"（無回答）"}</div></div>
-      ${spk}
       <div class="oa-row"><div class="oa-lab">正解</div><div class="oa-ko correct">${ko}</div></div>
+      ${spk}
     </div>`;
   }
-  // correct / unknown / timeout は韓国語の正解のみ（正解時は音声も再生）。音声ボタンは正解の上に独立表示
-  return `<div class="ovans">${spk}<div class="oa-ko correct">${ko}</div></div>`;
+  // correct / unknown / timeout は韓国語の正解のみ（正解時は音声も再生）。音声ボタンは正解の下に独立表示
+  return `<div class="ovans"><div class="oa-ko correct">${ko}</div>${spk}</div>`;
 }
 function afterAnswer(){
   if(_d5.on){ // 今日の5問／今日のトレンド問題（5問で終了 → 専用結果画面へ）
@@ -6812,37 +7022,41 @@ function finishTest(){
   enqueuePresent(rank,pwrDelta); // このテストのプレゼント（レベル/ランク/PWR/レインボー）を1個追加
   // ホーム復帰時のお知らせ：その日初テストなら連続ログインボーナス、それ以外はプレゼント到着
   const _tday=dayKey(Date.now());
-  _homeNotice=(localStorage.getItem("kwt_lasttestday_v1")!==_tday)?{type:"streak"}:{type:"present"};
+  const _firstEver=!localStorage.getItem("kwt_firstdone_v1"); // 初回完走かどうか（フラグの書き込みは達成ボーナス判定の後＝従来どおり）
+  // 初回だけは連続日数の演出より「プレゼント→新しいステップ→タイプ診断の紹介」の順番を優先する
+  _homeNotice=_firstEver?{type:"present",first:true}
+    :(localStorage.getItem("kwt_lasttestday_v1")!==_tday)?{type:"streak"}:{type:"present"};
   localStorage.setItem("kwt_lasttestday_v1",_tday);
   checkAchievements();
-  const _firstEver=!localStorage.getItem("kwt_firstdone_v1"); if(_firstEver)_lsSet("kwt_firstdone_v1","1"); // 初回完走
+  if(_firstEver)_lsSet("kwt_firstdone_v1","1");
   // 初テストのコメントは、機種ごとの画面幅で中途半端に改行されないよう1行=1メリットの箇条書きにする
   const firstBanner=_firstEver?`<div class="res-first"><span class="rf-t">🎉 初テストおつかれさま！</span><span class="rf-l">つづけるほど<b>部屋が育つ</b></span><span class="rf-l">正解した単語が<b>カードで集まる</b></span><span class="rf-l"><b>忘れる前に自動で復習</b>に出る</span><span class="rf-l">まずは毎日1回！</span></div>`:"";
   document.getElementById("s-result").innerHTML=`
    <div class="res">${firstBanner}
     <div class="res-head">
-      <!-- 左＝メダルと点数／右＝レベル・PWRの2本のメーターを縦に並べる（メダルの下にメーターが伸びる形をやめた） -->
+      <!-- 左＝メダル／右上＝点数と正誤／右下＝XP・PWRの2本のメーター。コメントは全体の一番下に1行（メール指示 2026-07-29） -->
       <div class="res-top">
         <div class="res-idw">
           <div class="rank-c rank-medal" style="background:${RANK_COLORS[rank]||"#555"}">${rank}</div>
-          <div class="res-score"><b id="res-score-n" data-to="${totalDisp}">0</b><span> / 100</span></div>
-          <div class="res-counts">
-            <span style="color:#FF3B3B">○ ${nCorrect}</span>
-            <span style="color:#2F6FE0">× ${nWrong}</span>
-          </div>
         </div>
-        <div class="res-meters">
-          <div class="res-xp">
-            <div class="res-xp-bar"><div class="res-xp-lv">Lv.${xpNow.level}</div><div class="res-xp-g"><div id="res-xpfill" style="width:0%"></div></div><span class="res-xp-n">${xpNow.cur} / ${xpNow.next}</span></div>
-            <div class="res-xp-gain" id="res-xp-gain" data-to="${xpGain}">+0<span> XP</span></div>
+        <div class="res-side">
+          <div class="res-scorerow">
+            <div class="res-score"><b id="res-score-n" data-to="${totalDisp}">0</b><span> / 100</span></div>
+            <div class="res-counts">
+              <span style="color:#FF3B3B">○ ${nCorrect}</span>
+              <span style="color:#2F6FE0">× ${nWrong}</span>
+            </div>
           </div>
-          <div class="res-pwr"><span class="pwr-lab">PWR</span><div class="pwr-g"><div id="res-pwrfill" style="background:#00FF37;width:${pwrBefore}%"></div></div><span class="pwr-val">${pwrAfter}%</span><span class="pwr-delta" style="color:${pwrDelta>=0?"#1FAD62":"#FF6B6B"}">${pwrDelta>0?"+":""}${pwrDelta}</span></div>
+          <!-- メーターはステータス画面（ホームのヘッダー）と同じ見た目：黒の座布団＋右揃えラベル＋太いゲージ -->
+          <div class="res-meters">
+            <div class="res-mrow"><span class="res-mlab">Lv.${xpNow.level}</span><div class="res-mg"><div class="res-mfill" id="res-xpfill" style="background:#FFFF37;width:0%"></div></div><span class="res-mval">${xpNow.cur}/${xpNow.next}</span><span class="res-mgain res-xp-gain" id="res-xp-gain" data-to="${xpGain}">+0<span> XP</span></span></div>
+            <div class="res-mrow"><span class="res-mlab">PWR</span><div class="res-mg"><div class="res-mfill" id="res-pwrfill" style="background:#00FF37;width:${pwrBefore}%"></div></div><span class="res-mval">${pwrAfter}%</span><span class="res-mgain" style="color:${pwrDelta>=0?"#1FAD62":"#FF6B6B"}">${pwrDelta>0?"+":""}${pwrDelta}<span>%</span></span></div>
+          </div>
         </div>
       </div>
       <div class="res-cheer">${pickResultCheer(totalDisp,nCorrect,R.filter(r=>(r.displayMemoryScoreBefore||0)===0).length)}</div>
     </div>
     ${typeUpd}
-    <div class="res-spkhint">🔊 カードをタップで発音</div>
     <div class="res-listwrap"><div class="res-cards">${rows}</div></div>
     <div class="res-btns">
       ${MONETIZE.donateUrl?`<a class="rb" href="${MONETIZE.donateUrl}" target="_blank" rel="noopener" onclick="if(typeof track==='function')track('donate_click')"><span class="rb-ico">☕</span><span class="rb-lab">応援する</span></a>`:""}
@@ -6923,7 +7137,10 @@ function wdHistRows(wordId){
   const SYM={correct:["○","#FF3B3B"],incorrect:["×","#2F6FE0"],unknown:["－","rgba(255,255,255,.75)"],timeout:["△","#DFB10F"]};
   return recs.map(r=>{
     const IC=c=>`<img class="dicon" src="emoji/${c}.svg" alt="">`;
-    const dir=(r.answerType==="writing"?IC("270d"):(r.direction==="kr_to_jp"?IC("1f1f0-1f1f7"):IC("1f1ef-1f1f5")))+(r.isHintProvided?IC("1f4a1"):"");
+    // 方向は国旗ではなく「韓 → 日」の言葉で出す（どちら向きの出題か国旗だと分かりにくい。メール指示 2026-07-29）
+    const dir=(r.answerType==="writing"?`<span class="hdir">書き取り</span>`
+      :r.direction==="kr_to_jp"?`<span class="hdir">韓<i>→</i>日</span>`:`<span class="hdir">日<i>→</i>韓</span>`)
+      +(r.isHintProvided?IC("1f4a1"):"");
     const mem=(r.displayMemoryScoreAfterDecay!=null)?r.displayMemoryScoreAfterDecay:"—";
     const sy=SYM[r.answerStatus]||["－",""];
     const secs=(r.responseTimeMs!=null?r.responseTimeMs/1000:(r.responseTimeSec!=null?r.responseTimeSec:null)); // 旧データ等でms欠損でもNaNにしない
@@ -6943,22 +7160,29 @@ function wdSlideHTML(id,i){
   const w=WORD_BY_ID[id],cnt=(loadCards()[id]||0);
   const rate=Math.round(displayScore(getStat(id),Date.now())),ms=memState(rate);
   const note=w.n?`<div class="note">⚠️ ${esc(w.n)}</div>`:"";
-  // 発音再生ボタン（word.audioがあれば録音、無ければTTS）
-  const spk=`<button class="wd-spk" aria-label="発音を聞く" onclick="speakSmart('${esc(w.ko).replace(/'/g,"")}')">🔊</button>`;
-  // 画像がある単語は画像右上に音声ボタン。無い単語はko横に置く（従来どおり）
+  // 音声マークは「獲得カードの枚数」の右どなり。絵文字ではなく白いシルエット（メール指示 2026-07-29）
+  const spk=`<button class="wd-spk" aria-label="発音を聞く" onclick="speakSmart('${esc(w.ko).replace(/'/g,"")}')">${spkSvg(20)}</button>`;
   const hasImg=(typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko]);
   const imgTag=hasImg?`<img class="wd-img2" src="${WORD_IMG[w.ko]}" alt="">`:`<div class="wd-img2 noimg">🃏</div>`;
   const ex=(typeof WORD_EX!=="undefined"&&WORD_EX[w.ko])?`<div class="wd-ex"><div class="wd-ex-ko">${esc(WORD_EX[w.ko][0])}</div><div class="wd-ex-ja">${esc(WORD_EX[w.ko][1])}</div></div>`:"";
+  // 「×2」だけでは何の2か分からないので、枚数も記憶率も何の数字かを言葉で添える
   return `
     <div class="wd-card">
-      <div class="wd-cimg">${imgTag}${spk}</div>
-      <div class="wd-cinfo"><div class="wd-cmeta"><span class="${ms.cls}">${rate}%</span><span>×${cnt}</span></div><div class="wd-ko2">${esc(w.ko)}</div><div class="wd-ja2">${esc(w.ja)}</div></div>
+      <div class="wd-cbar"><span class="wd-cards">獲得したカード <b>${cnt}</b>枚</span>${spk}</div>
+      <div class="wd-cimg">${imgTag}</div>
+      <div class="wd-ko2">${esc(w.ko)}</div>
+      <div class="wd-ja2">${esc(w.ja)}</div>
+      <div class="wd-crate">
+        <span class="wd-rlab">記憶率</span>
+        <div class="wd-rg"><div class="wd-rf ${ms.cls}" style="width:${Math.max(0,Math.min(100,rate))}%"></div></div>
+        <span class="wd-rval ${ms.cls}">${rate}<i>%</i></span>
+      </div>
     </div>
     ${ex}
     ${note}
     <div class="st-graphpanel" style="margin-top:12px">${memChart(chartPoints(Date.now(),[w]))}</div>
     <div class="tdetail-sec"><div class="h">学習履歴</div>
-      <table class="htab"><thead><tr><th>日時</th><th>方向</th><th>結果</th><th class="num">時間</th><th class="num">得点</th><th class="num">記憶率(%)</th></tr></thead>
+      <table class="htab"><thead><tr><th></th><th>方向</th><th>結果</th><th class="num">時間</th><th class="num">得点</th><th class="num">記憶率(%)</th></tr></thead>
       <tbody>${wdHistRows(id)||'<tr><td colspan="6" style="color:var(--mute);text-align:center;padding:20px">履歴なし</td></tr>'}</tbody></table>
     </div>`;
 }
@@ -6968,10 +7192,18 @@ function renderWordDetail(wordId,back){
   let ids=sectionIds(); let idx=ids.indexOf(wordId);
   if(idx<0){ids=[wordId];idx=0;}
   const slides=ids.map((id,i)=>`<div class="wd-slide" data-i="${i}"><div class="wd-in" id="wd-in-${i}"></div></div>`).join("");
+  const _ri0=roomInfoFor(curSection);
+  const _rk=_ri0.best||(_ri0.recent&&_ri0.recent[_ri0.recent.length-1])||null;
+  // 単語帳ページと同じ黒帯＋同じ戻るボタン。ROOMメニュー（ROOM番号・語数・PWR・ランク）もここに出す
   document.getElementById("s-wdetail").innerHTML=`
    <div class="q-rain" id="wd-rain"></div>
    <div class="page" style="padding-left:0;padding-right:0;position:relative;z-index:1">
-    <div class="page-head" style="padding:0 16px"><button class="back" onclick="${_wdBack==='room'?"show('s-home')":"renderRoomCurve()"}">‹</button><h2 id="wd-title">単語詳細</h2></div>
+    <div class="zk-sum" style="position:static;margin-bottom:10px"><button class="zk-back" onclick="${_wdBack==='room'?"show('s-home')":"renderRoomCurve()"}" aria-label="戻る">‹</button><span id="wd-title">単語詳細</span></div>
+    <div class="wd-room">
+      <span class="wr-no">ROOM ${String(curSection).padStart(2,"0")}</span>
+      <span class="wr-m">${_ri0.total}語</span><span class="wr-m">PWR ${_ri0.pwr}%</span>
+      ${_rk?`<span class="wr-rank" style="background:${RANK_COLORS[_rk]||"#555"}">${_rk}</span>`:""}
+    </div>
     <div id="wd-pager" class="rp-pager"></div>
     <div class="wd-scroll" id="wd-scroll">${slides}</div>
     <button class="wd-nav wd-prev" onclick="wdNav(-1)" aria-label="前の単語">‹</button>
@@ -7001,7 +7233,8 @@ function wdNav(d){const sc=document.getElementById("wd-scroll");if(sc)sc.scrollB
 /* 単語詳細ページ上部のページャー（番号を並べ、選択中を中央に。タップでその単語へ） */
 function buildWdPager(ids,idx){
   const p=document.getElementById("wd-pager");if(!p)return;
-  p.innerHTML=ids.map((id,i)=>{const w=WORD_BY_ID[id];return `<div class="rp-dot wd-dot${i===idx?" cur":""}" data-i="${i}" onclick="wdPagerJump(${i})"><span class="wd-dn">${i+1}</span><span class="wd-dk">${esc(w?w.ko:"")}</span></div>`;}).join("");
+  // 隣の単語は番号ではなく「韓国語＋日本語」の小さいカードで並べる（メール指示 2026-07-29）
+  p.innerHTML=ids.map((id,i)=>{const w=WORD_BY_ID[id];return `<div class="rp-dot wd-dot${i===idx?" cur":""}" data-i="${i}" onclick="wdPagerJump(${i})"><span class="wd-dk">${esc(w?w.ko:"")}</span><span class="wd-dj">${esc(w?w.ja:"")}</span></div>`;}).join("");
   requestAnimationFrame(()=>syncWdPager(idx));
 }
 function syncWdPager(idx){
@@ -7176,7 +7409,7 @@ function memChart(pts){
   const poly=pts.map(p=>`${x(p.i)},${y(p.rate)}`).join(" ");
   let dots="";pts.forEach(p=>{dots+=`<circle cx="${x(p.i)}" cy="${y(p.rate)}" r="2.6" fill="#00E650"/>`;});
   const th=ymax>=70?`<line x1="${padL}" y1="${y(70)}" x2="${W-padR}" y2="${y(70)}" stroke="#FFD84D" stroke-width="1.4" stroke-dasharray="3 3"/>`:""; // 70%基準線は表示範囲内のときだけ
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${th}${grid}<polyline class="grow" points="${poly}" fill="none" stroke="#00E650" stroke-width="2.4"/>${dots}${lbl}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${th}${grid}<polyline class="grow" points="${poly}" fill="none" stroke="#00E650" stroke-width="4.2" stroke-linejoin="round" stroke-linecap="round"/>${dots}${lbl}</svg>`;
 }
 
 /* PWRメータ: 左右スワイプで 全体(最左) → ROOM01..NN を移動。各スライドは遅延レンダリング */
@@ -7292,7 +7525,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v4.4 (2026-07-29)";
+const APP_VERSION="v4.5 (2026-07-30)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

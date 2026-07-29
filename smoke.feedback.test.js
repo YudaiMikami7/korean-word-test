@@ -123,7 +123,20 @@ const FILE = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '
   });
   check(`獲得XPが0より大きい (${xpRes.to} XP)`, xpRes.to > 0);
   check(`獲得XPは控えめな大きさ (${xpRes.size}px)`, xpRes.size >= 15 && xpRes.size <= 24); // メール指示でレベル・XPは小さくした
-  check('Lv.と次のレベルまでのゲージも出る', await page.evaluate(() => !!document.querySelector('.res-xp-lv') && !!document.getElementById('res-xpfill')));
+  check('Lv.と次のレベルまでのゲージも出る', await page.evaluate(() => !!document.querySelector('.res-meters .res-mlab') && !!document.getElementById('res-xpfill')));
+  // メール指示: レベル/PWRはステータス画面と同じ見た目（黒座布団）／XPは黄色／PWRの増減は「+n%」
+  const metersRes = await page.evaluate(() => {
+    const m = document.querySelector('.res-meters'), fill = document.getElementById('res-xpfill');
+    const gain = document.getElementById('res-xp-gain');
+    const pwrGain = [...document.querySelectorAll('.res-mgain')].pop();
+    return { bg: getComputedStyle(m).backgroundColor, xp: getComputedStyle(fill).backgroundColor,
+      gainCol: getComputedStyle(gain).color, pwr: pwrGain.textContent.trim() };
+  });
+  check(`メーターは黒座布団 (${metersRes.bg})`, /rgba?\(0, 0, 0/.test(metersRes.bg));
+  check(`XPゲージが黄色 (${metersRes.xp})`, metersRes.xp === 'rgb(255, 255, 55)');
+  check(`獲得XPも黄色 (${metersRes.gainCol})`, metersRes.gainCol === 'rgb(255, 255, 55)');
+  check(`PWRの増減は%表記 (${metersRes.pwr})`, /%$/.test(metersRes.pwr));
+  check('「カードをタップで発音」の帯は出さない', await page.evaluate(() => !document.querySelector('.res-spkhint')));
   check('レベルアップ演出が出せる', await page.evaluate(() => { showLevelUp(3, 2); const ok = !!document.querySelector('.lvup') && /LEVEL UP/.test(document.querySelector('.lvup').textContent); closeLevelUp(); return ok; }));
 
   // ---------- 忘却曲線：書き取りの誤答で一気に落とさない ----------
