@@ -253,7 +253,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     await new Promise(r => setTimeout(r, 700));
     return { res: document.getElementById('s-result').classList.contains('on'),
       cards: document.querySelectorAll('#s-result .rc-card').length,
-      counts: document.querySelector('#s-result .res-counts').textContent.replace(/\s+/g, ' ').trim(),
+      counts: [...document.querySelectorAll('#s-result .res-cnt')].map(e => e.textContent.trim()).join(' '),
       before, after: JSON.stringify(specialRooms()),
       wasSpecial: JSON.parse(before).beginner, nowSpecial: specialRooms().beginner };
   }, sp.r.beginner.blue);

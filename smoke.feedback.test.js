@@ -181,14 +181,13 @@ const FILE = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '
   });
   check(`長さに応じて字が小さくなる (${lenPx.join(' > ')})`, lenPx[0] > lenPx[1] && lenPx[1] > lenPx[2]);
 
-  // ---------- 初テストのコメント（改行の体裁） ----------
-  check('初テストのコメントは1行=1メリット', await page.evaluate(() => {
-    localStorage.removeItem('kwt_firstdone_v1');
+  // ---------- 初テストのコメント（白い座布団は廃止し、ランク下の一言に集約） ----------
+  check('初テストの白い座布団（res-first）は廃止された', await page.evaluate(() => {
     const d = document.createElement('div');
-    d.innerHTML = '<div class="res-first"><span class="rf-t">a</span><span class="rf-l">b</span></div>';
+    d.innerHTML = '<div class="res-first">a</div>';
     document.body.appendChild(d);
-    const ok = getComputedStyle(d.querySelector('.rf-l')).display === 'block';
-    d.remove(); return ok;
+    const bg = getComputedStyle(d.firstChild).backgroundColor; d.remove();
+    return bg === 'rgba(0, 0, 0, 0)' || bg === 'transparent'; // スタイル定義そのものが無い
   }));
   check('応援コメントの字が大きくなった', await page.evaluate(() => {
     const d = document.createElement('div'); d.innerHTML = '<div class="res-cheer">a</div>';

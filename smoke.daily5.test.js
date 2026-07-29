@@ -165,8 +165,8 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
       && getComputedStyle(cells[0]).boxShadow.includes('rgb(224, 131, 26)');
     closeCalendar(); return ok;
   }));
-  // 出題画面の進捗＝歩くキャラ（山吹色メーターは廃止。正解のたびに景色が右から左へ流れる）
-  check('正解のたびにキャラが前へ進む（山吹色メーターは廃止）', await page.evaluate(async () => {
+  // 出題画面の進捗＝歩くキャラ（山吹色メーターは廃止。1問ごとに景色とカードが1枚ぶん左へ流れる）
+  check('1問ごとに景色が流れる（山吹色メーターは廃止）', await page.evaluate(async () => {
     curLevel = 'beginner'; curSection = 1;
     _boardTile = { level: 'beginner', sec: 1, gidx: boardState('beginner', 1).cleared + 1 };
     startTest(); clearInterval(timer); renderQuestion();
@@ -183,7 +183,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     const afterNg = rp();
     document.querySelectorAll('.overlay').forEach(o => o.remove()); clearTimeout(ovTimer);
     quitTest();
-    return start === 0 && afterOk === 1 && afterNg === 1; // 正解で+1・不正解は据え置き
+    return start === 0 && afterOk === 1 && afterNg === 2; // カードの流れと同じテンポ＝1問ごとに1枚ぶん進む
   }));
 
   check('コンソールエラー無し', errors.length === 0);

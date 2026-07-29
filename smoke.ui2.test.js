@@ -62,29 +62,42 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   check(`帯と緑メーターの間のマージンが1.5px (${bars.gap.toFixed(2)})`, near(bars.gap, 1.5, 0.4));
   check('緑メーターの色は据え置き', bars.tfill === 'rgb(0, 255, 55)');
 
-  // 正解＝キャラが1歩前進（景色が右から左へ流れる）／不正解＝つまずいて進まない
+  // 進む先には黄色い札が等間隔に並び、1問ごとに1枚ぶん流れる（正解＝獲得／不正解＝はじけて消える）
   const runner = await page.evaluate(async () => {
-    const bar = document.getElementById('pbar'), ch = document.getElementById('rn-char');
+    const bar = document.getElementById('pbar'), ch = document.getElementById('rn-char'), rail = document.getElementById('rn-rail');
     const rp = () => parseFloat(bar.style.getPropertyValue('--rp') || 0);
     const posOf = () => getComputedStyle(document.querySelector('.rn-ground')).backgroundPositionX;
+    const txOf = () => { const m = /-?[\d.]+(?=px)/.exec(rail.style.transform || 'translateX(0px)'); return m ? parseFloat(m[0]) : 0; };
     const wait = ms => new Promise(r => setTimeout(r, ms));
-    const start = rp(), pos0 = posOf();
-    const card = document.getElementById('rn-card');
-    runnerCard('사랑'); const cardOn = card.classList.contains('on') && card.textContent === '사랑';
-    runnerStep(true); const afterOk = rp(), cls1 = ch.className, cardGot = card.classList.contains('got');
+    runnerBuild(12);
+    const slots = [...rail.querySelectorAll('.rn-slot')];
+    const lefts = slots.map(s => parseFloat(s.style.left));
+    const gaps = lefts.slice(1).map((v, i) => v - lefts[i]);
+    const cs = getComputedStyle(slots[0]);
+    const barR = bar.getBoundingClientRect();
+    const visible = slots.filter(s => { const r = s.getBoundingClientRect(); return r.right > barR.left && r.left < barR.right; }).length;
+    const noKo = slots.every(s => s.textContent === '');
+    const start = rp(), pos0 = posOf(), tx0 = txOf();
+    runnerStep(true); const afterOk = rp(), cls1 = ch.className, got = slots[0].classList.contains('got'), tx1 = txOf();
     await wait(1300); const pos1 = posOf(); // 景色の流れは1秒かけて動くので終わるまで待つ
-    runnerCard('물');
-    runnerStep(false); const afterNg = rp(), cls2 = ch.className, cardPop = card.classList.contains('pop');
-    return { start, afterOk, afterNg, cls1, cls2, pos0, pos1, cardOn, cardGot, cardPop,
+    runnerStep(false); const cls2 = ch.className, pop = slots[1].classList.contains('pop'), tx2 = txOf();
+    return { n: slots.length, gaps, w: parseFloat(cs.width), h: parseFloat(cs.height), bg: cs.backgroundColor,
+             visible, noKo, start, afterOk, cls1, cls2, pos0, pos1, tx0, tx1, tx2, got, pop,
              img: ch.querySelector('img') ? ch.querySelector('img').getAttribute('src') : null, txt: ch.textContent.trim() };
   });
-  check(`正解でキャラが1歩前へ (${runner.start} → ${runner.afterOk})`, runner.afterOk === runner.start + 1 && /step/.test(runner.cls1));
+  check(`カードが12枚ぶん並ぶ (${runner.n})`, runner.n === 12);
+  check(`等間隔に並んでいる (${runner.gaps.join('/')})`, runner.gaps.every(g => g === runner.gaps[0]) && runner.gaps[0] > 0);
+  check(`黄色い縦長の札 (${runner.w}x${runner.h} ${runner.bg})`, runner.h > runner.w && /^rgb\(2[0-5]\d, 19[0-9]|^rgb\(245, 197, 24\)/.test(runner.bg));
+  check('札に韓国語は書かれていない（答えが見えない）', runner.noKo);
+  check(`画面に覗くのは5〜8枚 (${runner.visible})`, runner.visible >= 5 && runner.visible <= 8);
   check(`景色が右から左へ流れる (${runner.pos0} → ${runner.pos1})`, parseFloat(runner.pos1) < parseFloat(runner.pos0));
-  check(`不正解では進まない (${runner.afterOk} → ${runner.afterNg})`, runner.afterNg === runner.afterOk && /trip/.test(runner.cls2));
+  check(`1問ごとにカードが1枚ぶん左へ流れる (${runner.tx0} → ${runner.tx1} → ${runner.tx2})`,
+        runner.tx1 < runner.tx0 && runner.tx2 < runner.tx1 && (runner.tx0 - runner.tx1) === (runner.tx1 - runner.tx2));
+  check(`正解でキャラが歩く (${runner.start} → ${runner.afterOk})`, runner.afterOk === runner.start + 1 && /step/.test(runner.cls1));
+  check('不正解ではつまずく', /trip/.test(runner.cls2));
   check(`未診断のうちはダミーの動物が歩く (${runner.txt})`, !runner.img && runner.txt.length > 0);
-  check('進む先に単語カードが出る', runner.cardOn);
-  check('正解でカードを獲得する演出', runner.cardGot);
-  check('不正解でカードがはじけて消える', runner.cardPop);
+  check('正解でカードを獲得する演出', runner.got);
+  check('不正解でカードがはじけて消える', runner.pop);
 
   // ===== 選択肢の間引き（残り1/4で1つ・1/8で2つ・半透明で残る） =====
   const elim = await page.evaluate(async () => {
