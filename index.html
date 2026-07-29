@@ -927,6 +927,10 @@ body.bigtext .set-d{font-size:13.5px}
 .rc-foot{display:flex;gap:6px;align-items:baseline;justify-content:center;margin-top:1px}
 .rc-cards{font-size:11px;font-weight:900;color:#b8862b}
 .rc-delta{font-size:11px;font-weight:900} /* 記憶率の増減（±%）色はインラインで緑/赤 */
+/* カードをタップ＝その単語の韓国語を読み上げる（結果画面から発音を確かめられるように） */
+.speakable{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.speakable.speaking{box-shadow:0 0 0 3px #2F6FE0}
+.res-spkhint{flex:0 0 auto;margin:8px auto 0;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.55);color:#333;font-size:11.5px;font-weight:800;width:fit-content}
 .res-score span{font-size:16px;color:var(--faint);font-weight:800}
 .res-params{display:flex;justify-content:center;gap:28px;margin-top:10px}
 .rp{display:flex;flex-direction:column;align-items:center;gap:4px}
@@ -1213,6 +1217,8 @@ body.bigtext .set-d{font-size:13.5px}
 .gres-dots i{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.35);box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .gres-dots i.ok{background:#FFC400;box-shadow:0 0 10px 2px rgba(255,196,0,.7)}
 .gres-cheer{font-size:14px;font-weight:800;color:rgba(255,255,255,.95);text-shadow:0 2px 5px rgba(0,0,0,.45);margin-bottom:22px}
+.gres .sp-res-wrap{margin:0 0 18px} /* 歯車モードの結果でも単語一覧の余白をそろえる */
+.gres .sp-res-w{background:rgba(0,0,0,.34)} /* 背景がROOMの色（明るいことがある）なので札は暗めにして白文字を読ませる */
 .gres-btns{width:min(320px,84vw);display:flex;flex-direction:column;gap:10px}
 .gres-btns .btn{border-radius:999px}
 /* ============================================================ スペシャルモード（ミニゲーム集） ============================================================ */
@@ -1306,6 +1312,13 @@ body.bigtext .set-d{font-size:13.5px}
 .sp-res-btns .sp-again{background:#FFC400;color:#3a2c00}
 .sp-res-btns .sp-menu{background:rgba(255,255,255,.16);color:#fff}
 .sp-res-btns .sp-home{background:rgba(255,255,255,.1);color:#fff}
+/* ゲーム結果に出した単語（タップで発音）。ミニゲームでも遊んだ単語をその場で復習できるように */
+.sp-res-wrap{width:min(360px,90vw);max-height:30vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sp-res-wh{font-size:12px;font-weight:800;color:rgba(255,255,255,.7);margin-bottom:6px}
+.sp-res-words{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.sp-res-w{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;background:rgba(255,255,255,.14);color:#fff;border:none;border-radius:12px;padding:8px 6px;font-family:inherit}
+.sp-res-w-ko{font-size:15px;font-weight:900;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-res-w-ja{font-size:11px;font-weight:700;opacity:.75;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* 追加ミニゲーム8種の見た目（v2.118） */
 .sp-choseong{letter-spacing:.18em;color:#FFD86B}
 .sp-pairs{display:flex;flex-direction:column;gap:10px;width:min(360px,92vw)}
@@ -3824,6 +3837,18 @@ function _speakTTS(text,rate){
     window.speechSynthesis.speak(u);
   }catch(e){}
 }
+/* 結果画面に並ぶ単語をタップ＝その韓国語を読み上げる（通常テスト・スペシャル問題・ミニゲーム共通）。
+   要素に class="speakable" と data-id（無ければ data-ko）を付けて bindSpeakables() で結線する */
+function speakWordEl(el){
+  if(!el)return;
+  const id=parseInt(el.dataset.id||"0",10),ko=el.dataset.ko||"";
+  const w=(id&&typeof WORD_BY_ID!=="undefined"&&WORD_BY_ID[id])?WORD_BY_ID[id]:(ko?{ko}:null);
+  if(!w||!w.ko)return;
+  speakKorean(w); // 音声ファイルがあればそれを、無ければTTS（重複再生は speakKorean 側の stopSpeak が止める）
+  document.querySelectorAll(".speakable.speaking").forEach(x=>x.classList.remove("speaking"));
+  el.classList.add("speaking");setTimeout(()=>el.classList.remove("speaking"),900);
+}
+function bindSpeakables(root){(root||document).querySelectorAll(".speakable").forEach(el=>{el.onclick=()=>speakWordEl(el);});}
 
 /* ============================================================ 出題ロジック ============================================================ */
 const PLAN=[...Array(5).fill("jk"),...Array(5).fill("kj"),...Array(2).fill("w")];
@@ -5210,6 +5235,7 @@ function renderGearResult(){
   const s=_gear.score;
   const cheer=s>=GEAR_ROUNDS?"全問クリア！かみ合いは完璧！":s>=GEAR_ROUNDS-1?"あと一歩で全問クリア！":s>=Math.ceil(GEAR_ROUNDS/2)?"いいかみ合わせ！この調子！":"回すほど強くなる。もう一周いこう！";
   const gotXp=spGrantXp(s*8); // ゲームの成績もXPになる（記憶スコアは従来どおり触らない）
+  const played=(_gear.rounds||[]).slice(0,_gear.idx+1).reduce((a,b)=>a.concat(b),[]); // まわしたラウンドの単語
   document.getElementById("s-result").innerHTML=`
     <div class="gres">
       <div class="gres-ico">⚙️</div>
@@ -5218,11 +5244,13 @@ function renderGearResult(){
       <div class="gres-dots">${_gear.oks.map(o=>`<i class="${o?"ok":""}"></i>`).join("")}</div>
       ${gotXp?`<div class="sp-res-xp">+${gotXp}<span> XP</span></div>`:""}
       <div class="gres-cheer">${cheer}</div>
+      ${spWordListHTML(played)}
       <div class="gres-btns">
         <button class="btn dark full" onclick="startGearQuiz()">もう一度まわす</button>
         <button class="btn wt full" onclick="show('s-home')">ホームへ</button>
       </div>
     </div>`;
+  bindSpeakables(document.getElementById("s-result")); // 出した単語をタップ＝読み上げ
   if(s>=GEAR_ROUNDS)sfxClaim();
   show("s-result");
 }
@@ -5316,7 +5344,16 @@ function spGrantXp(n){
   if(after>before)setTimeout(()=>showLevelUp(after),700);
   return n;
 }
-function _spResult(ico,title,scoreHTML,cheer,retry,xp){
+/* そのゲームに出た単語をならべる。タップでその単語の韓国語を読み上げる（重複は1つにまとめる） */
+function spWordListHTML(words){
+  const seen=new Set(),out=[];
+  (words||[]).forEach(w=>{if(w&&w.ko&&!seen.has(w.ko)){seen.add(w.ko);out.push(w);}});
+  if(!out.length)return "";
+  return `<div class="sp-res-wrap"><div class="sp-res-wh">🔊 単語をタップで発音</div><div class="sp-res-words">${
+    out.map(w=>`<button class="sp-res-w speakable" data-id="${w.id||0}" data-ko="${esc(w.ko)}"><span class="sp-res-w-ko">${esc(w.ko)}</span><span class="sp-res-w-ja">${esc(w.ja||"")}</span></button>`).join("")
+  }</div></div>`;
+}
+function _spResult(ico,title,scoreHTML,cheer,retry,xp,words){
   _spClear();
   const got=spGrantXp(xp);
   const e=_spOv();
@@ -5326,12 +5363,14 @@ function _spResult(ico,title,scoreHTML,cheer,retry,xp){
     <div class="sp-res-s">${scoreHTML}</div>
     ${got?`<div class="sp-res-xp">+${got}<span> XP</span></div>`:""}
     <div class="sp-res-c">${cheer||""}</div>
+    ${spWordListHTML(words)}
     <div class="sp-res-btns">
       <button class="sp-again" id="sp-again">もう一度</button>
       <button class="sp-menu" onclick="openSpecialFromGame()">スペシャル選択へ</button>
       <button class="sp-home" onclick="spExitGame()">ホームに戻る</button>
     </div></div>`;
   document.getElementById("sp-again").onclick=retry;
+  bindSpeakables(e); // 出した単語をタップ＝読み上げ
   try{sfxClaim();}catch(e){}
 }
 /* 神経衰弱：韓国語⇄日本語のペアを6組そろえる */
@@ -5352,7 +5391,7 @@ function spMemory(){
         moves++;
         if(open[0].c.k===open[1].c.k&&open[0].el!==open[1].el){
           matched++;open.forEach(o=>{o.el.classList.remove('flip');o.el.classList.add('done');});open=[];prog();try{sfxCorrect();}catch(e){}
-          if(matched===N)_spTimeout(()=>_spResult('🧠','神経衰弱クリア！',moves+'<small>手</small>','ペア'+N+'組そろえた！',spMemory),700);
+          if(matched===N)_spTimeout(()=>_spResult('🧠','神経衰弱クリア！',moves+'<small>手</small>','ペア'+N+'組そろえた！',spMemory,0,ws),700);
         }else{
           lock=true;try{sfxIncorrect();}catch(e){}
           _spTimeout(()=>{open.forEach(o=>{o.el.classList.remove('flip');o.el.innerHTML='<span class="sp-mc-back">?</span>';});open=[];lock=false;},800);
@@ -5366,7 +5405,7 @@ function spMemory(){
 function spSwipe(){
   const N=10,ws=_spPool(N);let idx=0,score=0;const e=_spOv();
   const round=()=>{
-    if(idx>=N){_spResult('👆','スワイプ○×',score+'<small> / '+N+'</small>',score>=N?'全問正解！':score>=N*0.7?'いい目！':'もう一回いこう',spSwipe);return;}
+    if(idx>=N){_spResult('👆','スワイプ○×',score+'<small> / '+N+'</small>',score>=N?'全問正解！':score>=N*0.7?'いい目！':'もう一回いこう',spSwipe,0,ws);return;}
     const w=ws[idx],correct=Math.random()<0.5;
     let shownJa=w.ja;
     if(!correct){const d=_spDistractors(w,1);if(d[0])shownJa=d[0];}
@@ -5385,7 +5424,7 @@ function spSwipe(){
 function spBlank(){
   const N=8,ws=_spPool(N);let idx=0,score=0;const e=_spOv();
   const round=()=>{
-    if(idx>=N){_spResult('✍️','穴うめ',score+'<small> / '+N+'</small>',score>=N?'完ぺき！':'いい調子！',spBlank,score*5);return;}
+    if(idx>=N){_spResult('✍️','穴うめ',score+'<small> / '+N+'</small>',score>=N?'完ぺき！':'いい調子！',spBlank,score*5,ws);return;}
     const w=ws[idx],chars=[...w.ko];
     const cand=chars.map((c,i)=>i).filter(i=>chars[i].trim()&&chars[i]!==' ');
     const bi=cand.length?cand[Math.floor(Math.random()*cand.length)]:0;
@@ -5413,7 +5452,7 @@ function spBlank(){
 function spListen(){
   const N=8,ws=_spPool(N);let idx=0,score=0;const e=_spOv();
   const round=()=>{
-    if(idx>=N){_spResult('🔊','発音マッチ',score+'<small> / '+N+'</small>',score>=N?'耳がいい！':'いい調子！',spListen,score*5);return;}
+    if(idx>=N){_spResult('🔊','発音マッチ',score+'<small> / '+N+'</small>',score>=N?'耳がいい！':'いい調子！',spListen,score*5,ws);return;}
     const w=ws[idx];
     let opts=[{t:w.ja,c:1}].concat(_spDistractors(w,3).map(t=>({t,c:0})));opts=shuffle(opts);
     e.innerHTML=_spTop('🔊 発音マッチ',(idx+1)+' / '+N)+`<div class="sp-body">
@@ -5439,7 +5478,7 @@ function spChain(){
   const ws=_spPool(80),e=_spOv();
   e.innerHTML=_spTop('⚡ スピード連鎖','0')+`<div class="sp-timerbar"><i id="sp-tb"></i></div><div class="sp-body" id="sp-cbody"></div>`;
   const tb=document.getElementById('sp-tb');
-  const endGame=()=>{if(!run)return;run=false;_spClear();_spResult('⚡','スピード連鎖',score+'<small>問正解</small>','最大コンボ '+best+'　'+(score>=15?'神連鎖！':score>=8?'ナイス連鎖！':'次はもっといける'),spChain);};
+  const endGame=()=>{if(!run)return;run=false;_spClear();_spResult('⚡','スピード連鎖',score+'<small>問正解</small>','最大コンボ '+best+'　'+(score>=15?'神連鎖！':score>=8?'ナイス連鎖！':'次はもっといける'),spChain,0,ws.slice(0,Math.min(qi,ws.length)));};
   _spInterval(()=>{left-=0.1;if(tb)tb.style.width=Math.max(0,left/T*100)+'%';if(left<=0)endGame();},100);
   const body=document.getElementById('sp-cbody');
   const round=()=>{
@@ -5467,7 +5506,7 @@ function spSort(){
     <div class="sp-chips" id="sp-chips">${shuffle(ws.slice()).map(w=>`<div class="sp-chip" data-k="${w.id}">${esc(w.ko)}</div>`).join('')}</div></div>`;
   const bins=[...e.querySelectorAll('.sp-bin')];
   const prog=()=>{const p=document.getElementById('sp-prog');if(p)p.textContent=placed+'/'+N;};
-  const finish=()=>{_spTimeout(()=>_spResult('🗂️','仲間分けクリア！',(mistakes===0?'ノーミス':'ミス'+mistakes+'回'),mistakes===0?'完ぺきな振り分け！':'クリア！ 次はノーミスを狙おう',spSort),550);};
+  const finish=()=>{_spTimeout(()=>_spResult('🗂️','仲間分けクリア！',(mistakes===0?'ノーミス':'ミス'+mistakes+'回'),mistakes===0?'完ぺきな振り分け！':'クリア！ 次はノーミスを狙おう',spSort,0,ws),550);};
   const tryPlace=(chip,bin)=>{
     if(!chip||!bin||chip.classList.contains('placed'))return;
     if(chip.dataset.k===bin.dataset.k){
@@ -5504,7 +5543,7 @@ function spReverse(){
   const N=8,ws=_spPool(N);let idx=0,score=0;const e=_spOv();
   const koDistractors=(w)=>{const pool=shuffle(_spPool(40).map(x=>x.ko).filter(k=>k&&k!==w.ko));const out=[];for(const k of pool){if(out.length>=3)break;if(!out.includes(k))out.push(k);}while(out.length<3)out.push(w.ko);return out;};
   const round=()=>{
-    if(idx>=N){_spResult('🔁','逆引き',score+'<small> / '+N+'</small>',score>=N?'完ぺき！':score>=N*0.7?'いい調子！':'もう一回いこう',spReverse);return;}
+    if(idx>=N){_spResult('🔁','逆引き',score+'<small> / '+N+'</small>',score>=N?'完ぺき！':score>=N*0.7?'いい調子！':'もう一回いこう',spReverse,0,ws);return;}
     const w=ws[idx];
     let opts=[{t:w.ko,c:1}].concat(koDistractors(w).map(t=>({t,c:0})));opts=shuffle(opts);
     e.innerHTML=_spTop('🔁 逆引き',(idx+1)+' / '+N)+`<div class="sp-body">
@@ -5528,7 +5567,7 @@ function spRush(){
   const ws=_spPool(60),e=_spOv();
   e.innerHTML=_spTop('🔥 ○×ラッシュ','0')+`<div class="sp-timerbar"><i id="sp-tb"></i></div><div class="sp-body" id="sp-rbody"></div>`;
   const tb=document.getElementById('sp-tb');
-  const endGame=()=>{if(!run)return;run=false;_spClear();_spResult('🔥','○×ラッシュ',score+'<small>問正解</small>','最大コンボ '+best+'　'+(score>=15?'神連打！':score>=8?'ナイス！':'次はもっと！'),spRush,score*3);};
+  const endGame=()=>{if(!run)return;run=false;_spClear();_spResult('🔥','○×ラッシュ',score+'<small>問正解</small>','最大コンボ '+best+'　'+(score>=15?'神連打！':score>=8?'ナイス！':'次はもっと！'),spRush,score*3,ws.slice(0,Math.min(qi,ws.length)));};
   _spInterval(()=>{left-=0.1;if(tb)tb.style.width=Math.max(0,left/T*100)+'%';if(left<=0)endGame();},100);
   const body=document.getElementById('sp-rbody');
   const round=()=>{
@@ -5555,7 +5594,7 @@ function spOrder(){
   if(pool.length<N)pool=pool.concat(_spPool(48)); // 2文字以上が足りなければ補完
   const ws=shuffle(pool).slice(0,N);let idx=0,score=0;const e=_spOv();
   const round=()=>{
-    if(idx>=N){_spResult('🔀','並べかえ',score+'<small> / '+N+'</small>',score>=N?'完ぺき！':score>=N*0.7?'いい調子！':'もう一回いこう',spOrder,score*5);return;}
+    if(idx>=N){_spResult('🔀','並べかえ',score+'<small> / '+N+'</small>',score>=N?'完ぺき！':score>=N*0.7?'いい調子！':'もう一回いこう',spOrder,score*5,ws);return;}
     const w=ws[idx];const chars=[...w.ko].filter(c=>c.trim());
     const order=shuffle(chars.slice());
     e.innerHTML=_spTop('🔀 並べかえ',(idx+1)+' / '+N)+`<div class="sp-body">
@@ -5598,7 +5637,7 @@ function spSurvival(){
           const ok=[...body.querySelectorAll('#sp-opts .sp-opt')].find(x=>x.dataset.c==='1');if(ok)ok.classList.add('ok');
           lives--;const h=document.getElementById('sp-hearts');if(h)h.textContent=heartsHTML();
           body.querySelectorAll('#sp-opts .sp-opt').forEach(x=>x.style.pointerEvents='none');
-          if(lives<=0){run=false;_spTimeout(()=>_spResult('❤️','サバイバル',score+'<small>問連続</small>',score>=15?'鉄壁！':score>=8?'ナイス生存！':'次はもっと粘れる',spSurvival,score*3),950);}
+          if(lives<=0){run=false;_spTimeout(()=>_spResult('❤️','サバイバル',score+'<small>問連続</small>',score>=15?'鉄壁！':score>=8?'ナイス生存！':'次はもっと粘れる',spSurvival,score*3,ws.slice(0,Math.min(qi,ws.length))),950);}
           else _spTimeout(round,950);
         }
       };
@@ -5624,7 +5663,7 @@ function _koDistractors(w,n){const pool=shuffle(_spPool(40).map(x=>x.ko).filter(
 function spChosung(){
   const N=8,ws=_spPool(N);let idx=0,score=0;const e=_spOv();
   const round=()=>{
-    if(idx>=N){_spResult('🔡','초성クイズ',score+'<small> / '+N+'</small>',score>=N?'完ぺき！':score>=N*0.7?'いい調子！':'もう一回いこう',spChosung);return;}
+    if(idx>=N){_spResult('🔡','초성クイズ',score+'<small> / '+N+'</small>',score>=N?'完ぺき！':score>=N*0.7?'いい調子！':'もう一回いこう',spChosung,0,ws);return;}
     const w=ws[idx];let opts=[{t:w.ko,c:1}].concat(_koDistractors(w,3).map(t=>({t,c:0})));opts=shuffle(opts);
     e.innerHTML=_spTop('🔡 초성クイズ',(idx+1)+' / '+N)+`<div class="sp-body">
       <div class="sp-q">初声のヒント／意味＝${esc(w.ja)}</div>
@@ -5641,10 +5680,10 @@ function spChosung(){
 
 /* ② 仲間はずれ：4組の韓国語＝日本語のうち、意味が間違っている1組を探してタップ（6ラウンド） */
 function spOdd(){
-  const N=6;let rnd=0,score=0;const e=_spOv();
+  const N=6;let rnd=0,score=0;const e=_spOv(),shown=[]; // shown＝結果に並べる「出した単語」（ラウンドごとに引き直すため貯める）
   const play=()=>{
-    if(rnd>=N){_spResult('🕵️','仲間はずれ',score+'<small> / '+N+'</small>',score>=N?'名探偵！':score>=N*0.7?'いい目！':'もう一回いこう',spOdd);return;}
-    const ws=_spPool(4),bad=Math.floor(Math.random()*4);
+    if(rnd>=N){_spResult('🕵️','仲間はずれ',score+'<small> / '+N+'</small>',score>=N?'名探偵！':score>=N*0.7?'いい目！':'もう一回いこう',spOdd,0,shown);return;}
+    const ws=_spPool(4),bad=Math.floor(Math.random()*4);shown.push(...ws);
     const rows=ws.map((w,i)=>{let ja=w.ja;if(i===bad){const d=_spDistractors(w,3).filter(x=>x&&x!==w.ja);ja=d[0]||ws.map(x=>x.ja).find(j=>j!==w.ja)||(w.ja+'？');}return{ko:w.ko,ja,bad:i===bad};});
     e.innerHTML=_spTop('🕵️ 仲間はずれ',(rnd+1)+' / '+N)+`<div class="sp-body">
       <div class="sp-q">意味が違うペアを1つ見つけよう</div>
@@ -5674,7 +5713,7 @@ function spMatch(){
   e.querySelectorAll('#sp-mR .sp-mi').forEach(b=>{b.onclick=()=>{
     if(b.classList.contains('done')||!selK)return;
     if(selK.dataset.k===b.dataset.k){selK.classList.remove('sel');selK.classList.add('done');b.classList.add('done');selK=null;done++;prog();try{sfxCorrect();}catch(e){}
-      if(done===N)_spTimeout(()=>_spResult('🔗','マッチング',(miss===0?'ノーミス':'ミス'+miss+'回'),miss===0?'一発でつなげた！':'クリア！ 次はノーミスを狙おう',spMatch,miss===0?45:Math.max(10,30-miss*4)),650);}
+      if(done===N)_spTimeout(()=>_spResult('🔗','マッチング',(miss===0?'ノーミス':'ミス'+miss+'回'),miss===0?'一発でつなげた！':'クリア！ 次はノーミスを狙おう',spMatch,miss===0?45:Math.max(10,30-miss*4),ws),650);}
     else{miss++;try{sfxIncorrect();}catch(e){}const k=selK;b.classList.add('bad');k.classList.add('bad');_spTimeout(()=>{b.classList.remove('bad');k.classList.remove('bad');},420);clearSel();}
   };});
   prog();
@@ -5684,7 +5723,7 @@ function spMatch(){
 function spFlash(){
   const N=8,ws=_spPool(N);let idx=0,score=0;const e=_spOv();
   const round=()=>{
-    if(idx>=N){_spResult('📸','フラッシュ記憶',score+'<small> / '+N+'</small>',score>=N?'記憶力バツグン！':score>=N*0.7?'いい調子！':'もう一回いこう',spFlash);return;}
+    if(idx>=N){_spResult('📸','フラッシュ記憶',score+'<small> / '+N+'</small>',score>=N?'記憶力バツグン！':score>=N*0.7?'いい調子！':'もう一回いこう',spFlash,0,ws);return;}
     const w=ws[idx];let opts=[{t:w.ja,c:1}].concat(_spDistractors(w,3).map(t=>({t,c:0})));opts=shuffle(opts);
     e.innerHTML=_spTop('📸 フラッシュ記憶',(idx+1)+' / '+N)+`<div class="sp-body">
       <div class="sp-q">一瞬だけ表示！ 意味をおぼえて</div>
@@ -5707,7 +5746,7 @@ function spFlash(){
 function spKaruta(){
   const N=8,pool=_spPool(40);let idx=0,score=0;const e=_spOv();
   const round=()=>{
-    if(idx>=N){_spResult('🎴','かるた',score+'<small> / '+N+'</small>',score>=N?'とり札の達人！':score>=N*0.7?'いい耳！':'もう一回いこう',spKaruta,score*5);return;}
+    if(idx>=N){_spResult('🎴','かるた',score+'<small> / '+N+'</small>',score>=N?'とり札の達人！':score>=N*0.7?'いい耳！':'もう一回いこう',spKaruta,score*5,pool.slice(0,Math.min(N,pool.length)));return;}
     const w=pool[idx%pool.length];let cards=[{t:w.ja,c:1}].concat(_spDistractors(w,5).map(t=>({t,c:0})));cards=shuffle(cards);
     e.innerHTML=_spTop('🎴 かるた',(idx+1)+' / '+N)+`<div class="sp-body">
       <div class="sp-q">読み上げを聞いて、合う札をとろう</div>
@@ -5728,7 +5767,7 @@ function spMemorize(){
   const ws=_spPool(4),e=_spOv();
   const order=shuffle(ws.slice());let idx=0,score=0;
   const quiz=()=>{
-    if(idx>=order.length){_spResult('🧩','暗記チャレンジ',score+'<small> / '+order.length+'</small>',score>=order.length?'記憶完ぺき！':score>=order.length*0.7?'いい記憶！':'もう一回いこう',spMemorize);return;}
+    if(idx>=order.length){_spResult('🧩','暗記チャレンジ',score+'<small> / '+order.length+'</small>',score>=order.length?'記憶完ぺき！':score>=order.length*0.7?'いい記憶！':'もう一回いこう',spMemorize,0,ws);return;}
     const w=order[idx];let opts=shuffle(ws.map(x=>({t:x.ja,c:x.id===w.id?1:0})));
     e.innerHTML=_spTop('🧩 暗記チャレンジ',(idx+1)+' / '+order.length)+`<div class="sp-body">
       <div class="sp-q">さっきの意味は？</div>
@@ -5767,7 +5806,7 @@ function spSpell(){
   const N=8;let pool=_spPool(50).filter(w=>[...w.ko].some(_isHangul));if(pool.length<N)pool=pool.concat(_spPool(50));
   const ws=shuffle(pool).slice(0,N);let idx=0,score=0;const e=_spOv();
   const round=()=>{
-    if(idx>=N){_spResult('🔍','まちがい探し',score+'<small> / '+N+'</small>',score>=N?'目がいい！':score>=N*0.7?'いい調子！':'もう一回いこう',spSpell);return;}
+    if(idx>=N){_spResult('🔍','まちがい探し',score+'<small> / '+N+'</small>',score>=N?'目がいい！':score>=N*0.7?'いい調子！':'もう一回いこう',spSpell,0,ws);return;}
     const w=ws[idx],set=new Set([w.ko]);let g=0;
     while(set.size<4&&g++<40){const v=_hVariant(w.ko);if(v)set.add(v);else break;}
     if(set.size<4){const extra=shuffle(_spPool(30).map(x=>x.ko).filter(k=>k&&k!==w.ko));for(const k of extra){if(set.size>=4)break;set.add(k);}}
@@ -6671,7 +6710,7 @@ function finishTest(){
     const cardsGot=(r.cardsEarned!=null?r.cardsEarned:0); // このカードで獲得した枚数
     const memDelta=Math.round(dAfter-dBefore); // 記憶率の増減（±）＝テスト前後の記憶率の差
     const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[r.korean])?`<img src="${WORD_IMG[r.korean]}" alt="">`:`<div class="cg-noimg">🃏</div>`;
-    return `<div class="rc-card">
+    return `<div class="rc-card speakable" data-id="${r.wordId||0}" data-ko="${esc(r.korean)}">
       <div class="rc-imgw"><span class="rc-sym" style="color:${syc}">${sy[0]}</span>${img}</div>
       <div class="rc-ko">${esc(r.korean)}</div>
       <div class="rc-ja">${esc(r.japanese)}</div>
@@ -6709,6 +6748,7 @@ function finishTest(){
       <div class="res-cheer">${pickResultCheer(totalDisp,nCorrect,R.filter(r=>(r.displayMemoryScoreBefore||0)===0).length)}</div>
     </div>
     ${typeUpd}
+    <div class="res-spkhint">🔊 カードをタップで発音</div>
     <div class="res-listwrap"><div class="res-cards">${rows}</div></div>
     <div class="res-btns">
       ${MONETIZE.donateUrl?`<a class="rb" href="${MONETIZE.donateUrl}" target="_blank" rel="noopener" onclick="if(typeof track==='function')track('donate_click')"><span class="rb-ico">☕</span><span class="rb-lab">応援する</span></a>`:""}
@@ -6721,6 +6761,7 @@ function finishTest(){
    </div>`;
   show("s-result");
   activateAds(document.getElementById("s-result"));
+  bindSpeakables(document.getElementById("s-result")); // 結果のカードをタップ＝その単語を読み上げ
   // 結果表示の前に「単語カード獲得」演出を全面オーバーレイで見せ、閉じたら結果のアニメを開始
   const cgWords=R.map(r=>({ko:r.korean,ja:r.japanese}));
   showCardGetSequence(cgWords,()=>{
@@ -7157,7 +7198,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v4.2 (2026-07-29)";
+const APP_VERSION="v4.3 (2026-07-29)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
