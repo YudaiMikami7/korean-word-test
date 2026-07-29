@@ -287,16 +287,17 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .hv-roompwr .unit{font-size:19px;margin-left:4px}
 .hv-wordsg{left:238px;top:37px;width:89px;height:10px;padding:2px}
 .hv-roomg{left:238px;top:88px;width:89px;height:10px;padding:2px}
+/* ルームメニューの2本のバーは伸びる動きを付けない（アニメ廃止。ステータス欄のバーは従来どおり） */
+.hv-wordsg .gfill,.hv-roomg .gfill{transition:none}
 /* ランクの下端(146)を下段バー(132+14=146)・ROOM番号の字面下端と一致させる */
 .rank-s{position:absolute;left:363px;top:72px;width:30px;height:30px;border-radius:50%;background:#555;
   display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;z-index:1}
 .rank-s1{left:389px}
 .rank-b{position:absolute;left:442px;top:15px;width:78px;height:78px;border-radius:50%;background:#555;
   display:flex;align-items:center;justify-content:center;font-size:62px;line-height:1;z-index:2}
-/* ルームメニューのランクを結果と同じメダル風（金リング＋光沢）に。登場時にポップ */
-.rank-b,.rank-s{box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 4px rgba(255,196,0,.9),0 3px 8px rgba(0,0,0,.3);animation:rankmedalpop .6s cubic-bezier(.34,1.6,.5,1)}
+/* ルームメニューのランクを結果と同じメダル風（金リング＋光沢）に。※登場ポップはルームメニューのアニメ廃止で削除 */
+.rank-b,.rank-s{box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 4px rgba(255,196,0,.9),0 3px 8px rgba(0,0,0,.3)}
 .rank-b::after,.rank-s::after{content:"";position:absolute;inset:3px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%);pointer-events:none}
-@keyframes rankmedalpop{0%{transform:scale(.35) rotate(-160deg);opacity:0}70%{opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
 /* ルームメニュー領域のクリップ：3面ローテのアニメが座布団の外にはみ出て描画されないように（座標は不変） */
 .rmenu-clip{position:absolute;inset:0;z-index:2;clip-path:inset(-12px 40px calc(100% - 104px) 40px round 56px)}
 /* ROOMメニュー（カプセル）の外側・左右に置く「隣のページへ」矢印。
@@ -316,8 +317,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .home-wrap.pq-active .rm-prev::before{border-right-color:#c04ea0}
 .home-wrap.pq-active .rm-next::before{border-left-color:#c04ea0}
 .home-wrap.status .rm-arrow,.home-wrap.hiderail .rm-arrow{opacity:0;pointer-events:none}
-/* ルームメニューの3面ローテーション：語数/％/ランク(face0) ⇄ おすすめ単語 ⇄ PWRグラフ。左下を軸に回転して入替（座布団なし・背景はroom色・白文字・影なし） */
-.rmenu-reco,.rmenu-pwr{position:absolute;left:220px;top:-10px;width:328px;height:120px;display:flex;flex-direction:column;justify-content:center;padding:0 12px;box-sizing:border-box;transform-origin:0% 100%;transform:rotate(60deg) scale(.32);opacity:0;pointer-events:none;z-index:3;transition:transform .5s cubic-bezier(.34,1.4,.5,1),opacity .36s ease}
+/* ルームメニューの3面ローテーション：語数/％/ランク(face0) ⇄ おすすめ単語 ⇄ PWRグラフ。
+   ※メール指示（2026-07-29）でルームメニューのアニメーションは完全に廃止。回転の transition を外し、
+     ローテーション自体も止めている（JS: ROOM_RECO_ROTATE）。この2面は常に非表示のまま */
+.rmenu-reco,.rmenu-pwr{position:absolute;left:220px;top:-10px;width:328px;height:120px;display:flex;flex-direction:column;justify-content:center;padding:0 12px;box-sizing:border-box;transform-origin:0% 100%;transform:rotate(60deg) scale(.32);opacity:0;pointer-events:none;z-index:3}
 /* PWRメータ面は右端をさらに内側へ寄せてルームメニューからはみ出さないように */
 .rmenu-pwr{width:292px;padding-right:26px}
 /* おすすめ単語面：左に画像・右にテキスト（横並び・左端寄せ） */
@@ -335,8 +338,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .slide-inner.face-pwr .rmenu-pwr{transform:rotate(0) scale(1);opacity:1}
 .rr-ko{font-size:54px;font-weight:900;color:#fff;line-height:1;white-space:nowrap}
 .rr-ja{font-size:19px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:5px}
-/* 語数/％/ランク/メータ類：他面表示中は、おすすめ/PWR面と同じ左下軸の回転で退避（3面で統一） */
-.hv-learned,.hv-wordsg,.hv-roompwr,.hv-roomg,.rank-b,.rank-s{transition:transform .5s cubic-bezier(.34,1.4,.5,1),opacity .4s ease;transform-origin:0% 100%}
+/* 語数/％/ランク/メータ類：他面表示中は、おすすめ/PWR面と同じ左下軸の回転で退避（3面で統一）
+   ※アニメ廃止に伴い transition は削除。ローテーションを戻すときはここも戻す */
+.hv-learned,.hv-wordsg,.hv-roompwr,.hv-roomg,.rank-b,.rank-s{transform-origin:0% 100%}
 .slide-inner.face-word .hv-learned,.slide-inner.face-word .hv-wordsg,.slide-inner.face-word .hv-roompwr,.slide-inner.face-word .hv-roomg,.slide-inner.face-word .rank-b,.slide-inner.face-word .rank-s,
 .slide-inner.face-pwr .hv-learned,.slide-inner.face-pwr .hv-wordsg,.slide-inner.face-pwr .hv-roompwr,.slide-inner.face-pwr .hv-roomg,.slide-inner.face-pwr .rank-b,.slide-inner.face-pwr .rank-s{transform:rotate(60deg) scale(.32);opacity:0}
 /* PWRグラフ面 */
@@ -344,8 +348,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rmpwr-top .rp-lab{font-size:14px;font-weight:900;color:#fff}
 .rmpwr-top b{font-size:40px;font-weight:900;color:#fff;line-height:1}
 .rmpwr-bars{display:flex;align-items:flex-end;gap:5px;height:56px;margin-top:6px;overflow:hidden}
-.rmpwr-bar{flex:1 1 0;min-width:5px;background:rgba(255,255,255,.9);border-radius:3px 3px 0 0;transform-origin:bottom center;animation:barGrow .55s cubic-bezier(.3,1.25,.5,1) .18s both}
-@keyframes barGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.rmpwr-bar{flex:1 1 0;min-width:5px;background:rgba(255,255,255,.9);border-radius:3px 3px 0 0;transform-origin:bottom center} /* 伸びるアニメはルームメニューのアニメ廃止で削除 */
 /* プリQQは背景が淡いので文字/バーをピンクに */
 .pq-slide .rr-ko,.pq-slide .rr-ja,.pq-slide .rmpwr-top .rp-lab,.pq-slide .rmpwr-top b{color:#c04ea0}
 .pq-slide .rmpwr-bar{background:rgba(200,67,154,.85)}
@@ -537,20 +540,15 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .coach-nav button{flex:1 1 0;border:none;border-radius:999px;padding:13px;font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;background:#1a1a1a;color:#fff}
 .coach-nav button.ghost{flex:0 0 auto;padding:13px 18px;background:#eee;color:#555}
 .coach-ok{margin-top:14px;background:#1a1a1a;color:#fff;text-align:center;border-radius:999px;padding:10px}
-/* その日はじめて開いたときの「今日の5問」自動スタート */
-.d5auto{position:fixed;inset:0;z-index:610;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.66);opacity:0;transition:opacity .24s ease}
+/* その日はじめて開いたときの「今日の5問」自動スタート
+   見た目は「今日の5問」の吹き出し(.d5-card／朝の部・夜の部の2マス)をそのまま使い、同じようにボタンの上から出す。
+   触らなければ D5_AUTO_SEC 秒で始まり、「戻る」で中断できる（中断してももう一度タッチすれば始められる） */
+.d5auto{position:fixed;inset:0;z-index:610;background:rgba(0,0,0,.34);opacity:0;transition:opacity .2s ease}
 .d5auto.on{opacity:1}
-.d5a-card{background:linear-gradient(160deg,#fff,#f2f7ff);border-radius:22px;padding:22px 26px 18px;width:min(340px,84vw);text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.45);transform:scale(.7);transition:transform .4s cubic-bezier(.34,1.65,.5,1)}
-.d5auto.on .d5a-card{transform:scale(1)}
-.d5a-lab{font-size:12.5px;font-weight:900;color:#1B6FD1;letter-spacing:1px}
-.d5a-h{font-size:22px;font-weight:900;color:#1a1a1a;margin:4px 0 4px;text-wrap:balance}
-.d5a-sub{font-size:13px;font-weight:800;color:#777;line-height:1.55;text-wrap:balance}
-.d5a-bar{height:5px;border-radius:999px;background:#e3e8ef;overflow:hidden;margin:14px 0 12px}
-.d5a-bar div{height:100%;width:0;background:#1B6FD1;transition:width 2.5s linear}
-.d5a-btns{display:flex;gap:10px}
-.d5a-btns button{border:none;border-radius:999px;padding:13px;font-size:15px;font-weight:900;font-family:inherit;cursor:pointer}
-.d5a-later{flex:0 0 auto;padding:13px 18px!important;background:#eee;color:#555}
-.d5a-go{flex:1 1 0;background:#1a1a1a;color:#fff}
+.d5a-cd{font-size:11.5px;font-weight:800;color:#777;line-height:1.5}
+.d5a-cd b{font-size:20px;font-weight:900;color:#1a1a1a;font-variant-numeric:tabular-nums;margin:0 3px}
+.d5a-bar{height:5px;background:#EDEDED;overflow:hidden;margin:7px 0 9px}
+.d5a-bar div{height:100%;width:0;background:#FFC400}
 /* 単語検索（一覧モード上部） */
 .wb-back,#wb-search{display:none!important} /* 旧・単語帳の戻る/検索は廃止（body直下の#wb-panelに移行） */
 #pull-hint{position:absolute;left:50%;top:120px;transform:translateX(-50%);z-index:60;display:block;background:rgba(0,0,0,.72);color:#fff;font-size:14px;font-weight:800;padding:9px 18px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s ease}
@@ -1689,6 +1687,8 @@ body.bigtext .set-d{font-size:13.5px}
 .d5-wait .d5-wv{font-size:23px;font-weight:900;font-variant-numeric:tabular-nums;color:#1a1a1a;margin-top:2px}
 .d5-ghost{width:100%;margin-top:7px;border:2px solid #111;background:#fff;color:#111;font-size:13px;font-weight:800;padding:9px;cursor:pointer;font-family:inherit;border-radius:999px}
 .d5-ghost:active{background:#efefef}
+/* 中断した枠は「もう一度はじめられる」ことを吹き出しの中で伝える */
+.d5-again{font-size:11.5px;font-weight:800;color:#C24A00;background:#FFF7E0;padding:6px 5px;margin-bottom:8px;line-height:1.45;text-wrap:balance}
 /* --- 回答受付フラッシュ（正誤は出さない） --- */
 #qstage .choice.d5-pick{box-shadow:0 0 0 4px #FFC400 inset}
 .d5-ack{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;pointer-events:none}
@@ -2603,7 +2603,12 @@ function roomRecoTick(){
     si.classList.add("face-pwr");
   } // face 0 は何も付けず語数/％/ランクへ戻る
 }
-function startRoomRecoLoop(){if(_recoTimer)return;_recoTimer=setInterval(roomRecoTick,3000);} // 3秒ごとに面を切替
+/* メール指示（2026-07-29）：ホームの動きが多いため、ルームメニューのアニメーションは完全に廃止。
+   3面ローテーションを止め、語数/％/ランクの面だけを静止表示する。
+   ※各面を作る処理（roomRecoTick／pickRecoWord／roomScoreSeries）はそのまま残してあるので、
+     ROOM_RECO_ROTATE を true に戻せば従来どおり3秒ごとの入替が復活する */
+const ROOM_RECO_ROTATE=false;
+function startRoomRecoLoop(){if(!ROOM_RECO_ROTATE)return;if(_recoTimer)return;_recoTimer=setInterval(roomRecoTick,3000);} // 3秒ごとに面を切替
 
 /* 単語帳/忘却曲線ボタンのアイコン⇄ラベル回転入替（時間配分はアイコン8割・文字2割） */
 let _sideFlipTimer=null;
@@ -4177,6 +4182,9 @@ function d5Streak(){
   return n;
 }
 function d5Used(ms){return !!d5Rec(ms);}
+/* その枠を「消化ずみ」と見なすのは最後までやり切ったときだけ。
+   途中で戻った（中断した）枠は、もう一度タッチすればやり直せる（メール指示 2026-07-29） */
+function d5Done(ms){const r=d5Rec(ms);return !!(r&&r.done);}
 function d5NextOpenAt(ms){
   const d=new Date(ms),h=d.getHours();
   if(h<D5_AM)d.setHours(D5_AM,0,0,0);                              // 深夜 → 今日の5:00
@@ -4209,7 +4217,7 @@ function buildDaily5Questions(){
 }
 /* ---- 入口（すごろく下・中央のカプセルボタン。スライドごとに1つずつ存在する） ---- */
 function updateD5Btn(){
-  const used=d5Used();
+  const used=d5Done(); // 中断しただけならボタンは押せるまま
   document.querySelectorAll(".sg-d5").forEach(b=>{
     b.classList.toggle("d5-off",used);
     // ボタンは作り直さないフロートなので、演出クラス(animation-fill-mode:both)が残るとtransformを固定してしまう。枠が開いたら外す
@@ -4268,7 +4276,7 @@ function openDaily5(){
   _d5Timer=setInterval(()=>{
     const el=document.getElementById("d5-cd");
     if(!el||!m.classList.contains("on")){clearInterval(_d5Timer);_d5Timer=null;return;}
-    if(!d5Used()){d5RenderModal();return;} // 枠がまたいで開放されたら表示を切り替え
+    if(!d5Done()){d5RenderModal();return;} // 枠がまたいで開放されたら表示を切り替え
     el.textContent=d5Countdown(Date.now());
   },1000);
 }
@@ -4278,10 +4286,11 @@ function d5RenderModal(){
   const cell=(s)=>{const r=all[dk+"#"+s];
     return `<div class="d5-slot${slot===s?" now":""}"><div class="d5-sl">${d5SlotLabel(s)}<br>${d5SlotTime(s)}</div>
       <div class="d5-sv ${r?"ok":"no"}">${r?(r.done?(r.correct+" / "+D5_N+" 正解"):"中断"):"未プレイ"}</div></div>`;};
-  const body=rec
+  const body=(rec&&rec.done)
    ?`<div class="d5-wait"><div class="d5-wt">次の「今日の5問」まで</div><div class="d5-wv" id="d5-cd">${d5Countdown(now)}</div></div>
-     ${rec.done?`<button class="d5-ghost" onclick="closeDaily5();d5ShowSaved()">この回の結果をもう一度見る</button>`:""}`
-   :`<button class="d5-go" onclick="startDaily5()">${d5SlotLabel(slot)}をはじめる</button>`;
+     <button class="d5-ghost" onclick="closeDaily5();d5ShowSaved()">この回の結果をもう一度見る</button>`
+   :`${rec?`<div class="d5-again">中断した分は、もう一度はじめられます</div>`:""}
+     <button class="d5-go" onclick="startDaily5()">${d5SlotLabel(slot)}をはじめる</button>`;
   document.getElementById("d5-modal").innerHTML=`<div class="d5-card">
     <button class="d5-close" onclick="closeDaily5()" aria-label="閉じる">×</button>
     <div class="d5-h">今日の5問テスト</div>
@@ -4300,9 +4309,10 @@ function d5AnchorBtn(sel){
   });
   return best;
 }
-/* 吹き出しをボタンの真上に置く（上に入らなければ下向きに反転、はみ出す側は画面内へ寄せる） */
-function d5AnchorBubble(sel){
-  const card=document.querySelector("#d5-modal .d5-card");if(!card)return;
+/* 吹き出しをボタンの真上に置く（上に入らなければ下向きに反転、はみ出す側は画面内へ寄せる）
+   card を渡すと、その吹き出し（自動スタートの吹き出しなど）を同じ計算で置く */
+function d5AnchorBubble(sel,card){
+  card=card||document.querySelector("#d5-modal .d5-card");if(!card)return;
   const btn=d5AnchorBtn(sel),vw=innerWidth,vh=innerHeight,W=card.offsetWidth,H=card.offsetHeight,GAP=16,M=8;
   let cx=vw/2,top,flip=false;
   if(btn){
@@ -4321,7 +4331,10 @@ function d5AnchorBubble(sel){
   card.classList.toggle("edge-l",!flip&&tx<W*0.28);
   card.classList.toggle("edge-r",!flip&&tx>W*0.72);
 }
-addEventListener("resize",()=>{const m=document.getElementById("d5-modal");if(m&&m.classList.contains("on"))d5AnchorBubble();});
+addEventListener("resize",()=>{
+  const m=document.getElementById("d5-modal");if(m&&m.classList.contains("on"))d5AnchorBubble();
+  const a=document.querySelector(".d5auto .d5-card");if(a)d5AnchorBubble(null,a);
+});
 /* ============================================================ 今日のトレンド問題 ============================================================
  * ・Xで流れているK-POPのトレンドから拾った5単語（trend-words.js）で遊ぶ、1日1回のおまけモード
  * ・出題の骨格・結果画面は「今日の5問」と同じものを使う（_d5.mode==="trend"）
@@ -4344,7 +4357,7 @@ function trendEntry(ms){
   const le=lk?TREND_WORDS[lk]:null;
   return (le&&le.words&&le.words.length)?Object.assign({},le,{key:lk,fresh:false}):null;
 }
-function trendAvailable(ms){return !!trendEntry(ms)&&d5Used(ms);} // 今日の5問を終えた日だけ出す
+function trendAvailable(ms){return !!trendEntry(ms)&&d5Done(ms);} // 今日の5問を「最後まで」終えた日だけ出す
 function loadTrend(){return _lsJSON(LS_TREND,()=>({}));}
 function saveTrend(o){const ks=Object.keys(o);if(ks.length>40)ks.slice(0,ks.length-40).forEach(k=>delete o[k]);_lsSetJSON(LS_TREND,o);}
 function trendRec(ms){return loadTrend()[trendDayKey(ms)]||null;}
@@ -4420,7 +4433,7 @@ function trendShowSaved(){const r=trendRec();if(r&&r.done)d5RenderResult(r,false
 
 /* ---- 開始 ---- */
 function startDaily5(){
-  if(d5Used()){d5RenderModal();return;}
+  if(d5Done()){d5RenderModal();return;} // やり切った枠だけ締切。中断した枠はここから作り直して再挑戦できる
   closeDaily5();
   const now=Date.now();
   _d5={on:true,mode:"d5",slot:d5Slot(now),key:d5Key(now)};
@@ -4439,15 +4452,17 @@ function startDaily5(){
 }
 /* ---- その日はじめて開いたときは、こちらから「今日の5問」を出す ----
  * 「開いてから何をやろうか選ぶ」心理的な負担をなくすため、枠(朝/夜)ごとに1回だけ自動で始める。
- * 使い方ガイドを見ている最中・ホーム以外・すでにその枠を遊んだ場合は出さない。 */
+ * 使い方ガイドを見ている最中・ホーム以外・すでにその枠をやり切った場合は出さない。
+ * 見た目・中身は「今日の5問」の吹き出し(d5RenderModal)と同じものを、同じくボタンの上に出す。 */
 const LS_D5AUTO="kwt_d5auto_v1";
+const D5_AUTO_SEC=10; // 触らなければ始まるまでの秒数（2.6秒は短すぎるとのご指摘で10秒に）
 function maybeAutoDaily5(){
   try{
     if(document.getElementById("coach"))return;                    // 使い方ガイドの表示中（閉じたときに改めて呼ばれる）
     if(_d5.on||_gearActive)return;
     const home=document.getElementById("s-home");
     if(!home||!home.classList.contains("on"))return;                // ホーム以外では割り込まない
-    if(d5Used())return;                                             // その枠はもう遊んだ
+    if(d5Done())return;                                             // その枠はもうやり切った
     const k=d5Key(Date.now());
     if(localStorage.getItem(LS_D5AUTO)===k)return;                  // その枠はもう自動で出した
     localStorage.setItem(LS_D5AUTO,k);
@@ -4455,24 +4470,49 @@ function maybeAutoDaily5(){
   }catch(e){}
 }
 function showAutoD5Splash(){
-  const old=document.querySelector(".d5auto");if(old)old.remove();
+  _killAutoD5();
+  const now=Date.now(),slot=d5Slot(now),all=loadD5(),dk=dayKey(now);
+  // 朝の部・夜の部の2マスは「今日の5問」の吹き出しとまったく同じ作り（左=朝／右=夜・いまの枠に黄色い枠線）
+  const cell=(s)=>{const r=all[dk+"#"+s];
+    return `<div class="d5-slot${slot===s?" now":""}"><div class="d5-sl">${d5SlotLabel(s)}<br>${d5SlotTime(s)}</div>
+      <div class="d5-sv ${r?"ok":"no"}">${r?(r.done?(r.correct+" / "+D5_N+" 正解"):"中断"):"未プレイ"}</div></div>`;};
+  const streak=(()=>{const k=d5Streak();return k?`<div class="d5-streak"><img src="images-thumb/0773.webp" alt="" style="width:20px;height:20px;object-fit:contain">連続 <b>${k}</b> 日</div>`:"";})();
   const ov=document.createElement("div");ov.className="d5auto";
-  ov.innerHTML=`<div class="d5a-card">
-    <div class="d5a-lab">今日の5問・${d5SlotLabel(d5Slot(Date.now()))}</div>
-    <div class="d5a-h">今日のぶん、はじめます</div>
-    <div class="d5a-sub">えらばなくて大丈夫。<br>まずはこの5問から。</div>
+  ov.innerHTML=`<div class="d5-card">
+    <div class="d5-h">今日の5問テスト</div>
+    ${streak}
+    <div class="d5-slots">${cell("am")}${cell("pm")}</div>
+    <div class="d5a-cd">あと<b id="d5a-sec">${D5_AUTO_SEC}</b>秒で${d5SlotLabel(slot)}がはじまります</div>
     <div class="d5a-bar"><div id="d5a-fill"></div></div>
-    <div class="d5a-btns"><button class="d5a-later" onclick="closeAutoD5(false)">あとで</button><button class="d5a-go" onclick="closeAutoD5(true)">いますぐ</button></div>
+    <button class="d5-go" onclick="closeAutoD5(true)">いますぐはじめる</button>
+    <button class="d5-ghost" onclick="closeAutoD5(false)">戻る（中断する）</button>
   </div>`;
   document.body.appendChild(ov);
-  requestAnimationFrame(()=>{ov.classList.add("on");const f=document.getElementById("d5a-fill");if(f)f.style.width="100%";});
-  ov._t=setTimeout(()=>closeAutoD5(true),2600); // 触らなければそのまま始まる
+  d5AnchorBubble(null,ov.querySelector(".d5-card"));
+  requestAnimationFrame(()=>{
+    ov.classList.add("on");
+    const f=document.getElementById("d5a-fill");
+    if(f){f.style.transition="width "+D5_AUTO_SEC+"s linear";f.style.width="100%";}
+  });
+  let left=D5_AUTO_SEC;
+  ov._iv=setInterval(()=>{
+    left--;const e=document.getElementById("d5a-sec");
+    if(e)e.textContent=Math.max(0,left);
+    if(left<=0){clearInterval(ov._iv);ov._iv=null;}
+  },1000);
+  ov._t=setTimeout(()=>closeAutoD5(true),D5_AUTO_SEC*1000); // 触らなければそのまま始まる
 }
-function closeAutoD5(go){
-  const ov=document.querySelector(".d5auto");if(!ov)return;
+function _killAutoD5(){
+  const ov=document.querySelector(".d5auto");if(!ov)return null;
   if(ov._t){clearTimeout(ov._t);ov._t=null;}
-  ov.classList.remove("on");setTimeout(()=>ov.remove(),240);
-  if(go&&!d5Used())startDaily5();
+  if(ov._iv){clearInterval(ov._iv);ov._iv=null;}
+  ov.remove();return ov;
+}
+/* go=false（戻る）は中断するだけ。記録は残さないので、あとで「今日の5問」をもう一度タッチすれば始められる */
+function closeAutoD5(go){
+  if(!document.querySelector(".d5auto"))return;
+  _killAutoD5();
+  if(go&&!d5Done())startDaily5();
 }
 /* ---- 回答後（正誤は出さず、選んだ選択肢だけ光らせて次へ） ---- */
 function d5AfterAnswer(status,userAnswer){
@@ -4830,7 +4870,7 @@ const SG_HOME_ICON='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false
   +'<path d="M12 2.4 4.9 21.6 12 17.5Z" fill="#fff"/></svg>';
 /* 今日の5問（すごろく下・中央のカプセル）。スライドごとに描かれるのでidではなくclassで扱う */
 function sgD5HTML(){
-  const used=(typeof d5Used==="function")&&d5Used();
+  const used=(typeof d5Done==="function")&&d5Done();
   return '<button class="sg-fbtn sg-d5'+(used?" d5-off":"")+'" onclick="openDaily5()" aria-label="今日の5問テスト">'
     +'<span class="sgd5-t"><span>今</span><span>日</span><span>の</span><span>5</span><span>問</span></span>'
     +'<span class="sgd5-mini" aria-hidden="true"><i>✓</i><b>5問</b></span>'
@@ -7117,7 +7157,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v4.1 (2026-07-29)";
+const APP_VERSION="v4.2 (2026-07-29)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

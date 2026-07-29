@@ -41,7 +41,7 @@ const FILE = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '
   await page.evaluate(() => coachNext()); // 閉じる
   await page.waitForTimeout(500);
   check('ガイドを閉じると今日の5問が自動で出る', await page.evaluate(() => !!document.querySelector('.d5auto')));
-  check('「あとで」で見送れる', await page.evaluate(() => { closeAutoD5(false); return !document.getElementById('s-quiz').classList.contains('on'); }));
+  check('「戻る」で見送れる', await page.evaluate(() => { closeAutoD5(false); return !document.getElementById('s-quiz').classList.contains('on'); }));
   await page.waitForTimeout(400);
   check('同じ枠では二度と自動で出ない', await page.evaluate(() => { maybeAutoDaily5(); return !document.querySelector('.d5auto'); }));
 
@@ -52,7 +52,12 @@ const FILE = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '
   check('「いますぐ」で今日の5問が始まる', await page.evaluate(() => { closeAutoD5(true); return document.getElementById('s-quiz').classList.contains('on') && _d5.on && _d5.mode === 'd5'; }));
   await page.evaluate(() => { quitTest(); });
   await page.waitForTimeout(400);
-  check('すでに遊んだ枠なら自動で出ない', await page.evaluate(() => { localStorage.removeItem('kwt_d5auto_v1'); maybeAutoDaily5(); return !document.querySelector('.d5auto'); }));
+  // 中断しただけの枠はやり直せる（2026-07-29 夜の指示）ので、自動スタートも出る。締切は「やり切った枠」だけ
+  check('中断した枠なら自動でまた出る', await page.evaluate(() => { localStorage.removeItem('kwt_d5auto_v1'); maybeAutoDaily5(); const on = !!document.querySelector('.d5auto'); closeAutoD5(false); return on; }));
+  check('やり切った枠なら自動で出ない', await page.evaluate(() => {
+    const all = loadD5(); all[d5Key(Date.now())].done = true; saveD5(all);
+    localStorage.removeItem('kwt_d5auto_v1'); maybeAutoDaily5(); return !document.querySelector('.d5auto');
+  }));
 
   // ---------- 5問の結果画面：字の大きさ・タップで発音 ----------
   await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); localStorage.setItem('kwt_d5auto_v1', d5Key(Date.now())); });
