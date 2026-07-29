@@ -18,7 +18,7 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   page.on('dialog', d => d.accept());
   await page.goto('file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/'));
   await page.waitForTimeout(900);
-  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); });
+  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); localStorage.setItem('kwt_d5auto_v1', d5Key(Date.now())); });
   await page.reload();
   await page.waitForTimeout(1200);
   await page.evaluate(() => { document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove()); });

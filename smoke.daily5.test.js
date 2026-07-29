@@ -16,7 +16,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   page.on('dialog', d => d.accept());
   await page.goto('file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/'));
   await page.waitForTimeout(900);
-  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); });
+  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); localStorage.setItem('kwt_d5auto_v1', d5Key(Date.now())); });
   await page.reload();
   await page.waitForTimeout(1000);
   await page.evaluate(() => { document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove()); });

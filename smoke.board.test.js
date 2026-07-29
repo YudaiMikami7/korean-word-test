@@ -16,7 +16,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   page.on('dialog', d => d.accept());
   await page.goto('file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/'));
   await page.waitForTimeout(900);
-  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); });
+  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); localStorage.setItem('kwt_d5auto_v1', d5Key(Date.now())); });
   await page.reload(); await page.waitForTimeout(1300);
   await page.evaluate(() => document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove()));
 
@@ -241,7 +241,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check('画面のダブルタップでもスタートのマスへ戻る', hb.dbl);
 
   // --- ホーム下部のレイアウト刷新 ---
-  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); })
+  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); localStorage.setItem('kwt_d5auto_v1', d5Key(Date.now())); })
     .then(() => page.reload()).then(() => page.waitForTimeout(1500));
   await page.evaluate(() => document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove()));
   const home = await page.evaluate(() => ({
@@ -337,7 +337,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     for (let n = 1; n <= 27; n++) { const t = {}; for (let i = 1; i <= 24; i++) t[i] = { rank: 'B', score: 70, at: new Date().toISOString() }; board['middle-' + String(n).padStart(2, '0')] = { cleared: 24, tiles: t }; }
     localStorage.setItem('kwt_board_v1', JSON.stringify(board));
     localStorage.setItem('kwt_lastroom_v1', JSON.stringify({ level: 'middle', section: 1 }));
-    localStorage.setItem('kwt_coach_v1', '1');
+    localStorage.setItem('kwt_coach_v1', '1'); localStorage.setItem('kwt_d5auto_v1', d5Key(Date.now()));
     return true;
   }).then(() => page.reload()).then(() => page.waitForTimeout(2200)).then(() => page.evaluate(() => ({
     tiles: document.querySelectorAll('.sg-tile').length,
@@ -359,7 +359,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
 
   // --- 1周クリアの到達演出・進捗チップ ---
   const lap = await page.evaluate(async () => {
-    localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1');
+    localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); localStorage.setItem('kwt_d5auto_v1', d5Key(Date.now()));
     const t = {}; for (let i = 1; i <= 11; i++) t[i] = { rank: 'B', score: 70, at: new Date().toISOString() };
     localStorage.setItem('kwt_board_v1', JSON.stringify({ 'beginner-01': { cleared: 11, tiles: t } })); // あと1マスで1周
     return true;
@@ -409,7 +409,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   }));
 
   // --- 初回ユーザーの帯は「おすすめの単語」 ---
-  const bandNew = await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); return true; })
+  const bandNew = await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); localStorage.setItem('kwt_d5auto_v1', d5Key(Date.now())); return true; })
     .then(() => page.reload()).then(() => page.waitForTimeout(1600)).then(() => page.evaluate(() => {
       document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove());
       const b = document.getElementById('today-band');

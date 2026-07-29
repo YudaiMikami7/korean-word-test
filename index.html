@@ -123,6 +123,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .choice{position:relative;background:rgba(0,0,0,.8);border:none;border-radius:0;padding:18px;font-size:21px;font-weight:700;color:#fff;
   text-align:center;cursor:pointer;transition:background .12s,transform .08s,box-shadow .1s;min-height:60px;user-select:none;-webkit-user-select:none}
 .choice.cand{box-shadow:inset 0 0 0 3px #FFD84D,0 0 18px 3px rgba(255,216,77,.85);background:rgba(0,0,0,.68);z-index:1} /* 指が触れている候補=黄色光彩 */
+/* 日本語の語釈が長い選択肢は文字を詰めて、2行に折り返してもボタンからはみ出さないようにする */
+.choice.len-l{font-size:18px;line-height:1.3}
+.choice.len-xl{font-size:15.5px;line-height:1.28;padding:14px 12px}
 .chspk{position:absolute;right:6px;top:50%;transform:translateY(-50%);opacity:.8;pointer-events:none;display:flex}
 .oa-spkrow{display:flex;justify-content:center;margin:6px 0} /* 音声ボタンを正解の上に独立した列として置く */
 .oa-spk{background:rgba(0,0,0,.55);border:none;border-radius:22px;height:42px;padding:0 16px;gap:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center} /* 書き取り正解の上の音声ボタン */
@@ -515,10 +518,39 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .wb-rate.ms-stable{color:#1FAD62}.wb-rate.ms-review{color:#C79A00}.wb-rate.ms-urgent{color:#E0433B}
 .mutehint{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;font-size:13px;font-weight:800;padding:8px 16px;border-radius:999px;z-index:500;opacity:0;pointer-events:none;transition:opacity .3s ease}
 .mutehint.on{opacity:1}
-/* 初回コーチマーク（ジェスチャー案内） */
-.coach{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;cursor:pointer}
-.coach-in{background:rgba(255,255,255,.95);color:#1a1a1a;border-radius:18px;padding:24px 28px;font-size:16px;font-weight:800;line-height:2;text-align:left}
+/* 初回コーチマーク（3ページの使い方ガイド） */
+.coach{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.68);display:flex;align-items:center;justify-content:center}
+.coach-in{background:rgba(255,255,255,.97);color:#1a1a1a;border-radius:20px;padding:22px 22px 18px;width:min(360px,86vw);box-shadow:0 24px 70px rgba(0,0,0,.45)}
+.coach-pg{display:none}
+.coach-pg.on{display:block;animation:cpgin .28s ease both}
+@keyframes cpgin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.coach-ico{font-size:44px;text-align:center;line-height:1}
+.coach-h{font-size:19px;font-weight:900;text-align:center;margin:6px 0 4px;text-wrap:balance}
+.coach-sub{font-size:13.5px;font-weight:800;color:#666;text-align:center;line-height:1.55;text-wrap:balance}
+.coach-list{margin-top:12px;font-size:14px;font-weight:800;line-height:1.85}
+.coach-list div{display:flex;gap:8px;align-items:flex-start}
+.coach-list i{font-style:normal;flex:0 0 auto}
+.coach-dots{display:flex;gap:6px;justify-content:center;margin-top:16px}
+.coach-dots span{width:7px;height:7px;border-radius:50%;background:#d5d5d5}
+.coach-dots span.on{background:#1a1a1a;width:18px;border-radius:999px}
+.coach-nav{display:flex;gap:10px;margin-top:12px}
+.coach-nav button{flex:1 1 0;border:none;border-radius:999px;padding:13px;font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;background:#1a1a1a;color:#fff}
+.coach-nav button.ghost{flex:0 0 auto;padding:13px 18px;background:#eee;color:#555}
 .coach-ok{margin-top:14px;background:#1a1a1a;color:#fff;text-align:center;border-radius:999px;padding:10px}
+/* その日はじめて開いたときの「今日の5問」自動スタート */
+.d5auto{position:fixed;inset:0;z-index:610;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.66);opacity:0;transition:opacity .24s ease}
+.d5auto.on{opacity:1}
+.d5a-card{background:linear-gradient(160deg,#fff,#f2f7ff);border-radius:22px;padding:22px 26px 18px;width:min(340px,84vw);text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.45);transform:scale(.7);transition:transform .4s cubic-bezier(.34,1.65,.5,1)}
+.d5auto.on .d5a-card{transform:scale(1)}
+.d5a-lab{font-size:12.5px;font-weight:900;color:#1B6FD1;letter-spacing:1px}
+.d5a-h{font-size:22px;font-weight:900;color:#1a1a1a;margin:4px 0 4px;text-wrap:balance}
+.d5a-sub{font-size:13px;font-weight:800;color:#777;line-height:1.55;text-wrap:balance}
+.d5a-bar{height:5px;border-radius:999px;background:#e3e8ef;overflow:hidden;margin:14px 0 12px}
+.d5a-bar div{height:100%;width:0;background:#1B6FD1;transition:width 2.5s linear}
+.d5a-btns{display:flex;gap:10px}
+.d5a-btns button{border:none;border-radius:999px;padding:13px;font-size:15px;font-weight:900;font-family:inherit;cursor:pointer}
+.d5a-later{flex:0 0 auto;padding:13px 18px!important;background:#eee;color:#555}
+.d5a-go{flex:1 1 0;background:#1a1a1a;color:#fff}
 /* 単語検索（一覧モード上部） */
 .wb-back,#wb-search{display:none!important} /* 旧・単語帳の戻る/検索は廃止（body直下の#wb-panelに移行） */
 #pull-hint{position:absolute;left:50%;top:120px;transform:translateX(-50%);z-index:60;display:block;background:rgba(0,0,0,.72);color:#fff;font-size:14px;font-weight:800;padding:9px 18px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s ease}
@@ -563,8 +595,11 @@ body.bigtext .set-d{font-size:13.5px}
 .hist-card .wh-empty{color:rgba(0,0,0,.55)}
 .hist-close{position:absolute;right:10px;top:6px;background:transparent;border:none;font-size:24px;font-weight:900;color:#888;cursor:pointer}
 .oa-close{display:inline-block;background:rgba(255,216,77,.95);color:#5a4300;font-size:14px;font-weight:900;padding:7px 14px;border-radius:999px;margin-bottom:10px} /* 書き取りのおしい表示 */
-.res-cheer{font-size:12.5px;font-weight:800;color:rgba(255,255,255,.95);margin-top:4px}
-.res-first{flex:0 0 auto;background:rgba(255,255,255,.92);color:#1a1a1a;border-radius:14px;padding:12px 14px;margin-bottom:8px;font-size:13px;font-weight:800;line-height:1.7;text-align:center} /* 初回完走の報酬予告 */
+/* 応援コメントは読ませたいので字を大きめに。折り返しは balance で行の長さをそろえ、変な位置での改行を減らす */
+.res-cheer{font-size:15px;font-weight:800;color:rgba(255,255,255,.95);margin-top:5px;line-height:1.45;padding:0 12px;text-wrap:balance;overflow-wrap:anywhere}
+.res-first{flex:0 0 auto;background:rgba(255,255,255,.92);color:#1a1a1a;border-radius:14px;padding:12px 14px;margin-bottom:8px;font-size:14.5px;font-weight:800;line-height:1.6;text-align:center;text-wrap:balance} /* 初回完走の報酬予告 */
+.res-first .rf-t{display:block;font-size:16px;margin-bottom:4px}
+.res-first .rf-l{display:block} /* 1行=1メリット。機種ごとの幅で中途半端に折り返さないよう箇条書きにする */
 .res-first b{color:#C24A00}
 .wb-tabs{display:flex;gap:8px;padding:10px 12px 0}
 .wb-tab{flex:1;border:none;border-radius:999px;padding:9px 4px;font-weight:800;font-size:13px;background:rgba(0,0,0,.35);color:#fff;cursor:pointer;font-family:inherit}
@@ -909,6 +944,16 @@ body.bigtext .set-d{font-size:13.5px}
 .pwr-delta{font-size:18px;font-weight:900}
 .res-pwr .pwr-delta{font-size:14px}
 .res-counts{display:flex;flex-direction:column;align-items:flex-start;gap:1px;font-size:17px;font-weight:900;line-height:1.15} /* 点数の右に 上=正解数 / 下=不正解数 */
+/* 結果画面の獲得XP：どれだけ増えたかが一目で分かるよう大きく出す */
+.res-xp{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:8px;flex-wrap:wrap}
+.res-xp-gain{font-size:34px;font-weight:900;color:#37E08A;line-height:1;text-shadow:0 3px 12px rgba(55,224,138,.4)}
+.res-xp-gain span{font-size:16px;margin-left:2px}
+.res-xp-gain.pop{animation:xppop .5s cubic-bezier(.2,1.6,.4,1) both}
+.res-xp-bar{display:flex;align-items:center;gap:6px}
+.res-xp-lv{font-size:14px;font-weight:900;color:#fff}
+.res-xp-g{width:96px;height:8px;border-radius:999px;background:rgba(255,255,255,.22);overflow:hidden}
+.res-xp-g div{height:100%;background:#37E08A;border-radius:999px;transition:width .8s ease}
+.res-xp-n{font-size:11.5px;font-weight:800;color:var(--faint)}
 .res-sess{margin-top:8px;font-size:12.5px;color:var(--faint);font-weight:700}
 .res-sess b{color:var(--text)}
 .btn.dark{background:rgba(0,0,0,.8);color:#fff}
@@ -1242,6 +1287,22 @@ body.bigtext .set-d{font-size:13.5px}
 .sp-res-s{font-size:52px;font-weight:900;color:#FFC400;line-height:1.1}
 .sp-res-s small{font-size:22px;color:#fff;opacity:.8}
 .sp-res-c{font-size:14px;font-weight:800;color:rgba(255,255,255,.85);line-height:1.6}
+/* ゲームで得たXP（増えた実感が要るので大きく出す） */
+.sp-res-xp{font-size:40px;font-weight:900;color:#37E08A;line-height:1;text-shadow:0 3px 12px rgba(55,224,138,.45);animation:xppop .5s cubic-bezier(.2,1.6,.4,1) both}
+.sp-res-xp span{font-size:19px;margin-left:3px}
+@keyframes xppop{0%{opacity:0;transform:scale(.4) translateY(10px)}70%{opacity:1;transform:scale(1.14)}100%{opacity:1;transform:scale(1)}}
+/* レベルアップの演出 */
+.lvup{position:fixed;inset:0;z-index:640;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.62);opacity:0;transition:opacity .3s ease}
+.lvup.on{opacity:1}
+.lu-card{position:relative;background:linear-gradient(160deg,#fff,#eef7ff);border-radius:26px;padding:26px 38px 22px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.45);transform:scale(.65);transition:transform .45s cubic-bezier(.34,1.65,.5,1)}
+.lvup.on .lu-card{transform:scale(1)}
+.lu-lab{font-size:16px;font-weight:900;color:#1B6FD1;letter-spacing:2px}
+.lu-num{color:#0F63C4;line-height:1;margin:6px 0 2px}
+.lu-num small{font-size:26px;font-weight:900;margin-right:4px}
+.lu-num b{font-size:86px;font-weight:900}
+.lu-arrow{font-size:15px;font-weight:900;color:#7a8ba0;margin-bottom:4px}
+.lu-msg{font-size:13.5px;font-weight:800;color:#666;margin:2px 0 16px}
+.lu-card .btn{padding:13px 26px;font-size:15px;border-radius:14px}
 .sp-res-btns{width:min(320px,86vw);display:flex;flex-direction:column;gap:10px;margin-top:6px}
 .sp-res-btns button{border:none;border-radius:999px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit}
 .sp-res-btns .sp-again{background:#FFC400;color:#3a2c00}
@@ -1646,8 +1707,13 @@ body.bigtext .set-d{font-size:13.5px}
 .d5r-row.shown .d5r-mid{filter:none}
 .d5r-no{width:26px;flex:0 0 auto;font-size:12px;font-weight:900;color:#999}
 .d5r-mid{flex:1;min-width:0}
-.d5r-q{font-size:16px;font-weight:900;line-height:1.25;color:#222;word-break:break-word}
-.d5r-a{font-size:11.5px;font-weight:700;color:#777;margin-top:2px;line-height:1.5;word-break:break-word}
+.d5r-q{font-size:18.5px;font-weight:900;line-height:1.25;color:#222;word-break:break-word}
+.d5r-a{font-size:13px;font-weight:700;color:#777;margin-top:3px;line-height:1.5;word-break:break-word}
+/* 判定が済んだ行はタップで正解の韓国語を読み上げる */
+.d5r-row.judged{cursor:pointer}
+.d5r-spk{margin-left:6px;font-size:13px;color:#2F6FE0;opacity:0;transition:opacity .2s ease}
+.d5r-row.judged .d5r-spk{opacity:.85}
+.d5r-row.speaking{box-shadow:0 0 0 3px #2F6FE0}
 .d5r-a i{font-style:normal;color:#C0392B}
 .d5r-a i.ok{color:#1B8A4B}
 .d5r-a b{color:#333}
@@ -2755,13 +2821,44 @@ function wbSearch2(q){
 }
 function wbPickHit2(id){const q=document.getElementById("wb-q2");if(q)q.value="";wbSearch2("");const p=document.getElementById("wb-panel");if(p)p.classList.remove("searching","typing");renderWordDetail(id,'room');}
 function wbResetPanel(){const q=document.getElementById("wb-q2");if(q)q.value="";const p=document.getElementById("wb-panel");if(p)p.classList.remove("searching","typing");const hw=document.getElementById("homewrap");if(hw)hw.classList.remove("wb-typing");const box=document.getElementById("wb-hits2");if(box)box.innerHTML="";}
-/* 初回だけジェスチャー案内を表示 */
+/* 初回だけ表示する使い方ガイド（LINEから開いた人がここで初めてアプリに触るので、
+   1枚の文字列ではなく「ROOMという道を進む → 遊びながら覚える → 数字の見かた」の3ページで見せる） */
+const COACH_PAGES=[
+  {ico:"🏠",h:"ROOMという部屋を<br>1つずつ進んでいきます",sub:"1ROOM＝約100単語。<br>すごろくの道に沿ってマスを進むと、そのROOMの単語が全部出てきます。",
+   list:["▶️|まん中のスタートでテスト（12問）","↔️|左右スワイプでROOMを切りかえ","🏠|ROOM番号タップでROOM一覧"]},
+  {ico:"🎮",h:"えらばなくても<br>今日の分は出てきます",sub:"その日はじめて開くと「今日の5問」が自動ではじまります。まずはそれだけでOK。",
+   list:["🎁|左のアイコンからゲームで楽しく学べる（XPがもらえます）","🔥|終わったら「今日のトレンド問題」も出ます","📖|右下ボタン / 上スワイプで単語帳"]},
+  {ico:"⚡",h:"数字の見かた",sub:"PWRは「いま覚えている度合い」。忘れかけると自動で下がり、復習に出てきます。",
+   list:["⚡|左上のPWR … ROOM全体の記憶の強さ","🔵|Lv.とXP … 解くほどたまってレベルが上がる","⬇️|下スワイプ / Lv.タップでステータス","🅰️|ランク円タップでテスト履歴"]}
+];
+let _coachIdx=0;
 function showCoach(){
-  const el=document.createElement("div");el.className="coach";
-  el.innerHTML=`<div class="coach-in">つかいかた<br>▶️ まずはスタートボタンでテスト！<br>📖 右下ボタン / 上スワイプ … 単語帳<br>🏠 ROOM番号タップ … ROOM一覧<br>⬇️ 下スワイプ / Lv.タップ … ステータス<br>↔️ 左右スワイプ … ROOM切替<br>🅰️ ランク円タップ … テスト履歴<div class="coach-ok">OK</div></div>`;
-  el.onclick=()=>el.remove();
+  _coachIdx=0;
+  const el=document.createElement("div");el.className="coach";el.id="coach";
+  el.innerHTML=`<div class="coach-in">
+    ${COACH_PAGES.map((p,i)=>`<div class="coach-pg${i===0?" on":""}" data-i="${i}">
+      <div class="coach-ico">${p.ico}</div>
+      <div class="coach-h">${p.h}</div>
+      <div class="coach-sub">${p.sub}</div>
+      <div class="coach-list">${p.list.map(s=>{const a=s.split("|");return `<div><i>${a[0]}</i><span>${a[1]}</span></div>`;}).join("")}</div>
+    </div>`).join("")}
+    <div class="coach-dots">${COACH_PAGES.map((_,i)=>`<span class="${i===0?"on":""}"></span>`).join("")}</div>
+    <div class="coach-nav">
+      <button class="ghost" id="coach-skip" onclick="closeCoach()">スキップ</button>
+      <button id="coach-next" onclick="coachNext()">つぎへ</button>
+    </div>
+  </div>`;
   document.body.appendChild(el);
 }
+function coachNext(){
+  if(_coachIdx>=COACH_PAGES.length-1){closeCoach();return;}
+  _coachIdx++;
+  const root=document.getElementById("coach");if(!root)return;
+  root.querySelectorAll(".coach-pg").forEach(p=>p.classList.toggle("on",+p.dataset.i===_coachIdx));
+  root.querySelectorAll(".coach-dots span").forEach((d,i)=>d.classList.toggle("on",i===_coachIdx));
+  const nx=document.getElementById("coach-next");if(nx)nx.textContent=(_coachIdx>=COACH_PAGES.length-1)?"はじめる":"つぎへ";
+}
+function closeCoach(){const el=document.getElementById("coach");if(el)el.remove();maybeAutoDaily5();} // ガイドを閉じたら、そのまま今日の5問へ
 function maybeCoach(){
   if(localStorage.getItem("kwt_coach_v1"))return;
   localStorage.setItem("kwt_coach_v1","1");
@@ -2974,7 +3071,7 @@ function renderHome(){
   updateHomeStats();
   buildRoomSlides();
   attachHomeRain(); // スライド再構築後に玉レイヤーを差し直し（玉は保持）
-  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();setTimeout(maybeCoach,900);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋初回コーチ＋バックアップ提案
+  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();setTimeout(maybeCoach,900);setTimeout(maybeAutoDaily5,1500);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋初回コーチ＋今日の5問の自動スタート＋バックアップ提案
   buildTodayBand();
   applyHomeBg();
   scaleHome();
@@ -3036,6 +3133,25 @@ function showStreakCelebration(streak){
   const t=setInterval(()=>{c=Math.min(streak,c+step);el.textContent=c;if(c>=streak)clearInterval(t);},45); // カウントアップ
   ov._auto=setTimeout(()=>closeStreakCel(false),7000); // 放置時の安全オートクローズ
 }
+/* レベルアップの演出：いつ上がったのか分かるように、上がった瞬間だけ全面で知らせる */
+function showLevelUp(level,fromLevel){
+  const old=document.querySelector(".lvup");if(old)old.remove();
+  const from=fromLevel||Math.max(1,level-1);
+  const ov=document.createElement("div");ov.className="lvup";
+  ov.innerHTML=`<div class="lu-card">
+    <div class="lu-lab">LEVEL UP!</div>
+    <div class="lu-arrow">Lv.${from} → </div>
+    <div class="lu-num"><small>Lv.</small><b id="lu-count">${from}</b></div>
+    <div class="lu-msg">XPがたまってレベルが上がりました🎉</div>
+    <button class="btn dark" onclick="closeLevelUp()">OK</button>
+  </div>`;
+  document.body.appendChild(ov);
+  requestAnimationFrame(()=>ov.classList.add("on"));
+  const el=ov.querySelector("#lu-count");let c=from;
+  const t=setInterval(()=>{c++;el.textContent=c;if(c>=level){clearInterval(t);try{sfxClaim();}catch(e){}}},220); // 数字が上がるところを見せる
+  ov._auto=setTimeout(()=>closeLevelUp(),6000);
+}
+function closeLevelUp(){const ov=document.querySelector(".lvup");if(ov){if(ov._auto)clearTimeout(ov._auto);ov.classList.remove("on");setTimeout(()=>ov.remove(),300);}}
 function closeStreakCel(openCal){
   const ov=document.querySelector(".streak-cel");if(ov){if(ov._auto)clearTimeout(ov._auto);ov.classList.remove("on");setTimeout(()=>ov.remove(),300);}
   if(openCal)setTimeout(()=>openCalendar(0),320);
@@ -3521,9 +3637,11 @@ const MEMORY_CONFIG={
   formingIncorrectGain:5, formingUnknownGain:3, formingTimeoutGain:2, firstCorrectMemoryScore:45,
   choiceFastCorrectDelta:12, choiceNormalCorrectDelta:8,
   writingFastCorrectDelta:18, writingNormalCorrectDelta:14,
-  choiceIncorrectDelta:-15, writingIncorrectDelta:-18, unknownDelta:-18, timeoutDelta:-18,
+  // 書き取りの誤答は「手を動かして間違えた」ぶん記憶に残るので、4択の誤答より減点を小さくする（記憶率が一気に落ちないように）
+  choiceIncorrectDelta:-15, writingIncorrectDelta:-6, unknownDelta:-18, timeoutDelta:-18,
   hintMultiplier:0.5,
-  actualIncorrect:25, actualUnknown:10, actualTimeout:15,
+  actualIncorrect:25, actualIncorrectWriting:45, actualUnknown:10, actualTimeout:15,
+  lapseGraceMultiplier:0.6, lapseGraceStreak:2, // 直前まで連続正解できていた語の「うっかり1回」は減点を弱める
   fastChoiceSec:5, fastWritingSec:10
 };
 const DEFAULT_SCORE=0; // 互換: 未学習語の初期記憶スコア
@@ -4319,6 +4437,43 @@ function startDaily5(){
   show("s-quiz");
   showCountdown(()=>renderQuestion());
 }
+/* ---- その日はじめて開いたときは、こちらから「今日の5問」を出す ----
+ * 「開いてから何をやろうか選ぶ」心理的な負担をなくすため、枠(朝/夜)ごとに1回だけ自動で始める。
+ * 使い方ガイドを見ている最中・ホーム以外・すでにその枠を遊んだ場合は出さない。 */
+const LS_D5AUTO="kwt_d5auto_v1";
+function maybeAutoDaily5(){
+  try{
+    if(document.getElementById("coach"))return;                    // 使い方ガイドの表示中（閉じたときに改めて呼ばれる）
+    if(_d5.on||_gearActive)return;
+    const home=document.getElementById("s-home");
+    if(!home||!home.classList.contains("on"))return;                // ホーム以外では割り込まない
+    if(d5Used())return;                                             // その枠はもう遊んだ
+    const k=d5Key(Date.now());
+    if(localStorage.getItem(LS_D5AUTO)===k)return;                  // その枠はもう自動で出した
+    localStorage.setItem(LS_D5AUTO,k);
+    showAutoD5Splash();
+  }catch(e){}
+}
+function showAutoD5Splash(){
+  const old=document.querySelector(".d5auto");if(old)old.remove();
+  const ov=document.createElement("div");ov.className="d5auto";
+  ov.innerHTML=`<div class="d5a-card">
+    <div class="d5a-lab">今日の5問・${d5SlotLabel(d5Slot(Date.now()))}</div>
+    <div class="d5a-h">今日のぶん、はじめます</div>
+    <div class="d5a-sub">えらばなくて大丈夫。<br>まずはこの5問から。</div>
+    <div class="d5a-bar"><div id="d5a-fill"></div></div>
+    <div class="d5a-btns"><button class="d5a-later" onclick="closeAutoD5(false)">あとで</button><button class="d5a-go" onclick="closeAutoD5(true)">いますぐ</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  requestAnimationFrame(()=>{ov.classList.add("on");const f=document.getElementById("d5a-fill");if(f)f.style.width="100%";});
+  ov._t=setTimeout(()=>closeAutoD5(true),2600); // 触らなければそのまま始まる
+}
+function closeAutoD5(go){
+  const ov=document.querySelector(".d5auto");if(!ov)return;
+  if(ov._t){clearTimeout(ov._t);ov._t=null;}
+  ov.classList.remove("on");setTimeout(()=>ov.remove(),240);
+  if(go&&!d5Used())startDaily5();
+}
 /* ---- 回答後（正誤は出さず、選んだ選択肢だけ光らせて次へ） ---- */
 function d5AfterAnswer(status,userAnswer){
   const wrap=document.querySelector("#qstage .choices");
@@ -4347,6 +4502,15 @@ function finishDaily5(){
   d5RenderResult(rec,true);
 }
 function d5ShowSaved(){const r=d5Rec();if(r&&r.done)d5RenderResult(r,false);}
+/* 結果の行をタップ＝正解の韓国語を読み上げる（判定が済んだ行だけ。先読み防止のため未判定は鳴らさない） */
+function d5SpeakRow(el){
+  if(!el||!el.classList.contains("judged"))return;
+  const ko=el.dataset.ko;if(!ko)return;
+  const w=(typeof WORD_BY_KO!=="undefined"&&WORD_BY_KO[ko])?WORD_BY_KO[ko]:{ko};
+  speakKorean(w);
+  document.querySelectorAll("#s-d5result .d5r-row.speaking").forEach(r=>r.classList.remove("speaking"));
+  el.classList.add("speaking");setTimeout(()=>el.classList.remove("speaking"),900);
+}
 const D5_CHEER=[
   "パーフェクト！文句なしの5問全問正解🎉",
   "すばらしい！ほぼ完璧です✨",
@@ -4360,11 +4524,11 @@ function d5RenderResult(rec,animate,isTrend){
   const rows=rec.items.map((it,i)=>{
     const sy=SYM[it.status]||["×","x"];
     const yours=it.status==="unknown"?"わからない":it.status==="timeout"?"時間切れ":(it.your||"—");
-    return `<div class="d5r-row${animate?"":" shown judged"}" data-i="${i}">
+    return `<div class="d5r-row${animate?"":" shown judged"}" data-i="${i}" data-ko="${esc(it.ko||"")}" onclick="d5SpeakRow(this)">
       <div class="d5r-no">Q${it.n}</div>
       <div class="d5r-mid">
         <div class="d5r-q">${esc(it.q)}</div>
-        <div class="d5r-a">あなた：<i class="${it.ok?"ok":""}">${esc(yours)}</i>　／　正解：<b>${esc(it.correct)}</b></div>
+        <div class="d5r-a">あなた：<i class="${it.ok?"ok":""}">${esc(yours)}</i>　／　正解：<b>${esc(it.correct)}</b><span class="d5r-spk">🔊 タップで発音</span></div>
       </div>
       <div class="d5r-mk ${sy[1]}">${sy[0]}</div>
     </div>`;
@@ -5005,12 +5169,14 @@ function renderGearResult(){
   clearInterval(_gearTimer);_gearActive=false; // モード終了（戻るキーで直接ホームへ抜けても残らない）
   const s=_gear.score;
   const cheer=s>=GEAR_ROUNDS?"全問クリア！かみ合いは完璧！":s>=GEAR_ROUNDS-1?"あと一歩で全問クリア！":s>=Math.ceil(GEAR_ROUNDS/2)?"いいかみ合わせ！この調子！":"回すほど強くなる。もう一周いこう！";
+  const gotXp=spGrantXp(s*8); // ゲームの成績もXPになる（記憶スコアは従来どおり触らない）
   document.getElementById("s-result").innerHTML=`
     <div class="gres">
       <div class="gres-ico">⚙️</div>
       <div class="gres-t">歯車モード</div>
       <div class="gres-score">${s}<small> / ${GEAR_ROUNDS}</small></div>
       <div class="gres-dots">${_gear.oks.map(o=>`<i class="${o?"ok":""}"></i>`).join("")}</div>
+      ${gotXp?`<div class="sp-res-xp">+${gotXp}<span> XP</span></div>`:""}
       <div class="gres-cheer">${cheer}</div>
       <div class="gres-btns">
         <button class="btn dark full" onclick="startGearQuiz()">もう一度まわす</button>
@@ -5052,6 +5218,20 @@ function _spDistractors(word,n){ // n個の誤答日本語（word.d優先＋他�
   for(const e of extra){if(opts.length>=n)break;if(!opts.includes(e))opts.push(e);}
   return opts.slice(0,n);
 }
+/* メニューに並べるゲーム（種類が多すぎたので8つに厳選）。
+ * 「聞く／書く／並べる／つなぐ／速さ／粘り」で役割が重ならないものだけ残し、
+ * 神経衰弱・スワイプ○×・スピード連鎖・仲間分け・逆引き・초성クイズ・仲間はずれ・
+ * フラッシュ記憶・暗記チャレンジ・まちがい探しはメニューから外した（関数は残置） */
+const SP_MENU=[
+  ['gear','⚙️','歯車モード','回して意味合わせ'],
+  ['listen','🔊','発音マッチ','聞いて選ぶ'],
+  ['karuta','🎴','かるた','音声で札とり'],
+  ['blank','✍️','穴うめ','ハングル完成'],
+  ['order','🔀','並べかえ','文字を正しく'],
+  ['match','🔗','マッチング','線でつなぐ'],
+  ['rush','🔥','○×ラッシュ','30秒で連打'],
+  ['survival','❤️','サバイバル','3ミスまで連答']
+];
 function openSpecial(){
   if(!document.getElementById("special-modal").classList.contains("on"))pushNav("modal");
   const m=document.getElementById("special-modal");
@@ -5059,26 +5239,9 @@ function openSpecial(){
   m.innerHTML=`<div class="sp-card">
     <div class="cc-head"><div class="cc-grab"></div><div class="set-h">スペシャルモード</div><button class="set-close" onclick="closeSpecial()" aria-label="閉じる">×</button></div>
     <div class="sp-grid">
-      ${tile('gear','⚙️','歯車モード','回して意味合わせ')}
-      ${tile('memory','🧠','神経衰弱','ペアをさがす')}
-      ${tile('swipe','👆','スワイプ○×','合ってる？')}
-      ${tile('blank','✍️','穴うめ','ハングル完成')}
-      ${tile('listen','🔊','発音マッチ','聞いて選ぶ')}
-      ${tile('chain','⚡','スピード連鎖','30秒で連答')}
-      ${tile('sort','🗂️','仲間分け','ドラッグ振り分け')}
-      ${tile('reverse','🔁','逆引き','日→韓で選ぶ')}
-      ${tile('rush','🔥','○×ラッシュ','30秒で連打')}
-      ${tile('order','🔀','並べかえ','文字を正しく')}
-      ${tile('survival','❤️','サバイバル','3ミスまで連答')}
-      ${tile('chosung','🔡','초성クイズ','初声から当てる')}
-      ${tile('odd','🕵️','仲間はずれ','違うペアを探す')}
-      ${tile('match','🔗','マッチング','線でつなぐ')}
-      ${tile('flash','📸','フラッシュ記憶','一瞬でおぼえる')}
-      ${tile('karuta','🎴','かるた','音声で札とり')}
-      ${tile('memorize','🧩','暗記チャレンジ','覚えてから答える')}
-      ${tile('spell','🔍','まちがい探し','正しいつづり')}
+      ${SP_MENU.map(t=>tile(t[0],t[1],t[2],t[3])).join("")}
     </div>
-    <div class="sp-note">記憶スコアには影響しない息ぬきミニゲーム集。<br>出題はいま選んでいるROOMの単語から。</div>
+    <div class="sp-note">遊ぶとXPがもらえます（記憶スコアには影響しません）。<br>出題はいま選んでいるROOMの単語から。</div>
   </div>`;
   m.classList.add("on");
   m.onclick=e=>{if(e.target===m)closeSpecial();};
@@ -5101,13 +5264,27 @@ function openSpecialFromGame(){spExitGame();setTimeout(openSpecial,200);}
 function _spTop(title,progHTML){
   return `<div class="sp-top"><button class="sp-quit" onclick="spExitGame()" aria-label="やめる">×</button><div class="sp-title">${title}</div><div class="sp-prog" id="sp-prog">${progHTML||""}</div></div>`;
 }
-function _spResult(ico,title,scoreHTML,cheer,retry){
+/* ゲームの成績をXPへ還元する（記憶スコア＝忘却エンジンは従来どおり触らない。ボーナスXPだけ加算） */
+const SP_XP_CAP=120; // 1回あたりの上限。ゲーム連打でレベルが飛ばないように
+function spGrantXp(n){
+  n=Math.max(0,Math.min(SP_XP_CAP,Math.round(n||0)));
+  if(!n)return 0;
+  const before=xpInfo().level;
+  addBonus(n);
+  try{updateHomeStats();}catch(e){}
+  const after=xpInfo().level;
+  if(after>before)setTimeout(()=>showLevelUp(after),700);
+  return n;
+}
+function _spResult(ico,title,scoreHTML,cheer,retry,xp){
   _spClear();
+  const got=spGrantXp(xp);
   const e=_spOv();
   e.innerHTML=`<div class="sp-res">
     <div class="sp-res-ico">${ico}</div>
     <div class="sp-res-t">${esc(title)}</div>
     <div class="sp-res-s">${scoreHTML}</div>
+    ${got?`<div class="sp-res-xp">+${got}<span> XP</span></div>`:""}
     <div class="sp-res-c">${cheer||""}</div>
     <div class="sp-res-btns">
       <button class="sp-again" id="sp-again">もう一度</button>
@@ -5168,7 +5345,7 @@ function spSwipe(){
 function spBlank(){
   const N=8,ws=_spPool(N);let idx=0,score=0;const e=_spOv();
   const round=()=>{
-    if(idx>=N){_spResult('✍️','穴うめ',score+'<small> / '+N+'</small>',score>=N?'完ぺき！':'いい調子！',spBlank);return;}
+    if(idx>=N){_spResult('✍️','穴うめ',score+'<small> / '+N+'</small>',score>=N?'完ぺき！':'いい調子！',spBlank,score*5);return;}
     const w=ws[idx],chars=[...w.ko];
     const cand=chars.map((c,i)=>i).filter(i=>chars[i].trim()&&chars[i]!==' ');
     const bi=cand.length?cand[Math.floor(Math.random()*cand.length)]:0;
@@ -5196,7 +5373,7 @@ function spBlank(){
 function spListen(){
   const N=8,ws=_spPool(N);let idx=0,score=0;const e=_spOv();
   const round=()=>{
-    if(idx>=N){_spResult('🔊','発音マッチ',score+'<small> / '+N+'</small>',score>=N?'耳がいい！':'いい調子！',spListen);return;}
+    if(idx>=N){_spResult('🔊','発音マッチ',score+'<small> / '+N+'</small>',score>=N?'耳がいい！':'いい調子！',spListen,score*5);return;}
     const w=ws[idx];
     let opts=[{t:w.ja,c:1}].concat(_spDistractors(w,3).map(t=>({t,c:0})));opts=shuffle(opts);
     e.innerHTML=_spTop('🔊 発音マッチ',(idx+1)+' / '+N)+`<div class="sp-body">
@@ -5311,7 +5488,7 @@ function spRush(){
   const ws=_spPool(60),e=_spOv();
   e.innerHTML=_spTop('🔥 ○×ラッシュ','0')+`<div class="sp-timerbar"><i id="sp-tb"></i></div><div class="sp-body" id="sp-rbody"></div>`;
   const tb=document.getElementById('sp-tb');
-  const endGame=()=>{if(!run)return;run=false;_spClear();_spResult('🔥','○×ラッシュ',score+'<small>問正解</small>','最大コンボ '+best+'　'+(score>=15?'神連打！':score>=8?'ナイス！':'次はもっと！'),spRush);};
+  const endGame=()=>{if(!run)return;run=false;_spClear();_spResult('🔥','○×ラッシュ',score+'<small>問正解</small>','最大コンボ '+best+'　'+(score>=15?'神連打！':score>=8?'ナイス！':'次はもっと！'),spRush,score*3);};
   _spInterval(()=>{left-=0.1;if(tb)tb.style.width=Math.max(0,left/T*100)+'%';if(left<=0)endGame();},100);
   const body=document.getElementById('sp-rbody');
   const round=()=>{
@@ -5338,7 +5515,7 @@ function spOrder(){
   if(pool.length<N)pool=pool.concat(_spPool(48)); // 2文字以上が足りなければ補完
   const ws=shuffle(pool).slice(0,N);let idx=0,score=0;const e=_spOv();
   const round=()=>{
-    if(idx>=N){_spResult('🔀','並べかえ',score+'<small> / '+N+'</small>',score>=N?'完ぺき！':score>=N*0.7?'いい調子！':'もう一回いこう',spOrder);return;}
+    if(idx>=N){_spResult('🔀','並べかえ',score+'<small> / '+N+'</small>',score>=N?'完ぺき！':score>=N*0.7?'いい調子！':'もう一回いこう',spOrder,score*5);return;}
     const w=ws[idx];const chars=[...w.ko].filter(c=>c.trim());
     const order=shuffle(chars.slice());
     e.innerHTML=_spTop('🔀 並べかえ',(idx+1)+' / '+N)+`<div class="sp-body">
@@ -5381,7 +5558,7 @@ function spSurvival(){
           const ok=[...body.querySelectorAll('#sp-opts .sp-opt')].find(x=>x.dataset.c==='1');if(ok)ok.classList.add('ok');
           lives--;const h=document.getElementById('sp-hearts');if(h)h.textContent=heartsHTML();
           body.querySelectorAll('#sp-opts .sp-opt').forEach(x=>x.style.pointerEvents='none');
-          if(lives<=0){run=false;_spTimeout(()=>_spResult('❤️','サバイバル',score+'<small>問連続</small>',score>=15?'鉄壁！':score>=8?'ナイス生存！':'次はもっと粘れる',spSurvival),950);}
+          if(lives<=0){run=false;_spTimeout(()=>_spResult('❤️','サバイバル',score+'<small>問連続</small>',score>=15?'鉄壁！':score>=8?'ナイス生存！':'次はもっと粘れる',spSurvival,score*3),950);}
           else _spTimeout(round,950);
         }
       };
@@ -5457,7 +5634,7 @@ function spMatch(){
   e.querySelectorAll('#sp-mR .sp-mi').forEach(b=>{b.onclick=()=>{
     if(b.classList.contains('done')||!selK)return;
     if(selK.dataset.k===b.dataset.k){selK.classList.remove('sel');selK.classList.add('done');b.classList.add('done');selK=null;done++;prog();try{sfxCorrect();}catch(e){}
-      if(done===N)_spTimeout(()=>_spResult('🔗','マッチング',(miss===0?'ノーミス':'ミス'+miss+'回'),miss===0?'一発でつなげた！':'クリア！ 次はノーミスを狙おう',spMatch),650);}
+      if(done===N)_spTimeout(()=>_spResult('🔗','マッチング',(miss===0?'ノーミス':'ミス'+miss+'回'),miss===0?'一発でつなげた！':'クリア！ 次はノーミスを狙おう',spMatch,miss===0?45:Math.max(10,30-miss*4)),650);}
     else{miss++;try{sfxIncorrect();}catch(e){}const k=selK;b.classList.add('bad');k.classList.add('bad');_spTimeout(()=>{b.classList.remove('bad');k.classList.remove('bad');},420);clearSel();}
   };});
   prog();
@@ -5490,7 +5667,7 @@ function spFlash(){
 function spKaruta(){
   const N=8,pool=_spPool(40);let idx=0,score=0;const e=_spOv();
   const round=()=>{
-    if(idx>=N){_spResult('🎴','かるた',score+'<small> / '+N+'</small>',score>=N?'とり札の達人！':score>=N*0.7?'いい耳！':'もう一回いこう',spKaruta);return;}
+    if(idx>=N){_spResult('🎴','かるた',score+'<small> / '+N+'</small>',score>=N?'とり札の達人！':score>=N*0.7?'いい耳！':'もう一回いこう',spKaruta,score*5);return;}
     const w=pool[idx%pool.length];let cards=[{t:w.ja,c:1}].concat(_spDistractors(w,5).map(t=>({t,c:0})));cards=shuffle(cards);
     e.innerHTML=_spTop('🎴 かるた',(idx+1)+' / '+N)+`<div class="sp-body">
       <div class="sp-q">読み上げを聞いて、合う札をとろう</div>
@@ -5616,6 +5793,8 @@ function _maybeEliminate(remain,limit){
 function startTimer(){qStart=performance.now();answered=false;clearInterval(timer);_tick();timer=setInterval(_tick,100);}
 function resumeTimer(){clearInterval(timer);_tick();timer=setInterval(_tick,100);} // qStart/answeredは保持したまま計時だけ再開（中断ダイアログからの復帰用）
 
+/* 選択肢の文字数に応じて字を詰めるクラス（日本語の語釈が長い語でボタンから溢れないように） */
+function choiceLenCls(t){const n=(t||"").length;return n>=13?" len-xl":n>=8?" len-l":"";}
 function renderQuestion(){
   _counting=false; // 実際の問題に入ったのでカウントダウン中フラグを解除（以後の戻るは確認ダイアログ）
   if(typeof track==="function"){if(state.idx===0)track("q1_shown");else if(state.idx===5)track("q6_reached");} // 離脱ファネル計測（GA_ID設定時のみ有効）
@@ -5633,7 +5812,7 @@ function renderQuestion(){
     stage.innerHTML=`
       <div class="qmain"><div class="qword${q.type==="jk"?" ja":""}">${esc(display)}</div></div>
       <div class="qbottom">
-        <div class="choices">${q.choices.map(c=>`<button class="choice" data-v="${esc(c)}" onclick="if(!answered)pick(this.dataset.v)">${esc(c)}</button>`).join("")}</div>
+        <div class="choices">${q.choices.map(c=>`<button class="choice${choiceLenCls(c)}" data-v="${esc(c)}" onclick="if(!answered)pick(this.dataset.v)">${esc(c)}</button>`).join("")}</div>
         <button class="unknown" onclick="submit('unknown','')">わからない</button>
       </div>`;
     bindChoiceDrag(); // タップ即確定でなく、触れた選択肢が黄色く光り→スライドして離した位置で確定
@@ -6032,7 +6211,8 @@ function submit(status,userAnswer){
   // 実測記憶率A
   let A;
   if(isCorrect)A=C.correctActualMin+(C.correctActualMax-C.correctActualMin)*Math.exp(-C.responseSpeedAlpha*r);
-  else A=(status==="incorrect")?C.actualIncorrect:(status==="timeout"?C.actualTimeout:C.actualUnknown);
+  else if(status==="incorrect")A=isWriting?C.actualIncorrectWriting:C.actualIncorrect; // 書き取りの誤答は「思い出そうとした」証拠として実測記憶率を高めに見る
+  else A=(status==="timeout")?C.actualTimeout:C.actualUnknown;
   const E=A-Mp;
   // 安定度Suの更新（予測誤差で学習）
   st.stabilityHours=clampN(st.stabilityHours*Math.exp(C.predictionLearningRateGamma*E/100),C.minStabilityHours,C.maxStabilityHours);
@@ -6049,6 +6229,8 @@ function submit(status,userAnswer){
     if(isCorrect)delta=isWriting?(fast?C.writingFastCorrectDelta:C.writingNormalCorrectDelta):(fast?C.choiceFastCorrectDelta:C.choiceNormalCorrectDelta);
     else delta=(status==="incorrect")?(isWriting?C.writingIncorrectDelta:C.choiceIncorrectDelta):(status==="timeout"?C.timeoutDelta:C.unknownDelta);
     if(isCorrect&&isHint)delta*=C.hintMultiplier;
+    // 覚えていた語をうっかり落としただけ（直前まで連続正解）なら「忘れた」と決めつけず減点を弱める
+    if(!isCorrect&&(st.consecutiveCorrectCount||0)>=C.lapseGraceStreak)delta*=C.lapseGraceMultiplier;
     st.memoryScore=clampN(dispBefore+delta,0,100); // 現在記憶率を起点に加算しM0を更新
   }
   // 単語難易度の緩やかな適応
@@ -6456,6 +6638,8 @@ function finishTest(){
       <div class="rc-foot"><span class="rc-cards">${cardsGot}枚</span><span class="rc-delta" style="color:${memDelta>=0?'#1FAD62':'#FF6B6B'}">${memDelta>0?'+':''}${memDelta}%</span></div>
     </div>`;
   }).join("");
+  // このテストで増えたXP（XP＝履歴の得点累計なので、今回の得点合計がそのまま増分）
+  const xpGain=Math.max(0,Math.round(totalRaw)),xpNow=xpInfo(),xpLvBefore=state.levelBefore||1,xpLeveled=xpNow.level>xpLvBefore;
   const _ri=roomInfoFor(curSection),pwrAfter=_ri.pwr,pwrBefore=(state.roomPwrBefore!=null?state.roomPwrBefore:0),pwrDelta=pwrAfter-pwrBefore; // そのROOMのPWR
   enqueuePresent(rank,pwrDelta); // このテストのプレゼント（レベル/ランク/PWR/レインボー）を1個追加
   // ホーム復帰時のお知らせ：その日初テストなら連続ログインボーナス、それ以外はプレゼント到着
@@ -6464,7 +6648,8 @@ function finishTest(){
   localStorage.setItem("kwt_lasttestday_v1",_tday);
   checkAchievements();
   const _firstEver=!localStorage.getItem("kwt_firstdone_v1"); if(_firstEver)_lsSet("kwt_firstdone_v1","1"); // 初回完走
-  const firstBanner=_firstEver?`<div class="res-first">🎉 初テストおつかれさま！<br>続けるほど<b>部屋が育ち</b>、正解した単語が<b>カードとして集まり</b>、<b>忘れる前に自動で復習</b>に出ます。まずは毎日1回！</div>`:"";
+  // 初テストのコメントは、機種ごとの画面幅で中途半端に改行されないよう1行=1メリットの箇条書きにする
+  const firstBanner=_firstEver?`<div class="res-first"><span class="rf-t">🎉 初テストおつかれさま！</span><span class="rf-l">つづけるほど<b>部屋が育つ</b></span><span class="rf-l">正解した単語が<b>カードで集まる</b></span><span class="rf-l"><b>忘れる前に自動で復習</b>に出る</span><span class="rf-l">まずは毎日1回！</span></div>`:"";
   document.getElementById("s-result").innerHTML=`
    <div class="res">${firstBanner}
     <div class="res-head">
@@ -6475,6 +6660,10 @@ function finishTest(){
           <span style="color:#FF3B3B">○ ${nCorrect}</span>
           <span style="color:#2F6FE0">× ${nWrong}</span>
         </div>
+      </div>
+      <div class="res-xp">
+        <div class="res-xp-gain" id="res-xp-gain" data-to="${xpGain}">+0<span> XP</span></div>
+        <div class="res-xp-bar"><div class="res-xp-lv">Lv.${xpNow.level}</div><div class="res-xp-g"><div id="res-xpfill" style="width:0%"></div></div><span class="res-xp-n">${xpNow.cur} / ${xpNow.next}</span></div>
       </div>
       <div class="res-pwr"><span class="pwr-lab">PWR</span><div class="pwr-g"><div id="res-pwrfill" style="background:#00FF37;width:${pwrBefore}%"></div></div><span class="pwr-val">${pwrAfter}%</span><span class="pwr-delta" style="color:${pwrDelta>=0?"#1FAD62":"#FF6B6B"}">${pwrDelta>0?"+":""}${pwrDelta}</span></div>
       <div class="res-cheer">${pickResultCheer(totalDisp,nCorrect,R.filter(r=>(r.displayMemoryScoreBefore||0)===0).length)}</div>
@@ -6494,15 +6683,26 @@ function finishTest(){
   activateAds(document.getElementById("s-result"));
   // 結果表示の前に「単語カード獲得」演出を全面オーバーレイで見せ、閉じたら結果のアニメを開始
   const cgWords=R.map(r=>({ko:r.korean,ja:r.japanese}));
-  showCardGetSequence(cgWords,()=>{startResultAnims(pwrAfter);if(_lapDone)setTimeout(showLapDone,260);});
+  showCardGetSequence(cgWords,()=>{
+    startResultAnims(pwrAfter,xpGain,xpNow);
+    if(_lapDone)setTimeout(showLapDone,260);
+    if(xpLeveled)setTimeout(()=>showLevelUp(xpNow.level,xpLvBefore),_lapDone?2600:1500); // レベルが上がったらその場で知らせる
+  });
 }
-/* 結果画面の入場アニメ：点数カウントアップ・ランクメダル・PWRフィル */
-function startResultAnims(pwrAfter){
+/* 結果画面の入場アニメ：点数カウントアップ・ランクメダル・PWRフィル・獲得XP */
+function startResultAnims(pwrAfter,xpGain,xpNow){
   const n=document.getElementById("res-score-n");
   if(n){const to=parseInt(n.dataset.to||"0",10);let c=0;const step=Math.max(1,Math.ceil(to/28));
     const t=setInterval(()=>{c=Math.min(to,c+step);n.textContent=c;if(c>=to)clearInterval(t);},28);}
   const md=document.querySelector("#s-result .rank-medal");if(md){md.classList.remove("in");void md.offsetWidth;md.classList.add("in");}
   const pf=document.getElementById("res-pwrfill");if(pf)setTimeout(()=>{pf.style.width=pwrAfter+"%";},150);
+  // 「今回いくらXPが増えたか」を数字が上がる形で見せる（増えた実感が要る）
+  const xg=document.getElementById("res-xp-gain");
+  if(xg){const to=parseInt(xg.dataset.to||"0",10);let c=0;const step=Math.max(1,Math.ceil(to/24));
+    xg.classList.add("pop");
+    const t=setInterval(()=>{c=Math.min(to,c+step);xg.innerHTML="+"+c+"<span> XP</span>";if(c>=to)clearInterval(t);},32);}
+  const xf=document.getElementById("res-xpfill");
+  if(xf&&xpNow)setTimeout(()=>{xf.style.width=Math.min(100,Math.round(xpNow.cur/xpNow.next*100))+"%";},200);
 }
 /* 出題された単語を「カード獲得」演出で1枚ずつ回転表示（結果表示の手前・タップでスキップ） */
 function showCardGetSequence(words,done){
@@ -6917,7 +7117,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v4.0 (2026-07-29)";
+const APP_VERSION="v4.1 (2026-07-29)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
