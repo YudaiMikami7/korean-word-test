@@ -25,17 +25,24 @@ const FILE = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '
   await page.goto(FILE);
   await page.waitForTimeout(900);
 
-  // ---------- 使い方ガイド（3ページ） ----------
+  // ---------- 使い方ガイド（実画面のコーチマーク。メール指示 2026-07-31で形式変更） ----------
   await page.evaluate(() => { localStorage.clear(); });
   await page.reload();
   await page.waitForTimeout(1600);
   check('初回は使い方ガイドが出る', await page.evaluate(() => !!document.getElementById('coach')));
-  check('ガイドは3ページある', await page.evaluate(() => document.querySelectorAll('#coach .coach-pg').length === 3));
-  check('1ページ目はROOMの説明', await page.evaluate(() => /ROOM/.test(document.querySelector('#coach .coach-pg.on').textContent)));
-  check('2ページ目に「自動ではじまる」と書いてある', await page.evaluate(() => { coachNext(); return /自動ではじまり/.test(document.querySelector('#coach .coach-pg.on').textContent); }));
-  check('2ページ目にゲームの案内がある', await page.evaluate(() => /ゲーム/.test(document.querySelector('#coach .coach-pg.on').textContent)));
-  check('3ページ目にPWR・XPの見かたがある', await page.evaluate(() => { coachNext(); const t = document.querySelector('#coach .coach-pg.on').textContent; return /PWR/.test(t) && /XP/.test(t); }));
-  check('最後のページのボタンは「はじめる」', await page.evaluate(() => document.getElementById('coach-next').textContent === 'はじめる'));
+  check('ポップアップではなく実画面の切り抜き＋説明', await page.evaluate(() => !!document.getElementById('cm-hole') && !!document.getElementById('cm-tip') && !document.querySelector('.coach-in')));
+  check('1つ目はROOMの説明', await page.evaluate(() => /ROOM/.test(document.getElementById('cm-h').textContent + document.getElementById('cm-sub').textContent)));
+  check('切り抜きが実際の部品の上にある', await page.evaluate(() => {
+    const h = document.getElementById('cm-hole').getBoundingClientRect(), t = document.querySelector('#room-pager').getBoundingClientRect();
+    return h.width > 4 && h.height > 4 && Math.abs((h.left + h.width / 2) - (t.left + t.width / 2)) < 24;
+  }));
+  check('つぎへでスタートのマスを指す', await page.evaluate(() => {
+    coachNext();
+    const h = document.getElementById('cm-hole').getBoundingClientRect(), t = document.querySelector('.sg-tile.now').getBoundingClientRect();
+    return /スタート/.test(document.getElementById('cm-h').textContent) && Math.abs((h.left + h.width / 2) - (t.left + t.width / 2)) < 24;
+  }));
+  check('最後はPWR・XPの見かた', await page.evaluate(() => { while (document.getElementById('coach-next').textContent !== 'はじめる') coachNext(); const t = document.getElementById('cm-h').textContent + document.getElementById('cm-sub').textContent; return /PWR/.test(t) && /XP/.test(t); }));
+  check('最後のボタンは「はじめる」', await page.evaluate(() => document.getElementById('coach-next').textContent === 'はじめる'));
 
   // ---------- その日はじめて開いたら「今日の5問」が自動で出る ----------
   await page.evaluate(() => coachNext()); // 閉じる

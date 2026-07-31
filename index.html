@@ -43,7 +43,10 @@
   --red:#ff3b3b; --blue:#2f8bff; --green:#4cd964; --gold:#ffc83c;
   --hs:.648; /* ホーム(602px基準)の縮小率。scaleHome()が実測値を入れる＝ホーム外でもステータスバーと同じ実寸を作れる */
 }
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+/* touch-action:manipulation ＝ ダブルタップでの拡大だけを止める（スクロールとピンチは残す）。
+   viewportのuser-scalable=noはiOS Safariが無視するため、こちらで塞ぐ。
+   スワイプ用に touch-action:none / pan-x / pan-y を指定した要素は、そちらの指定が優先される（メール指示 2026-07-31） */
 html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
   font-family:"LINESeedJP","LINESeedKR","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans CJK JP","Noto Sans KR",system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;overscroll-behavior:none}
@@ -658,28 +661,25 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .wb-rate.ms-stable{color:#1FAD62}.wb-rate.ms-review{color:#C79A00}.wb-rate.ms-urgent{color:#E0433B}
 .mutehint{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;font-size:13px;font-weight:800;padding:8px 16px;border-radius:999px;z-index:500;opacity:0;pointer-events:none;transition:opacity .3s ease}
 .mutehint.on{opacity:1}
-/* 初回コーチマーク（3ページの使い方ガイド） */
-.coach{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.68);display:flex;align-items:center;justify-content:center}
-.coach-in{background:rgba(255,255,255,.97);color:#1a1a1a;border-radius:20px;padding:22px 22px 18px;width:min(360px,86vw);box-shadow:0 24px 70px rgba(0,0,0,.45)}
-.coach-pg{display:none}
-.coach-pg.on{display:block;animation:cpgin .28s ease both}
-@keyframes cpgin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.coach-h{font-size:19px;font-weight:900;text-align:center;margin:2px 0 4px;text-wrap:balance}
-.coach-sub{font-size:12.5px;font-weight:800;color:#666;text-align:center;line-height:1.5;text-wrap:balance}
-/* 絵と矢印の流れ図（文章を読ませずに手順を見せる） */
-.coach-flow{display:flex;align-items:flex-start;justify-content:center;gap:2px;margin:12px 0 10px}
-.cf-i{flex:0 1 auto;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px}
-.cf-i i{font-style:normal;font-size:36px;line-height:1}
-.cf-i span{font-size:11.5px;font-weight:900;color:#333;text-align:center;line-height:1.3}
-.cf-a{flex:0 0 auto;margin:16px 3px 0;width:0;height:0;border-style:solid;border-width:6px 0 6px 10px;border-color:transparent transparent transparent #c4c4c4}
-.coach-tip{margin-top:11px;background:#F5F5F5;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:800;color:#444;text-align:center;line-height:1.45}
-.coach-dots{display:flex;gap:6px;justify-content:center;margin-top:16px}
-.coach-dots span{width:7px;height:7px;border-radius:50%;background:#d5d5d5}
-.coach-dots span.on{background:#1a1a1a;width:18px;border-radius:999px}
-.coach-nav{display:flex;gap:10px;margin-top:12px}
-.coach-nav button{flex:1 1 0;border:none;border-radius:999px;padding:13px;font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;background:#1a1a1a;color:#fff}
-.coach-nav button.ghost{flex:0 0 auto;padding:13px 18px;background:#eee;color:#555}
-.coach-ok{margin-top:14px;background:#1a1a1a;color:#fff;text-align:center;border-radius:999px;padding:10px}
+/* 初回の使い方ガイド：ポップアップで読ませるのはやめ、実際の画面の部品を四角く切り抜いて
+   矢印と一言で示すコーチマーク形式にした（メール指示 2026-07-31） */
+.coach{position:fixed;inset:0;z-index:600;background:transparent}
+.cm-hole{position:fixed;left:0;top:0;width:0;height:0;border-radius:16px;border:2px solid #FFD84D;
+  box-shadow:0 0 0 9999px rgba(0,0,0,.72);transition:left .28s ease,top .28s ease,width .28s ease,height .28s ease}
+.cm-tip{position:fixed;left:16px;right:16px;max-width:360px;margin:0 auto;background:rgba(255,255,255,.98);color:#1a1a1a;
+  border-radius:16px;padding:16px 18px 14px;box-shadow:0 18px 50px rgba(0,0,0,.5);--ax:50%}
+/* 矢印は説明の箱から、いま囲っている部品のほうへ向ける（--ax＝部品の中心のx） */
+.cm-tip::before{content:"";position:absolute;left:var(--ax);width:0;height:0;border-style:solid;transform:translateX(-50%)}
+.cm-tip.below::before{top:-11px;border-width:0 10px 11px;border-color:transparent transparent rgba(255,255,255,.98)}
+.cm-tip.above::before{bottom:-11px;border-width:11px 10px 0;border-color:rgba(255,255,255,.98) transparent transparent}
+.cm-h{font-size:18px;font-weight:900;line-height:1.35;text-wrap:balance}
+.cm-sub{font-size:12.5px;font-weight:800;color:#555;line-height:1.6;margin-top:6px;text-wrap:balance}
+.cm-dots{display:flex;gap:6px;margin-top:12px}
+.cm-dots span{width:7px;height:7px;border-radius:50%;background:#d5d5d5}
+.cm-dots span.on{background:#1a1a1a;width:18px;border-radius:999px}
+.cm-nav{display:flex;gap:10px;margin-top:10px}
+.cm-nav button{flex:1 1 0;border:none;border-radius:999px;padding:12px;font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;background:#1a1a1a;color:#fff}
+.cm-nav button.ghost{flex:0 0 auto;padding:12px 18px;background:#eee;color:#555}
 /* その日はじめて開いたときの「今日の5問」自動スタート
    見た目は「今日の5問」の吹き出し(.d5-card／朝の部・夜の部の2マス)をそのまま使い、同じようにボタンの上から出す。
    触らなければ D5_AUTO_SEC 秒で始まり、「戻る」で中断できる（中断してももう一度タッチすれば始められる） */
@@ -759,6 +759,8 @@ body.bigtext .set-d{font-size:13.5px}
 .appconfirm{position:fixed;inset:0;z-index:650;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center}
 .ac-card{background:#fff;color:#1a1a1a;border-radius:18px;padding:22px 20px;width:300px;text-align:center}
 .ac-t{font-size:16px;font-weight:900;line-height:1.7;margin-bottom:16px}
+/* 中断すると途中までの回答は記録に残らないので、その場で言い切る（メール指示 2026-07-31） */
+.ac-nolog{display:inline-block;margin-top:6px;font-size:12.5px;font-weight:800;color:#C0392B}
 .ac-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .ac-btns .btn{padding:12px;font-size:14px;border-radius:999px}
 /* 中断＝白座布団に黒文字。淡グレー地＋影で浮かせるのはやめ、白地＋黒枠線で輪郭を出す（メール指示 2026-07-29） */
@@ -3048,52 +3050,136 @@ function wbSearch2(q){
 }
 function wbPickHit2(id){const q=document.getElementById("wb-q2");if(q)q.value="";wbSearch2("");const p=document.getElementById("wb-panel");if(p)p.classList.remove("searching","typing");renderWordDetail(id,'room');}
 function wbResetPanel(){const q=document.getElementById("wb-q2");if(q)q.value="";const p=document.getElementById("wb-panel");if(p)p.classList.remove("searching","typing");const hw=document.getElementById("homewrap");if(hw)hw.classList.remove("wb-typing");const box=document.getElementById("wb-hits2");if(box)box.innerHTML="";}
-/* 初回だけ表示する使い方ガイド（LINEから開いた人がここで初めてアプリに触るので、
-   1枚の文字列ではなく「ROOMという道を進む → 遊びながら覚える → 数字の見かた」の3ページで見せる） */
-/* 文章で説明せず、絵と矢印の流れ図で「やること」だけを見せる（読ませない＝3秒で分かるガイド） */
-const COACH_PAGES=[
-  {h:"ROOMを1つずつ進みます",sub:"1ROOM＝約100単語",
-   flow:[["🏠","ROOM"],["🎯","テスト12問"],["🏆","ROOMクリア"]],
-   tip:"◀ 左右スワイプでROOMを切りかえ ▶"},
-  {h:"開くと自動ではじまります",sub:"今日の5問が自動ではじまります。まずはそれだけでOK",
-   flow:[["🌅","ひらく"],["✏️","今日の5問"],["🎮","ゲーム"]],
-   tip:"🎮 左のアイコンからゲームでXPがもらえます"},
-  {h:"数字の見かた",sub:"PWR＝いま覚えている度合い／XP＝解くほどたまる",
-   flow:[["⚡","PWR"],["🔵","Lv.とXP"],["⬇️","ステータス"]],
-   tip:"⬇️ 下スワイプ／Lv.タップでステータス"}
+/* 初回だけ表示する使い方ガイド（LINEから開いた人がここで初めてアプリに触る）。
+   ポップアップで読ませるのはやめ、実際のホーム画面の部品を四角く切り抜いて、
+   そこへ矢印を向けた説明を1つずつ出す（メール指示 2026-07-31）。 */
+const COACH_STEPS=[
+  {sel:"#room-pager",h:"ここがROOM",sub:"1ROOM＝約100単語。左右にスワイプするとROOMを切りかえられます"},
+  // スタートは「いまここ」の吹き出し＋光っているマスの2つで1かたまりなので、両方を囲む
+  {sel:".sg-tile.now .sg-img,.sg-tile.now .sg-noimg",sel2:".sg-tile.now .sg-here",
+   h:"光っているマスがスタート",sub:"タップすると12問。おわるとこのマスがクリアになり、次のマスへ進みます"},
+  {sel:".sg-d5",h:"今日の5問",sub:"アプリを開くと自動ではじまります。まずはこれだけでOK"},
+  {sel:".reward-rail-left",h:"ゲームとROOM一覧",sub:"スペシャル問題で遊ぶとXPがもらえます"},
+  {sel:".hv-pwrg",h:"PWRとXPの見かた",sub:"PWR＝いま覚えている度合い／XP＝解くほどたまる。下スワイプでステータス"}
 ];
-let _coachIdx=0;
+let _coachIdx=0,_coachSteps=[];
+/* いま画面に映っているものだけを囲む。ROOMは横に並んだ隣のスライドにも同じ部品があるので、
+   画面の外にあるものは無視して、残りをひとまとめにした四角を返す */
+function _coachRect(sel){
+  let box=null;
+  document.querySelectorAll(sel).forEach(el=>{
+    const r=el.getBoundingClientRect();
+    if(r.width<=4||r.height<=4)return;
+    if(r.right<=0||r.left>=window.innerWidth||r.bottom<=0||r.top>=window.innerHeight)return;
+    box=box?{left:Math.min(box.left,r.left),top:Math.min(box.top,r.top),right:Math.max(box.right,r.right),bottom:Math.max(box.bottom,r.bottom)}
+           :{left:r.left,top:r.top,right:r.right,bottom:r.bottom};
+  });
+  return box;
+}
+function coachRectOf(st){
+  let box=_coachRect(st.sel);
+  if(!box)return null;
+  if(st.sel2){const b2=_coachRect(st.sel2);
+    if(b2)box={left:Math.min(box.left,b2.left),top:Math.min(box.top,b2.top),right:Math.max(box.right,b2.right),bottom:Math.max(box.bottom,b2.bottom)};}
+  box.width=box.right-box.left;box.height=box.bottom-box.top;
+  return box;
+}
 function showCoach(){
+  if(document.getElementById("coach"))return;
+  try{closeSettings();}catch(e){}                       // 設定から開いたときはシートを閉じて実画面を見せる
+  const home=document.getElementById("s-home");
+  if(!home||!home.classList.contains("on")){try{show("s-home");}catch(e){}}
+  _coachSteps=COACH_STEPS.filter(st=>!!coachRectOf(st)); // 画面に出ていない部品（まだ作られていない今日の5問など）は飛ばす
+  if(!_coachSteps.length){closeCoach();return;}
   _coachIdx=0;
   const el=document.createElement("div");el.className="coach";el.id="coach";
-  el.innerHTML=`<div class="coach-in">
-    ${COACH_PAGES.map((p,i)=>`<div class="coach-pg${i===0?" on":""}" data-i="${i}">
-      <div class="coach-h">${p.h}</div>
-      <div class="coach-flow">${p.flow.map((f,k)=>`${k?'<div class="cf-a"></div>':""}<div class="cf-i"><i>${f[0]}</i><span>${f[1]}</span></div>`).join("")}</div>
-      <div class="coach-sub">${p.sub}</div>
-      <div class="coach-tip">${p.tip}</div>
-    </div>`).join("")}
-    <div class="coach-dots">${COACH_PAGES.map((_,i)=>`<span class="${i===0?"on":""}"></span>`).join("")}</div>
-    <div class="coach-nav">
-      <button class="ghost" id="coach-skip" onclick="closeCoach()">スキップ</button>
-      <button id="coach-next" onclick="coachNext()">つぎへ</button>
-    </div>
-  </div>`;
+  el.innerHTML=`<div class="cm-hole" id="cm-hole"></div>
+    <div class="cm-tip" id="cm-tip">
+      <div class="cm-h" id="cm-h"></div>
+      <div class="cm-sub" id="cm-sub"></div>
+      <div class="cm-dots" id="cm-dots">${_coachSteps.map((_,i)=>`<span class="${i===0?"on":""}"></span>`).join("")}</div>
+      <div class="cm-nav">
+        <button class="ghost" id="coach-skip" onclick="closeCoach()">スキップ</button>
+        <button id="coach-next" onclick="coachNext()">つぎへ</button>
+      </div>
+    </div>`;
   document.body.appendChild(el);
+  coachPaint();
+}
+/* いま指している部品の位置に、切り抜き・説明・矢印を合わせる */
+function coachPaint(){
+  const root=document.getElementById("coach");if(!root)return;
+  const st=_coachSteps[_coachIdx];if(!st)return;
+  const r=coachRectOf(st);if(!r){coachNext();return;}
+  const pad=8;
+  const hole=document.getElementById("cm-hole");
+  hole.style.left=Math.max(4,r.left-pad)+"px";
+  hole.style.top=Math.max(4,r.top-pad)+"px";
+  hole.style.width=Math.min(window.innerWidth-8,r.width+pad*2)+"px";
+  hole.style.height=Math.min(window.innerHeight-8,r.height+pad*2)+"px";
+  document.getElementById("cm-h").textContent=st.h;
+  document.getElementById("cm-sub").textContent=st.sub;
+  root.querySelectorAll("#cm-dots span").forEach((d,i)=>d.classList.toggle("on",i===_coachIdx));
+  const nx=document.getElementById("coach-next");if(nx)nx.textContent=(_coachIdx>=_coachSteps.length-1)?"はじめる":"つぎへ";
+  // 説明は部品の下、下に入りきらなければ上に出す。矢印だけは常に部品の中心へ向ける
+  const tip=document.getElementById("cm-tip");
+  tip.classList.remove("above","below");
+  tip.style.top="auto";tip.style.bottom="auto";
+  const th=tip.offsetHeight||170,below=(r.bottom+18+th)<=(window.innerHeight-10);
+  if(below){tip.style.top=Math.round(r.bottom+18)+"px";tip.classList.add("below");}
+  else{tip.style.bottom=Math.round(Math.max(10,window.innerHeight-r.top+18))+"px";tip.classList.add("above");}
+  const cx=r.left+r.width/2,tr=tip.getBoundingClientRect();
+  tip.style.setProperty("--ax",Math.round(Math.min(Math.max(cx-tr.left,26),Math.max(26,tr.width-26)))+"px");
 }
 function coachNext(){
-  if(_coachIdx>=COACH_PAGES.length-1){closeCoach();return;}
-  _coachIdx++;
-  const root=document.getElementById("coach");if(!root)return;
-  root.querySelectorAll(".coach-pg").forEach(p=>p.classList.toggle("on",+p.dataset.i===_coachIdx));
-  root.querySelectorAll(".coach-dots span").forEach((d,i)=>d.classList.toggle("on",i===_coachIdx));
-  const nx=document.getElementById("coach-next");if(nx)nx.textContent=(_coachIdx>=COACH_PAGES.length-1)?"はじめる":"つぎへ";
+  if(_coachIdx>=_coachSteps.length-1){closeCoach();return;}
+  _coachIdx++;coachPaint();
 }
 function closeCoach(){const el=document.getElementById("coach");if(el)el.remove();maybeAutoDaily5();} // ガイドを閉じたら、そのまま今日の5問へ
 function maybeCoach(){
   if(localStorage.getItem("kwt_coach_v1"))return;
   localStorage.setItem("kwt_coach_v1","1");
   showCoach();
+}
+/* 起動時：前回の途中があれば復帰をたずねる（使い方ガイド・今日の5問より先に出す） */
+function maybeResume(){
+  try{
+    if(document.getElementById("coach"))return false;
+    const home=document.getElementById("s-home");
+    if(!home||!home.classList.contains("on"))return false;
+    const r=loadResumePoint();
+    if(!r)return false;
+    const done=(r.state.results&&r.state.results.length)||0,total=r.state.questions.length;
+    const m=document.createElement("div");m.className="appconfirm";m.id="resume-ask";
+    m.innerHTML=`<div class="ac-card"><div class="ac-t">前回のテストが途中です。<br>つづきから再開しますか？<br><span style="font-size:13px;font-weight:700;opacity:.8">${done} / ${total} 問めまでの成績は保存してあります</span></div>
+      <div class="ac-btns"><button class="btn ac-stop" id="ac-yes">つづきから</button><button class="btn ghost" id="ac-no">やめる</button></div></div>`;
+    document.body.appendChild(m);
+    m.querySelector("#ac-yes").onclick=()=>{m.remove();resumeTest(r);};
+    const no=()=>{m.remove();clearResumePoint();txnRollback();maybeAutoDaily5();}; // やめる＝途中ぶんは記録しない
+    m.querySelector("#ac-no").onclick=no;
+    m.onclick=e=>{if(e.target===m)no();};
+    return true;
+  }catch(e){return false;}
+}
+/* 控えから出題画面を組み立て直す。歩いた分のカード・景色もその位置から再開する */
+function resumeTest(r){
+  try{
+    state=r.state;
+    if(typeof WORD_BY_ID!=="undefined")state.questions.forEach(q=>{if(q&&q.word&&WORD_BY_ID[q.word.id])q.word=WORD_BY_ID[q.word.id];}); // 保存で複製になった語を元の実体に戻す
+    _d5={on:!!(r.d5&&r.d5.on),mode:(r.d5&&r.d5.mode)||"",slot:(r.d5&&r.d5.slot)||"",key:(r.d5&&r.d5.key)||""};
+    _boardTile=r.board||null;
+    if(r.level)curLevel=r.level;
+    if(r.section)curSection=r.section;
+    _txn=r.txn||_txnLoad(); // 中断したときに差し戻せるよう、控えも引き継ぐ
+    _pqQuiz=false;_cdSkip=false;_counting=false;answered=false;_gearActive=false;
+    clearInterval(timer);clearTimeout(ovTimer);_ovAdvance=null;
+    document.querySelectorAll(".overlay,.d5-ack,.d5auto").forEach(e=>e.remove());
+    qrStopRain();qrClearLayer("q-rain");QR.active="q-rain";
+    updateAdvBtn();
+    show("s-quiz");
+    runnerReset();runnerRestore();
+    renderQuestion();
+  }catch(e){clearResumePoint();try{show("s-home");}catch(_){}}
 }
 /* バックアップの穏やかなリマインド */
 function maybeBackupNag(){
@@ -3305,7 +3391,7 @@ function renderHome(){
   updateHomeStats();
   buildRoomSlides();
   attachHomeRain(); // スライド再構築後に玉レイヤーを差し直し（玉は保持）
-  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();initRoomHint();setTimeout(maybeCoach,900);setTimeout(maybeAutoDaily5,1500);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋ROOMスワイプのヒント＋初回コーチ＋今日の5問の自動スタート＋バックアップ提案
+  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();initRoomHint();setTimeout(maybeResume,600);setTimeout(()=>{if(!document.getElementById("resume-ask"))maybeCoach();},900);setTimeout(maybeAutoDaily5,1500);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋ROOMスワイプのヒント＋初回コーチ＋今日の5問の自動スタート＋バックアップ提案
   buildTodayBand();
   applyHomeBg();
   scaleHome();
@@ -3995,6 +4081,60 @@ function _lsSetJSON(key,obj){
   return ok;
 }
 function saveAnswer(rec){const h=loadHistory();h.push(rec);if(h.length>5000)h.splice(0,h.length-5000);_lsSetJSON(LS_HIST,h);_histIdxCache=null;_roomSeriesCache={};} // 回答明細も上限を設けて無制限成長を防ぐ
+
+/* ===== 中断したテストは記録しない（メール指示 2026-07-31） =====
+   1本のテストの間に書きこむのは 回答履歴・記憶率(stats)・単語カード の3つ。
+   書きこむ前の値だけを控えておき、完走したら控えを捨てる（＝記録が確定）、
+   途中でホームに戻ったら控えから差し戻す（＝診断も記憶率も動かなかったことにする）。
+   アプリを閉じても差し戻せるよう、控えはlocalStorageにも持たせる。 */
+const LS_TXN="kwt_txn_v1";
+let _txn=null;
+function _txnSave(){try{if(_txn)localStorage.setItem(LS_TXN,JSON.stringify(_txn));else localStorage.removeItem(LS_TXN);}catch(e){}}
+function _txnLoad(){try{return JSON.parse(localStorage.getItem(LS_TXN)||"null");}catch(e){return null;}}
+function txnBegin(testId){_txn={testId:testId||"",stats:{},cards:{}};_txnSave();}
+function txnNoteStat(id,prev){if(!_txn||(id in _txn.stats))return;_txn.stats[id]=(prev===undefined?null:prev);_txnSave();}
+function txnNoteCards(id,prev){if(!_txn||(id in _txn.cards))return;_txn.cards[id]=(prev===undefined?null:prev);_txnSave();}
+function txnCommit(){_txn=null;_txnSave();} // 完走＝記録を確定
+function txnRollback(){
+  const t=_txn||_txnLoad();_txn=null;_txnSave();
+  if(!t)return;
+  try{
+    if(t.testId){const h=loadHistory(),h2=h.filter(r=>r.testId!==t.testId);
+      if(h2.length!==h.length){_lsSetJSON(LS_HIST,h2);_histIdxCache=null;_roomSeriesCache={};}}
+    if(t.stats&&Object.keys(t.stats).length){const st=loadStats();
+      for(const id in t.stats){if(t.stats[id]==null)delete st[id];else st[id]=t.stats[id];}
+      saveStats(st);}
+    if(t.cards&&Object.keys(t.cards).length){const c=loadCards();
+      for(const id in t.cards){if(t.cards[id]==null)delete c[id];else c[id]=t.cards[id];}
+      _lsSetJSON(LS_CARDS,c);}
+  }catch(e){}
+}
+
+/* ===== 途中でアプリを閉じたときの復帰（メール指示 2026-07-31） =====
+   問題を1問出すたびに、そこまでの成績ごと現在地を控える。次に開いたときに復帰をたずねる。 */
+const LS_RESUME="kwt_resume_v1";
+function saveResumePoint(nextIdx){
+  try{
+    if(!state||!Array.isArray(state.questions)||!state.questions.length)return;
+    if(typeof _gearActive!=="undefined"&&_gearActive)return; // 歯車モードは専用タイマーのため対象外
+    const idx=(nextIdx==null?state.idx:nextIdx);
+    if(idx<0||idx>=state.questions.length)return;            // 最終問題を答えおわっていれば結果画面へ進む
+    const snap=Object.assign({},state,{idx:idx});
+    localStorage.setItem(LS_RESUME,JSON.stringify({at:Date.now(),state:snap,
+      d5:{on:!!_d5.on,mode:_d5.mode||"",slot:_d5.slot||"",key:_d5.key||""},
+      board:_boardTile,level:curLevel,section:curSection,txn:_txn}));
+  }catch(e){}
+}
+function clearResumePoint(){try{localStorage.removeItem(LS_RESUME);}catch(e){}}
+function loadResumePoint(){
+  try{
+    const r=JSON.parse(localStorage.getItem(LS_RESUME)||"null");
+    if(!r||!r.state||!Array.isArray(r.state.questions)||!r.state.questions.length)return null;
+    if(r.state.idx==null||r.state.idx<0||r.state.idx>=r.state.questions.length)return null;
+    if(Date.now()-(r.at||0)>3*86400000)return null;          // 3日以上前の途中は流す
+    return r;
+  }catch(e){return null;}
+}
 function getPerfectCount(){return parseInt(localStorage.getItem(LS_PERFECT)||"0",10);}
 function incPerfectCount(){const n=getPerfectCount()+1;localStorage.setItem(LS_PERFECT,String(n));return n;}
 
@@ -4467,9 +4607,16 @@ let state=null,timer=null,qStart=0,answered=false,ovTimer=null,_roomCurveMode=fa
 /* 通知確認・画面ロック・アプリ切替中はタイマーを完全停止し、裏で時間切れにしない（復帰時に離席ぶんを差し戻して再開） */
 let _hiddenAt=0;
 function _inActiveQuestion(){const q=document.getElementById("s-quiz");return !!(q&&q.classList.contains("on")&&!answered&&state&&!_counting);}
+/* iOS Safariは user-scalable=no を無視するので、2本指ピンチと dblclick も明示的に止める。
+   ダブルタップの拡大そのものは *{touch-action:manipulation} が塞ぐ（メール指示 2026-07-31） */
+(function _noZoom(){
+  ["gesturestart","gesturechange","gestureend"].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();},{passive:false}));
+  document.addEventListener("dblclick",e=>{e.preventDefault();},{passive:false});
+})();
 document.addEventListener("visibilitychange",()=>{
   if(document.hidden){
     _hiddenAt=performance.now();
+    if(_inActiveQuestion())saveResumePoint(); // 裏に回った時点の現在地を控える（そのまま閉じられても復帰できる）
     if(_inActiveQuestion())clearInterval(timer); // 離席中はカウントを止める（throttleされたtickが裏で時間切れを撃つのを防ぐ）
     if(_ovAdvance)clearTimeout(ovTimer); // 自動送りも止める（裏で勝手に次へ進まない）
   }else if(_hiddenAt){
@@ -4488,7 +4635,7 @@ function confirmQuit(){
   if(typeof shgPause==="function")shgPause(true); // シューティングも止める（弾・風船が動き続けない）
   const _qs=document.getElementById("s-quiz");if(_qs)_qs.classList.add("paused"); // 問題文を横棒で伏せる
   const m=document.createElement("div");m.className="appconfirm";
-  m.innerHTML=`<div class="ac-card"><div class="ac-t">${(_d5.on&&_d5.mode==="trend")?"今日のトレンド問題を中断しますか？":_d5.on?"今日の5問を中断しますか？<br><span style=\"font-size:13px;font-weight:700;opacity:.8\">この枠はもう挑戦できません</span>":"テストを中断して<br>ホームに戻りますか？"}</div>
+  m.innerHTML=`<div class="ac-card"><div class="ac-t">${(_d5.on&&_d5.mode==="trend")?"今日のトレンド問題を中断しますか？":_d5.on?"今日の5問を中断しますか？<br><span style=\"font-size:13px;font-weight:700;opacity:.8\">この枠はもう挑戦できません</span>":"テストを中断して<br>ホームに戻りますか？"}<br><span class="ac-nolog">※記録されません</span></div>
     <div class="ac-btns"><button class="btn ac-stop" id="ac-yes">はい</button><button class="btn ghost" id="ac-no">いいえ</button></div></div>`;
   document.body.appendChild(m);
   const unpause=()=>{const e=document.getElementById("s-quiz");if(e)e.classList.remove("paused");if(typeof shgPause==="function")shgPause(false);};
@@ -4497,8 +4644,10 @@ function confirmQuit(){
   m.querySelector("#ac-yes").onclick=()=>{unpause();m.remove();quitTest();};
   m.onclick=e=>{if(e.target===m)resume();};
 }
-/* 出題中にホームへ戻る（タイマー・音声・○×表示を止めて中断） */
+/* 出題中にホームへ戻る（タイマー・音声・○×表示を止めて中断）。
+   途中までの回答は記録しない＝診断も記憶率も動かさずに差し戻す（メール指示 2026-07-31） */
 function quitTest(){
+  txnRollback();clearResumePoint();
   clearInterval(timer);clearTimeout(ovTimer);_counting=false;
   _gearActive=false;clearInterval(_gearTimer);
   if(typeof shgStop==="function")shgStop(); // スペシャル問題のシューティングも止める
@@ -4521,6 +4670,7 @@ function startTest(reviewIds){
   state={questions:qs,idx:0,results:[],testId:"t-"+Date.now().toString(36),userId:getUserId(),
     cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level,pq:_pqQuiz};
   _pqQuiz=false;
+  txnBegin(state.testId); // ここから完走までの書きこみは、中断したら差し戻す
   if(!skipCd)sfxStart(); // ホーム経由時はhomeCountdownで既に開始音を鳴らしている
   if(typeof track==="function")track("quiz_start",{review:!!(reviewIds&&reviewIds.length)}); // ファネル起点（GA_ID設定時のみ）
   qrStopRain();qrClearLayer("q-rain");QR.active="q-rain"; // クイズ側の積もりをリセット（ホームの山は保持）
@@ -4834,6 +4984,7 @@ function startTrend(){
     conditionBefore:Math.round(overallCondition(now)),reviewBefore:reviewNeedCount(now),
     pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level,pq:false};
   _pqQuiz=false;_cdSkip=false;
+  txnBegin(state.testId); // 中断したら記録を差し戻す
   sfxStart();
   qrStopRain();qrClearLayer("q-rain");QR.active="q-rain";
   updateAdvBtn();
@@ -4841,6 +4992,7 @@ function startTrend(){
   showCountdown(()=>renderQuestion());
 }
 function finishTrend(){
+  txnCommit();clearResumePoint(); // 完走したので記録を確定
   clearInterval(timer);
   const R=state.results,qs=state.questions;
   const items=R.map((r,i)=>({n:i+1,type:(qs[i]&&qs[i].type)||"jk",
@@ -4870,6 +5022,7 @@ function startDaily5(){
     conditionBefore:Math.round(overallCondition(now)),reviewBefore:reviewNeedCount(now),
     pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level,pq:false};
   _pqQuiz=false;_cdSkip=false;
+  txnBegin(state.testId); // 中断したら記録を差し戻す
   sfxStart();
   qrStopRain();qrClearLayer("q-rain");QR.active="q-rain";
   updateAdvBtn();
@@ -4885,6 +5038,7 @@ const D5_AUTO_SEC=10; // 触らなければ始まるまでの秒数（2.6秒は�
 function maybeAutoDaily5(){
   try{
     if(document.getElementById("coach"))return;                    // 使い方ガイドの表示中（閉じたときに改めて呼ばれる）
+    if(document.getElementById("resume-ask"))return;               // 前回の途中の復帰をたずねている最中
     if(_d5.on||_gearActive)return;
     const home=document.getElementById("s-home");
     if(!home||!home.classList.contains("on"))return;                // ホーム以外では割り込まない
@@ -4954,6 +5108,7 @@ function d5AfterAnswer(status,userAnswer){
 }
 /* ---- 終了 → 結果画面へ ---- */
 function finishDaily5(){
+  txnCommit();clearResumePoint(); // 完走したので記録を確定
   clearInterval(timer);
   const R=state.results,qs=state.questions;
   const items=R.map((r,i)=>({n:i+1,type:(qs[i]&&qs[i].type)||"jk",
@@ -6266,6 +6421,17 @@ function runnerReset(){
   }
   runnerBuild((state&&state.questions&&state.questions.length)||12);
 }
+/* 復帰したとき：すでに解いた問題ぶんだけカードと景色を進めた状態から再開する（メール指示 2026-07-31） */
+function runnerRestore(){
+  if(!state||!state.idx)return;
+  const done=state.idx,res=state.results||[];
+  _runIdx=done;_runSteps=res.filter(r=>r&&r.isCorrect).length;
+  const bar=document.getElementById("pbar");if(bar)bar.style.setProperty("--rp",_runIdx);
+  const rail=document.getElementById("rn-rail");if(!rail)return;
+  rail.style.transform="translateX("+(-_runIdx*_rnGap)+"px)";
+  for(let i=0;i<done;i++){const sl=rail.querySelector('.rn-slot[data-i="'+i+'"]');
+    if(sl)sl.classList.add((res[i]&&res[i].isCorrect)?"got":"pop");}
+}
 /* 進む先に、この1本ぶんの単語カードを等間隔に並べる（12枚ぶん。画面に入るのは手前の数枚だけ） */
 function runnerBuild(n){
   const rail=document.getElementById("rn-rail");if(!rail)return;
@@ -6335,6 +6501,7 @@ function resumeTimer(){clearInterval(timer);_tick();timer=setInterval(_tick,100)
 function choiceLenCls(t){const n=(t||"").length;return n>=13?" len-xl":n>=8?" len-l":"";}
 function renderQuestion(){
   _counting=false; // 実際の問題に入ったのでカウントダウン中フラグを解除（以後の戻るは確認ダイアログ）
+  saveResumePoint(); // 途中でアプリを閉じられてもここから復帰できるようにする
   if(typeof track==="function"){if(state.idx===0)track("q1_shown");else if(state.idx===5)track("q6_reached");} // 離脱ファネル計測（GA_ID設定時のみ有効）
   // 遷移時に音声を止めない（長い単語が途中で切れないよう最後まで再生させる）。
   // 重複防止は次の正解時に speakKorean() 側の stopSpeak() が担う。
@@ -6793,6 +6960,7 @@ function submit(status,userAnswer){
   if(!st.hasEverCorrect){ st.nextReviewAt=new Date(nowMs+C.initialFormingStabilityHours*3600000).toISOString(); }
   else if(st.memoryScore<=C.reviewThreshold){ st.nextReviewAt=answeredAt; }
   else { const hrs=effectiveStability(st,nowMs)*Math.log(st.memoryScore/C.reviewThreshold); st.nextReviewAt=new Date(nowMs+Math.max(0,hrs)*3600000).toISOString(); }
+  txnNoteStat(q.word.id,stats[q.word.id]?JSON.parse(JSON.stringify(stats[q.word.id])):null); // 中断したら戻せるよう、更新前の記憶率を控える
   stats[q.word.id]=st; saveStats(stats);
   // 単語カード獲得: 正解=残り秒ぶん(最大10) / 不正解・unknown=残り秒÷3(最大3) / 時間切れ=0
   const remainSec=Math.max(0,limit-elapsed);
@@ -6800,6 +6968,7 @@ function submit(status,userAnswer){
   if(isCorrect)cardsEarned=Math.min(10,Math.floor(remainSec));
   else if(status==="timeout")cardsEarned=0;
   else cardsEarned=Math.min(3,Math.floor(remainSec/3));
+  txnNoteCards(q.word.id,loadCards()[q.word.id]!=null?loadCards()[q.word.id]:null); // 同上（単語カード）
   addCards(q.word.id,cardsEarned);
   // 履歴（上書きせず全保存）
   const rec={
@@ -6819,6 +6988,7 @@ function submit(status,userAnswer){
     displayMemoryScoreAfterDecay:Math.round(dispAfter) // 互換
   };
   state.results.push(rec);saveAnswer(rec);
+  saveResumePoint(state.idx+1); // ここで閉じられても、この回答まで込みで復帰できるようにする
   if(_d5.on){d5AfterAnswer(status,userAnswer);return;} // 今日の5問：正誤音・正解音声・玉の演出・○×オーバーレイをすべて出さない（判定は結果画面でまとめて）
   if(isCorrect)sfxCorrect();else if(status==="unknown")sfxNeutral();else sfxIncorrect(); // 正解=正解音／わからない=中立音／不正解・時間切れ=不正解音
   speakKorean(q.word); // 正解・不正解・わからない・時間切れすべてで正解の韓国語音声を再生（学習のため）
@@ -7153,6 +7323,7 @@ function pickResultCheer(totalDisp,nCorrect,newCnt){
   return pool[Math.floor(Math.random()*pool.length)];
 }
 function finishTest(){
+  txnCommit();clearResumePoint(); // 完走したので記録を確定し、復帰の控えを消す
   rerollSpecial(); // 1本（12問／13問）終えるたびにスペシャルROOMを別のROOMへ入れ替える
   const R=state.results,totalRaw=R.reduce((a,r)=>a+r.score,0),total=Math.ceil(totalRaw),rank=rankFor(total); // 小数は切り上げ
   const totalDisp=total;
@@ -7698,7 +7869,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v4.8 (2026-07-31)";
+const APP_VERSION="v4.9 (2026-07-31)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -7802,9 +7973,11 @@ function promptInstall(){
   if(_bipEvt){_bipEvt.prompt();_bipEvt=null;return;}
   const ov=document.createElement("div");
   ov.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px";
-  ov.innerHTML=`<div style="background:#222;color:#fff;padding:20px;max-width:320px;font-size:14px;line-height:1.8">Safariの共有ボタン（<b>&#x2191;</b> のアイコン）→「ホーム画面に追加」で、アプリとしてすぐ開けるようになります。<br><br><button class="btn dark" style="width:100%" onclick="this.closest(&quot;div&quot;).parentElement.parentElement.remove()">閉じる</button></div>`;
+  ov.innerHTML=`<div style="background:#222;color:#fff;padding:20px;max-width:320px;font-size:14px;line-height:1.8">Safariの共有ボタン（<b>&#x2191;</b> のアイコン）→「ホーム画面に追加」で、アプリとしてすぐ開けるようになります。<br><br><button class="btn dark" style="width:100%" id="pi-close">閉じる</button></div>`;
   ov.addEventListener("click",e=>{if(e.target===ov)ov.remove();});
   document.body.appendChild(ov);
+  // 「閉じる」は必ずこの案内だけを消す（以前はbodyごと消えて画面が真っ白になっていた。メール指示 2026-07-31）
+  const _pic=ov.querySelector("#pi-close");if(_pic)_pic.onclick=()=>{ov.remove();};
 }
 /* 設定 */
 function _reducedMotion(){return !!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);} // OSの「視差効果を減らす」
