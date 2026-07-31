@@ -526,14 +526,15 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* 今日学ぶべき単語の帯：スタートボタン上に半透明白、カードが左→右に流れる */
 .today-band{position:absolute;left:14px;top:962px;width:452px;height:170px;border-radius:14px;overflow:hidden;background:rgba(255,255,255,.6);z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease} /* 白帯は白寄り60%（背後の玉と重なっても見づらくならない） */
 /* カードは絵がはみ出す作りをやめ、結果画面の獲得カード(.rc-card)と同じ「普通の縦長カード」にした（メール指示 2026-07-31）
-   → 見出しの下に、帯の高さいっぱいの縦長カードが流れる */
-.tb-clip{position:absolute;left:0;top:30px;width:452px;height:140px;overflow:hidden;display:flex;align-items:flex-end}
-.tb-label{position:absolute;left:14px;top:8px;font-size:14px;font-weight:900;letter-spacing:1px;color:rgba(0,0,0,.55);pointer-events:none} /* 帯左上の見出し（流れる画像より背面） */
+   → 見出しはカードに重ねてよいので、カードは帯の高さいっぱい＝縦幅マックスで流す（メール指示 2026-08-01） */
+.tb-clip{position:absolute;left:0;top:0;width:452px;height:170px;border-radius:14px;overflow:hidden;display:flex;align-items:flex-end}
+/* 帯左上の見出しは流れるカードの前面に重ねる。カードの絵と重なっても読めるよう白の座布団を敷く（メール指示 2026-08-01） */
+.tb-label{position:absolute;left:10px;top:6px;z-index:2;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,.82);font-size:14px;font-weight:900;letter-spacing:1px;color:rgba(0,0,0,.55);pointer-events:none}
 .home-wrap.status .today-band,.home-wrap.hiderail .today-band{opacity:0}
 .tb-track{display:flex;animation:tbflow 30s linear infinite;will-change:transform;backface-visibility:hidden;margin-bottom:2px}
 .tb-group{display:flex;gap:12px;padding:0 6px;flex:0 0 auto} /* 同一グループ2連結で-50%＝ちょうど1周＝つなぎ目ゼロ */
 @keyframes tbflow{from{transform:translateX(0)}to{transform:translateX(-50%)}} /* 右→左 */
-.tb-card{position:relative;flex:0 0 auto;height:136px;aspect-ratio:3/3.5;box-sizing:border-box;background:linear-gradient(160deg,#fff,#ffe9c2);box-shadow:0 3px 8px rgba(0,0,0,.25);border-radius:12px;padding:6px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;pointer-events:auto;cursor:pointer}
+.tb-card{position:relative;flex:0 0 auto;height:166px;aspect-ratio:3/3.5;box-sizing:border-box;background:linear-gradient(160deg,#fff,#ffe9c2);box-shadow:0 3px 8px rgba(0,0,0,.25);border-radius:12px;padding:6px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;pointer-events:auto;cursor:pointer}
 .tb-imgw{position:relative;height:52%;max-width:100%;display:flex;align-items:center;justify-content:center} /* 絵はカードの中に収める（結果カードと同じ） */
 .tb-img{height:100%;width:auto;object-fit:contain;display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,.2))}
 .tb-ko{font-size:19px;font-weight:900;color:#222;line-height:1.15;margin-top:4px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -7886,7 +7887,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v5.0 (2026-08-01)";
+const APP_VERSION="v5.1 (2026-08-01)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
