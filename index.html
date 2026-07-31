@@ -74,34 +74,30 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .qbar .prog{letter-spacing:.5px}
 .qbar .time{color:#FFFFFF;font-variant-numeric:tabular-nums;margin-left:auto;font-weight:800;font-size:14.3px} /* カウントダウンは1段太く(700→800)・1.1倍(13→14.3px) */
 /* 進捗＝山吹色のメーターは廃止。正解するとキャラが1歩ぶん前へ進む（景色が右から左へ流れ、キャラ自身は歩いて見える）。
-   背景は作り込まず、空＝ベタ1色＋地面のみの引き算デザイン（色数を減らして単語カードを主役にする） */
+   背景はナシ（空の水色ベタも廃止）。地面は白い線1本だけの引き算デザイン（メール指示 2026-08-01） */
 .pbar{position:relative;height:48px;margin:8px 18px 0;border-radius:10px;overflow:hidden;box-sizing:border-box;--rp:0;
-  background:#CFE6F2}
+  background:transparent}
 .rn-ground{position:absolute;left:0;right:0;pointer-events:none;background-repeat:repeat-x;
   transition:background-position 1s cubic-bezier(.22,.85,.3,1)} /* --rp が増えるほど地面が左へ流れる＝前進 */
-.rn-ground{bottom:0;height:10px;background-size:28px 10px;background-position:calc(var(--rp) * -92px) 0;
-  background-image:repeating-linear-gradient(90deg,#7FB56B 0 14px,#6EA45B 14px 28px)}
-.rn-char{position:absolute;left:30%;bottom:9px;width:29px;height:29px;transform:translateX(-50%);
+.rn-ground{bottom:0;height:3px;background-size:28px 3px;background-position:calc(var(--rp) * -92px) 0;
+  background-image:linear-gradient(90deg,#fff,#fff)} /* 緑の市松ではなく白い線（メール指示 2026-08-01） */
+.rn-char{position:absolute;left:30%;bottom:3px;width:29px;height:29px;transform:translateX(-50%);
   display:flex;align-items:center;justify-content:center;font-size:23px;line-height:1;
   filter:drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 2px 3px rgba(0,0,0,.35));pointer-events:none}
 .rn-char img{width:100%;height:100%;object-fit:contain;display:block}
 /* 進む先には、この1本ぶんの単語カード（黄色い縦長の札）が等間隔に並んでいる。1問ごとに1枚ぶん左へ流れ、
-   正解＝キャラのほうへ飛んできて獲得／不正解＝パンとはじけて消える。
+   正解でも不正解でもキャラのほうへ飛んできて獲得する（メール指示 2026-08-01）。
    札に韓国語は書かない（答えが見えてしまうため）。画面には手前の6〜7枚だけが覗く（メール指示 2026-07-29） */
-.rn-rail{position:absolute;left:30%;bottom:9px;height:28px;pointer-events:none;
+.rn-rail{position:absolute;left:30%;bottom:3px;height:28px;pointer-events:none;
   transition:transform .55s cubic-bezier(.22,.85,.3,1)}
-.rn-slot{position:absolute;bottom:0;width:17px;height:26px;border-radius:4px;background:#F5C518;
-  box-shadow:0 2px 4px rgba(0,0,0,.28);animation:rnCardIn .28s ease both;--fly:-120px}
+/* 札は黄色い座布団＋白枠＋黒影（メール指示 2026-08-01）。枠は外へ広げず、17x26pxの見た目のまま */
+.rn-slot{position:absolute;bottom:0;width:17px;height:26px;box-sizing:border-box;border-radius:4px;background:#F5C518;
+  border:2px solid #fff;box-shadow:2px 3px 0 rgba(0,0,0,.8);animation:rnCardIn .28s ease both;--fly:-120px}
 .rn-slot.got{animation:rnCardGot .62s cubic-bezier(.3,.9,.3,1) forwards}
-.rn-slot.pop{animation:rnCardPop .42s ease forwards}
-.rn-slot.pop::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:3px solid rgba(255,255,255,.9);
-  animation:rnBurst .42s ease-out forwards}
 @keyframes rnCardIn{0%{opacity:0;transform:translateX(14px)}100%{opacity:1;transform:none}}
 @keyframes rnCardGot{0%{opacity:1;transform:none}
   70%{opacity:1;transform:translateX(calc(var(--fly) * .82)) translateY(-6px) scale(.6) rotate(-10deg)}
   100%{opacity:0;transform:translateX(var(--fly)) translateY(0) scale(.18) rotate(-14deg)}}
-@keyframes rnCardPop{0%{opacity:1;transform:none}30%{opacity:1;transform:scale(1.3) rotate(4deg)}100%{opacity:0;transform:scale(.25) rotate(-6deg)}}
-@keyframes rnBurst{0%{opacity:.9;transform:scale(.4)}100%{opacity:0;transform:scale(1.5)}}
 .rn-char.step{animation:rnStep .62s ease-in-out}   /* 正解＝2歩ぶん、その場で歩く（前進は景色の流れで見せる） */
 .rn-char.trip{animation:rnTrip .45s ease}          /* 不正解＝つまずいて進めない */
 @keyframes rnStep{
@@ -3458,9 +3454,13 @@ function showStepAdvance(done){
     const from=sl.querySelector('.sg-tile[aria-label="マス'+bt.gidx+'"]');
     const to=sl.querySelector('.sg-tile[aria-label="マス'+(bt.gidx+1)+'"]');
     // 先に「いまやったマスがCLEARした」ことを見せてから、次のマスへ進む（メール指示 2026-07-31）
-    if(from)wait=sgClearFx(from);
+    // CLEAR演出のあいだ、そのマスは器のちょうど真ん中に置いておく（メール指示 2026-08-01）
+    if(from){sgCenterTile(from);wait=sgClearFx(from);}
     // 次のマスへ進めたときだけコマを飛ばす（同じマスのやり直しでは進んでいない）
-    if(from&&to&&to.classList.contains("now")){setTimeout(()=>sgHopToNext(from,to),wait);wait+=SG_HOP_MS+520;}
+    // 進むときは、次のマスが真ん中に来る位置までスクロールしてから玉を飛ばす（メール指示 2026-08-01）
+    if(from&&to&&to.classList.contains("now")){
+      setTimeout(()=>sgCenterTile(to,true),wait);wait+=SG_SCROLL_MS;
+      setTimeout(()=>{sgCenterTile(to);sgHopToNext(from,to);},wait);wait+=SG_HOP_MS+520;}
     else{const im=from&&from.querySelector(".sg-img");if(im)setTimeout(()=>{im.classList.remove("recolor");void im.offsetWidth;im.classList.add("recolor");},wait);}
   }
   const wrap=document.getElementById("homewrap");
@@ -3474,7 +3474,7 @@ function showStepAdvance(done){
 }
 /* いまクリアしたマスの上で「CLEAR」の文字がはじけ、続けてランクバッジが回りながら付く。
    戻り値＝この演出にかかる時間(ms)。次のマスへ進む演出は、これが終わってから始める（メール指示 2026-07-31） */
-const SG_CLEAR_MS=1180, SG_BADGE_MS=640; // 全体の長さ／バッジが付くまで
+const SG_CLEAR_MS=1180, SG_BADGE_MS=640, SG_SCROLL_MS=480; // 全体の長さ／バッジが付くまで／次のマスを真ん中へ寄せるスクロールの長さ
 function sgClearFx(tile){
   const r=tile.getBoundingClientRect();
   const rk=tile.querySelector(".sg-rank");
@@ -5621,6 +5621,25 @@ function sgSyncHome(sc){
   const off=Math.abs(sc.scrollTop-sgHomeTop(sc))>90;
   if(off!==btn.classList.contains("on"))btn.classList.toggle("on",off);
 }
+/* そのマスが器のちょうど真ん中に来る位置へ動かす（メール指示 2026-08-01）。
+ * CLEARも「ピラン」もマスの中心に出る演出なので、出す前にここで中央へ寄せておく。
+ * ホームは画面幅に合わせて拡大縮小して表示されるので、画面座標(rect)ではなくレイアウト座標(offsetTop)で計算する。
+ * いま見せている位置を「現在地」として控える＝演出のあとに現在地ボタンが出てしまうのを防ぐ。 */
+/* 遠近ぶんずらしたあとに、ちょうど真ん中へ来る位置。sgPerspの逆算（vp(v)=0.5 を二分法で解く） */
+const SG_CENTER_V=(function(){let lo=0,hi=1;const q={ty:0,k:1};
+  for(let i=0;i<28;i++){const m=(lo+hi)/2;if(m+sgPersp(m,0,1,q).ty<0.5)lo=m;else hi=m;}
+  return (lo+hi)/2;})();
+function sgCenterTile(tile,smooth){
+  const sc=tile&&tile.closest&&tile.closest(".sg-scroll");if(!sc)return;
+  const h=sc.clientHeight||506,max=Math.max(0,sc.scrollHeight-h);
+  // マスは遠近で上下にずらして描かれるので、見た目の中心が真ん中に来る位置を逆算する
+  const y=(tile._y!=null?tile._y:tile.offsetTop+tile.offsetHeight/2);
+  const top=Math.max(0,Math.min(max,Math.round(y-SG_CENTER_V*h)));
+  if(smooth&&sc.scrollTo)sc.scrollTo({top,behavior:"smooth"});else sc.scrollTop=top;
+  sc._sgHome=top;
+  sgApplyDepth(sc);sgSyncHome(sc);
+  return top;
+}
 function sgScrollToCurrent(n,smooth){
   const sc=document.querySelector(`.room-slide[data-n="${n}"] .sg-scroll`);if(!sc)return;
   const top=sgHomeTop(sc);
@@ -6430,7 +6449,7 @@ function runnerRestore(){
   const rail=document.getElementById("rn-rail");if(!rail)return;
   rail.style.transform="translateX("+(-_runIdx*_rnGap)+"px)";
   for(let i=0;i<done;i++){const sl=rail.querySelector('.rn-slot[data-i="'+i+'"]');
-    if(sl)sl.classList.add((res[i]&&res[i].isCorrect)?"got":"pop");}
+    if(sl)sl.classList.add("got");} // 正解・不正解にかかわらず札は獲得済み（メール指示 2026-08-01）
 }
 /* 進む先に、この1本ぶんの単語カードを等間隔に並べる（12枚ぶん。画面に入るのは手前の数枚だけ） */
 function runnerBuild(n){
@@ -6451,15 +6470,13 @@ function runnerBuild(n){
 }
 function runnerStep(ok){
   const bar=document.getElementById("pbar");if(!bar)return;
-  // 目の前のカードの行方：正解＝キャラのほうへ飛んで獲得／不正解＝その場ではじけて消える
+  // 目の前のカードは、正解でも不正解でもキャラのほうへ飛んできて獲得する（メール指示 2026-08-01）
   const slot=document.querySelector('#rn-rail .rn-slot[data-i="'+_runIdx+'"]');
   if(slot){
-    if(ok){
-      const chr=document.getElementById("rn-char");
-      if(chr){const c=slot.getBoundingClientRect(),h=chr.getBoundingClientRect();
-        slot.style.setProperty("--fly",Math.round((h.left+h.width/2)-(c.left+c.width/2))+"px");}
-      slot.classList.add("got");
-    }else slot.classList.add("pop");
+    const chr=document.getElementById("rn-char");
+    if(chr){const c=slot.getBoundingClientRect(),h=chr.getBoundingClientRect();
+      slot.style.setProperty("--fly",Math.round((h.left+h.width/2)-(c.left+c.width/2))+"px");}
+    slot.classList.add("got");
   }
   if(ok)_runSteps++;
   _runIdx++;
@@ -7869,7 +7886,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v4.9 (2026-07-31)";
+const APP_VERSION="v5.0 (2026-08-01)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

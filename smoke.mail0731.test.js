@@ -139,7 +139,7 @@ const LABS = ['応援する', 'シェアする', null, 'ホーム']; // 3番目�
     const to = sl.querySelector('.sg-tile[aria-label="マス' + (bt.gidx + 1) + '"]');
     return { sec: bt.sec, gidx: bt.gidx, now: to.classList.contains('now'), sfx };
   });
-  await page.waitForTimeout(1250); // 「CLEAR」の演出が終わってから、次のマスへ飛ぶ
+  await page.waitForTimeout(1250 + 480); // 「CLEAR」→次のマスを真ん中へ寄せるスクロール(480ms)→次のマスへ飛ぶ
   const hop = await page.evaluate(() => {
     const bt = _lastBoardTile;
     const sl = document.querySelector('.room-slide[data-n="' + bt.sec + '"]');

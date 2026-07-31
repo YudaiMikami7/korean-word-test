@@ -75,10 +75,10 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     const q2 = state.questions[state.idx];
     answered = false; startTimer();
     submit('incorrect', q2.type === 'w' ? '' : 'ちがう');
-    const pop = slots[1].classList.contains('pop');
+    const pop = slots[1].classList.contains('pop'), gotNg = slots[1].classList.contains('got');
     document.querySelectorAll('.overlay').forEach(o => o.remove()); clearTimeout(ovTimer); quitTest();
     return { n: slots.length, visible, w: parseFloat(cs.width), h: parseFloat(cs.height), bg: cs.backgroundColor,
-             empty: slots.every(s => s.textContent === ''), ahead: first.left > chR.left, got, pop, moved };
+             empty: slots.every(s => s.textContent === ''), ahead: first.left > chR.left, got, pop, gotNg, moved };
   }, normalRoom);
   check(`出題ぶんの札が並ぶ (${rail.n}枚)`, rail.n === 12);
   check(`同時に見えるのは5〜8枚 (${rail.visible})`, rail.visible >= 5 && rail.visible <= 8);
@@ -86,7 +86,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('札に韓国語は書かない（答えが見えない）', rail.empty);
   check('札はキャラの進む先に置かれている', rail.ahead);
   check('正解すると手前の札を獲得する', rail.got);
-  check('不正解の札ははじけて消える', rail.pop);
+  check('不正解の札も獲得する（メール指示 2026-08-01）', rail.gotNg && !rail.pop);
   check('答えるたびに1枚ぶん流れる', rail.moved);
 
   // ---------- 結果画面（初回完走） ----------

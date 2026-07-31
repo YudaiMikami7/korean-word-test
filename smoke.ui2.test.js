@@ -80,9 +80,10 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
     const start = rp(), pos0 = posOf(), tx0 = txOf();
     runnerStep(true); const afterOk = rp(), cls1 = ch.className, got = slots[0].classList.contains('got'), tx1 = txOf();
     await wait(1300); const pos1 = posOf(); // 景色の流れは1秒かけて動くので終わるまで待つ
-    runnerStep(false); const cls2 = ch.className, pop = slots[1].classList.contains('pop'), tx2 = txOf();
+    runnerStep(false); const cls2 = ch.className, gotNg = slots[1].classList.contains('got'), pop = slots[1].classList.contains('pop'), tx2 = txOf();
     return { n: slots.length, gaps, w: parseFloat(cs.width), h: parseFloat(cs.height), bg: cs.backgroundColor,
-             visible, noKo, start, afterOk, cls1, cls2, pos0, pos1, tx0, tx1, tx2, got, pop,
+             border: cs.borderTopWidth + ' ' + cs.borderTopColor, shadow: cs.boxShadow,
+             visible, noKo, start, afterOk, cls1, cls2, pos0, pos1, tx0, tx1, tx2, got, gotNg, pop,
              img: ch.querySelector('img') ? ch.querySelector('img').getAttribute('src') : null, txt: ch.textContent.trim() };
   });
   check(`カードが12枚ぶん並ぶ (${runner.n})`, runner.n === 12);
@@ -97,7 +98,9 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   check('不正解ではつまずく', /trip/.test(runner.cls2));
   check(`未診断のうちはダミーの動物が歩く (${runner.txt})`, !runner.img && runner.txt.length > 0);
   check('正解でカードを獲得する演出', runner.got);
-  check('不正解でカードがはじけて消える', runner.pop);
+  check('不正解でもカードを獲得する（メール指示 2026-08-01）', runner.gotNg && !runner.pop);
+  check(`札は白枠つき (${runner.border})`, /^2px rgb\(255, 255, 255\)/.test(runner.border));
+  check(`札に黒い影が付く (${runner.shadow})`, /rgba?\(0, 0, 0/.test(runner.shadow));
 
   // ===== 選択肢の間引き（残り1/4で1つ・1/8で2つ・半透明で残る） =====
   const elim = await page.evaluate(async () => {

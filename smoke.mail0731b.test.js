@@ -204,7 +204,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('バッジの効果音が鳴る', badge.sfx.includes('sfxBadge'));
   check('バッジが付いた時点ではまだ次のマスへ飛んでいない', !badge.flying);
 
-  await page.waitForTimeout(600); // CLEAR演出(1180ms)が終わり、次のマスへ進む演出が始まる
+  await page.waitForTimeout(600 + 480); // CLEAR演出(1180ms)→次のマスを真ん中へ寄せるスクロール(480ms)→進む演出が始まる
   const after = await page.evaluate(() => {
     const bt = _lastBoardTile;
     const sl = document.querySelector('.room-slide[data-n="' + bt.sec + '"]');
@@ -226,8 +226,10 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   });
   check('着いたらモノクロ→カラーに戻る（既存の演出は健在）', land.recolor);
   check('「ピラン」の光もそのまま出る', land.pirin && land.sfx.includes('sfxStepUp'));
+  // ホーム復帰の通常フロー(プレゼント→ステップ)が裏で走っていると鳴り始めが混ざるので、初出の順番だけを見る
   check(`効果音は CLEAR → バッジ → 進む の順 (${land.sfx.join(' → ')})`,
-    land.sfx.indexOf('sfxClear') === 0 && land.sfx.indexOf('sfxBadge') === 1 && land.sfx.indexOf('sfxStepUp') === 2);
+    land.sfx.indexOf('sfxClear') === 0 && land.sfx.indexOf('sfxClear') < land.sfx.indexOf('sfxBadge')
+    && land.sfx.indexOf('sfxBadge') < land.sfx.indexOf('sfxStepUp'));
   await page.waitForTimeout(1400);
   const note = await page.evaluate(() => { const e = document.querySelector('.stepnote'); return e ? e.textContent.trim() : ''; });
   check(`最後に「進みました」が出る (${note})`, /進みました/.test(note));
