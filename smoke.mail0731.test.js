@@ -127,20 +127,28 @@ const LABS = ['応援する', 'シェアする', null, 'ホーム']; // 3番目�
   check('ボタンまで画面内に収まる', res.fits);
 
   // ---------- ホームへ戻ると1マス進む演出 ----------
-  const hop = await page.evaluate(() => {
+  // ※2026-07-31の追加指示で、進む演出の前に「CLEAR」＋ランクバッジが入る（smoke.mail0731b.test.js で検証）
+  const step = await page.evaluate(() => {
     const sfx = []; const orig = window.sfxStepUp;
     window.sfxStepUp = function () { sfx.push(1); return orig.apply(this, arguments); };
     show('s-home');
-    document.querySelectorAll('.stepnote,.sg-adv,.sg-pirin').forEach(e => e.remove());
+    document.querySelectorAll('.stepnote,.sg-adv,.sg-pirin,.sg-clear').forEach(e => e.remove());
     showStepAdvance();
     const bt = _lastBoardTile;
     const sl = document.querySelector('.room-slide[data-n="' + bt.sec + '"]');
     const to = sl.querySelector('.sg-tile[aria-label="マス' + (bt.gidx + 1) + '"]');
-    return { sec: bt.sec, gidx: bt.gidx, now: to.classList.contains('now'),
-             flying: !!document.querySelector('.sg-adv'),
-             gray: to.querySelector('.sg-img').classList.contains('preadv'), sfx };
+    return { sec: bt.sec, gidx: bt.gidx, now: to.classList.contains('now'), sfx };
   });
-  check(`クリアした次のマスが現在地になっている (マス${hop.gidx}→${hop.gidx + 1})`, hop.now);
+  await page.waitForTimeout(1250); // 「CLEAR」の演出が終わってから、次のマスへ飛ぶ
+  const hop = await page.evaluate(() => {
+    const bt = _lastBoardTile;
+    const sl = document.querySelector('.room-slide[data-n="' + bt.sec + '"]');
+    const to = sl.querySelector('.sg-tile[aria-label="マス' + (bt.gidx + 1) + '"]');
+    return { gidx: bt.gidx, now: to.classList.contains('now'),
+             flying: !!document.querySelector('.sg-adv'),
+             gray: to.querySelector('.sg-img').classList.contains('preadv') };
+  });
+  check(`クリアした次のマスが現在地になっている (マス${step.gidx}→${step.gidx + 1})`, step.now && hop.now);
   check('光の玉が次のマスへ飛ぶ', hop.flying);
   check('着くまで進む先はモノクロで待つ', hop.gray);
   await page.waitForTimeout(1000);

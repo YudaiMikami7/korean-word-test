@@ -310,6 +310,8 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* ルームメニューの2本のバーは伸びる動きを付けない（アニメ廃止。ステータス欄のバーは従来どおり） */
 .hv-wordsg .gfill,.hv-roomg .gfill{transition:none}
 /* ランクの下端(146)を下段バー(132+14=146)・ROOM番号の字面下端と一致させる */
+/* ※.rank-s（1つ前・2つ前のランク）はルームメニューから廃止し、その場所に周回表示(.hv-lap)を置いた（メール指示 2026-07-31）。
+     スタイルは他の場所（過去履歴など）と同じ書式のまま残してある */
 .rank-s{position:absolute;left:363px;top:72px;width:30px;height:30px;border-radius:50%;background:#555;
   display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;z-index:1}
 .rank-s1{left:389px}
@@ -369,9 +371,14 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* ROOM番号と右側領域のマージンを半分に（通常ルームのみ。プリQQは従来位置のまま） */
 .room-slide:not(.pq-slide) .hv-learned,.room-slide:not(.pq-slide) .hv-roompwr{left:206px}
 .room-slide:not(.pq-slide) .hv-wordsg,.room-slide:not(.pq-slide) .hv-roomg{left:200px}
-.room-slide:not(.pq-slide) .rank-s{width:45px;height:45px;font-size:30px;top:48px;left:300px} /* 1,2前のランクを1.5倍に。下端(48+45=93)を直近rank-b(15+78=93)にそろえる */
-.room-slide:not(.pq-slide) .rank-s1{left:345px}
-.room-slide:not(.pq-slide) .rank-b{left:390px} /* 1,2前と直近の隙間を詰める */
+.room-slide:not(.pq-slide) .rank-b{left:390px} /* 直近のランクだけを大きく出す */
+/* 1つ前・2つ前のランクをやめ、空いた場所に「いま何周目・N/12」を出す（メール指示 2026-07-31）。
+   下端(38+18+7+30=93)を直近ランク rank-b(15+78=93) にそろえる */
+.hv-lap{position:absolute;left:288px;top:38px;width:98px;z-index:1;color:#fff;text-align:center;line-height:1;cursor:pointer}
+.hv-lap .lp-l{display:block;font-size:18px;font-weight:900;letter-spacing:.02em;opacity:.92}
+.hv-lap .lp-v{display:block;font-size:30px;font-weight:900;margin-top:7px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hv-lap .lp-v b{color:#FFD84D}
+.hv-lap .lp-v i{font-style:normal;font-size:21px;opacity:.85;margin:0 2px}
 .room-slide:not(.pq-slide) .rmenu-reco,.room-slide:not(.pq-slide) .rmenu-pwr{left:182px}
 .slide-inner.face-word .rmenu-reco{transform:rotate(0) scale(1);opacity:1}
 .slide-inner.face-pwr .rmenu-pwr{transform:rotate(0) scale(1);opacity:1}
@@ -379,9 +386,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rr-ja{font-size:19px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:5px}
 /* 語数/％/ランク/メータ類：他面表示中は、おすすめ/PWR面と同じ左下軸の回転で退避（3面で統一）
    ※アニメ廃止に伴い transition は削除。ローテーションを戻すときはここも戻す */
-.hv-learned,.hv-wordsg,.hv-roompwr,.hv-roomg,.rank-b,.rank-s{transform-origin:0% 100%}
-.slide-inner.face-word .hv-learned,.slide-inner.face-word .hv-wordsg,.slide-inner.face-word .hv-roompwr,.slide-inner.face-word .hv-roomg,.slide-inner.face-word .rank-b,.slide-inner.face-word .rank-s,
-.slide-inner.face-pwr .hv-learned,.slide-inner.face-pwr .hv-wordsg,.slide-inner.face-pwr .hv-roompwr,.slide-inner.face-pwr .hv-roomg,.slide-inner.face-pwr .rank-b,.slide-inner.face-pwr .rank-s{transform:rotate(60deg) scale(.32);opacity:0}
+.hv-learned,.hv-wordsg,.hv-roompwr,.hv-roomg,.rank-b,.rank-s,.hv-lap{transform-origin:0% 100%}
+.slide-inner.face-word .hv-learned,.slide-inner.face-word .hv-wordsg,.slide-inner.face-word .hv-roompwr,.slide-inner.face-word .hv-roomg,.slide-inner.face-word .rank-b,.slide-inner.face-word .rank-s,.slide-inner.face-word .hv-lap,
+.slide-inner.face-pwr .hv-learned,.slide-inner.face-pwr .hv-wordsg,.slide-inner.face-pwr .hv-roompwr,.slide-inner.face-pwr .hv-roomg,.slide-inner.face-pwr .rank-b,.slide-inner.face-pwr .rank-s,.slide-inner.face-pwr .hv-lap{transform:rotate(60deg) scale(.32);opacity:0}
 /* PWRグラフ面 */
 .rmpwr-top{display:flex;align-items:baseline;gap:8px}
 .rmpwr-top .rp-lab{font-size:14px;font-weight:900;color:#fff}
@@ -474,6 +481,25 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
   25%{opacity:1}
   100%{opacity:0;transform:rotate(var(--a)) translateY(-42px) scaleY(1.4)}
 }
+/* ③ 進む前に、いまクリアしたマスで「CLEAR」の文字がはじけ、そのあとランクバッジが押される（メール指示 2026-07-31） */
+.sg-clear{position:fixed;z-index:532;left:0;top:0;width:0;height:0;pointer-events:none}
+.sg-clear .sgc-ring{position:absolute;left:0;top:0;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:50%;
+  border:4px solid rgba(255,255,255,.92);animation:sgcRing .82s ease-out forwards}
+@keyframes sgcRing{0%{opacity:0;transform:scale(.28)}20%{opacity:1}100%{opacity:0;transform:scale(2.9)}}
+.sg-clear .sgc-t{position:absolute;left:0;top:0;transform:translate(-50%,-50%);display:flex;gap:2px;white-space:nowrap;
+  font-size:42px;font-weight:900;letter-spacing:.06em;color:#fff;
+  text-shadow:0 3px 0 #B45A00,0 0 18px rgba(255,196,0,.95),0 7px 16px rgba(0,0,0,.5)}
+.sg-clear .sgc-t i{font-style:normal;display:inline-block;animation:sgcChar .95s cubic-bezier(.34,1.7,.5,1) both}
+@keyframes sgcChar{
+  0%{opacity:0;transform:translateY(-30px) scale(2.3) rotate(-14deg)}
+  55%{opacity:1;transform:translateY(0) scale(1) rotate(0)}
+  78%{transform:translateY(-5px) scale(1.07)}
+  100%{opacity:1;transform:none}
+}
+/* ランクバッジは「CLEAR」のあとに回りながら付く。いまのマスの常時アニメ(sgnow)より強く指定する */
+.sg-rank.pre,.sg-tile.now .sg-rank.pre{opacity:0;animation:none}
+.sg-rank.in,.sg-tile.now .sg-rank.in{animation:sgRankIn .64s cubic-bezier(.34,1.7,.5,1) both}
+@keyframes sgRankIn{0%{opacity:0;transform:scale(2.7) rotate(-170deg)}62%{opacity:1;transform:scale(.88) rotate(7deg)}100%{opacity:1;transform:none}}
 /* 初回だけ流す紹介（カスタマイズ完了 → タイプ診断 → あなただけの12問） */
 .fcust{position:fixed;inset:0;z-index:645;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);opacity:0;transition:opacity .3s ease}
 .fcust.on{opacity:1}
@@ -500,17 +526,19 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 @keyframes hereSpot{0%,100%{box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 0 4px rgba(255,196,0,.95)}50%{box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 0 14px rgba(255,196,0,.45)}}
 /* 今日学ぶべき単語の帯：スタートボタン上に半透明白、カードが左→右に流れる */
 .today-band{position:absolute;left:14px;top:962px;width:452px;height:170px;border-radius:14px;overflow:hidden;background:rgba(255,255,255,.6);z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease} /* 白帯は白寄り60%（背後の玉と重なっても見づらくならない） */
-.tb-clip{position:absolute;left:0;top:-5px;width:452px;height:175px;overflow:hidden;display:flex;align-items:flex-end}
+/* カードは絵がはみ出す作りをやめ、結果画面の獲得カード(.rc-card)と同じ「普通の縦長カード」にした（メール指示 2026-07-31）
+   → 見出しの下に、帯の高さいっぱいの縦長カードが流れる */
+.tb-clip{position:absolute;left:0;top:30px;width:452px;height:140px;overflow:hidden;display:flex;align-items:flex-end}
 .tb-label{position:absolute;left:14px;top:8px;font-size:14px;font-weight:900;letter-spacing:1px;color:rgba(0,0,0,.55);pointer-events:none} /* 帯左上の見出し（流れる画像より背面） */
 .home-wrap.status .today-band,.home-wrap.hiderail .today-band{opacity:0}
-.tb-track{display:flex;animation:tbflow 30s linear infinite;will-change:transform;backface-visibility:hidden;margin-bottom:8px}
+.tb-track{display:flex;animation:tbflow 30s linear infinite;will-change:transform;backface-visibility:hidden;margin-bottom:2px}
 .tb-group{display:flex;gap:12px;padding:0 6px;flex:0 0 auto} /* 同一グループ2連結で-50%＝ちょうど1周＝つなぎ目ゼロ */
 @keyframes tbflow{from{transform:translateX(0)}to{transform:translateX(-50%)}} /* 右→左 */
-.tb-card{position:relative;flex:0 0 auto;background:linear-gradient(160deg,#fff,#ffe9c2);box-shadow:0 3px 8px rgba(0,0,0,.25);border-radius:12px;padding:8px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:118px;pointer-events:auto;cursor:pointer}
-.tb-imgspace{width:60px;height:12px;flex:0 0 auto} /* 白座布団は上から40%(48px)削減。画像・下部テキストの画面上の位置は不変 */
-.tb-img{position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:120px;height:120px;object-fit:contain;display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,.2))} /* 2倍サイズ・カード上部からはみ出すポップアウト */
-.tb-ko{font-size:21px;font-weight:900;color:#222;line-height:1.15}
-.tb-ja{font-size:12px;font-weight:700;color:#7a6a4a;margin-top:1px;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-card{position:relative;flex:0 0 auto;height:136px;aspect-ratio:3/3.5;box-sizing:border-box;background:linear-gradient(160deg,#fff,#ffe9c2);box-shadow:0 3px 8px rgba(0,0,0,.25);border-radius:12px;padding:6px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;pointer-events:auto;cursor:pointer}
+.tb-imgw{position:relative;height:52%;max-width:100%;display:flex;align-items:center;justify-content:center} /* 絵はカードの中に収める（結果カードと同じ） */
+.tb-img{height:100%;width:auto;object-fit:contain;display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,.2))}
+.tb-ko{font-size:19px;font-weight:900;color:#222;line-height:1.15;margin-top:4px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-ja{font-size:12px;font-weight:700;color:#7a6a4a;margin-top:1px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* 単語一覧モード：スワイプ連動（--lift/--pはhome-wrapに設定） */
 .home-wrap .slide-inner{transform:translateY(var(--lift,0px));transition:transform .35s ease}
 #calendar-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
@@ -614,17 +642,18 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
   opacity:var(--p,1);transition:opacity .35s ease} /* ROOMメニュー直下から下端まで・全幅・背景なし。入場はJSでフェードイン */
 /* 単語帳の流れる帯（ホームの帯と同デザイン系・番号/枚数/％付き） */
 /* 単語帳: 3列グリッド（縦スクロール）＋動的演出（カスケード出現・画像のゆらぎ） */
-.wb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:92px 10px;padding:96px 10px 24px} /* 長い単語でも3列とも同幅・画面からはみ出さない */
+.wb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 10px;padding:20px 10px 24px} /* 長い単語でも3列とも同幅・画面からはみ出さない */
 .wb-card{min-width:0;max-width:100%}
-/* 単語帳のカードは結果画面の「獲得した単語カード」(.rc-card)と同じ見た目に揃える（メール指示 2026-07-29） */
-.wb-card{position:relative;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:#1a1a1a;box-shadow:0 3px 8px rgba(0,0,0,.25);animation:wbin .5s ease backwards} /* content-visibilityはpaint封じ込めでポップアウト画像が切れるため不使用（軽量化は現在ROOM±1のみ描画で担保） */
+/* 単語帳のカードは結果画面の「獲得した単語カード」(.rc-card)と同じ見た目に揃える（メール指示 2026-07-29）
+   絵がカードから飛び出す作りはやめ、縦長カードの中に収める（メール指示 2026-07-31） */
+.wb-card{position:relative;aspect-ratio:3/3.5;box-sizing:border-box;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;color:#1a1a1a;box-shadow:0 3px 8px rgba(0,0,0,.25);animation:wbin .5s ease backwards} /* content-visibilityはpaint封じ込めで演出が切れるため不使用（軽量化は現在ROOM±1のみ描画で担保） */
 @keyframes wbin{from{opacity:0;transform:translateY(18px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
-.wb-imgspace{width:90px;height:60px;flex:0 0 auto} /* 画像の下半分ぶんの席を確保（韓国語と重ならない） */
-.wb-img{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:150px;height:150px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18));animation:wbbob 3.2s ease-in-out infinite}
-@keyframes wbbob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
+.wb-imgw{position:relative;height:46%;max-width:100%;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.wb-img{height:100%;width:auto;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18));animation:wbbob 3.2s ease-in-out infinite}
+@keyframes wbbob{0%,100%{transform:none}50%{transform:translateY(-4px)}}
 .wb-img.sil{filter:brightness(0) opacity(.5)} /* 未獲得はシルエット */
-.wb-ko{font-size:27px;font-weight:900;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wb-ja{font-size:14px;font-weight:700;color:#7a6a4a;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb-ko{font-size:24px;font-weight:900;line-height:1.15;margin-top:6px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wb-ja{font-size:13px;font-weight:700;color:#7a6a4a;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wb-info{display:flex;gap:8px;font-size:13px;font-weight:900;color:#b8862b;margin-top:3px;line-height:1}
 .wb-rate.ms-stable{color:#1FAD62}.wb-rate.ms-review{color:#C79A00}.wb-rate.ms-urgent{color:#E0433B}
 .mutehint{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;font-size:13px;font-weight:800;padding:8px 16px;border-radius:999px;z-index:500;opacity:0;pointer-events:none;transition:opacity .3s ease}
@@ -686,8 +715,8 @@ body.bigtext .choice{font-size:25px}
 body.bigtext .qword{font-size:1.15em}
 body.bigtext .rtab{font-size:15px}
 body.bigtext .rtab td.ko{font-size:18px}
-body.bigtext .tb-ko{font-size:25px}
-body.bigtext .wb-ko{font-size:31px}
+body.bigtext .tb-ko{font-size:22px}
+body.bigtext .wb-ko{font-size:28px}
 body.bigtext .set-t{font-size:17px}
 body.bigtext .set-d{font-size:13.5px}
 /* OSの「動きを減らす」設定では常時アニメーションを止める */
@@ -1787,8 +1816,12 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-spark{position:absolute;left:50%;top:50%;width:150px;height:150px;pointer-events:none;z-index:61;
   background:radial-gradient(circle,rgba(255,255,255,.95) 0%,rgba(255,224,120,.55) 26%,rgba(255,196,0,0) 62%);
   animation:sgSparkle .72s ease-out forwards}
-.home-wrap.status .sg-wrap,.home-wrap.hiderail .sg-wrap,
-.home-wrap.status .sg-fbtn,.home-wrap.hiderail .sg-fbtn{opacity:0;pointer-events:none;transition:opacity .3s ease}
+.home-wrap.status .sg-wrap,.home-wrap.hiderail .sg-wrap{opacity:0;pointer-events:none;transition:opacity .3s ease}
+/* 単語帳・ステータスへ移ったら、今日の5問／トレンドのフロートも消す。
+   登場演出(tr-pop)は fill:both で opacity:1 を固定し続けるため、opacity だけでは消えなかった。
+   visibility も落として、演出中でも確実に隠れるようにする（メール指示 2026-07-31） */
+.home-wrap.status .sg-fbtn,.home-wrap.hiderail .sg-fbtn{opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .3s ease,visibility 0s linear .3s}
 
 /* 1周クリアの到達演出 */
 .lapdone{position:fixed;inset:0;z-index:560;background:rgba(0,0,0,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -1806,10 +1839,7 @@ body.bigtext .set-d{font-size:13.5px}
 .lap-btns button{border:none;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit}
 .lap-btns .lb-next{background:#FFC400;color:#2b1a00}
 .lap-btns .lb-stay{background:transparent;border:2px solid rgba(255,255,255,.45);color:#fff}
-/* ROOMごとのすごろく進捗チップ（スクロールしない） */
-.sg-prog{position:absolute;left:50%;transform:translateX(-50%);top:112px;z-index:4;background:rgba(0,0,0,.62);color:#fff;font-size:12px;font-weight:900;
-  letter-spacing:.06em;padding:5px 12px;border-radius:999px;pointer-events:none;white-space:nowrap}
-.sg-prog b{color:#FFD84D;font-size:14px}
+/* ROOMごとのすごろく進捗チップは廃止し、ルームメニューの .hv-lap へ移した（メール指示 2026-07-31） */
 /* 今日の5問の連続記録 */
 .d5-streak{display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:900;color:#C24A00;margin-top:3px}
 .d5-streak b{font-size:17px}
@@ -2949,7 +2979,7 @@ function wbCardHTML(id,i,st,cards,now){
   const ownedC=cnt>0;
   const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[w.ko]:null;
   const bobDelay=(i*137)%1600; // 画像のゆらぎ位相をカードごとにずらす
-  const img=src?`<span class="wb-imgspace"></span><img class="wb-img${ownedC?"":" sil"}" style="animation-delay:${bobDelay}ms" src="${src}" loading="lazy" decoding="async" alt="">`:"";
+  const img=src?`<span class="wb-imgw"><img class="wb-img${ownedC?"":" sil"}" style="animation-delay:${bobDelay}ms" src="${src}" loading="lazy" decoding="async" alt=""></span>`:"";
   let rateHTML='<span class="wb-rate">—</span>';
   if(ownedC){const rate=Math.round(displayScore(getStat(id,st),now)),ms=memState(rate);rateHTML=`<span class="wb-rate ${ms.cls}">${rate}%・${ms.label.charAt(0)}</span>`;} // 色+1文字ラベルで色覚多様性に配慮
   return `<div class="wb-card" style="animation-delay:${(i%12)*45}ms" onclick="renderWordDetail(${id},'room')">
@@ -3123,15 +3153,17 @@ function buildRoomSlides(){
       ${_listMode?roomListHTMLFromIds(PRIQQ.ids):`<div class="pq-main" onclick="roomMenuTap('pq')">${pqMainInner()}<div class="pq-ribbon">${esc(PRIQQ.name)}</div></div>`}
     </div>
   </div>`;
+  const _board=loadBoard(); // すごろくの進み具合は1回だけ読む（ROOMごとに読み直さない）
   el.innerHTML=levelSlide+specialSlide+Array.from({length:count},(_,i)=>{
     const n=i+1,nn=String(n).padStart(2,"0"),ri=roomInfoFor(n);
     const circ=(cls,rank)=>rank?`<div class="${cls}" style="background:${RANK_COLORS[rank]||"#555"};cursor:pointer" onclick="openRoomHistory(${n})">${rank}</div>`:""; // ランク円タップ=過去履歴一覧
-    // 直近=右の大きい丸 / 1つ前=真ん中(小) / 2つ前=左(小)
+    // ランクは直近1つだけ（1つ前・2つ前は廃止）。空いた場所には周回表示を置く（メール指示 2026-07-31）
     const arr=ri.recent;
     const rLast=arr.length>=1?arr[arr.length-1]:null;
-    const rPrev1=arr.length>=2?arr[arr.length-2]:null;
-    const rPrev2=arr.length>=3?arr[arr.length-3]:null;
     const big=rLast?circ("rank-b",rLast):`<div class="rank-b" style="background:rgba(0,0,0,.22);cursor:pointer" onclick="openRoomHistory(${n})">-</div>`;
+    // いま何周目・その周で何マス消化したか（すごろく上の進捗チップをここへ移した）
+    const lapL=boardLapSize(curLevel,n),lapC=(_board[boardKey(curLevel,n)]||{}).cleared||0;
+    const lapHTML=`<div class="hv-lap" onclick="roomMenuTap(${n})"><span class="lp-l">${Math.floor(lapC/lapL)+1}周目</span><span class="lp-v"><b>${lapC%lapL}</b><i>/</i>${lapL}</span></div>`;
     return `<div class="room-slide" data-n="${n}" style="background:${roomBg(n)}">
       <div class="slide-inner">
       <div class="rmenu-clip">
@@ -3142,8 +3174,7 @@ function buildRoomSlides(){
       <div class="gauge hv-wordsg"><div class="gfill" style="background:#00FFFF;width:${Math.round(ri.learned/ri.total*100)}%"></div></div>
       <div class="hv-roompwr">${ri.pwr}<span class="unit">%</span></div>
       <div class="gauge hv-roomg"><div class="gfill" style="background:#00FF37;width:${ri.pwr}%"></div></div>
-      ${rPrev2?circ("rank-s",rPrev2):""}
-      ${rPrev1?circ("rank-s rank-s1",rPrev1):""}
+      ${lapHTML}
       ${big}
       <div class="rmenu-reco"></div>
       <div class="rmenu-pwr"></div>
@@ -3332,7 +3363,7 @@ function showPresentBubble(done){
   updatePresent(); // 受け取り待ちの数バッジを更新
   setTimeout(()=>{el.classList.add("out");setTimeout(()=>{el.remove();done&&done();},380);},1800);
 }
-/* ②「新しいステップに進みました」＋いまクリアしたマスの絵をモノクロ→カラーへ戻す */
+/* ②いまクリアしたマスの「CLEAR」＋ランクバッジ → 次のマスへ進む → 「新しいステップに進みました」 */
 function showStepAdvance(done){
   const bt=_lastBoardTile;
   let wait=0;
@@ -3340,9 +3371,11 @@ function showStepAdvance(done){
     const sl=document.querySelector('.room-slide[data-n="'+bt.sec+'"]')||document;
     const from=sl.querySelector('.sg-tile[aria-label="マス'+bt.gidx+'"]');
     const to=sl.querySelector('.sg-tile[aria-label="マス'+(bt.gidx+1)+'"]');
+    // 先に「いまやったマスがCLEARした」ことを見せてから、次のマスへ進む（メール指示 2026-07-31）
+    if(from)wait=sgClearFx(from);
     // 次のマスへ進めたときだけコマを飛ばす（同じマスのやり直しでは進んでいない）
-    if(from&&to&&to.classList.contains("now"))wait=sgHopToNext(from,to);
-    else{const im=from&&from.querySelector(".sg-img");if(im){im.classList.remove("recolor");void im.offsetWidth;im.classList.add("recolor");}}
+    if(from&&to&&to.classList.contains("now")){setTimeout(()=>sgHopToNext(from,to),wait);wait+=SG_HOP_MS+520;}
+    else{const im=from&&from.querySelector(".sg-img");if(im)setTimeout(()=>{im.classList.remove("recolor");void im.offsetWidth;im.classList.add("recolor");},wait);}
   }
   const wrap=document.getElementById("homewrap");
   if(!wrap){done&&done();return;}
@@ -3352,6 +3385,27 @@ function showStepAdvance(done){
     wrap.appendChild(el);
     setTimeout(()=>{el.classList.add("out");setTimeout(()=>{el.remove();done&&done();},420);},2000);
   },wait);
+}
+/* いまクリアしたマスの上で「CLEAR」の文字がはじけ、続けてランクバッジが回りながら付く。
+   戻り値＝この演出にかかる時間(ms)。次のマスへ進む演出は、これが終わってから始める（メール指示 2026-07-31） */
+const SG_CLEAR_MS=1180, SG_BADGE_MS=640; // 全体の長さ／バッジが付くまで
+function sgClearFx(tile){
+  const r=tile.getBoundingClientRect();
+  const rk=tile.querySelector(".sg-rank");
+  if(rk){rk.classList.remove("in");rk.classList.add("pre");} // バッジは付く瞬間まで隠しておく
+  document.querySelectorAll(".sg-clear").forEach(e=>e.remove());
+  const el=document.createElement("div");el.className="sg-clear";
+  el.style.left=Math.round(r.left+r.width/2)+"px";el.style.top=Math.round(r.top+r.height/2)+"px";
+  el.innerHTML='<i class="sgc-ring"></i><span class="sgc-t">'
+    +Array.from("CLEAR",(c,i)=>'<i style="animation-delay:'+(i*62)+'ms">'+c+'</i>').join("")+'</span>';
+  document.body.appendChild(el);
+  sfxClear();
+  setTimeout(()=>{
+    if(rk){rk.classList.remove("pre");void rk.offsetWidth;rk.classList.add("in");sfxBadge();
+      setTimeout(()=>rk.classList.remove("in"),700);} // 付け終わったら外す（いまのマスの常時アニメを止めないため）
+  },SG_BADGE_MS);
+  setTimeout(()=>el.remove(),SG_CLEAR_MS);
+  return SG_CLEAR_MS;
 }
 /* クリアしたマス → 次のマス へ光の玉を飛ばし、着いた瞬間に絵をモノクロ→カラーへ戻して「ピラン」と光らせる。
    戻り値＝この演出にかかる時間(ms)。呼び出し側はそのぶん次の表示を待つ（メール指示 2026-07-31） */
@@ -3531,7 +3585,7 @@ function buildTodayBand(){
   const list=picks.slice();
   for(let i=0;list.length<8;i++)list.push(picks[i%picks.length]);
   const cards=list.map(x=>{
-    const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[x.w.ko])?`<span class="tb-imgspace"></span><img class="tb-img" src="${WORD_IMG[x.w.ko]}" loading="lazy" alt="">`:"";
+    const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[x.w.ko])?`<span class="tb-imgw"><img class="tb-img" src="${WORD_IMG[x.w.ko]}" loading="lazy" alt=""></span>`:"";
     return `<div class="tb-card" onclick="renderWordDetail(${x.w.id},'room')">${img}<div class="tb-ko">${esc(x.w.ko)}</div><div class="tb-ja">${esc(x.w.ja)}</div></div>`;
   }).join("");
   track.innerHTML=`<div class="tb-group">${cards}</div><div class="tb-group">${cards}</div>`; // 同一グループ2連結
@@ -4087,6 +4141,14 @@ function sfxTrendPop(){if(loadSettings().sound===false)return;const c=_sfx();if(
 function sfxStepUp(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;
   [1318.5,1760,2637].forEach((f,i)=>_tone(c,f,t+i*0.055,0.26,0.14,"triangle"));
   _tone(c,3520,t+0.18,0.62,0.05,"sine");}
+/* 「タターン」＝マスをCLEARした音（力強い和音の2連。メール指示 2026-07-31） */
+function sfxClear(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;
+  [523.3,659.3,784].forEach(f=>_tone(c,f,t,0.16,0.12,"triangle"));
+  [659.3,830.6,987.8].forEach(f=>_tone(c,f,t+0.15,0.42,0.13,"triangle"));
+  _tone(c,1975.5,t+0.34,0.5,0.05,"sine");}
+/* 「コトッ」＝ランクバッジが押される音（短い打点＋余韻。メール指示 2026-07-31） */
+function sfxBadge(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;
+  _tone(c,196,t,0.1,0.16,"square");_tone(c,1174.7,t+0.03,0.3,0.1,"triangle");_tone(c,2349,t+0.12,0.4,0.04,"sine");}
 function sfxRare(){ // レア演出音：高速上昇アルペジオ＋キラキラの余韻
   if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;
   [1046.5,1318.5,1568,2093,2637].forEach((f,i)=>_tone(c,f,t+i*0.055,0.42,0.15,"triangle"));
@@ -4594,6 +4656,9 @@ function playHomeBtnFly(){
     if(trendAvailable()&&!trendUsed())setTimeout(()=>{ // 引っ込んだ後に「ピロロン」＋キラで登場
       document.querySelectorAll(".sg-trend.on:not(.tr-off)").forEach(b=>{
         b.classList.remove("tr-pop");void b.offsetWidth;b.classList.add("tr-pop");_sgSpark(b);
+        // 登場が終わったら演出クラスを外す。fill:both のまま残すと opacity:1 が固定され、
+        // 単語帳に入っても消えなくなる（メール指示 2026-07-31）
+        setTimeout(()=>b.classList.remove("tr-pop"),520);
       });
       sfxTrendPop();
     },660);
@@ -5350,9 +5415,8 @@ function sgBoardHTML(n){
       +' data-x="'+Math.round(dx)+'" data-y="'+dy+'" style="left:'+Math.round(dx-sz/2)+'px;top:'+dy+'px;width:'+sz+'px;opacity:'+(0.82+rnd()*0.18).toFixed(2)+'" onerror="this.style.display=\'none\'">');
   }
   const nn=String(n).padStart(2,"0");
-  // 進捗チップは .sg-wrap の外に出す（器の上端40pxはぼかしマスクが掛かっていて文字が読めなかった）
-  return '<div class="sg-prog">'+(Math.floor(st.cleared/L)+1)+'周目 <b>'+(st.cleared%L)+'</b> / '+L+'</div>'
-    +'<div class="sg-wrap">'
+  // 進捗チップ(.sg-prog)はルームメニューの周回表示(.hv-lap)へ移した（メール指示 2026-07-31）
+  return '<div class="sg-wrap">'
     +'<img class="sg-bg" src="rooms/'+level+'-'+nn+'.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">'
     +'<div class="sg-scroll" data-n="'+n+'"><div class="sg-track" style="height:'+h+'px">'
     +'<svg class="sg-road" width="554" height="'+h+'" viewBox="0 0 554 '+h+'" aria-hidden="true">'
@@ -7634,7 +7698,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v4.7 (2026-07-31)";
+const APP_VERSION="v4.8 (2026-07-31)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

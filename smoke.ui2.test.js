@@ -158,6 +158,12 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
 
   // 5問を消化した直後としてホームへ戻る
   await page.evaluate(() => {
+    // 登場演出(tr-pop)は終わると外れる（付けっぱなしだと単語帳へ移っても消えなくなるため）。
+    // 一瞬しか付かないので、付いたかどうかは監視して記録する
+    window.__trPop = false;
+    const t = document.querySelector('.sg-trend');
+    new MutationObserver(() => { if (t.classList.contains('tr-pop')) window.__trPop = true; })
+      .observe(t, { attributes: true, attributeFilter: ['class'] });
     const all = loadD5();
     all[d5Key(Date.now())] = { slot: d5Slot(Date.now()), finished: new Date().toISOString(), correct: 3, total: 5, done: true, items: [] };
     saveD5(all);
@@ -175,9 +181,11 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   await page.waitForTimeout(1100);
   const pop = await page.evaluate(() => {
     const t = document.querySelector('.sg-trend');
-    return { on: t.classList.contains('on'), pop: t.classList.contains('tr-pop'), spark: !!document.querySelector('.sg-spark') || true };
+    return { on: t.classList.contains('on'), pop: window.__trPop, left: t.classList.contains('tr-pop'),
+             vis: getComputedStyle(t).visibility, spark: !!document.querySelector('.sg-spark') || true };
   });
-  check('引っ込んだ後にトレンドボタンが登場する', pop.on && pop.pop);
+  check('引っ込んだ後にトレンドボタンが登場する', pop.on && pop.pop && pop.vis === 'visible');
+  check('登場演出が終わったらクラスは外れる（単語帳で消えなくなるのを防ぐ）', !pop.left);
   check('登場音（ピロロン）が定義されている', await page.evaluate(() => typeof sfxTrendPop === 'function'));
 
   // トレンドも消化 → 左（5問ボタンの1つ右）へ引っ込む

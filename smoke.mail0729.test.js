@@ -39,7 +39,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   const board = await page.evaluate(n => {
     curLevel = 'beginner'; curSection = n; saveLastRoom();
     const sl = document.querySelector(`.room-slide[data-n="${n}"]`);
-    const prog = sl && sl.querySelector('.sg-prog');
+    const prog = sl && sl.querySelector('.hv-lap'); // 「n周目 x/12」はルームメニューへ移設（2026-07-31）
     const wrap = sl && sl.querySelector('.sg-wrap');
     const sc = sl && sl.querySelector('.sg-scroll');
     const track = sc && sc.querySelector('.sg-track');
@@ -53,7 +53,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       headroom: typeof SG_HEADROOM === 'number' ? SG_HEADROOM : null
     };
   }, normalRoom);
-  check('「n周目 x/12」チップはぼかしマスクの外に出ている', board.progOutside);
+  check('「n周目 x/12」はすごろくの器の外（ルームメニュー内）に出ている', board.progOutside);
   check(`最後のマスの絵(上186px)がスクロール範囲に収まる (マスy=${board.topTileY})`, board.topTileY >= 186 + 40);
 
   // ---------- 出題中の中断ダイアログ ----------

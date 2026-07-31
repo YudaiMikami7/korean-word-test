@@ -365,7 +365,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     return true;
   }).then(() => page.reload()).then(() => page.waitForTimeout(1600)).then(() => page.evaluate(async () => {
     document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove());
-    const chip = document.querySelector('.room-slide[data-n="1"] .sg-prog').textContent.replace(/\s+/g, '');
+    const chip = document.querySelector('.room-slide[data-n="1"] .hv-lap').textContent.replace(/\s+/g, ''); // 周回表示はルームメニューへ移設
     curLevel = 'beginner'; curSection = 1;
     _boardTile = { level: 'beginner', sec: 1, gidx: 12 };
     startTest(); clearInterval(timer); renderQuestion();
@@ -386,7 +386,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     document.querySelectorAll('.cardget,.streak-cel').forEach(o => o.remove());
     return res;
   }));
-  check(`進捗チップに周回と位置が出る (${lap.chip})`, /1周目11\/12/.test(lap.chip));
+  check(`ルームメニューに周回と位置が出る (${lap.chip})`, /1周目11\/12/.test(lap.chip));
   check('1周クリアで到達演出が出る', lap.shown && /1周.*達成/.test(lap.txt));
   check('周回達成のごほうびが届く', lap.present);
   check('次のROOMへ進む導線がある', lap.next);
