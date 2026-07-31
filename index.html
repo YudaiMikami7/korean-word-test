@@ -41,6 +41,7 @@
   --bg:#000; --panel:#16181c; --panel2:#1f2125; --gray:#26282d; --gray-h:#33363c;
   --line:#2a2d33; --text:#f2f3f5; --mute:#FFFFFF; --faint:rgba(255,255,255,.78);
   --red:#ff3b3b; --blue:#2f8bff; --green:#4cd964; --gold:#ffc83c;
+  --hs:.648; /* ホーム(602px基準)の縮小率。scaleHome()が実測値を入れる＝ホーム外でもステータスバーと同じ実寸を作れる */
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
@@ -448,6 +449,30 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
   0%{filter:grayscale(1) brightness(1.06)}
   35%{filter:grayscale(.45) brightness(1.4) drop-shadow(0 0 26px rgba(255,215,100,.95)) drop-shadow(0 0 48px rgba(255,175,0,.7))}
   100%{filter:grayscale(0) brightness(1) drop-shadow(0 8px 7px rgba(0,0,0,.3))}
+}
+/* テストから帰ってきたときの「1マス進んだ」演出（メール指示 2026-07-31）
+   ① 直前にクリアしたマスから、いまのマスへ光の玉が跳ねて移動する（画面座標で飛ばすのでfixed） */
+.sg-adv{position:fixed;z-index:530;left:0;top:0;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  background:radial-gradient(circle at 38% 34%,#fff,#FFE79A 46%,#FFB800 100%);
+  box-shadow:0 0 14px 5px rgba(255,205,80,.85),0 0 34px 12px rgba(255,170,0,.5);
+  pointer-events:none;animation:sgAdvHop .76s cubic-bezier(.3,-.35,.4,1.25) forwards}
+@keyframes sgAdvHop{
+  0%{opacity:0;transform:translate(0,0) scale(.4)}
+  14%{opacity:1;transform:translate(calc(var(--dx) * .14),calc(var(--dy) * .14 - 26px)) scale(1.1)}
+  100%{opacity:1;transform:translate(var(--dx),var(--dy)) scale(.85)}
+}
+/* ② 着いた先で光が「ピラン」と走る（輪＋放射） */
+.sg-pirin{position:fixed;z-index:531;left:0;top:0;width:0;height:0;pointer-events:none}
+.sg-pirin .sgp-ring{position:absolute;left:0;top:0;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;
+  border:3px solid rgba(255,230,150,.95);animation:sgpRing .85s ease-out forwards}
+@keyframes sgpRing{0%{opacity:0;transform:scale(.2)}18%{opacity:1}100%{opacity:0;transform:scale(3.6)}}
+.sg-pirin .sgp-ray{position:absolute;left:0;top:0;width:4px;height:34px;margin:-17px 0 0 -2px;border-radius:2px;
+  background:linear-gradient(180deg,rgba(255,255,255,0),#FFE79A,rgba(255,255,255,0));
+  animation:sgpRay .8s ease-out forwards}
+@keyframes sgpRay{
+  0%{opacity:0;transform:rotate(var(--a)) translateY(0) scaleY(.3)}
+  25%{opacity:1}
+  100%{opacity:0;transform:rotate(var(--a)) translateY(-42px) scaleY(1.4)}
 }
 /* 初回だけ流す紹介（カスタマイズ完了 → タイプ診断 → あなただけの12問） */
 .fcust{position:fixed;inset:0;z-index:645;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);opacity:0;transition:opacity .3s ease}
@@ -960,18 +985,19 @@ body.bigtext .set-d{font-size:13.5px}
 
 /* ===== result (fixed, only list scrolls) ===== */
 .res{flex:1 1 auto;min-height:0;width:100%;display:flex;flex-direction:column;padding:14px 18px calc(10px + env(safe-area-inset-bottom))} /* 100dvh固定をやめ画面領域内に収める（ページスクロール撲滅） */
-.res-head{flex:0 0 auto;text-align:center;background:rgba(255,255,255,.28);border-radius:14px;padding:7px 8px} /* 背後の玉と干渉しないよう白下敷き */
+/* 上のステータスエリアは余白を詰めて、メダル・点数・メーターがきっちり収まる寸法にする（メール指示 2026-07-31） */
+.res-head{flex:0 0 auto;text-align:center;background:rgba(255,255,255,.28);border-radius:14px;padding:8px 10px} /* 背後の玉と干渉しないよう白下敷き */
 /* 左＝メダル＋点数、右＝メーター2本（レベル／PWR）を縦に並べる */
-.res-top{display:flex;align-items:center;justify-content:center;gap:12px}
+.res-top{display:flex;align-items:center;justify-content:center;gap:10px}
 .res-idw{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px}
 .res-meters{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:7px}
-.rank-c{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:900;color:#fff}
+.rank-c{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;color:#fff}
 /* ランクをメダル風に：金リング＋光沢、登場時に回転しながらポップ */
 .rank-medal{position:relative;box-shadow:0 0 0 4px rgba(255,255,255,.85),0 0 0 7px rgba(255,196,0,.9),0 6px 16px rgba(0,0,0,.35)}
 .rank-medal::after{content:"";position:absolute;inset:6px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%);pointer-events:none}
 .rank-medal.in{animation:medalpop .7s cubic-bezier(.34,1.6,.5,1)}
 @keyframes medalpop{0%{transform:scale(.2) rotate(-220deg);opacity:0}60%{opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
-.res-score{font-size:27px;font-weight:900;line-height:1.1;white-space:nowrap}
+.res-score{font-size:25px;font-weight:900;line-height:1.1;white-space:nowrap}
 .res-score b{font-weight:900}
 /* 結果ボタン：アニメーション(惑星)なし。落ち着いた白黒の座布団で優先度だけを静かに示す。
    優先度  ①最優先=もう一度挑戦(黒塗り) ＞ ②シェア(白抜き枠) ＞ ③PWR/ホーム(淡いゴースト) */
@@ -1029,22 +1055,24 @@ body.bigtext .set-d{font-size:13.5px}
 .pwr-delta{font-size:18px;font-weight:900}
 .res-right{display:flex;flex-direction:column;align-items:flex-start;gap:4px} /* 「過去の結果」画面で使用 */
 .res-counts{display:flex;flex-direction:row;align-items:baseline;gap:8px;font-size:14px;font-weight:900;line-height:1.15} /* 点数の右に 正解数 / 不正解数 */
-.res-cnt{flex:0 0 auto;min-width:46px;text-align:right;font-size:17px;font-weight:900;line-height:1.15} /* 上の段の 中＝正解数 / 右＝不正解数 */
+.res-cnt{flex:0 0 auto;min-width:42px;text-align:right;font-size:16px;font-weight:900;line-height:1.15} /* 上の段の 中＝正解数 / 右＝不正解数 */
 /* 右側は上＝点数と正誤／下＝メーター2本 */
-.res-side{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:6px}
-.res-scorerow{display:flex;align-items:baseline;gap:10px}
+.res-side{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:5px}
+.res-scorerow{display:flex;align-items:baseline;gap:8px;padding:0 2px}
 .res-scorerow .res-score{flex:1 1 auto} /* 点数は左寄せ。正解数・不正解数がその右に並ぶ */
 /* レベル(XP)とPWRはステータス画面（ホームのヘッダー）と同じ見た目に統一：
-   黒の座布団／右揃えラベル／#333の溝に太いゲージ／XPは黄・PWRは緑（メール指示 2026-07-29） */
-.res-meters{display:flex;flex-direction:column;gap:6px;background:rgba(0,0,0,.8);border-radius:16px;padding:8px 12px}
+   黒の座布団／右揃えラベル／#333の溝に太いゲージ／XPは黄・PWRは緑（メール指示 2026-07-29）
+   太さ・文字サイズ・行間はホームのステータスバー（602px基準: ゲージ19px・溝の内側3px・行送り9px・文字18px）を
+   --hs（ホームの縮小率）で実寸に直したもの＝ホームと全く同じ大きさで出る（メール指示 2026-07-31） */
+.res-meters{display:flex;flex-direction:column;gap:calc(9px * var(--hs));background:rgba(0,0,0,.8);border-radius:14px;padding:calc(9px * var(--hs)) calc(12px * var(--hs))}
 /* ラベル・ゲージ・数値・増分を格子で固定＝レベルとPWRのゲージが必ず同じ横幅になる（メール指示 2026-07-29） */
-.res-mrow{display:grid;grid-template-columns:42px minmax(36px,1fr) 58px 58px;align-items:center;gap:8px}
-.res-mlab{flex:0 0 auto;min-width:42px;text-align:right;font-size:13px;font-weight:900;color:#fff;line-height:1}
-.res-mg{flex:1 1 auto;min-width:36px;height:14px;background:#333;border-radius:999px;padding:3px;box-sizing:border-box}
+.res-mrow{display:grid;grid-template-columns:calc(80px * var(--hs)) minmax(36px,1fr) calc(96px * var(--hs)) calc(84px * var(--hs));align-items:center;gap:calc(9px * var(--hs));height:calc(19px * var(--hs))} /* 行の高さ＝ゲージの太さ。行送りはホームと同じ28px相当になる */
+.res-mlab{min-width:0;text-align:right;font-size:calc(18px * var(--hs));font-weight:900;color:#fff;line-height:calc(19px * var(--hs))}
+.res-mg{min-width:36px;height:calc(19px * var(--hs));background:#333;border-radius:999px;padding:calc(3px * var(--hs));box-sizing:border-box}
 .res-mfill{height:100%;border-radius:999px;width:0;transition:width .8s ease}
-.res-mval{flex:0 0 auto;min-width:58px;text-align:right;font-size:12px;font-weight:800;color:#fff;line-height:1;font-variant-numeric:tabular-nums} /* 幅を固定＝レベルとPWRのゲージが同じ横幅で揃う */
-.res-mgain{flex:0 0 auto;font-size:16px;font-weight:900;line-height:1;min-width:46px;text-align:right}
-.res-mgain span{font-size:10px;margin-left:1px}
+.res-mval{min-width:0;text-align:right;font-size:calc(16px * var(--hs));font-weight:800;color:#fff;line-height:calc(19px * var(--hs));font-variant-numeric:tabular-nums} /* 幅を固定＝レベルとPWRのゲージが同じ横幅で揃う */
+.res-mgain{font-size:calc(20px * var(--hs));font-weight:900;line-height:calc(19px * var(--hs));text-align:right}
+.res-mgain span{font-size:calc(14px * var(--hs));margin-left:1px}
 .res-xp-gain{color:#FFFF37} /* 獲得XPもステータスのXPと同じ黄色（緑は見づらかった） */
 .res-xp-gain.pop{animation:xppop .5s cubic-bezier(.2,1.6,.4,1) both}
 .res-sess{margin-top:8px;font-size:12.5px;color:var(--faint);font-weight:700}
@@ -1336,8 +1364,6 @@ body.bigtext .set-d{font-size:13.5px}
 .gres-cheer{font-size:14px;font-weight:800;color:rgba(255,255,255,.95);text-shadow:0 2px 5px rgba(0,0,0,.45);margin-bottom:22px}
 .gres .sp-res-wrap{margin:0 0 18px} /* 歯車モードの結果でも単語一覧の余白をそろえる */
 .gres .sp-res-w{background:rgba(0,0,0,.34)} /* 背景がROOMの色（明るいことがある）なので札は暗めにして白文字を読ませる */
-.gres-btns{width:min(320px,84vw);display:flex;flex-direction:column;gap:10px}
-.gres-btns .btn{border-radius:999px}
 /* ============================================================ スペシャルモード（ミニゲーム集） ============================================================ */
 #special-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.42)}
 #special-modal.on{display:flex}
@@ -1426,11 +1452,11 @@ body.bigtext .set-d{font-size:13.5px}
 .lu-msg{font-size:13.5px;font-weight:800;color:rgba(255,255,255,.75);margin:2px 0 16px}
 .lu-card .btn{padding:13px 26px;font-size:15px;border-radius:14px;background:#fff;color:#111;font-weight:900}
 .lu-card .btn:active{background:#e6e6e6}
-.sp-res-btns{width:min(320px,86vw);display:flex;flex-direction:column;gap:10px;margin-top:6px}
-.sp-res-btns button{border:none;border-radius:999px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit}
-.sp-res-btns .sp-again{background:#FFC400;color:#3a2c00}
-.sp-res-btns .sp-menu{background:rgba(255,255,255,.16);color:#fff}
-.sp-res-btns .sp-home{background:rgba(255,255,255,.1);color:#fff}
+/* スペシャル問題・歯車モードの結果も、下段は通常の結果画面と同じ4ボタン（メール指示 2026-07-31）。
+   「スペシャル選択へ」はその上の細いリンクに逃がす */
+.sp-res .res-btns,.gres .res-btns{width:min(340px,90vw);margin-top:4px}
+.sp-tolist{border:none;background:transparent;color:rgba(255,255,255,.9);font-family:inherit;font-size:13px;font-weight:800;padding:4px 6px;cursor:pointer;text-decoration:underline}
+.sp-tolist:active{opacity:.6}
 /* ゲーム結果に出した単語（タップで発音）。ミニゲームでも遊んだ単語をその場で復習できるように */
 .sp-res-wrap{width:min(360px,90vw);max-height:30vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .sp-res-wh{font-size:12px;font-weight:800;color:rgba(255,255,255,.7);margin-bottom:6px}
@@ -1671,6 +1697,10 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-tile.lock{cursor:default}
 .sg-tile.lock .sg-img,.sg-tile.lock .sg-noimg{filter:grayscale(1) drop-shadow(0 6px 6px rgba(0,0,0,.26))}
 .sg-tile.lock .sg-num{color:rgba(255,255,255,.55)}
+/* 進む先のマスは、光の玉が着くまでモノクロのまま待たせ、着いた瞬間にカラーへ戻す。
+   いまのマス(.now)には揺れ＋光彩のアニメが常時かかっているので、それより強い指定で上書きする（メール指示 2026-07-31） */
+.sg-tile.now .sg-img.preadv,.sg-tile .sg-img.preadv{filter:grayscale(1) drop-shadow(0 6px 6px rgba(0,0,0,.26));animation:none}
+.sg-tile.now .sg-img.recolor,.sg-tile .sg-img.recolor{animation:sgRecolor 1.6s ease-out both}
 .sg-lap{position:absolute;left:0;width:554px;text-align:center;pointer-events:none}
 .sg-lap span{display:inline-block;background:rgba(0,0,0,.4);color:#fff;font-size:12px;font-weight:900;letter-spacing:.14em;padding:4px 14px}
 .sg-toast{position:fixed;left:50%;bottom:24%;transform:translateX(-50%);background:rgba(0,0,0,.84);color:#fff;font-size:14px;font-weight:800;padding:11px 20px;z-index:600;pointer-events:none;animation:d5ack 1.9s ease forwards}
@@ -1831,26 +1861,26 @@ body.bigtext .set-d{font-size:13.5px}
 .d5r-phase{display:grid;min-height:74px;align-items:center} /* 判定中→スコアを同じ枠で入れ替え（レイアウトを飛ばさない） */
 .d5r-phase>*{grid-area:1/1}
 .d5r-judging{font-size:15px;font-weight:900;color:var(--faint);transition:opacity .35s ease}
-.d5r-list{flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;justify-content:center;gap:6px;margin-top:10px;-webkit-overflow-scrolling:touch}
-.d5r-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.92);color:#1a1a1a;padding:9px 12px;
+.d5r-list{flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;justify-content:center;gap:5px;margin-top:9px;-webkit-overflow-scrolling:touch}
+/* 1行は「出題＋その答え」だけのコンパクトな作り。まちがえた行だけ自分の回答が1行増える（メール指示 2026-07-31） */
+.d5r-row{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.92);color:#1a1a1a;padding:7px 11px;
   opacity:.3;transform:translateY(8px);transition:opacity .3s ease,transform .3s ease,box-shadow .2s ease}
 .d5r-row.shown{opacity:1;transform:none}
 .d5r-row.on-now{box-shadow:0 0 0 3px #FFC400}
 .d5r-row .d5r-mid{filter:blur(6px);transition:filter .3s ease} /* 未判定の問題は先読みできないようぼかす */
 .d5r-row.shown .d5r-mid{filter:none}
-.d5r-no{width:26px;flex:0 0 auto;font-size:12px;font-weight:900;color:#999}
+.d5r-no{width:24px;flex:0 0 auto;font-size:11.5px;font-weight:900;color:#999}
 .d5r-mid{flex:1;min-width:0}
-.d5r-q{font-size:18.5px;font-weight:900;line-height:1.25;color:#222;word-break:break-word}
-.d5r-a{font-size:13px;font-weight:700;color:#777;margin-top:3px;line-height:1.5;word-break:break-word}
+.d5r-q{font-size:18.5px;font-weight:900;line-height:1.2;color:#222;word-break:break-word}
+.d5r-a{font-size:13.5px;font-weight:800;color:#444;margin-top:1px;line-height:1.35;word-break:break-word}
+.d5r-your{font-size:11.5px;font-weight:800;color:#999;margin-top:2px;line-height:1.3;word-break:break-word}
+.d5r-your i{font-style:normal;color:#C0392B}
 /* 判定が済んだ行はタップで正解の韓国語を読み上げる */
 .d5r-row.judged{cursor:pointer}
-.d5r-spk{margin-left:6px;font-size:13px;color:#2F6FE0;opacity:0;transition:opacity .2s ease}
+.d5r-spk{margin-left:5px;font-size:12px;color:#2F6FE0;opacity:0;transition:opacity .2s ease;vertical-align:middle}
 .d5r-row.judged .d5r-spk{opacity:.85}
 .d5r-row.speaking{box-shadow:0 0 0 3px #2F6FE0}
-.d5r-a i{font-style:normal;color:#C0392B}
-.d5r-a i.ok{color:#1B8A4B}
-.d5r-a b{color:#333}
-.d5r-mk{flex:0 0 auto;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;line-height:1;opacity:0;transform:scale(2.4) rotate(-14deg)}
+.d5r-mk{flex:0 0 auto;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:27px;font-weight:900;line-height:1;opacity:0;transform:scale(2.4) rotate(-14deg)}
 .d5r-row.judged .d5r-mk{animation:d5stamp .42s cubic-bezier(.2,1.5,.4,1) forwards}
 @keyframes d5stamp{0%{opacity:0;transform:scale(2.4) rotate(-14deg)}60%{opacity:1;transform:scale(.88) rotate(3deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
 .d5r-mk.o{color:#FF3B3B}.d5r-mk.x{color:#2F6FE0}.d5r-mk.u{color:#8a8a8a}.d5r-mk.t{color:#C79A0C}
@@ -3218,6 +3248,7 @@ function scaleHome(){
   const s=Math.min(appW/602,availH/1178,1);
   el.style.transform=`scale(${s})`; // #s-homeのjustify-content:center+origin:top centerで水平中央は自動
   el.style.setProperty("--inv",String(1/s)); // スケール補正係数（ステータス内をPWR詳細ページと同じ実寸にする）
+  document.documentElement.style.setProperty("--hs",String(s)); // ホーム外（結果画面のメーター等）でも同じ実寸を作るための縮小率
   el.style.marginBottom=`-${Math.round(1178*(1-s))}px`; // transformはレイアウト高を変えないため余白を回収
 }
 window.addEventListener("resize",scaleHome);
@@ -3280,7 +3311,8 @@ function nextReviewInfo(){return "";} // 「復習どき」表記は削除（ホ
 let _homeNotice=null;
 function showHomeNotice(n){
   const wrap=document.getElementById("homewrap");if(!wrap)return;
-  if(n.type==="streak"){showStreakCelebration(loginStreak());return;} // 連続日数アップは豪華演出
+  // 連続日数アップは豪華演出。閉じたあとに「1マス進んだ」演出へつなぐ＝どの回でも必ず進んだことが見える（メール指示 2026-07-31）
+  if(n.type==="streak"){_stepAfterCel=true;showStreakCelebration(loginStreak());return;}
   // プレゼント→新ステップ→（初回だけ）タイプ診断の紹介、の順に流す
   showPresentBubble(()=>showStepAdvance(()=>{if(n.first)showFirstIntro();}));
 }
@@ -3303,18 +3335,53 @@ function showPresentBubble(done){
 /* ②「新しいステップに進みました」＋いまクリアしたマスの絵をモノクロ→カラーへ戻す */
 function showStepAdvance(done){
   const bt=_lastBoardTile;
+  let wait=0;
   if(bt){
     const sl=document.querySelector('.room-slide[data-n="'+bt.sec+'"]')||document;
-    const tile=sl.querySelector('.sg-tile[aria-label="マス'+bt.gidx+'"]');
-    const im=tile&&tile.querySelector(".sg-img");
-    if(im){im.classList.remove("recolor");void im.offsetWidth;im.classList.add("recolor");}
+    const from=sl.querySelector('.sg-tile[aria-label="マス'+bt.gidx+'"]');
+    const to=sl.querySelector('.sg-tile[aria-label="マス'+(bt.gidx+1)+'"]');
+    // 次のマスへ進めたときだけコマを飛ばす（同じマスのやり直しでは進んでいない）
+    if(from&&to&&to.classList.contains("now"))wait=sgHopToNext(from,to);
+    else{const im=from&&from.querySelector(".sg-img");if(im){im.classList.remove("recolor");void im.offsetWidth;im.classList.add("recolor");}}
   }
   const wrap=document.getElementById("homewrap");
   if(!wrap){done&&done();return;}
-  document.querySelectorAll(".stepnote").forEach(e=>e.remove());
-  const el=document.createElement("div");el.className="stepnote";el.textContent="✨ 新しいステップに進みました";
-  wrap.appendChild(el);
-  setTimeout(()=>{el.classList.add("out");setTimeout(()=>{el.remove();done&&done();},420);},2000);
+  setTimeout(()=>{
+    document.querySelectorAll(".stepnote").forEach(e=>e.remove());
+    const el=document.createElement("div");el.className="stepnote";el.textContent="✨ 新しいステップに進みました";
+    wrap.appendChild(el);
+    setTimeout(()=>{el.classList.add("out");setTimeout(()=>{el.remove();done&&done();},420);},2000);
+  },wait);
+}
+/* クリアしたマス → 次のマス へ光の玉を飛ばし、着いた瞬間に絵をモノクロ→カラーへ戻して「ピラン」と光らせる。
+   戻り値＝この演出にかかる時間(ms)。呼び出し側はそのぶん次の表示を待つ（メール指示 2026-07-31） */
+const SG_HOP_MS=760;
+function sgHopToNext(from,to){
+  const im=to.querySelector(".sg-img");
+  if(im){im.classList.remove("recolor");im.classList.add("preadv");} // 着くまではモノクロで待たせる
+  const a=from.getBoundingClientRect(),b=to.getBoundingClientRect();
+  const ax=a.left+a.width/2,ay=a.top+a.height/2;
+  const pin=document.createElement("div");pin.className="sg-adv";
+  pin.style.left=Math.round(ax)+"px";pin.style.top=Math.round(ay)+"px";
+  pin.style.setProperty("--dx",Math.round(b.left+b.width/2-ax)+"px");
+  pin.style.setProperty("--dy",Math.round(b.top+b.height/2-ay)+"px");
+  document.body.appendChild(pin);
+  setTimeout(()=>{
+    pin.remove();
+    if(im){im.classList.remove("preadv");void im.offsetWidth;im.classList.add("recolor");}
+    sgPirin(to);
+    sfxStepUp();
+  },SG_HOP_MS);
+  return SG_HOP_MS+520;
+}
+/* 「ピラン」＝マスの上で輪と放射状の光がはじける */
+function sgPirin(tile){
+  const r=tile.getBoundingClientRect();
+  const el=document.createElement("div");el.className="sg-pirin";
+  el.style.left=Math.round(r.left+r.width/2)+"px";el.style.top=Math.round(r.top+r.height/2)+"px";
+  el.innerHTML='<i class="sgp-ring"></i>'+Array.from({length:8},(_,i)=>`<i class="sgp-ray" style="--a:${i*45}deg"></i>`).join("");
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1200);
 }
 /* ③初回だけ：カスタマイズ完了 → タイプ診断の紹介 → 「あなただけの12問」で次へ誘導 */
 function showFirstIntro(){
@@ -3403,9 +3470,11 @@ function showLevelUp(level,fromLevel){
   ov._auto=setTimeout(()=>closeLevelUp(),6000);
 }
 function closeLevelUp(){const ov=document.querySelector(".lvup");if(ov){if(ov._auto)clearTimeout(ov._auto);ov.classList.remove("on");setTimeout(()=>ov.remove(),300);}}
+let _stepAfterCel=false; // 連続日数の演出を閉じたあとに「1マス進んだ」演出を出すかどうか
 function closeStreakCel(openCal){
   const ov=document.querySelector(".streak-cel");if(ov){if(ov._auto)clearTimeout(ov._auto);ov.classList.remove("on");setTimeout(()=>ov.remove(),300);}
   if(openCal)setTimeout(()=>openCalendar(0),320);
+  if(_stepAfterCel){_stepAfterCel=false;if(!openCal)setTimeout(showStepAdvance,380);}
 }
 /* 中央から大きいプレゼントを出し、リールのプレゼントアイコンへ吸い込ませる */
 function flyPresentToRail(){
@@ -4014,6 +4083,10 @@ function sfxD5Roll(){if(loadSettings().sound===false)return;const c=_sfx();if(!c
 function sfxTrendPop(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;
   [1046.5,1396.9,2093].forEach((f,i)=>_tone(c,f,t+i*0.075,0.22,0.15,"triangle"));
   _tone(c,3136,t+0.24,0.5,0.06,"sine");}
+/* 「ピラン」＝すごろくのコマが次のマスへ進んだ音（短い上昇3音＋きらめきの余韻。メール指示 2026-07-31） */
+function sfxStepUp(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;
+  [1318.5,1760,2637].forEach((f,i)=>_tone(c,f,t+i*0.055,0.26,0.14,"triangle"));
+  _tone(c,3520,t+0.18,0.62,0.05,"sine");}
 function sfxRare(){ // レア演出音：高速上昇アルペジオ＋キラキラの余韻
   if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;
   [1046.5,1318.5,1568,2093,2637].forEach((f,i)=>_tone(c,f,t+i*0.055,0.42,0.15,"triangle"));
@@ -4849,16 +4922,32 @@ const D5_CHEER=[
   "今回はウォームアップ。まだ挽回できます🌱"
 ];
 function d5PickCheer(n){return n>=5?D5_CHEER[0]:n===4?D5_CHEER[1]:n===3?D5_CHEER[2]:n===2?D5_CHEER[3]:D5_CHEER[4];}
+/* すべての結果画面（通常のテスト・今日の5問・トレンド・スペシャル問題）で共通の下段4ボタン。
+   ①応援する ②シェアする ③その形式ごとの一手 ④ホーム
+   これから問題形式が増えても、結果画面はこの1本を呼んで並びを揃える（メール指示 2026-07-31） */
+function resBtns4HTML(third,extra){
+  const t=third||{ico:"↻",lab:"もう一度",act:""};
+  const donate=MONETIZE.donateUrl
+    ?`<a class="rb" href="${MONETIZE.donateUrl}" target="_blank" rel="noopener" onclick="if(typeof track==='function')track('donate_click')"><span class="rb-ico">☕</span><span class="rb-lab">応援する</span></a>`:"";
+  return `<div class="res-btns">
+      ${donate}
+      <button class="rb" onclick="shareResult()"><span class="rb-ico">&#120143;</span><span class="rb-lab">シェアする</span></button>
+      <button class="rb rb-pri"${t.id?` id="${t.id}"`:""}${t.act?` onclick="${t.act}"`:""}><span class="rb-ico">${t.ico}</span><span class="rb-lab">${t.lab}</span></button>
+      <button class="rb" onclick="${extra&&extra.homeAct?extra.homeAct:"resultGoHome()"}"><span class="rb-ico">⌂</span><span class="rb-lab">ホーム</span></button>
+    </div>`;
+}
 function d5RenderResult(rec,animate,isTrend){
   const SYM={correct:["○","o"],incorrect:["×","x"],unknown:["－","u"],timeout:["△","t"]};
+  // 1行＝出題（韓国語なら韓国語）＋その下に答え。まちがえたときだけ自分の回答を足す（メール指示 2026-07-31）
   const rows=rec.items.map((it,i)=>{
     const sy=SYM[it.status]||["×","x"];
     const yours=it.status==="unknown"?"わからない":it.status==="timeout"?"時間切れ":(it.your||"—");
     return `<div class="d5r-row${animate?"":" shown judged"}" data-i="${i}" data-ko="${esc(it.ko||"")}" onclick="d5SpeakRow(this)">
       <div class="d5r-no">Q${it.n}</div>
       <div class="d5r-mid">
-        <div class="d5r-q">${esc(it.q)}</div>
-        <div class="d5r-a">あなた：<i class="${it.ok?"ok":""}">${esc(yours)}</i>　／　正解：<b>${esc(it.correct)}</b><span class="d5r-spk">${spkSvg(14)}</span></div>
+        <div class="d5r-q">${esc(it.q)}<span class="d5r-spk">${spkSvg(13)}</span></div>
+        <div class="d5r-a">${esc(it.correct)}</div>
+        ${it.ok?"":`<div class="d5r-your">あなた：<i>${esc(yours)}</i></div>`}
       </div>
       <div class="d5r-mk ${sy[1]}">${sy[0]}</div>
     </div>`;
@@ -4878,11 +4967,15 @@ function d5RenderResult(rec,animate,isTrend){
       </div>
     </div>
     <div class="d5r-list">${rows}</div>
-    <div class="res-btns">
-      <button class="btn pri full" onclick="show('s-home')">ホームに戻る</button>
-      <button class="btn ter" onclick="show('s-home');${isTrend?"openTrend()":"openDaily5()"}">${isTrend?"今日のトレンド単語をもう一度見る":"次に挑戦できる時間を見る"}</button>
-    </div>
+    ${resBtns4HTML(isTrend
+      ?{ico:"🔥",lab:"トレンド単語",act:"show('s-home');openTrend()"}
+      :{ico:"⏱",lab:"次までの時間",act:"show('s-home');openDaily5()"},
+      {homeAct:"show('s-home')"})}
   </div>`;
+  // シェア文面はこの形式のものに差し替える（通常テストの点数・ランクとは別）
+  _lastResult={total:rec.correct,rank:"",nCorrect:rec.correct,code:"",
+    headline:isTrend?`今日のトレンド問題、${rec.correct}/${rec.total}正解でした🇰🇷`
+                    :`今日の5問テスト、${rec.correct}/${rec.total}正解でした🇰🇷`};
   show("s-d5result");
   if(animate)d5Reveal();
 }
@@ -5514,11 +5607,9 @@ function renderGearResult(){
       ${gotXp?`<div class="sp-res-xp">+${gotXp}<span> XP</span></div>`:""}
       <div class="gres-cheer">${cheer}</div>
       ${spWordListHTML(played)}
-      <div class="gres-btns">
-        <button class="btn dark full" onclick="startGearQuiz()">もう一度まわす</button>
-        <button class="btn wt full" onclick="show('s-home')">ホームへ</button>
-      </div>
+      ${resBtns4HTML({ico:"↻",lab:"もう一度",act:"startGearQuiz()"},{homeAct:"show('s-home')"})}
     </div>`;
+  _lastResult={total:s,rank:"",nCorrect:s,code:"",headline:`スペシャル問題「歯車モード」で${s}/${GEAR_ROUNDS}正解でした🇰🇷`}; // シェア文面
   bindSpeakables(document.getElementById("s-result")); // 出した単語をタップ＝読み上げ
   if(s>=GEAR_ROUNDS)sfxClaim();
   show("s-result");
@@ -5633,11 +5724,10 @@ function _spResult(ico,title,scoreHTML,cheer,retry,xp,words){
     ${got?`<div class="sp-res-xp">+${got}<span> XP</span></div>`:""}
     <div class="sp-res-c">${cheer||""}</div>
     ${spWordListHTML(words)}
-    <div class="sp-res-btns">
-      <button class="sp-again" id="sp-again">もう一度</button>
-      <button class="sp-menu" onclick="openSpecialFromGame()">スペシャル選択へ</button>
-      <button class="sp-home" onclick="spExitGame()">ホームに戻る</button>
-    </div></div>`;
+    <button class="sp-tolist" onclick="openSpecialFromGame()">スペシャル選択へ ›</button>
+    ${resBtns4HTML({ico:"↻",lab:"もう一度",id:"sp-again"},{homeAct:"spExitGame()"})}
+    </div>`;
+  _lastResult={total:0,rank:"",nCorrect:0,code:"",headline:`スペシャル問題「${title}」で遊びました🇰🇷`}; // シェア文面
   document.getElementById("sp-again").onclick=retry;
   bindSpeakables(e); // 出した単語をタップ＝読み上げ
   try{sfxClaim();}catch(e){}
@@ -7083,12 +7173,7 @@ function finishTest(){
     </div>
     ${typeUpd}
     <div class="res-listwrap"><div class="res-cards">${rows}</div></div>
-    <div class="res-btns">
-      ${MONETIZE.donateUrl?`<a class="rb" href="${MONETIZE.donateUrl}" target="_blank" rel="noopener" onclick="if(typeof track==='function')track('donate_click')"><span class="rb-ico">☕</span><span class="rb-lab">応援する</span></a>`:""}
-      <button class="rb" onclick="shareResult()"><span class="rb-ico">&#120143;</span><span class="rb-lab">シェアする</span></button>
-      <button class="rb rb-pri" onclick="if(typeof track==='function')track('retry');sgRetry()"><span class="rb-ico">↻</span><span class="rb-lab">もう一度</span></button>
-      <button class="rb" onclick="resultGoHome()"><span class="rb-ico">⌂</span><span class="rb-lab">ホーム</span></button>
-    </div>
+    ${resBtns4HTML({ico:"↻",lab:"もう一度",act:"if(typeof track==='function')track('retry');sgRetry()"})}
     ${adSlotHTML()}
    </div>`;
   show("s-result");
@@ -7549,7 +7634,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v4.6 (2026-07-30)";
+const APP_VERSION="v4.7 (2026-07-31)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -7614,7 +7699,8 @@ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();_bipEvt=e;}
 function shareResult(){
   const r=_lastResult;if(!r)return;
   track("share_click",{score:r.total,rank:r.rank});
-  const lines=[`韓国語単語テスト、12問やって${r.total}点・${r.rank}ランクでした🇰🇷`];
+  // 今日の5問・トレンド・スペシャル問題は見出しだけ差し替える（点数とランクは通常テストだけの指標）
+  const lines=[r.headline||`韓国語単語テスト、12問やって${r.total}点・${r.rank}ランクでした🇰🇷`];
   if(r.code)lines.push(`暗記タイプ診断は「${r.code}」`);
   lines.push(r.rank==="S"?"Sランク、あなたも取れる？（無料・登録不要）":"あなたは何点取れる？（無料・登録不要）");
   lines.push("#韓国語 #韓国語勉強");

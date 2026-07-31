@@ -121,7 +121,12 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     return [...document.querySelectorAll('#s-d5result .d5r-mk')].every((m, i) => m.classList.contains(want[i] ? 'o' : 'x'));
   }));
   check('スコアが 3 / 5 正解', await page.evaluate(() => /3\s*\/\s*5/.test(document.querySelector('#s-d5result .res-score').textContent.replace(/\s+/g, ' ')) && document.querySelector('.d5r-score').classList.contains('shown')));
-  check('結果画面が通常結果と同じ骨格(.res/.btn)', await page.evaluate(() => !!document.querySelector('#s-d5result .res .res-head') && !!document.querySelector('#s-d5result .res-btns .btn.pri')));
+  // 下段は通常の結果画面と同じ4ボタン（応援する / シェアする / 次までの時間 / ホーム。メール指示 2026-07-31）
+  check('結果画面が通常結果と同じ骨格(.res/4ボタン)', await page.evaluate(() => {
+    const labs = [...document.querySelectorAll('#s-d5result .res-btns .rb-lab')].map(e => e.textContent.trim());
+    return !!document.querySelector('#s-d5result .res .res-head') && labs.length === 4
+      && labs[0] === '応援する' && labs[1] === 'シェアする' && labs[2] === '次までの時間' && labs[3] === 'ホーム';
+  }));
 
   // --- レア演出（判定しきったあと） ---
   const rare = await page.evaluate(async () => {
