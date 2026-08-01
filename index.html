@@ -75,30 +75,33 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .qbar .time{color:#FFFFFF;font-variant-numeric:tabular-nums;margin-left:auto;font-weight:800;font-size:14.3px} /* カウントダウンは1段太く(700→800)・1.1倍(13→14.3px) */
 /* 進捗＝山吹色のメーターは廃止。正解するとキャラが1歩ぶん前へ進む（景色が右から左へ流れ、キャラ自身は歩いて見える）。
    背景はナシ（空の水色ベタも廃止）。地面は白い線1本だけの引き算デザイン（メール指示 2026-08-01） */
-.pbar{position:relative;height:48px;margin:8px 18px 0;border-radius:10px;overflow:hidden;box-sizing:border-box;--rp:0;
+/* 角丸ナシ・動物の頭のすぐ上で切る（＝上の余白をなくす）。動物が跳ねるぶんだけ外へ出せるよう切り抜かない（メール指示 2026-08-01） */
+.pbar{position:relative;height:32px;margin:8px 18px 0;border-radius:0;overflow:visible;box-sizing:border-box;--rp:0;
   background:transparent}
 .rn-ground{position:absolute;left:0;right:0;pointer-events:none;background-repeat:repeat-x;
   transition:background-position 1s cubic-bezier(.22,.85,.3,1)} /* --rp が増えるほど地面が左へ流れる＝前進 */
 .rn-ground{bottom:0;height:3px;background-size:28px 3px;background-position:calc(var(--rp) * -92px) 0;
   background-image:linear-gradient(90deg,#fff,#fff)} /* 緑の市松ではなく白い線（メール指示 2026-08-01） */
-.rn-char{position:absolute;left:30%;bottom:3px;width:29px;height:29px;transform:translateX(-50%);
+/* 動物のほうが右へ進んでいく（カードは動かない）。left を1問ぶんずつ増やす（メール指示 2026-08-01） */
+.rn-char{position:absolute;left:14px;bottom:3px;width:29px;height:29px;transform:translateX(-50%);
   display:flex;align-items:center;justify-content:center;font-size:23px;line-height:1;
-  filter:drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 2px 3px rgba(0,0,0,.35));pointer-events:none}
+  transition:left .55s cubic-bezier(.22,.85,.3,1);
+  filter:drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 2px 3px rgba(0,0,0,.35));pointer-events:none;z-index:2}
 .rn-char img{width:100%;height:100%;object-fit:contain;display:block}
-/* 進む先には、この1本ぶんの単語カード（黄色い縦長の札）が等間隔に並んでいる。1問ごとに1枚ぶん左へ流れ、
-   正解でも不正解でもキャラのほうへ飛んできて獲得する（メール指示 2026-08-01）。
-   札に韓国語は書かない（答えが見えてしまうため）。画面には手前の6〜7枚だけが覗く（メール指示 2026-07-29） */
-.rn-rail{position:absolute;left:30%;bottom:3px;height:28px;pointer-events:none;
-  transition:transform .55s cubic-bezier(.22,.85,.3,1)}
-/* 札は黄色い座布団＋白枠＋黒影（メール指示 2026-08-01）。枠は外へ広げず、17x26pxの見た目のまま */
+/* この1本ぶんの単語カード（黄色い縦長の札）が帯いっぱいに等間隔で並ぶ。カードは動かず、
+   12問なら最初から12枚ぜんぶ見えている（メール指示 2026-08-01）。
+   正解でも不正解でもキャラのほうへ飛んできて獲得する。
+   札に韓国語は書かない（答えが見えてしまうため） */
+.rn-rail{position:absolute;left:0;right:0;bottom:3px;height:28px;pointer-events:none}
+/* 札は黄色い座布団＋白枠（メール指示 2026-08-01）。影はナシ。枠は外へ広げず、17x26pxの見た目のまま */
 .rn-slot{position:absolute;bottom:0;width:17px;height:26px;box-sizing:border-box;border-radius:4px;background:#F5C518;
-  border:2px solid #fff;box-shadow:2px 3px 0 rgba(0,0,0,.8);animation:rnCardIn .28s ease both;--fly:-120px}
+  border:2px solid #fff;animation:rnCardIn .28s ease both;--fly:-120px}
 .rn-slot.got{animation:rnCardGot .62s cubic-bezier(.3,.9,.3,1) forwards}
 @keyframes rnCardIn{0%{opacity:0;transform:translateX(14px)}100%{opacity:1;transform:none}}
 @keyframes rnCardGot{0%{opacity:1;transform:none}
   70%{opacity:1;transform:translateX(calc(var(--fly) * .82)) translateY(-6px) scale(.6) rotate(-10deg)}
   100%{opacity:0;transform:translateX(var(--fly)) translateY(0) scale(.18) rotate(-14deg)}}
-.rn-char.step{animation:rnStep .62s ease-in-out}   /* 正解＝2歩ぶん、その場で歩く（前進は景色の流れで見せる） */
+.rn-char.step{animation:rnStep .62s ease-in-out}   /* 正解＝2歩ぶん歩く（左から右へ、1問ぶん実際に進む） */
 .rn-char.trip{animation:rnTrip .45s ease}          /* 不正解＝つまずいて進めない */
 @keyframes rnStep{
   0%{transform:translateX(-50%) translateY(0) rotate(0)}
@@ -1823,6 +1826,45 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-trend.tr-off .sgtr-mini{display:flex;flex-direction:column;align-items:center;line-height:1.1}
 .sg-trend.tr-off .sgtr-mini i{font-style:normal;font-size:19px;color:#C9C9C9}
 .sg-trend.tr-off .sgtr-mini b{font-size:10px;font-weight:900;color:#9a9a9a}
+/* 今週のミッション（今日の5問を終えたあと、中央カプセルに出る）。
+   今日のトレンドはホームには出さず、この中の1つめのミッションから始める（メール指示 2026-08-01） */
+.sg-mission{position:absolute;left:50%;bottom:var(--fbtm);z-index:60;border:none;padding:11px 18px 13px;border-radius:999px;
+  background:#FFC400;color:#2b1a00;font-size:21px;font-weight:900;letter-spacing:.05em;white-space:nowrap;cursor:pointer;font-family:inherit;
+  box-shadow:0 8px 18px rgba(0,0,0,.55);transform:translateX(-50%);display:none}
+.sg-mission.on{display:block}
+.sg-mission:active{transform:translateX(-50%) scale(.93)}
+.sg-mission .sgms-t span{display:inline-block;animation:sbchar 3s ease-in-out infinite;backface-visibility:hidden}
+.sg-mission .sgms-t span:nth-child(2){animation-delay:.1s}
+.sg-mission .sgms-t span:nth-child(3){animation-delay:.2s}
+.sg-mission .sgms-t span:nth-child(4){animation-delay:.3s}
+.sg-mission .sgms-t span:nth-child(5){animation-delay:.4s}
+.sg-mission .sgms-t span:nth-child(6){animation-delay:.5s}
+.sg-mission .sgms-t span:nth-child(7){animation-delay:.6s}
+.sg-mission .sgms-t span:nth-child(8){animation-delay:.7s}
+/* 残りいくつかを出すバッジ（ぜんぶ達成したら✓） */
+.sg-mission .ms-b{position:absolute;right:-2px;top:-2px;min-width:22px;height:22px;border-radius:11px;background:#E0831A;color:#fff;
+  font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;line-height:1;padding:0 5px;box-sizing:border-box}
+.sg-mission.ms-clear .ms-b{background:#00924A}
+/* --- 今週のミッションの吹き出し（今日の5問・トレンドと同じ白いカード） --- */
+.ms-card{width:302px}
+.ms-week{font-size:11px;font-weight:800;color:#777;margin-top:3px}
+.ms-list{display:flex;flex-direction:column;gap:6px;margin:9px 0 0}
+.ms-row{display:flex;align-items:center;gap:9px;width:100%;box-sizing:border-box;text-align:left;
+  background:#F7F7F7;border:2px solid #EDEDED;padding:7px 9px;font-family:inherit;cursor:default}
+.ms-row.tapable{cursor:pointer;background:#FFF7E0;border-color:#FFE39A}
+.ms-row.tapable:active{background:#FFEFC6}
+.ms-row.done{background:#fff;border-color:#E0831A}
+.ms-ico{flex:0 0 26px;width:26px;height:26px;border-radius:50%;background:#fff;border:2px solid #E3E3E3;
+  display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1}
+.ms-row.done .ms-ico{background:#E0831A;border-color:#E0831A;color:#fff;font-size:15px}
+.ms-body{flex:1;min-width:0}
+.ms-t{display:block;font-size:12.5px;font-weight:900;color:#1a1a1a;line-height:1.3}
+.ms-row.done .ms-t{color:#8a8a8a}
+.ms-bar{display:block;height:5px;background:#E3E3E3;margin-top:5px;border-radius:999px;overflow:hidden}
+.ms-bar i{display:block;height:100%;background:#FFC400;border-radius:999px;transition:width .4s ease}
+.ms-row.done .ms-bar i{background:#E0831A}
+.ms-n{flex:0 0 auto;font-size:11px;font-weight:900;color:#777;font-variant-numeric:tabular-nums}
+.ms-all{font-size:12.5px;font-weight:900;color:#E0831A;margin-top:9px}
 /* --- 消化直後の演出 --- */
 /* 中央のカプセルが横に伸びながら縮み、左のアイコンへ吸い込まれるように収まる（--flyx＝中央から今の位置までの距離） */
 @keyframes sgFlyLeft{
@@ -1834,7 +1876,7 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-fbtn.sg-fly{animation:sgFlyLeft .62s cubic-bezier(.3,.9,.32,1) both}
 /* 引っ込んだ後に、トレンドボタンがキラっと登場する */
 @keyframes sgPopIn{0%{opacity:0;transform:translateX(-50%) scale(.2)}62%{opacity:1;transform:translateX(-50%) scale(1.14)}100%{opacity:1;transform:translateX(-50%) scale(1)}}
-.sg-trend.tr-pop{animation:sgPopIn .46s cubic-bezier(.34,1.5,.5,1) both}
+.sg-trend.tr-pop,.sg-mission.tr-pop{animation:sgPopIn .46s cubic-bezier(.34,1.5,.5,1) both}
 @keyframes sgSparkle{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(0)}30%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.9) rotate(120deg)}}
 .sg-spark{position:absolute;left:50%;top:50%;width:150px;height:150px;pointer-events:none;z-index:61;
   background:radial-gradient(circle,rgba(255,255,255,.95) 0%,rgba(255,224,120,.55) 26%,rgba(255,196,0,0) 62%);
@@ -4731,7 +4773,7 @@ function startTest(reviewIds){
   else if(_spk)insertShootQuestion(qs,_spk); // 青・赤ROOMは13問目としてシューティングを差し込む（青=風船マッチ／赤=4択）
   const prog=loadProgress();
   state={questions:qs,idx:0,results:[],testId:"t-"+Date.now().toString(36),userId:getUserId(),
-    cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level,pq:_pqQuiz};
+    cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level,pq:_pqQuiz,spk:_spk};
   _pqQuiz=false;
   txnBegin(state.testId); // ここから完走までの書きこみは、中断したら差し戻す
   if(!skipCd)sfxStart(); // ホーム経由時はhomeCountdownで既に開始音を鳴らしている
@@ -4846,6 +4888,7 @@ function updateTrendBtn(){
     b.classList.remove(used?"tr-pop":"sg-fly");
     const bd=b.querySelector(".tr-b");if(bd)bd.style.display=used?"none":"flex";
   });
+  updateMissionBtn(); // 中央のカプセルは今週のミッション（メール指示 2026-08-01）
 }
 /* ---- 消化直後の演出：中央のカプセルが左のアイコン位置へ吸い込まれ、続けてトレンドボタンがキラっと登場する ---- */
 let _sgFly={d5:false,trend:false}; // finishDaily5 / finishTrend で立て、ホームへ戻った時に一度だけ再生
@@ -4866,8 +4909,8 @@ function playHomeBtnFly(){
   if(_sgFly.d5){
     _sgFly.d5=false;
     document.querySelectorAll(".sg-d5.d5-off").forEach(_sgFlyBtn);
-    if(trendAvailable()&&!trendUsed())setTimeout(()=>{ // 引っ込んだ後に「ピロロン」＋キラで登場
-      document.querySelectorAll(".sg-trend.on:not(.tr-off)").forEach(b=>{
+    if(missionAvailable())setTimeout(()=>{ // 引っ込んだ後に「ピロロン」＋キラで今週のミッションが登場
+      document.querySelectorAll(".sg-mission.on").forEach(b=>{
         b.classList.remove("tr-pop");void b.offsetWidth;b.classList.add("tr-pop");_sgSpark(b);
         // 登場が終わったら演出クラスを外す。fill:both のまま残すと opacity:1 が固定され、
         // 単語帳に入っても消えなくなる（メール指示 2026-07-31）
@@ -5032,7 +5075,7 @@ function trendRenderModal(){
     <div class="tr-topic">${esc((e&&e.topic)||"")}${(e&&!e.fresh)?"（最新ぶん）":""}</div>
     <div class="tr-list">${list}</div>
     ${body}</div>`;
-  d5AnchorBubble(".sg-trend");
+  d5AnchorBubble(".sg-mission"); // トレンドは今週のミッションから開くので、しっぽもそのボタンを指す
   if(!rec)d5StartCountdown(()=>startTrend()); // 触らなければ10秒で始まる
   else d5StopCountdown();
 }
@@ -5544,7 +5587,7 @@ function sgD5HTML(){
     +'<span class="sgd5-t"><span>今</span><span>日</span><span>の</span><span>5</span><span>問</span></span>'
     +'<span class="sgd5-mini" aria-hidden="true"><i>✓</i><b>5問</b></span>'
     +'<span class="d5-b"'+(used?' style="display:none"':'')+'>!</span></button>'
-    +sgTrendHTML();
+    +sgMissionHTML(); // 5問を終えたあとの中央カプセルは「今週のミッション」（メール指示 2026-08-01）
 }
 /* 今日のトレンド問題（5問を消化したあと、カプセルの位置に出る黄色いボタン） */
 function sgTrendHTML(){
@@ -5554,6 +5597,141 @@ function sgTrendHTML(){
     +'<span class="sgtr-t"><span>今</span><span>日</span><span>の</span><span>ト</span><span>レ</span><span>ン</span><span>ド</span></span>'
     +'<span class="sgtr-mini" aria-hidden="true"><i>✓</i><b>トレンド</b></span>'
     +'<span class="tr-b"'+(used?' style="display:none"':'')+'>!</span></button>';
+}
+
+/* ============================================================ 今週のミッション ============================================================
+ * 「今日の5問」を終えたら、中央のカプセルは今日のトレンドではなく「今週のミッション」を出す（メール指示 2026-08-01）。
+ * 週の区切りは月曜あさ5:00（1日の区切りは今日の5問と同じ）。ミッションはその週のはじめに5つ組み立てて、週のあいだ固定する。
+ *   1つめ   … トレンド問題をこなす（タップで今日のトレンドの吹き出しへ）
+ *   2〜3つめ … これまでの学習から選んだおすすめROOMで目標ランクをとる（タップでそのROOMまでスクロールして移動）
+ *   4〜5つめ … 書き取り／スペシャル問題（青赤緑）／3秒以内の即答 から、その週ぶんの2つ
+ * 進み具合は保存せず、そのつど履歴・すごろく・トレンド記録から数え直す（記録の二重管理を作らない）。 */
+const LS_MISSION="kwt_mission_v1",LS_SPCLEAR="kwt_spclear_v1";
+const MS_N=5,MS_TREND_N=3;
+const MS_RANK_UP={D:"C",C:"B",B:"A",A:"S",S:"S"};
+/* その週の月曜あさ5:00 */
+function weekStartMs(ms){
+  const d=new Date((ms||Date.now())-D5_AM*3600000);
+  d.setDate(d.getDate()-((d.getDay()+6)%7)); // 月曜まで戻す（月=0）
+  d.setHours(0,0,0,0);
+  return d.getTime()+D5_AM*3600000;
+}
+/* トレンド記録のキー(YYYY-MM-DD)とそのまま大小比較できるよう0埋めで作る */
+function weekKey(ms){const d=new Date(weekStartMs(ms)),p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());}
+/* スペシャル問題（青赤緑）をクリアした時刻を残す。青・赤＝風船をぜんぶ割った時／緑＝そのROOMのテストを完走した時 */
+function loadSpClears(){const a=_lsJSON(LS_SPCLEAR,()=>[]);return Array.isArray(a)?a:[];}
+function noteSpecialClear(){const a=loadSpClears();a.push(new Date().toISOString());_lsSetJSON(LS_SPCLEAR,a.slice(-80));}
+/* おすすめROOM：学習が進んでいて、まだランクを上げきっていないROOMほど「あと一歩」なので上に出す */
+function _msRoomCandidates(){
+  const cnt=(LEVEL_INFO[curLevel]||{}).count||0,out=[];
+  for(let i=1;i<=cnt;i++){
+    const ri=roomInfoFor(i);
+    out.push({sec:i,pwr:ri.pwr,learned:ri.learned,rate:ri.total?ri.learned/ri.total:0,best:ri.best});
+  }
+  const played=out.filter(r=>r.learned>0&&(RANK_VAL[r.best]||0)<5); // Sランクまで取り切ったROOMは外す
+  const src=played.length?played:out;
+  return src.slice().sort((a,b)=>(b.rate-a.rate)||(b.pwr-a.pwr)||(a.sec-b.sec));
+}
+function buildWeeklyMissions(){
+  const rooms=_msRoomCandidates().slice(0,2).map(r=>({
+    kind:"room",sec:r.sec,rank:MS_RANK_UP[r.best]||"C",n:1})); // 未挑戦のROOMはまずCランクを目標にする
+  const pool=[{kind:"write",n:3},{kind:"special",n:6},{kind:"fast",n:10}];
+  const h=_d5Hash("kwt-ms|"+weekKey()+"|"+curLevel); // 週ごとに決まる＝週のあいだ入れ替わらない
+  const i0=h%pool.length,i1=(i0+1+(Math.floor(h/pool.length)%(pool.length-1)))%pool.length;
+  const list=[{kind:"trend",n:MS_TREND_N}].concat(rooms,[pool[i0],pool[i1]]);
+  for(let i=0;list.length<MS_N&&i<pool.length;i++)if(list.indexOf(pool[i])<0)list.push(pool[i]); // ROOMが足りない級でも5つ埋める
+  return list.slice(0,MS_N);
+}
+function loadMission(){
+  const o=_lsJSON(LS_MISSION,()=>({})),w=weekKey();
+  // 週が変わったとき・級を切りかえたときは組み直す（おすすめROOMは級ごとに違うため）
+  if(o.week!==w||o.level!==curLevel||!Array.isArray(o.list)||o.list.length!==MS_N){
+    const n={week:w,level:curLevel,list:buildWeeklyMissions()};_lsSetJSON(LS_MISSION,n);return n;
+  }
+  return o;
+}
+function missionTitle(m){
+  if(m.kind==="trend")return "トレンド問題を"+m.n+"回こなす";
+  if(m.kind==="room")return "ROOM "+String(m.sec).padStart(2,"0")+" で "+m.rank+" ランクをとる";
+  if(m.kind==="write")return "書き取り問題を"+m.n+"問正解する";
+  if(m.kind==="special")return "スペシャル問題（青赤緑）のいずれかを"+m.n+"回クリアする";
+  if(m.kind==="fast")return "3秒以内に答えて正解するを"+m.n+"問";
+  return "";
+}
+function missionIcon(m){return{trend:"🔥",room:"🚪",write:"✏️",special:"✨",fast:"⚡"}[m.kind]||"★";}
+function missionProgress(m){
+  const ws=weekStartMs();
+  if(m.kind==="trend")return Object.keys(loadTrend()).filter(k=>k>=weekKey()).length;
+  if(m.kind==="special")return loadSpClears().filter(t=>new Date(t).getTime()>=ws).length;
+  if(m.kind==="room"){ // すごろくのマスに残っているランク（このROOM・今週ぶん）で判定する
+    const need=RANK_VAL[m.rank]||2,tiles=boardState(curLevel,m.sec).tiles;
+    return Object.keys(tiles).some(g=>{const t=tiles[g];
+      return t&&t.at&&new Date(t.at).getTime()>=ws&&(RANK_VAL[t.rank]||0)>=need;})?1:0;
+  }
+  const H=loadHistory().filter(r=>r&&r.isCorrect&&new Date(r.answeredAt).getTime()>=ws);
+  if(m.kind==="write")return H.filter(r=>r.questionType==="writing").length;
+  if(m.kind==="fast")return H.filter(r=>r.responseTimeSec!=null&&r.responseTimeSec<=3).length;
+  return 0;
+}
+function missionRows(){
+  return loadMission().list.map(m=>{const cur=Math.min(m.n,missionProgress(m));return{m,cur,done:cur>=m.n};});
+}
+function missionDoneCount(){return missionRows().filter(r=>r.done).length;}
+function missionAvailable(ms){return (typeof d5Done==="function")&&d5Done(ms);} // 今日の5問を終えた日から出す
+function sgMissionHTML(){
+  const on=missionAvailable(),rest=MS_N-(on?missionDoneCount():0);
+  return '<button class="sg-fbtn sg-mission'+(on?" on":"")+(on&&rest<=0?" ms-clear":"")+'" onclick="openMission()" aria-label="今週のミッション">'
+    +'<span class="sgms-t"><span>今</span><span>週</span><span>の</span><span>ミ</span><span>ッ</span><span>シ</span><span>ョ</span><span>ン</span></span>'
+    +'<span class="ms-b">'+(rest>0?rest:"✓")+'</span></button>';
+}
+function updateMissionBtn(){
+  const on=missionAvailable(),rest=MS_N-(on?missionDoneCount():0);
+  document.querySelectorAll(".sg-mission").forEach(b=>{
+    b.classList.toggle("on",on);
+    b.classList.toggle("ms-clear",on&&rest<=0);
+    const bd=b.querySelector(".ms-b");if(bd)bd.textContent=rest>0?String(rest):"✓";
+  });
+}
+function openMission(){
+  const m=document.getElementById("d5-modal");
+  if(!m.classList.contains("on"))pushNav("modal");
+  m.classList.add("on");
+  missionRenderModal();
+  m.onclick=e=>{if(e.target===m)closeDaily5();};
+}
+function missionRenderModal(){
+  const rows=missionRows(),done=rows.filter(r=>r.done).length;
+  const html=rows.map(r=>{
+    const pct=Math.round(Math.min(1,r.cur/r.m.n)*100);
+    const tap=r.m.kind==="trend"?'onclick="missionTapTrend()"'
+             :r.m.kind==="room"?'onclick="missionTapRoom('+r.m.sec+')"':"";
+    return '<button class="ms-row'+(tap?" tapable":"")+(r.done?" done":"")+'" '+(tap||"disabled")+'>'
+      +'<span class="ms-ico">'+(r.done?"✓":missionIcon(r.m))+'</span>'
+      +'<span class="ms-body"><span class="ms-t">'+esc(missionTitle(r.m))+'</span>'
+      +'<span class="ms-bar"><i style="width:'+pct+'%"></i></span></span>'
+      +'<span class="ms-n">'+r.cur+'/'+r.m.n+'</span></button>';
+  }).join("");
+  document.getElementById("d5-modal").innerHTML='<div class="d5-card ms-card">'
+    +'<button class="d5-close" onclick="closeDaily5()" aria-label="閉じる">×</button>'
+    +'<div class="d5-h">今週のミッション</div>'
+    +'<div class="ms-week">'+done+' / '+MS_N+' 達成　月曜あさ5時に入れかわります</div>'
+    +'<div class="ms-list">'+html+'</div>'
+    +(done>=MS_N?'<div class="ms-all">🎉 今週のミッションはぜんぶ達成！</div>':'')
+    +'</div>';
+  d5AnchorBubble(".sg-mission");
+  d5StopCountdown(); // ミッション一覧は勝手に始まらない（10秒カウントダウンは付けない）
+}
+function missionTapTrend(){closeDaily5();setTimeout(openTrend,180);}
+/* おすすめROOMのミッションをタッチしたら、そのROOMまでスクロールして移動する（メール指示 2026-08-01） */
+function missionTapRoom(sec){
+  closeDaily5();
+  show("s-home");
+  setTimeout(()=>{
+    const el=document.getElementById("hv-rooms");
+    if(el)el.scrollTo({left:(sec+1)*602,behavior:"smooth"}); // idx0=難易度 / idx1=特別 のぶんだけずらす
+    else{curSection=sec;saveLastRoom();applyHomeBg();} // スライドが無い状態（テスト等）でも行き先は合わせる
+    if(typeof showRoomPager==="function")showRoomPager();
+  },220);
 }
 /* スペシャル問題：初級・中級それぞれで3ROOMだけ「スペシャル問題発生中！」になる。
  *   青ROOM … 韓国語の風船3つ × 日本語の大砲3つ（組み合わせ当て）
@@ -6486,9 +6664,9 @@ function spSpell(){
 }
 
 /* ============================================================ 進捗＝歩くキャラ ============================================================
- * 山吹色のメーターは廃止。正解するとキャラが1歩ぶん前へ進む＝景色（雲・丘・地面）が右から左へ流れ、
- * キャラ自身はその場で歩いているように見える（マリオ風の横スクロール）。不正解はつまずいて進めない。 */
-let _runSteps=0,_runIdx=0,_rnGap=56;
+ * 山吹色のメーターは廃止。単語カードは帯いっぱいに並んだまま動かず、キャラのほうが1問ごとに
+ * 1枚ぶん右へ進んでいく（メール指示 2026-08-01）。正解＝歩く／不正解＝つまずくの演出は残す。 */
+let _runSteps=0,_runIdx=0,_rnGap=56,_rnHead=14;
 const RN_DUMMY="🐥"; // 診断が済むまでの仮キャラ（虫眼鏡＝分析中アイコンが歩くと意味が伝わらないため、ダミーの動物にする）
 function runnerReset(){
   _runSteps=0;_runIdx=0;
@@ -6510,26 +6688,33 @@ function runnerRestore(){
   _runIdx=done;_runSteps=res.filter(r=>r&&r.isCorrect).length;
   const bar=document.getElementById("pbar");if(bar)bar.style.setProperty("--rp",_runIdx);
   const rail=document.getElementById("rn-rail");if(!rail)return;
-  rail.style.transform="translateX("+(-_runIdx*_rnGap)+"px)";
   for(let i=0;i<done;i++){const sl=rail.querySelector('.rn-slot[data-i="'+i+'"]');
     if(sl)sl.classList.add("got");} // 正解・不正解にかかわらず札は獲得済み（メール指示 2026-08-01）
+  runnerPlace(); // 解いたぶんだけキャラを右へ進めた位置から再開する
 }
-/* 進む先に、この1本ぶんの単語カードを等間隔に並べる（12枚ぶん。画面に入るのは手前の数枚だけ） */
+/* この1本ぶんの単語カードを帯いっぱいに等間隔で並べる。12問なら最初から12枚が見えていて、
+   カードは最後まで動かない（動くのはキャラのほう／メール指示 2026-08-01） */
 function runnerBuild(n){
   const rail=document.getElementById("rn-rail");if(!rail)return;
-  // 間隔は帯の実寸から決める（キャラの位置は左から30%）。端末の幅によらず、いつも7枚ぶんが画面に覗く
+  // 間隔は帯の実寸と問題数から決める（キャラは左端から出発し、最後のカードの手前まで進む）
   const bar=document.getElementById("pbar");
-  const w=(bar&&bar.clientWidth)||566,head=Math.round(w*0.08);
-  _rnGap=Math.max(24,Math.floor((w*0.70-head-20)/6));
-  rail.style.transform="translateX(0)";
+  const w=(bar&&bar.clientWidth)||566;
+  _rnHead=14;
+  _rnGap=Math.max(18,(w-_rnHead-10-9)/Math.max(1,n-0.5));
   rail.innerHTML="";
   for(let i=0;i<n;i++){
     const s=document.createElement("div");
     s.className="rn-slot";s.dataset.i=i;
-    s.style.left=(head+i*_rnGap)+"px";
-    s.style.animationDelay=(Math.min(i,7)*0.05).toFixed(2)+"s";
+    s.style.left=Math.round(_rnHead+(i+0.5)*_rnGap-8.5)+"px"; // 中心が head+(i+0.5)*gap（キャラの位置の半コマ先）
+    s.style.animationDelay=(Math.min(i,11)*0.04).toFixed(2)+"s";
     rail.appendChild(s);
   }
+  runnerPlace();
+}
+/* キャラをいま解いている問題の位置に置く（1問＝1コマぶん右へ） */
+function runnerPlace(){
+  const ch=document.getElementById("rn-char");if(!ch)return;
+  ch.style.left=Math.round(_rnHead+_runIdx*_rnGap)+"px";
 }
 function runnerStep(ok){
   const bar=document.getElementById("pbar");if(!bar)return;
@@ -6543,10 +6728,8 @@ function runnerStep(ok){
   }
   if(ok)_runSteps++;
   _runIdx++;
-  bar.style.setProperty("--rp",_runIdx); // 景色はカードの流れと同じテンポで動かす（1問＝1枚ぶん）
-  // カードは1問ごとに1枚ぶん左へ流れる（＝とことこ進む）。獲得できなかった札はもう戻らない
-  const rail=document.getElementById("rn-rail");
-  if(rail)rail.style.transform="translateX("+(-_runIdx*_rnGap)+"px)";
+  bar.style.setProperty("--rp",_runIdx); // 景色はキャラの歩みと同じテンポで動かす（1問＝1コマぶん）
+  runnerPlace(); // カードは動かない。キャラのほうが1コマぶん右へ進む（メール指示 2026-08-01）
   const ch=document.getElementById("rn-char");if(!ch)return;
   ch.classList.remove("step","trip");void ch.offsetWidth; // 連続再生できるようアニメを巻き戻す
   ch.classList.add(ok?"step":"trip");
@@ -6817,6 +7000,7 @@ function shgHit(b,ci){
   try{sfxCorrect();}catch(e){}
   if(g.balloons.every(x=>!x.alive)){
     g.done=true;
+    try{noteSpecialClear();}catch(e){} // 青・赤のスペシャル問題クリア＝今週のミッションの1回ぶん
     const cl=document.getElementById("shg-clear");if(cl)cl.classList.add("on");
     try{sfxRare();}catch(e){}
     g.endT=setTimeout(shootAdvance,1200);
@@ -7404,6 +7588,7 @@ function pickResultCheer(totalDisp,nCorrect,newCnt){
 }
 function finishTest(){
   txnCommit();clearResumePoint(); // 完走したので記録を確定し、復帰の控えを消す
+  if(state.spk==="green")try{noteSpecialClear();}catch(e){} // 緑は12問すべてがパズル＝完走でクリア1回ぶん（青・赤は風船を割った時に数える）
   rerollSpecial(); // 1本（12問／13問）終えるたびにスペシャルROOMを別のROOMへ入れ替える
   const R=state.results,totalRaw=R.reduce((a,r)=>a+r.score,0),total=Math.ceil(totalRaw),rank=rankFor(total); // 小数は切り上げ
   const totalDisp=total;
@@ -8004,7 +8189,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v5.2 (2026-08-01)";
+const APP_VERSION="v5.3 (2026-08-01)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

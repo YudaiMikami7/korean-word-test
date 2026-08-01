@@ -28,7 +28,8 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   check('その日ぶん（無ければ直近）が5語そろう', await page.evaluate(() => trendWords().length === 5 && trendWords().every(w => w.ko && w.ja)));
 
   // --- 5問を消化する前 ---
-  check('未消化ならトレンドボタンは出ない', await page.evaluate(() => { renderHome(); return !trendAvailable() && !document.querySelector('.sg-trend').classList.contains('on'); }));
+  // 中央カプセルは「今日のトレンド」ではなく「今週のミッション」になった（メール指示 2026-08-01）
+  check('未消化ならミッションボタンは出ない', await page.evaluate(() => { renderHome(); return !trendAvailable() && !document.querySelector('.sg-mission').classList.contains('on'); }));
   check('未消化の5問ボタンは中央カプセルのまま', await page.evaluate(() => !document.querySelector('.sg-d5').classList.contains('d5-off')));
 
   // --- 今日の5問を消化 ---
@@ -49,7 +50,7 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
     const vis = el => { const r = el.getBoundingClientRect(); return { l: r.left, r: r.right, t: r.top, b: r.bottom, w: r.width, h: r.height, cx: r.left + r.width / 2 }; };
     const slide = document.querySelector('.room-slide[data-n="' + curSection + '"]');
     // 今日の5問／トレンドは home-wrap 直下のフロート1組。現在地ボタンだけスライドの中にある
-    const d5 = document.querySelector('.sg-d5'), home = slide.querySelector('.sg-home'), tr = document.querySelector('.sg-trend');
+    const d5 = document.querySelector('.sg-d5'), home = slide.querySelector('.sg-home'), tr = document.querySelector('.sg-mission');
     const railL = document.querySelector('.reward-rail-left .rr-btn'), railR = document.querySelector('.reward-rail:not(.reward-rail-left) .rr-btn');
     return {
       d5: vis(d5), home: vis(home), tr: vis(tr), railL: vis(railL), railR: vis(railR),
@@ -65,8 +66,8 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   check(`現在地ボタンが右アイコン群と同じ横位置 (${lay.home.r.toFixed(1)} vs ${lay.railR.r.toFixed(1)})`, near(lay.home.r, lay.railR.r, 2));
   check(`現在地ボタンの丸の大きさがアイコン群と同じ (${lay.home.w.toFixed(1)})`, near(lay.home.w, lay.railR.w, 2));
   check(`5問ボタンと現在地ボタンの縦位置が揃う (${lay.d5.b.toFixed(1)} vs ${lay.home.b.toFixed(1)})`, near(lay.d5.b, lay.home.b, 2));
-  check('トレンドボタンが中央カプセルの位置に出る', near(lay.tr.cx, lay.slideCx, 3) && near(lay.tr.b, lay.d5.b, 3));
-  check('トレンドボタンは黄色', lay.trBg === 'rgb(255, 196, 0)');
+  check('今週のミッションが中央カプセルの位置に出る', near(lay.tr.cx, lay.slideCx, 3) && near(lay.tr.b, lay.d5.b, 3));
+  check('今週のミッションは黄色', lay.trBg === 'rgb(255, 196, 0)');
 
   // --- 吹き出しの向き ---
   await page.evaluate(() => openDaily5());
@@ -132,7 +133,12 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   check('同じ日は「はじめる」が出ない', await page.evaluate(() => !document.querySelector('#d5-modal .d5-go.tr-go')));
   check('もう一度呼んでも開始できない', await page.evaluate(() => { startTrend(); return !document.getElementById('s-quiz').classList.contains('on'); }));
   check('結果を後から見返せる', await page.evaluate(() => { closeDaily5(); trendShowSaved(); return document.querySelectorAll('#s-d5result .d5r-row').length === 5; }));
-  check('ホームのトレンドボタンがグレーアウト', await page.evaluate(() => { show('s-home'); updateTrendBtn(); return document.querySelector('.sg-trend').classList.contains('tr-off'); }));
+  // トレンドはホームではなく今週のミッションの1つめから開く。こなした回数がそのまま進み具合になる
+  check('今週のミッションのトレンドが1回ぶん進む', await page.evaluate(() => {
+    show('s-home'); updateTrendBtn();
+    const r = missionRows()[0];
+    return r.m.kind === 'trend' && r.cur >= 1;
+  }));
 
   check('コンソールエラー無し', errors.length === 0);
   if (errors.length) console.log(errors);

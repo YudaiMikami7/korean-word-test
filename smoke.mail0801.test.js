@@ -56,7 +56,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   });
   check(`札は黄色い座布団 (${slot.bg})`, slot.bg === 'rgb(245, 197, 24)');
   check(`札に白い枠がある (${slot.bw} ${slot.bc})`, parseFloat(slot.bw) >= 2 && slot.bc === 'rgb(255, 255, 255)');
-  check(`札に黒い影が付く (${slot.sh})`, /rgba?\(0, 0, 0/.test(slot.sh));
+  // 影は削除（メール指示 2026-08-01 19:49）。黄色い座布団＋白枠だけ残す
+  check(`札に影は付けない (${slot.sh})`, slot.sh === 'none');
   check(`枠を付けても札の大きさは変わらない (${slot.w}x${slot.h})`, slot.h > slot.w);
 
   const cards = await page.evaluate(async () => {

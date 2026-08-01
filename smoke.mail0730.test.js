@@ -71,7 +71,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     submit('correct', q.type === 'w' ? q.word.ko : q.correct);
     const got = slots[0].classList.contains('got');
     document.querySelectorAll('.overlay').forEach(o => o.remove()); clearTimeout(ovTimer); afterAnswer(); clearInterval(timer);
-    const moved = /translateX\(-\d/.test(rl.style.transform || '');
+    // カードは動かず、動物のほうが右へ進む（メール指示 2026-08-01 19:49）
+    const moved = parseFloat(document.getElementById('rn-char').style.left) > chR.left - bar.getBoundingClientRect().left;
     const q2 = state.questions[state.idx];
     answered = false; startTimer();
     submit('incorrect', q2.type === 'w' ? '' : 'ちがう');
@@ -81,13 +82,13 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
              empty: slots.every(s => s.textContent === ''), ahead: first.left > chR.left, got, pop, gotNg, moved };
   }, normalRoom);
   check(`出題ぶんの札が並ぶ (${rail.n}枚)`, rail.n === 12);
-  check(`同時に見えるのは5〜8枚 (${rail.visible})`, rail.visible >= 5 && rail.visible <= 8);
+  check(`12問なら最初から12枚ぜんぶ見えている (${rail.visible})`, rail.visible === rail.n);
   check(`黄色い縦長の札 (${rail.w}x${rail.h} ${rail.bg})`, rail.h > rail.w && rail.bg === 'rgb(245, 197, 24)');
   check('札に韓国語は書かない（答えが見えない）', rail.empty);
-  check('札はキャラの進む先に置かれている', rail.ahead);
+  check('1枚目の札はキャラの進む先に置かれている', rail.ahead);
   check('正解すると手前の札を獲得する', rail.got);
   check('不正解の札も獲得する（メール指示 2026-08-01）', rail.gotNg && !rail.pop);
-  check('答えるたびに1枚ぶん流れる', rail.moved);
+  check('答えるたびに動物が1コマぶん進む（カードは動かない）', rail.moved);
 
   // ---------- 結果画面（初回完走） ----------
   await page.evaluate(() => { localStorage.removeItem('kwt_firstdone_v1'); localStorage.removeItem('kwt_installask_v1'); });

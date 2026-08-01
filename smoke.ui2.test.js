@@ -67,7 +67,9 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
     const bar = document.getElementById('pbar'), ch = document.getElementById('rn-char'), rail = document.getElementById('rn-rail');
     const rp = () => parseFloat(bar.style.getPropertyValue('--rp') || 0);
     const posOf = () => getComputedStyle(document.querySelector('.rn-ground')).backgroundPositionX;
-    const txOf = () => { const m = /-?[\d.]+(?=px)/.exec(rail.style.transform || 'translateX(0px)'); return m ? parseFloat(m[0]) : 0; };
+    // カードは動かず、動物のほうが右へ進む（メール指示 2026-08-01 19:49）。動物のleftで見る
+    const txOf = () => parseFloat(ch.style.left || 0);
+    const slotsAt = () => [...rail.querySelectorAll('.rn-slot')].map(s => parseFloat(s.style.left));
     const wait = ms => new Promise(r => setTimeout(r, ms));
     runnerBuild(12);
     const slots = [...rail.querySelectorAll('.rn-slot')];
@@ -77,30 +79,35 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
     const barR = bar.getBoundingClientRect();
     const visible = slots.filter(s => { const r = s.getBoundingClientRect(); return r.right > barR.left && r.left < barR.right; }).length;
     const noKo = slots.every(s => s.textContent === '');
-    const start = rp(), pos0 = posOf(), tx0 = txOf();
+    const start = rp(), pos0 = posOf(), tx0 = txOf(), slots0 = slotsAt();
     runnerStep(true); const afterOk = rp(), cls1 = ch.className, got = slots[0].classList.contains('got'), tx1 = txOf();
     await wait(1300); const pos1 = posOf(); // 景色の流れは1秒かけて動くので終わるまで待つ
     runnerStep(false); const cls2 = ch.className, gotNg = slots[1].classList.contains('got'), pop = slots[1].classList.contains('pop'), tx2 = txOf();
+    const slots2 = slotsAt();
     return { n: slots.length, gaps, w: parseFloat(cs.width), h: parseFloat(cs.height), bg: cs.backgroundColor,
              border: cs.borderTopWidth + ' ' + cs.borderTopColor, shadow: cs.boxShadow,
-             visible, noKo, start, afterOk, cls1, cls2, pos0, pos1, tx0, tx1, tx2, got, gotNg, pop,
+             visible, noKo, start, afterOk, cls1, cls2, pos0, pos1, tx0, tx1, tx2, got, gotNg, pop, slots0, slots2,
              img: ch.querySelector('img') ? ch.querySelector('img').getAttribute('src') : null, txt: ch.textContent.trim() };
   });
   check(`カードが12枚ぶん並ぶ (${runner.n})`, runner.n === 12);
-  check(`等間隔に並んでいる (${runner.gaps.join('/')})`, runner.gaps.every(g => g === runner.gaps[0]) && runner.gaps[0] > 0);
+  // 帯の幅に合わせて等間隔（端数のぶん1pxだけ前後する）
+  check(`等間隔に並んでいる (${runner.gaps.join('/')})`, runner.gaps.every(g => Math.abs(g - runner.gaps[0]) <= 1) && runner.gaps[0] > 0);
   check(`黄色い縦長の札 (${runner.w}x${runner.h} ${runner.bg})`, runner.h > runner.w && /^rgb\(2[0-5]\d, 19[0-9]|^rgb\(245, 197, 24\)/.test(runner.bg));
   check('札に韓国語は書かれていない（答えが見えない）', runner.noKo);
-  check(`画面に覗くのは5〜8枚 (${runner.visible})`, runner.visible >= 5 && runner.visible <= 8);
+  // 12問なら最初から12枚ぜんぶ見えている（メール指示 2026-08-01 19:49）
+  check(`12枚ぜんぶが見えている (${runner.visible})`, runner.visible === 12);
   check(`景色が右から左へ流れる (${runner.pos0} → ${runner.pos1})`, parseFloat(runner.pos1) < parseFloat(runner.pos0));
-  check(`1問ごとにカードが1枚ぶん左へ流れる (${runner.tx0} → ${runner.tx1} → ${runner.tx2})`,
-        runner.tx1 < runner.tx0 && runner.tx2 < runner.tx1 && (runner.tx0 - runner.tx1) === (runner.tx1 - runner.tx2));
+  check(`1問ごとに動物が1コマぶん右へ進む (${runner.tx0} → ${runner.tx1} → ${runner.tx2})`,
+        runner.tx1 > runner.tx0 && runner.tx2 > runner.tx1 && Math.abs((runner.tx1 - runner.tx0) - (runner.tx2 - runner.tx1)) <= 1);
+  check('カードの位置は動かない', runner.slots0.length === runner.slots2.length &&
+        runner.slots0.every((v, i) => v === runner.slots2[i]));
   check(`正解でキャラが歩く (${runner.start} → ${runner.afterOk})`, runner.afterOk === runner.start + 1 && /step/.test(runner.cls1));
   check('不正解ではつまずく', /trip/.test(runner.cls2));
   check(`未診断のうちはダミーの動物が歩く (${runner.txt})`, !runner.img && runner.txt.length > 0);
   check('正解でカードを獲得する演出', runner.got);
   check('不正解でもカードを獲得する（メール指示 2026-08-01）', runner.gotNg && !runner.pop);
   check(`札は白枠つき (${runner.border})`, /^2px rgb\(255, 255, 255\)/.test(runner.border));
-  check(`札に黒い影が付く (${runner.shadow})`, /rgba?\(0, 0, 0/.test(runner.shadow));
+  check(`札に影は付けない (${runner.shadow})`, runner.shadow === 'none'); // メール指示 2026-08-01 19:49
 
   // ===== 選択肢の間引き（残り1/4で1つ・1/8で2つ・半透明で残る） =====
   const elim = await page.evaluate(async () => {
@@ -164,7 +171,7 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
     // 登場演出(tr-pop)は終わると外れる（付けっぱなしだと単語帳へ移っても消えなくなるため）。
     // 一瞬しか付かないので、付いたかどうかは監視して記録する
     window.__trPop = false;
-    const t = document.querySelector('.sg-trend');
+    const t = document.querySelector('.sg-mission'); // 中央カプセルは今週のミッション（メール指示 2026-08-01）
     new MutationObserver(() => { if (t.classList.contains('tr-pop')) window.__trPop = true; })
       .observe(t, { attributes: true, attributeFilter: ['class'] });
     const all = loadD5();
@@ -183,30 +190,31 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
 
   await page.waitForTimeout(1100);
   const pop = await page.evaluate(() => {
-    const t = document.querySelector('.sg-trend');
+    const t = document.querySelector('.sg-mission');
     return { on: t.classList.contains('on'), pop: window.__trPop, left: t.classList.contains('tr-pop'),
              vis: getComputedStyle(t).visibility, spark: !!document.querySelector('.sg-spark') || true };
   });
-  check('引っ込んだ後にトレンドボタンが登場する', pop.on && pop.pop && pop.vis === 'visible');
+  check('引っ込んだ後に今週のミッションが登場する', pop.on && pop.pop && pop.vis === 'visible');
   check('登場演出が終わったらクラスは外れる（単語帳で消えなくなるのを防ぐ）', !pop.left);
   check('登場音（ピロロン）が定義されている', await page.evaluate(() => typeof sfxTrendPop === 'function'));
 
-  // トレンドも消化 → 左（5問ボタンの1つ右）へ引っ込む
+  // トレンドを消化しても、中央のカプセルは今週のミッションのまま（引っ込まない）。進み具合だけが増える
   await page.evaluate(() => {
     const all = loadTrend();
     all[trendDayKey()] = { slot: 'trend', finished: new Date().toISOString(), correct: 3, total: 5, done: true, items: [] };
     saveTrend(all);
-    _sgFly.trend = true; show('s-home'); updateTrendBtn();
+    show('s-home'); updateTrendBtn();
   });
   await page.waitForTimeout(1000);
   const off = await page.evaluate(() => {
-    const vis = el => { const r = el.getBoundingClientRect(); return { l: r.left, b: r.bottom, w: r.width, h: r.height }; };
-    const d5 = document.querySelector('.sg-d5'), tr = document.querySelector('.sg-trend');
-    return { d5: vis(d5), tr: vis(tr), trOff: tr.classList.contains('tr-off') };
+    const vis = el => { const r = el.getBoundingClientRect(); return { l: r.left, b: r.bottom, w: r.width, h: r.height, cx: r.left + r.width / 2 }; };
+    const d5 = document.querySelector('.sg-d5'), ms = document.querySelector('.sg-mission');
+    const row = missionRows()[0];
+    return { d5: vis(d5), ms: vis(ms), on: ms.classList.contains('on'), cur: row.cur, kind: row.m.kind, slideCx: innerWidth / 2 };
   });
-  check('消化後のトレンドボタンがグレーの丸になる', off.trOff && near(off.tr.w, off.d5.w, 2) && near(off.tr.h, off.d5.h, 2));
-  check(`5問ボタンの1つ右に並ぶ (${off.tr.l.toFixed(1)} vs ${off.d5.l.toFixed(1)})`, off.tr.l > off.d5.l && near(off.tr.l - off.d5.l, off.d5.w + 8, 3));
-  check(`5問ボタンと縦位置が揃う (${off.tr.b.toFixed(1)} vs ${off.d5.b.toFixed(1)})`, near(off.tr.b, off.d5.b, 2));
+  check('トレンド消化後も今週のミッションは中央カプセルのまま', off.on && near(off.ms.cx, off.slideCx, 40));
+  check(`5問ボタンと縦位置が揃う (${off.ms.b.toFixed(1)} vs ${off.d5.b.toFixed(1)})`, near(off.ms.b, off.d5.b, 2));
+  check(`トレンドのミッションが1回ぶん進む (${off.cur}回)`, off.kind === 'trend' && off.cur >= 1);
 
   check('コンソールエラー無し', errors.length === 0);
   if (errors.length) console.log(errors);

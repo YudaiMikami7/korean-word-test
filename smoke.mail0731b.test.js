@@ -106,40 +106,40 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('単語帳のカードが重ならずに並ぶ', wb.noOverlap);
   check('単語帳も黄色いグラデーションのまま', wb.bg === 'linear-gradient(160deg, rgb(255, 255, 255), rgb(255, 233, 194))');
 
-  // ================= ③ 単語帳では「今日のトレンド」ボタンが消える =================
+  // ================= ③ 単語帳では「今週のミッション」ボタンが消える =================
   await page.evaluate(() => exitListMode());
   await page.waitForTimeout(800);
   const trend = await page.evaluate(() => {
-    // 今日の5問を消化済みにしてトレンドボタンを出し、登場演出も再生する
+    // 今日の5問を消化済みにして今週のミッションを出し、登場演出も再生する
     const rec = {}; ['#am', '#pm'].forEach(sl => rec[dayKey(Date.now()) + sl] = { done: true, correct: 5, total: 5, finished: new Date().toISOString() });
     localStorage.setItem('kwt_daily5_v1', JSON.stringify(rec));
     renderHome(); _sgFly.d5 = true; playHomeBtnFly();
-    return { avail: trendAvailable(), on: document.querySelector('.sg-trend').classList.contains('on') };
+    return { avail: missionAvailable(), on: document.querySelector('.sg-mission').classList.contains('on') };
   });
-  check('5問を消化したらトレンドボタンが出る', trend.avail && trend.on);
+  check('5問を消化したら今週のミッションが出る', trend.avail && trend.on);
   await page.waitForTimeout(1400); // 登場演出(tr-pop)が終わるまで
   const popped = await page.evaluate(() => {
-    const t = document.querySelector('.sg-trend');
+    const t = document.querySelector('.sg-mission');
     return { vis: getComputedStyle(t).visibility, op: +getComputedStyle(t).opacity, pop: t.classList.contains('tr-pop') };
   });
   check('登場演出のあと、演出クラス(tr-pop)は外れている', !popped.pop);
-  check(`ホームではトレンドボタンが見えている (${popped.vis} / ${popped.op})`, popped.vis === 'visible' && popped.op > 0.9);
+  check(`ホームでは今週のミッションが見えている (${popped.vis} / ${popped.op})`, popped.vis === 'visible' && popped.op > 0.9);
   await page.evaluate(() => enterListMode());
   await page.waitForTimeout(1300);
   const hidden = await page.evaluate(() => {
-    const t = document.querySelector('.sg-trend'), d = document.querySelector('.sg-d5');
+    const t = document.querySelector('.sg-mission'), d = document.querySelector('.sg-d5');
     const g = e => { const s = getComputedStyle(e); return { vis: s.visibility, op: +s.opacity, pe: s.pointerEvents }; };
     return { tr: g(t), d5: g(d), list: _listMode };
   });
-  check('単語帳を開いたらトレンドボタンは消える', hidden.list && hidden.tr.vis === 'hidden' && hidden.tr.op === 0 && hidden.tr.pe === 'none');
+  check('単語帳を開いたら今週のミッションは消える', hidden.list && hidden.tr.vis === 'hidden' && hidden.tr.op === 0 && hidden.tr.pe === 'none');
   check('今日の5問ボタンも消えたまま', hidden.d5.vis === 'hidden' && hidden.d5.op === 0);
   await page.evaluate(() => exitListMode());
   await page.waitForTimeout(900);
   const back = await page.evaluate(() => {
-    const t = document.querySelector('.sg-trend'), s = getComputedStyle(t);
+    const t = document.querySelector('.sg-mission'), s = getComputedStyle(t);
     return { vis: s.visibility, op: +s.opacity };
   });
-  check('ホームに戻ればトレンドボタンは戻る', back.vis === 'visible' && back.op > 0.9);
+  check('ホームに戻れば今週のミッションは戻る', back.vis === 'visible' && back.op > 0.9);
 
   // ================= ① CLEAR演出＋ランクバッジ =================
   await page.evaluate(n => {
