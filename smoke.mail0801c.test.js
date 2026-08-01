@@ -156,7 +156,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     const page_ = document.querySelector('#s-wdetail .page');
     const kids = [...page_.children].map(e => e.id || e.className.split(' ')[0]);
     const rm = document.getElementById('wd-rmwrap');
-    const bar = document.querySelector('#s-wdetail .zk-sum');
+    const bar = document.querySelector('#s-wdetail .wd-titlebar'); // 黒帯(.zk-sum)は廃止（メール指示 2026-08-02）
     const pager = document.getElementById('wd-pager');
     const dot = pager.querySelector('.wd-dot');
     const big = document.querySelector('#s-wdetail .wd-bigcard');
@@ -171,7 +171,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
                        rm.querySelector('.hv-learned') && rm.querySelector('.hv-roompwr') &&
                        rm.querySelector('.hv-wordsg') && rm.querySelector('.hv-roomg') && rm.querySelector('.rank-b')),
       menuNo: rm && rm.querySelector('.hv-roomno') && rm.querySelector('.hv-roomno').textContent,
-      barHasBack: !!(bar && bar.querySelector('.zk-back')),
+      barHasBack: !!(bar && bar.querySelector('.wd-back')),
       barTitle: bar && (bar.querySelector('#wd-title') || {}).textContent,
       dotBg: dot && getComputedStyle(dot).backgroundImage,
       dotImg: !!(dot && dot.querySelector('.wd-dimg')),

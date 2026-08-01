@@ -45,8 +45,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     const slot = document.querySelector('#rn-slot, .rn-slot');
     return {
       radius: parseFloat(s.borderTopLeftRadius),
-      barH: pr.height, charH: cr.height,
-      gapAbove: cr.top - pr.top,
+      barH: pr.height, charH: cr.height, slotH: slot.getBoundingClientRect().height,
+      // 帯は上段=札の列 / 下段=動物 の2段になり、動物は帯の下端（＝タイムメータの上）に立つ（メール指示 2026-08-02）
+      gapBelow: pr.bottom - cr.bottom,
       shadow: getComputedStyle(slot).boxShadow,
       slotN: document.querySelectorAll('.rn-slot').length,
       qN: state.questions.filter(q => q.type !== 'sg' && q.type !== 'sg4').length,
@@ -54,8 +55,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     };
   });
   check(`帯の角丸がない (${bar.radius}px)`, bar.radius === 0);
-  check(`動物より上に隙間がない (帯の上端から${Math.round(bar.gapAbove)}px)`, Math.abs(bar.gapAbove) < 1.5);
-  check(`帯の高さが動物の高さぴったり (帯${Math.round(bar.barH)}px / 動物${Math.round(bar.charH)}px)`, Math.abs(bar.barH - bar.charH) < 4);
+  check(`動物は帯の下端＝タイムメータの上に立つ (帯の下端から${Math.round(bar.gapBelow)}px)`, Math.abs(bar.gapBelow) < 1.5);
+  check(`帯は札の段＋動物の段のぶんだけ (帯${Math.round(bar.barH)}px / 札${Math.round(bar.slotH)}px＋動物${Math.round(bar.charH)}px)`,
+    bar.barH >= bar.slotH + bar.charH && bar.barH <= bar.slotH + bar.charH + 8);
   check(`カードに影がない (${bar.shadow})`, bar.shadow === 'none' || /rgba\(0, 0, 0, 0\)/.test(bar.shadow));
   check(`問題数ぶんのカードが最初から並んでいる (${bar.slotN}枚 / ${bar.allQ}問)`, bar.slotN === bar.allQ);
 

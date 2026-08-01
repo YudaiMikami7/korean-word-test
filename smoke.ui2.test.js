@@ -49,24 +49,31 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
     const cs = el => getComputedStyle(el);
     return {
       ph: p.getBoundingClientRect().height, th: t.getBoundingClientRect().height,
-      pBorder: cs(p).borderTopWidth, tBorder: cs(t).borderTopWidth,
+      pBorder: cs(p).borderTopWidth, tBorder: cs(t).borderTopWidth, tBorderColor: cs(t).borderTopColor,
       gap: t.getBoundingClientRect().top - p.getBoundingClientRect().bottom,
       tfill: cs(document.getElementById('tfill')).backgroundColor,
       pfill: !!document.getElementById('pfill'),
-      char: !!document.getElementById('rn-char'), ground: !!document.querySelector('.rn-ground')
+      char: !!document.getElementById('rn-char'), ground: !!document.querySelector('.rn-ground'),
+      charBottom: document.getElementById('rn-char').getBoundingClientRect().bottom,
+      tbarTop: t.getBoundingClientRect().top
     };
   });
-  check(`メーターに黒枠線がない (${bars.pBorder} / ${bars.tBorder})`, parseFloat(bars.pBorder) === 0 && parseFloat(bars.tBorder) === 0);
+  check(`帯には枠線がなく、タイムメータの枠線は白 (${bars.pBorder} / ${bars.tBorder} ${bars.tBorderColor})`,
+    parseFloat(bars.pBorder) === 0 && parseFloat(bars.tBorder) >= 1 && bars.tBorderColor === 'rgb(255, 255, 255)'); // メール指示 2026-08-02
   check('山吹色の進捗メーターは廃止されている', !bars.pfill);
-  check(`代わりにキャラが歩く景色の帯がある (高さ${bars.ph.toFixed(1)}px)`, bars.char && bars.ground && bars.ph > 30);
-  check(`帯と緑メーターの間のマージンが1.5px (${bars.gap.toFixed(2)})`, near(bars.gap, 1.5, 0.4));
+  check(`代わりにキャラが歩く帯がある (高さ${bars.ph.toFixed(1)}px)`, bars.char && bars.ph > 30);
+  check('白い地面の線は廃止（メール指示 2026-08-02）', !bars.ground);
+  // 地面の線の代わりに、キャラはタイムメータの白枠の上に立つ＝帯とメータの間は空けない
+  check(`帯と緑メーターの間は空けない (${bars.gap.toFixed(2)})`, near(bars.gap, 0, 0.4));
+  check(`キャラの足がタイムメータの上端に乗る (足${Math.round(bars.charBottom)} / メータ${Math.round(bars.tbarTop)})`,
+    Math.abs(bars.charBottom - bars.tbarTop) <= 2);
   check('緑メーターの色は据え置き', bars.tfill === 'rgb(0, 255, 55)');
 
   // 進む先には黄色い札が等間隔に並び、1問ごとに1枚ぶん流れる（正解＝獲得／不正解＝はじけて消える）
   const runner = await page.evaluate(async () => {
     const bar = document.getElementById('pbar'), ch = document.getElementById('rn-char'), rail = document.getElementById('rn-rail');
     const rp = () => parseFloat(bar.style.getPropertyValue('--rp') || 0);
-    const posOf = () => getComputedStyle(document.querySelector('.rn-ground')).backgroundPositionX;
+    // 地面の線は廃止したので、景色の流れではなく --rp（歩数）そのもので進みを見る（メール指示 2026-08-02）
     // カードは動かず、動物のほうが右へ進む（メール指示 2026-08-01 19:49）。動物のleftで見る
     const txOf = () => parseFloat(ch.style.left || 0);
     const slotsAt = () => [...rail.querySelectorAll('.rn-slot')].map(s => parseFloat(s.style.left));
@@ -79,14 +86,16 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
     const barR = bar.getBoundingClientRect();
     const visible = slots.filter(s => { const r = s.getBoundingClientRect(); return r.right > barR.left && r.left < barR.right; }).length;
     const noKo = slots.every(s => s.textContent === '');
-    const start = rp(), pos0 = posOf(), tx0 = txOf(), slots0 = slotsAt();
+    const start = rp(), tx0 = txOf(), slots0 = slotsAt();
     runnerStep(true); const afterOk = rp(), cls1 = ch.className, got = slots[0].classList.contains('got'), tx1 = txOf();
-    await wait(1300); const pos1 = posOf(); // 景色の流れは1秒かけて動くので終わるまで待つ
+    // 札は1段上からキャラのところへ斜めに飛ぶ（メール指示 2026-08-02）
+    const flyX = slots[0].style.getPropertyValue('--fly'), flyY = slots[0].style.getPropertyValue('--flyY');
+    await wait(1300);
     runnerStep(false); const cls2 = ch.className, gotNg = slots[1].classList.contains('got'), pop = slots[1].classList.contains('pop'), tx2 = txOf();
     const slots2 = slotsAt();
     return { n: slots.length, gaps, w: parseFloat(cs.width), h: parseFloat(cs.height), bg: cs.backgroundColor,
              border: cs.borderTopWidth + ' ' + cs.borderTopColor, shadow: cs.boxShadow,
-             visible, noKo, start, afterOk, cls1, cls2, pos0, pos1, tx0, tx1, tx2, got, gotNg, pop, slots0, slots2,
+             visible, noKo, start, afterOk, cls1, cls2, flyX, flyY, tx0, tx1, tx2, got, gotNg, pop, slots0, slots2,
              img: ch.querySelector('img') ? ch.querySelector('img').getAttribute('src') : null, txt: ch.textContent.trim() };
   });
   check(`カードが12枚ぶん並ぶ (${runner.n})`, runner.n === 12);
@@ -96,7 +105,8 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   check('札に韓国語は書かれていない（答えが見えない）', runner.noKo);
   // 12問なら最初から12枚ぜんぶ見えている（メール指示 2026-08-01 19:49）
   check(`12枚ぜんぶが見えている (${runner.visible})`, runner.visible === 12);
-  check(`景色が右から左へ流れる (${runner.pos0} → ${runner.pos1})`, parseFloat(runner.pos1) < parseFloat(runner.pos0));
+  check(`札は1段下のキャラへ斜めに飛ぶ (x=${runner.flyX} y=${runner.flyY})`,
+    /px$/.test(runner.flyX) && /px$/.test(runner.flyY) && Math.abs(parseFloat(runner.flyY)) > 4);
   check(`1問ごとに動物が1コマぶん右へ進む (${runner.tx0} → ${runner.tx1} → ${runner.tx2})`,
         runner.tx1 > runner.tx0 && runner.tx2 > runner.tx1 && Math.abs((runner.tx1 - runner.tx0) - (runner.tx2 - runner.tx1)) <= 1);
   check('カードの位置は動かない', runner.slots0.length === runner.slots2.length &&

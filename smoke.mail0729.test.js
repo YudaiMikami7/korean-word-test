@@ -185,14 +185,17 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   await page.waitForTimeout(900);
   const wd = await page.evaluate(() => {
     const bar = document.querySelector('#s-wdetail .wd-cbar');
-    const cards = bar && bar.querySelector('.wd-cards'), spk = bar && bar.querySelector('.wd-spk');
+    const cards = bar && bar.querySelector('.wd-cards');
+    // 音声マークはカード枚数の右どなりから、カードの中・絵の右上へ移した（メール指示 2026-08-02）
+    const cimg = document.querySelector('#s-wdetail .wd-cimg'), spk = cimg && cimg.querySelector('.wd-spk');
     const dot = document.querySelector('#wd-pager .wd-dot');
     const th = [...document.querySelectorAll('#s-wdetail .htab th')].map(e => e.textContent);
     return {
       room: !!document.querySelector('#s-wdetail .wd-room'),
-      back: !!document.querySelector('#s-wdetail .zk-sum .zk-back'),
+      back: !!document.querySelector('#s-wdetail .wd-titlebar .wd-back') && !document.querySelector('#s-wdetail .zk-sum'),
       cardsTxt: cards && cards.textContent.replace(/\s+/g, ''),
-      spkRight: !!(cards && spk) && spk.getBoundingClientRect().left >= cards.getBoundingClientRect().right - 1,
+      spkTopRight: !!(cimg && spk) && spk.getBoundingClientRect().right > cimg.getBoundingClientRect().left + cimg.getBoundingClientRect().width * 0.6
+        && spk.getBoundingClientRect().top < cimg.getBoundingClientRect().top + cimg.getBoundingClientRect().height * 0.4,
       spkSvg: !!(spk && spk.querySelector('svg')),
       pagerKoJa: !!(dot && dot.querySelector('.wd-dk') && dot.querySelector('.wd-dj')) && !dot.querySelector('.wd-dn'),
       koSize: parseFloat(getComputedStyle(document.querySelector('.wd-ko2')).fontSize),
@@ -204,9 +207,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     };
   });
   check('単語詳細にROOMメニューが出る', wd.room);
-  check('戻るボタンが単語帳ページと同じ（黒帯の‹）', wd.back);
+  check('戻るボタンは残り、黒帯は廃止（メール指示 2026-08-02）', wd.back);
   check(`枚数が「獲得したカード n枚」表記 (${wd.cardsTxt})`, /^獲得したカード\d+枚$/.test(wd.cardsTxt || ''));
-  check('音声マークはカード枚数の右', wd.spkRight);
+  check('音声マークはカードの中・絵の右上（メール指示 2026-08-02）', wd.spkTopRight);
   check('単語詳細の音声マークはSVG', wd.spkSvg);
   check('上のページャーは韓国語＋日本語のカード', wd.pagerKoJa);
   check(`韓国語・日本語が大きい (${wd.koSize}px / ${wd.jaSize}px)`, wd.koSize >= 40 && wd.jaSize >= 22);

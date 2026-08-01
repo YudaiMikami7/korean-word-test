@@ -37,16 +37,22 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   }, normalRoom);
   await page.waitForTimeout(300);
 
+  // 地面の白線は廃止し、キャラはタイムメータの白枠の上を歩くようになった（メール指示 2026-08-02）
   const bar = await page.evaluate(() => {
-    const p = document.querySelector('.pbar'), g = document.querySelector('.rn-ground');
-    const cs = getComputedStyle(p), cg = getComputedStyle(g);
+    const p = document.querySelector('.pbar'), tb = document.querySelector('.tbar');
+    const ch = document.getElementById('rn-char');
+    const cs = getComputedStyle(p), ct = getComputedStyle(tb);
     return { pbg: cs.backgroundColor, pimg: cs.backgroundImage,
-             gimg: cg.backgroundImage, gh: parseFloat(cg.height), gpos: cg.backgroundPositionX };
+             ground: !!document.querySelector('.rn-ground'),
+             tbw: parseFloat(ct.borderTopWidth), tbc: ct.borderTopColor,
+             charBottom: ch.getBoundingClientRect().bottom, tbarTop: tb.getBoundingClientRect().top };
   });
   check(`帯の背景はナシ (${bar.pbg} / ${bar.pimg})`,
     /rgba\(0, 0, 0, 0\)|transparent/.test(bar.pbg) && bar.pimg === 'none');
-  check(`地面に緑の市松は残っていない (${bar.gimg.slice(0, 60)})`, !/127, 181, 107|110, 164, 91/.test(bar.gimg));
-  check(`地面は白い線 (高さ${bar.gh}px)`, /255, 255, 255/.test(bar.gimg) && bar.gh <= 4 && bar.gh > 0);
+  check('白い地面の線は廃止', !bar.ground);
+  check(`タイムメータに白い枠線 (${bar.tbw}px ${bar.tbc})`, bar.tbw >= 1 && bar.tbc === 'rgb(255, 255, 255)');
+  check(`キャラはタイムメータの上を歩く (足${Math.round(bar.charBottom)} / メータ上端${Math.round(bar.tbarTop)})`,
+    Math.abs(bar.charBottom - bar.tbarTop) <= 2);
 
   const slot = await page.evaluate(() => {
     const s = document.querySelector('#rn-rail .rn-slot'), cs = getComputedStyle(s);
@@ -80,9 +86,10 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     state.idx = 3; state.results = [{ isCorrect: true }, { isCorrect: false }, { isCorrect: true }];
     runnerBuild(12); runnerRestore();
     const slots = [...document.querySelectorAll('#rn-rail .rn-slot')].slice(0, 3);
-    return { got: slots.filter(s => s.classList.contains('got')).length, pop: slots.filter(s => s.classList.contains('pop')).length };
+    // 復帰時は獲得アニメを流さず、消えた状態(.gone)で置く（メール指示 2026-08-02）
+    return { gone: slots.filter(s => s.classList.contains('gone')).length, pop: slots.filter(s => s.classList.contains('pop')).length };
   });
-  check(`途中復帰でも解いたぶんは全部獲得済み (got${restore.got}/pop${restore.pop})`, restore.got === 3 && restore.pop === 0);
+  check(`途中復帰でも解いたぶんは全部獲得済み (gone${restore.gone}/pop${restore.pop})`, restore.gone === 3 && restore.pop === 0);
   await page.evaluate(() => { quitTest(); document.querySelectorAll('.overlay').forEach(o => o.remove()); });
   await page.waitForTimeout(300);
 

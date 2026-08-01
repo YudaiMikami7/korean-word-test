@@ -106,7 +106,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('単語帳のカードが重ならずに並ぶ', wb.noOverlap);
   check('単語帳も黄色いグラデーションのまま', wb.bg === 'linear-gradient(160deg, rgb(255, 255, 255), rgb(255, 233, 194))');
 
-  // ================= ③ 単語帳では「今週のミッション」ボタンが消える =================
+  // ================= ③ 単語帳でもホームと同じフロートが出たまま（メール指示 2026-08-02） =================
   await page.evaluate(() => exitListMode());
   await page.waitForTimeout(800);
   const trend = await page.evaluate(() => {
@@ -131,8 +131,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     const g = e => { const s = getComputedStyle(e); return { vis: s.visibility, op: +s.opacity, pe: s.pointerEvents }; };
     return { tr: g(t), d5: g(d), list: _listMode };
   });
-  check('単語帳を開いたら今週のミッションは消える', hidden.list && hidden.tr.vis === 'hidden' && hidden.tr.op === 0 && hidden.tr.pe === 'none');
-  check('今日の5問ボタンも消えたまま', hidden.d5.vis === 'hidden' && hidden.d5.op === 0);
+  // 単語帳ページはホーム画面そのままで真ん中だけが変わる形になったので、フロートも出したまま（メール指示 2026-08-02）
+  check('単語帳を開いても今週のミッションは出たまま', hidden.list && hidden.tr.vis === 'visible' && hidden.tr.op > 0.9);
+  check('今日の5問ボタンも出たまま', hidden.d5.vis === 'visible' && hidden.d5.op > 0.9);
   await page.evaluate(() => exitListMode());
   await page.waitForTimeout(900);
   const back = await page.evaluate(() => {

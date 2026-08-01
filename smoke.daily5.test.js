@@ -34,10 +34,11 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     const n = QR.balls.length; QR.balls.forEach(b => b.el.remove()); QR.balls = [];
     return n === 1;
   }));
-  check('設定に玉のトグルが2つある', await page.evaluate(() => {
+  // 降ってくるのは丸い玉ではなくカードになったので、設定の名前も「カード」（メール指示 2026-08-02）
+  check('設定にカードのトグルが2つある', await page.evaluate(() => {
     openSettings();
     const html = document.getElementById('settings-modal').innerHTML;
-    const ok = html.includes('玉（メイン）') && html.includes('玉（出題中）');
+    const ok = html.includes('カード（メイン）') && html.includes('カード（出題中）');
     closeSettings(); return ok;
   }));
 
@@ -143,17 +144,17 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check('もう一度呼んでも開始できない', await page.evaluate(() => { const before = location.href; startDaily5(); return !document.getElementById('s-quiz').classList.contains('on'); }));
   check('結果を後から見返せる', await page.evaluate(() => { closeDaily5(); d5ShowSaved(); return document.querySelectorAll('#s-d5result .d5r-row.judged').length === 5; }));
   check('ホームのボタンがグレーアウト', await page.evaluate(() => { show('s-home'); return document.querySelector('.sg-d5').classList.contains('d5-off'); }));
-  // 単語帳: 見出し/旧戻るボタンを廃止し、カード枚数バー左の戻るへ移設
+  // 単語帳: 見出し/旧戻るボタン/黒帯を廃止し、ホームへは右下のホームボタンで戻る（メール指示 2026-08-02）
   check('単語帳の見出し・旧戻るボタンが無い', await page.evaluate(() => !document.querySelector('.wb-title') && !document.getElementById('wb-back2')));
-  check('カード枚数バー左に戻るボタン', await page.evaluate(async () => {
+  check('単語帳の黒帯は無く、枚数の行だけが残る', await page.evaluate(async () => {
     enterListMode(); await new Promise(r => setTimeout(r, 900));
-    const bar = document.querySelector(`.room-slide[data-n="${curSection}"] .zk-sum`);
-    return !!bar && bar.firstElementChild && bar.firstElementChild.classList.contains('zk-back');
+    const sum = document.querySelector(`.room-slide[data-n="${curSection}"] .wb-sum`);
+    return !document.querySelector('.slide-list .zk-sum') && !!sum && /カード/.test(sum.textContent);
   }));
-  check('その戻るボタンでホームに戻れる', await page.evaluate(async () => {
-    document.querySelector(`.room-slide[data-n="${curSection}"] .zk-back`).click();
+  check('右下のホームボタンでホームに戻れる', await page.evaluate(async () => {
+    document.querySelector('.home-side-btn.hsb-right').click();
     await new Promise(r => setTimeout(r, 900));
-    return _listMode === false && !document.getElementById('homewrap').classList.contains('hiderail');
+    return _listMode === false && !!document.querySelector(`.room-slide[data-n="${curSection}"] .sg-wrap`);
   }));
 
   // --- 枠が変わればまた遊べる ---

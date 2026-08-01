@@ -114,10 +114,11 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     return {
       visible: boardVisible('beginner', 1),
       tiles: document.querySelectorAll('.room-slide[data-n="1"] .sg-tile').length,
-      laps: [...document.querySelectorAll('.room-slide[data-n="1"] .sg-lap')].map(e => e.textContent.trim()),
+      // 周の変わり目は「N周目」のチップではなく薄い線1本（1周目の手前には引かない。メール指示 2026-08-02）
+      laps: [...document.querySelectorAll('.room-slide[data-n="1"] .sg-lap')].map(e => getComputedStyle(e).height),
     };
   });
-  check(`1周クリアで次の12マスが出現 (${grown.tiles}マス / ${grown.laps.join(',')})`, grown.visible === 24 && grown.tiles === 24 && grown.laps.length === 2);
+  check(`1周クリアで次の12マスが出現 (${grown.tiles}マス / 区切り線${grown.laps.join(',')})`, grown.visible === 24 && grown.tiles === 24 && grown.laps.length === 1 && grown.laps[0] === '1px');
 
   // --- 過去の履歴から進捗を復元 ---
   const seeded = await page.evaluate(async () => {
@@ -288,7 +289,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
       gone: !document.getElementById('rr-level') && !document.getElementById('rr-pwr') };
   });
   check(`ランクは58px・メダル風 (${look.w} / ${look.fs})`, look.w === '58px' && look.fs === '41px' && look.ring);
-  check(`マス番号が大きい (${look.numFs})`, look.numFs === '40px');
+  check(`マス番号が大きい (${look.numFs})`, look.numFs === '32px'); // 「周-マス」の2つ組みになったぶん一段小さく（メール指示 2026-08-02）
   check('レールはフェード切替（回転しない）', look.dailyTr === 'none');
   check('設定マークだけ従来の回転のまま', look.setTr !== 'none');
   // PWRボーナスは毎日ボーナスに統合・レベルボーナスは廃止し、右のレールは2つだけになった（メール指示 2026-08-02）
