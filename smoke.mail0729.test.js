@@ -210,14 +210,16 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('単語詳細の音声マークはSVG', wd.spkSvg);
   check('上のページャーは韓国語＋日本語のカード', wd.pagerKoJa);
   check(`韓国語・日本語が大きい (${wd.koSize}px / ${wd.jaSize}px)`, wd.koSize >= 40 && wd.jaSize >= 22);
-  check(`記憶率はラベル＋バーで量が分かる (${wd.rateLab})`, wd.rateBar && wd.rateLab === '記憶率');
+  // 2026-08-01のメール指示で、右の列の見出しは「記憶率」→「PWR」表記に変更（バー＋数字で量を見せるのは従来どおり）
+  check(`PWRはラベル＋バーで量が分かる (${wd.rateLab})`, wd.rateBar && wd.rateLab === 'PWR');
   check(`学習履歴の日付列に見出しを出さない ("${wd.dateTh}")`, wd.dateTh === '');
   check(`グラフの線が太い (${wd.stroke})`, wd.stroke >= 4);
   const dir = await page.evaluate(() => {
     const c = document.querySelector('#s-wdetail .htab tbody tr td:nth-child(2)');
     return c ? c.textContent.replace(/\s+/g, '') : '';
   });
-  check(`学習履歴の方向が「韓→日」表記 (${dir})`, /^(韓→日|日→韓|書き取り)$/.test(dir));
+  // 2026-08-01のメール指示で、方向は言葉ではなく国旗の絵文字（🇰🇷→🇯🇵 / 🇯🇵→🇰🇷）に変更
+  check(`学習履歴の方向が国旗の絵文字 (${dir})`, /^([\u{1F1E6}-\u{1F1FF}]{2}→[\u{1F1E6}-\u{1F1FF}]{2}|書き取り)$/u.test(dir));
 
   // ---------- 今日の5問／トレンドの10秒カウントダウン ----------
   await page.evaluate(() => show('s-home'));

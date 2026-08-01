@@ -534,11 +534,11 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .tb-track{display:flex;animation:tbflow 30s linear infinite;will-change:transform;backface-visibility:hidden;margin-bottom:2px}
 .tb-group{display:flex;gap:12px;padding:0 6px;flex:0 0 auto} /* 同一グループ2連結で-50%＝ちょうど1周＝つなぎ目ゼロ */
 @keyframes tbflow{from{transform:translateX(0)}to{transform:translateX(-50%)}} /* 右→左 */
-.tb-card{position:relative;flex:0 0 auto;height:166px;aspect-ratio:3/3.5;box-sizing:border-box;background:linear-gradient(160deg,#fff,#ffe9c2);box-shadow:0 3px 8px rgba(0,0,0,.25);border-radius:12px;padding:6px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;pointer-events:auto;cursor:pointer}
-.tb-imgw{position:relative;height:52%;max-width:100%;display:flex;align-items:center;justify-content:center} /* 絵はカードの中に収める（結果カードと同じ） */
+.tb-card{position:relative;flex:0 0 auto;height:166px;aspect-ratio:3/3.5;box-sizing:border-box;background:linear-gradient(160deg,#fff,#ffe9c2);box-shadow:0 3px 8px rgba(0,0,0,.25);border-radius:12px;padding:3px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;pointer-events:auto;cursor:pointer}
+.tb-imgw{position:relative;height:57%;max-width:100%;display:flex;align-items:center;justify-content:center} /* 絵はカードの中に収める（結果カードと同じ） */
 .tb-img{height:100%;width:auto;object-fit:contain;display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,.2))}
-.tb-ko{font-size:19px;font-weight:900;color:#222;line-height:1.15;margin-top:4px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tb-ja{font-size:12px;font-weight:700;color:#7a6a4a;margin-top:1px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-ko{font-size:19px;font-weight:900;color:#222;line-height:1.15;margin-top:2px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-ja{font-size:12px;font-weight:700;color:#7a6a4a;margin-top:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* 単語一覧モード：スワイプ連動（--lift/--pはhome-wrapに設定） */
 .home-wrap .slide-inner{transform:translateY(var(--lift,0px));transition:transform .35s ease}
 #calendar-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
@@ -733,7 +733,9 @@ body.bigtext .set-d{font-size:13.5px}
 .hist-close{position:absolute;right:10px;top:6px;background:transparent;border:none;font-size:24px;font-weight:900;color:#888;cursor:pointer}
 .oa-close{display:inline-block;background:rgba(255,216,77,.95);color:#5a4300;font-size:14px;font-weight:900;padding:7px 14px;border-radius:999px;margin-bottom:10px} /* 書き取りのおしい表示 */
 /* 応援コメントは読ませたいので字を大きめに。折り返しは balance で行の長さをそろえ、変な位置での改行を減らす */
-.res-cheer{font-size:15px;font-weight:800;color:rgba(255,255,255,.95);margin-top:5px;line-height:1.45;padding:0 12px;text-wrap:balance;overflow-wrap:anywhere}
+/* コメントは必ず1行に収める（長い文は文字を小さくして収める。メール指示 2026-08-01） */
+.res-cheer{font-size:15px;font-weight:800;color:rgba(255,255,255,.95);margin-top:5px;line-height:1.45;padding:0 12px;white-space:nowrap;overflow:hidden}
+.res-cheer .rch{display:inline-block;white-space:nowrap}
 /* 初回完走の白い座布団（res-first）は廃止。初テストの案内はランク下の一言コメントに集約（メール指示 2026-07-29） */
 .wb-tabs{display:flex;gap:8px;padding:10px 12px 0}
 .wb-tab{flex:1;border:none;border-radius:999px;padding:9px 4px;font-weight:800;font-size:13px;background:rgba(0,0,0,.35);color:#fff;cursor:pointer;font-family:inherit}
@@ -1017,7 +1019,7 @@ body.bigtext .set-d{font-size:13.5px}
 .res-head{flex:0 0 auto;text-align:center;background:rgba(255,255,255,.28);border-radius:14px;padding:8px 10px} /* 背後の玉と干渉しないよう白下敷き */
 /* 左＝メダル＋点数、右＝メーター2本（レベル／PWR）を縦に並べる */
 .res-top{display:flex;align-items:center;justify-content:center;gap:10px}
-.res-idw{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px}
+.res-idw{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;margin:6px 10px 6px 6px} /* ランクバッジの周りに余白（メール指示 2026-08-01） */
 .res-meters{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:7px}
 .rank-c{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;color:#fff}
 /* ランクをメダル風に：金リング＋光沢、登場時に回転しながらポップ */
@@ -1059,15 +1061,15 @@ body.bigtext .set-d{font-size:13.5px}
 .res-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:2px} /* 4列→3列にして1枚を大きく */
 /* 左右マージンは詰める。min-width:0＝中身（意味の長い日本語など）の最小幅で列が広がるのを断ち、
    3列を必ず器の幅に収める（列が広がると器が横スクロールして「大きく描かれている」ように見えていた） */
-.rc-card{position:relative;aspect-ratio:3/3.5;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.25);padding:5px 2px;box-sizing:border-box;min-width:0;overflow:hidden}
+.rc-card{position:relative;aspect-ratio:3/3.5;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.25);padding:2px 1px;box-sizing:border-box;min-width:0;overflow:hidden}
 /* 器を画像とぴったり同じ大きさにして、正誤記号を画像の左上の角へ重ねる */
-.rc-imgw{position:relative;height:46%;max-width:100%;display:flex;align-items:center;justify-content:center}
+.rc-imgw{position:relative;height:51%;max-width:100%;display:flex;align-items:center;justify-content:center}
 .rc-imgw img{height:100%;width:auto;object-fit:contain}
 .rc-card .cg-noimg{font-size:26px}
 .rc-sym{position:absolute;top:-2px;left:-7px;font-size:21px;font-weight:900;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.15);z-index:1} /* 画像の左上角に重ねる（カードからはみ出すと切れるので寄せ量は控えめ） */
-.rc-ko{font-size:15px;font-weight:900;color:#333;white-space:nowrap;overflow:hidden;max-width:100%;text-overflow:ellipsis;margin-top:3px}
-.rc-ja{font-size:11px;font-weight:700;color:#7a6a4a;white-space:nowrap;overflow:hidden;max-width:100%;text-overflow:ellipsis;margin-top:1px} /* 日本語の意味 */
-.rc-foot{display:flex;gap:6px;align-items:baseline;justify-content:center;margin-top:1px}
+.rc-ko{font-size:15px;font-weight:900;color:#333;white-space:nowrap;overflow:hidden;max-width:100%;text-overflow:ellipsis;margin-top:1px}
+.rc-ja{font-size:11px;font-weight:700;color:#7a6a4a;white-space:nowrap;overflow:hidden;max-width:100%;text-overflow:ellipsis;margin-top:0} /* 日本語の意味 */
+.rc-foot{display:flex;gap:6px;align-items:baseline;justify-content:center;margin-top:0}
 .rc-cards{font-size:11px;font-weight:900;color:#b8862b}
 .rc-delta{font-size:11px;font-weight:900} /* 記憶率の増減（±%）色はインラインで緑/赤 */
 /* カードをタップ＝その単語の韓国語を読み上げる（結果画面から発音を確かめられるように） */
@@ -1195,43 +1197,61 @@ body.bigtext .set-d{font-size:13.5px}
 .wd-scroll::-webkit-scrollbar{display:none}
 .wd-slide{flex:0 0 100%;width:100%;scroll-snap-align:start;overflow-y:auto;padding:4px 16px 24px;box-sizing:border-box;-webkit-overflow-scrolling:touch}
 .wd-top{display:flex;justify-content:center;align-items:baseline;gap:22px;font-size:19px;font-weight:900;margin:2px 0 4px}
-/* 単語詳細：結果画面の獲得カードと同じ「1枚の大きなカード」。
-   上段＝獲得したカードの枚数と音声マーク／中央＝大きい絵／下＝韓国語・日本語・記憶率（メール指示 2026-07-29） */
-.wd-card{background:linear-gradient(160deg,#fff,#ffe9c2);color:#1a1a1a;border-radius:22px;padding:12px 16px 16px;margin:4px 16px 2px;
-  box-shadow:0 6px 18px rgba(0,0,0,.28);text-align:center}
-.wd-cbar{display:flex;align-items:center;justify-content:center;gap:10px}
-.wd-cards{font-size:14px;font-weight:900;color:#8a6414}
-.wd-cards b{font-size:20px;margin:0 2px}
-.wd-cimg{position:relative;width:100%;height:190px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+/* 単語詳細（メール指示 2026-08-01）：左＝小カードの約2倍の大きい単語カード／右＝上からPWR・カード枚数・グラフ */
+.wd-main{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:10px;align-items:start;margin-top:6px}
+.wd-bigcard{background:linear-gradient(160deg,#fff,#ffe9c2);color:#1a1a1a;border-radius:18px;padding:8px 6px 10px;width:100%;max-width:220px;justify-self:center;box-sizing:border-box;
+  box-shadow:0 6px 18px rgba(0,0,0,.28);text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden}
+.wd-side{display:flex;flex-direction:column;gap:8px;min-width:0}
+.wd-cbar{display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(0,0,0,.35);border-radius:12px;padding:6px 8px}
+.wd-cards{font-size:12px;font-weight:900;color:#FFD86B}
+.wd-cards b{font-size:19px;margin:0 2px}
+.wd-cimg{position:relative;width:100%;height:118px;display:flex;align-items:center;justify-content:center}
 .wd-cimg .wd-img2{max-width:100%;height:100%;object-fit:contain}
-.wd-cimg .wd-img2.noimg{display:flex;align-items:center;justify-content:center;font-size:64px}
-/* 単語詳細 上部ページャー（隣の単語も「韓国語＋日本語の小さいカード」で並べる） */
-.rp-pager{flex:0 0 auto;display:flex;gap:8px;align-items:stretch;overflow-x:auto;overflow-y:hidden;touch-action:pan-x;scrollbar-width:none;padding:12px 16px 10px}
+.wd-cimg .wd-img2.noimg{display:flex;align-items:center;justify-content:center;font-size:52px}
+.wd-graph{border-radius:12px;padding:8px 6px 6px}
+/* 単語詳細 上部の並び：白い座布団＋黄色い枠線ではなく、ほかの画面と同じ「単語カード」を並べる（メール指示 2026-08-01） */
+.rp-pager{flex:0 0 auto;display:flex;gap:8px;align-items:stretch;overflow-x:auto;overflow-y:hidden;touch-action:pan-x;scrollbar-width:none;padding:8px 16px 10px}
 .rp-pager::-webkit-scrollbar{display:none}
-.rp-pager .wd-dot{flex:0 0 auto;flex-direction:column;justify-content:center;gap:1px;min-width:78px;height:auto;
-  background:rgba(255,255,255,.9);color:#1a1a1a;border-radius:12px;padding:7px 10px;text-shadow:none;
-  box-shadow:0 2px 6px rgba(0,0,0,.2);transition:transform .18s ease,box-shadow .18s ease}
-.rp-pager .wd-dot.cur{transform:scale(1.06);box-shadow:0 0 0 3px #FFC400,0 3px 10px rgba(0,0,0,.3)}
-.rp-pager .wd-dk{font-size:17px;font-weight:900;white-space:nowrap;line-height:1.15}
-.rp-pager .wd-dj{font-size:11px;font-weight:800;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;line-height:1.2}
+.rp-pager .wd-dot{flex:0 0 auto;flex-direction:column;justify-content:center;gap:1px;min-width:82px;height:auto;
+  background:linear-gradient(160deg,#fff,#ffe9c2);color:#1a1a1a;border-radius:12px;padding:5px 6px;text-shadow:none;overflow:hidden;
+  box-shadow:0 3px 8px rgba(0,0,0,.25);transition:transform .18s ease,box-shadow .18s ease}
+.rp-pager .wd-dot.cur{transform:scale(1.06);box-shadow:0 0 0 3px rgba(0,0,0,.75),0 3px 10px rgba(0,0,0,.35)}
+.rp-pager .wd-dimg{height:40px;width:auto;object-fit:contain;display:block;filter:drop-shadow(0 2px 5px rgba(0,0,0,.18))}
+.rp-pager .wd-dimg.noimg{height:40px;display:flex;align-items:center;justify-content:center;font-size:24px}
+.rp-pager .wd-dk{font-size:16px;font-weight:900;white-space:nowrap;line-height:1.15;margin-top:1px}
+.rp-pager .wd-dj{font-size:11px;font-weight:800;color:#7a6a4a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;line-height:1.2}
 .wd-ko2{text-align:center;font-size:44px;font-weight:900;line-height:1.1;color:#1a1a1a}
 .wd-ja2{text-align:center;font-size:24px;font-weight:800;color:#5c5142;margin-top:2px}
-/* 記憶率は数字だけだと量が伝わらないので、言葉のラベル＋バーで「どれくらい」を見せる */
-.wd-crate{display:flex;align-items:center;gap:9px;margin-top:10px}
-.wd-rlab{flex:0 0 auto;font-size:13px;font-weight:900;color:#7a6a4a}
-.wd-rg{flex:1 1 auto;height:12px;background:rgba(0,0,0,.13);border-radius:999px;overflow:hidden}
+/* PWR（この単語の記憶率）はラベル＋数字＋バーの縦積みで、右の列に収める（メール指示 2026-08-01） */
+.wd-crate{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:3px 6px;background:rgba(0,0,0,.35);border-radius:12px;padding:7px 10px}
+.wd-crate .wd-rg{grid-column:1/-1}
+.wd-crate .wd-rval{justify-self:end}
+.wd-rlab{flex:0 0 auto;font-size:14px;font-weight:900;color:#fff;letter-spacing:1px}
+.wd-rg{flex:1 1 auto;height:12px;background:#333;border-radius:999px;overflow:hidden}
 .wd-rf{height:100%;border-radius:999px;background:#1FAD62;transition:width .6s ease}
 .wd-rf.ms-review{background:#C79A00}.wd-rf.ms-urgent{background:#E0433B}
 .wd-rval{flex:0 0 auto;font-size:20px;font-weight:900;line-height:1}
 .wd-rval i{font-style:normal;font-size:12px;margin-left:1px}
-.wd-rval.ms-stable{color:#1FAD62}.wd-rval.ms-review{color:#B08800}.wd-rval.ms-urgent{color:#D33127}
-/* 単語詳細のROOM見出し（単語帳ページと同じくROOMの情報が分かるように） */
-.wd-room{display:flex;align-items:center;gap:10px;margin:0 16px;background:rgba(255,255,255,.16);border-radius:999px;padding:7px 16px}
-.wd-room .wr-no{font-size:19px;font-weight:900;letter-spacing:1px}
-.wd-room .wr-m{font-size:13px;font-weight:800;color:rgba(255,255,255,.9)}
-.wd-room .wr-rank{margin-left:auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:18px;font-weight:900;color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 4px rgba(255,196,0,.9)}
+.wd-rval{color:#fff}
+.wd-rval.ms-stable{color:#37E08A}.wd-rval.ms-review{color:#FFD84D}.wd-rval.ms-urgent{color:#FF7B72}
+/* 単語詳細の最上部：単語帳ページとまったく同じルームメニュー（602px基準を横幅に合わせて縮小して置く。メール指示 2026-08-01） */
+.wd-room{position:relative;width:100%;overflow:hidden}
+.wd-rmscale{transform-origin:top left;width:602px;padding-top:12px} /* 座布団が上へ12pxはみ出すぶん */
+.wd-rmenu{position:relative;width:602px;height:104px;color:#fff;font-weight:800;
+  font-family:"LINESeedJP","LINESeedKR","Hiragino Kaku Gothic ProN",sans-serif}
+.wd-rmenu .gauge{position:absolute;background:#333333;border-radius:999px;padding:3px;box-sizing:border-box;z-index:2}
+.wd-rmenu .gfill{height:100%;border-radius:999px;width:0}
+/* ホームの通常ROOMスライドと同じ左右位置（.room-slide:not(.pq-slide) の上書きぶんを再現） */
+.wd-rmenu .hv-learned,.wd-rmenu .hv-roompwr{left:206px}
+.wd-rmenu .hv-wordsg,.wd-rmenu .hv-roomg{left:200px}
+.wd-rmenu .rank-b{left:390px}
+/* 学習履歴はその表の中だけでスクロールさせる（ページ全体は動かさない。メール指示 2026-08-01） */
+.wd-histbox{max-height:38vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:10px}
+.wd-histbox::-webkit-scrollbar{width:6px}
+.wd-histbox::-webkit-scrollbar-thumb{background:rgba(255,255,255,.35);border-radius:3px}
 /* 学習履歴：日付の見出しは省き、時間・得点・記憶率は大きく太く */
+/* 出題の向きは国旗の絵文字で出す（韓→日／日→韓。メール指示 2026-08-01） */
+.hdir-f{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla",sans-serif;font-size:15px}
 .hdir{font-size:13px;font-weight:900;white-space:nowrap}
 .hdir i{font-style:normal;margin:0 2px;opacity:.7}
 #s-wdetail .htab td.num{font-size:16px;font-weight:900}
@@ -1478,6 +1498,10 @@ body.bigtext .set-d{font-size:13.5px}
 .lu-num b{font-size:86px;font-weight:900}
 .lu-arrow{font-size:15px;font-weight:900;color:rgba(255,255,255,.6);margin-bottom:4px}
 .lu-msg{font-size:13.5px;font-weight:800;color:rgba(255,255,255,.75);margin:2px 0 16px}
+/* XP・PWRが増えただけでも、レベルアップと同じ全面ポップアップで知らせる（メール指示 2026-08-01） */
+.gainpop .lu-num b{font-size:66px}
+.gainpop .lu-num small{font-size:22px;font-weight:900}
+.gainpop .lu-lab{letter-spacing:1.5px}
 .lu-card .btn{padding:13px 26px;font-size:15px;border-radius:14px;background:#fff;color:#111;font-weight:900}
 .lu-card .btn:active{background:#e6e6e6}
 /* スペシャル問題・歯車モードの結果も、下段は通常の結果画面と同じ4ボタン（メール指示 2026-07-31）。
@@ -3404,7 +3428,8 @@ function renderHome(){
   startBubbleLoop(); // スタートボタンの感情吹き出し
   startAvatarFlip(); // アバターのキャラ⇄MBTI入替
   startRailFlip(); // リール7ボタンのアイコン⇄ラベル入替（ランダム）
-  if(_homeNotice){showHomeNotice(_homeNotice);_homeNotice=null;}
+  if(!_homeNotice)_homeNotice=loadPendingNotice(); // 結果画面のまま閉じていた場合はここで拾う（メール指示 2026-08-01）
+  if(_homeNotice){clearPendingNotice();showHomeNotice(_homeNotice);_homeNotice=null;}
 }
 /* 「復習どき」タップ：期限が来ている単語だけで復習テストを開始（優先度順に12語） */
 function startDueReview(){
@@ -3527,7 +3552,7 @@ function sgPirin(tile){
 /* ③初回だけ：カスタマイズ完了 → タイプ診断の紹介 → 「あなただけの12問」で次へ誘導 */
 function showFirstIntro(){
   document.querySelectorAll(".fcust").forEach(e=>e.remove());
-  closeLevelUp(); // レベルアップの全面表示と重ならないように先に閉じる
+  closeLevelUp(true); // レベルアップの全面表示と重ならないように先に閉じる（控えのポップアップも取り消す）
   const d=computeDiagnosis();
   const code=d.complete?d.code:AXES.map((ax,i)=>d.axes[i].code||ax.R).join("");
   const job=(TYPE_INFO[code]||[""])[0]||"";
@@ -3593,10 +3618,11 @@ function showStreakCelebration(streak){
   ov._auto=setTimeout(()=>closeStreakCel(false),7000); // 放置時の安全オートクローズ
 }
 /* レベルアップの演出：いつ上がったのか分かるように、上がった瞬間だけ全面で知らせる */
-function showLevelUp(level,fromLevel){
+function showLevelUp(level,fromLevel,done){
   const old=document.querySelector(".lvup");if(old)old.remove();
   const from=fromLevel||Math.max(1,level-1);
   const ov=document.createElement("div");ov.className="lvup";
+  ov._done=done;
   ov.innerHTML=`<div class="lu-card">
     <div class="lu-lab">LEVEL UP!</div>
     <div class="lu-arrow">Lv.${from} → </div>
@@ -3610,7 +3636,27 @@ function showLevelUp(level,fromLevel){
   const t=setInterval(()=>{c++;el.textContent=c;if(c>=level){clearInterval(t);try{sfxClaim();}catch(e){}}},220); // 数字が上がるところを見せる
   ov._auto=setTimeout(()=>closeLevelUp(),6000);
 }
-function closeLevelUp(){const ov=document.querySelector(".lvup");if(ov){if(ov._auto)clearTimeout(ov._auto);ov.classList.remove("on");setTimeout(()=>ov.remove(),300);}}
+/* 増えたものだけを順番に見せる（XP → PWR → レベルアップ）（メール指示 2026-08-01） */
+function runPopupChain(list){let i=0;const next=()=>{const f=list[i++];if(f)f(next);};next();}
+/* レベルアップと同じ見た目で「+n XP」「+n %」を知らせるポップアップ */
+function showGainPopup(o,done){
+  const old=document.querySelector(".lvup");if(old)old.remove();
+  const ov=document.createElement("div");ov.className="lvup gainpop";
+  ov.innerHTML=`<div class="lu-card">
+    <div class="lu-lab" style="color:${o.color}">${esc(o.lab)}</div>
+    <div class="lu-num"><small>+</small><b id="gp-count" style="color:${o.color}">0</b><small>${esc(o.unit)}</small></div>
+    <div class="lu-msg">${esc(o.msg)}</div>
+    <button class="btn dark" onclick="closeLevelUp()">OK</button>
+  </div>`;
+  ov._done=done;
+  document.body.appendChild(ov);
+  requestAnimationFrame(()=>ov.classList.add("on"));
+  const el=ov.querySelector("#gp-count");let c=0;const step=Math.max(1,Math.ceil(o.num/22));
+  const t=setInterval(()=>{c=Math.min(o.num,c+step);el.textContent=c;if(c>=o.num){clearInterval(t);try{sfxClaim();}catch(e){}}},34); // 数字が上がるところを見せる
+  ov._auto=setTimeout(()=>closeLevelUp(),4200);
+}
+/* drop=true のときは、後ろに控えているポップアップごと取り消す（別の全面表示に切り替わるとき） */
+function closeLevelUp(drop){const ov=document.querySelector(".lvup");if(ov){if(ov._auto)clearTimeout(ov._auto);const d=drop?null:ov._done;ov._done=null;ov.classList.remove("on");setTimeout(()=>{ov.remove();d&&d();},300);}}
 let _stepAfterCel=false; // 連続日数の演出を閉じたあとに「1マス進んだ」演出を出すかどうか
 function closeStreakCel(openCal){
   const ov=document.querySelector(".streak-cel");if(ov){if(ov._auto)clearTimeout(ov._auto);ov.classList.remove("on");setTimeout(()=>ov.remove(),300);}
@@ -4127,6 +4173,22 @@ function saveResumePoint(nextIdx){
   }catch(e){}
 }
 function clearResumePoint(){try{localStorage.removeItem(LS_RESUME);}catch(e){}}
+/* 結果画面のままアプリを閉じても、次に開いたときにプレゼント・マス進みの演出を必ず出す（メール指示 2026-08-01）。
+   ホームに戻る前に閉じられると、これまでは画面内の変数だけに持っていたお知らせが消えていた。 */
+const LS_NOTICE="kwt_notice_v1";
+function savePendingNotice(n){
+  try{localStorage.setItem(LS_NOTICE,JSON.stringify({at:Date.now(),n:n,bt:_lastBoardTile,level:curLevel,section:curSection}));}catch(e){}
+}
+function clearPendingNotice(){try{localStorage.removeItem(LS_NOTICE);}catch(e){}}
+function loadPendingNotice(){
+  try{
+    const r=JSON.parse(localStorage.getItem(LS_NOTICE)||"null");
+    if(!r||!r.n)return null;
+    if(Date.now()-(r.at||0)>3*86400000){clearPendingNotice();return null;} // 3日以上前のものは流す
+    if(r.bt&&!_lastBoardTile)_lastBoardTile=r.bt;                          // どのマスをクリアしたかも復元＝マス進みの演出が出せる
+    return r.n;
+  }catch(e){return null;}
+}
 function loadResumePoint(){
   try{
     const r=JSON.parse(localStorage.getItem(LS_RESUME)||"null");
@@ -7394,6 +7456,7 @@ function finishTest(){
   // 初回だけは連続日数の演出より「プレゼント→新しいステップ→タイプ診断の紹介」の順番を優先する
   _homeNotice=_firstEver?{type:"present",first:true}
     :(localStorage.getItem("kwt_lasttestday_v1")!==_tday)?{type:"streak"}:{type:"present"};
+  savePendingNotice(_homeNotice); // ここで閉じられても次回の起動で演出を出せるように控えておく
   localStorage.setItem("kwt_lasttestday_v1",_tday);
   checkAchievements();
   if(_firstEver)_lsSet("kwt_firstdone_v1","1");
@@ -7422,7 +7485,7 @@ function finishTest(){
           </div>
         </div>
       </div>
-      <div class="res-cheer">${cheer}</div>
+      <div class="res-cheer"><span class="rch">${cheer}</span></div>
     </div>
     ${typeUpd}
     <div class="res-listwrap"><div class="res-cards">${rows}</div></div>
@@ -7436,8 +7499,14 @@ function finishTest(){
   const cgWords=R.map(r=>({ko:r.korean,ja:r.japanese}));
   showCardGetSequence(cgWords,()=>{
     startResultAnims(pwrAfter,xpGain,xpNow);
+    fitCheerLine(); // 一言コメントは1行に収める（メール指示 2026-08-01）
     if(_lapDone)setTimeout(showLapDone,260);
-    if(xpLeveled)setTimeout(()=>showLevelUp(xpNow.level,xpLvBefore),_lapDone?2600:1500); // レベルが上がったらその場で知らせる
+    // 増えたものは順番に全面ポップアップで知らせる：XP → PWR → レベルアップ（メール指示 2026-08-01）
+    const pops=[];
+    if(xpGain>0)pops.push(next=>showGainPopup({lab:"XP GET!",unit:" XP",num:xpGain,color:"#FFFF37",msg:"問題を解いてXPがたまりました"},next));
+    if(pwrDelta>0)pops.push(next=>showGainPopup({lab:"PWR UP!",unit:" %",num:pwrDelta,color:"#00FF37",msg:"このROOMのPWRが上がりました"},next));
+    if(xpLeveled)pops.push(next=>showLevelUp(xpNow.level,xpLvBefore,next)); // レベルが上がったらその場で知らせる
+    if(pops.length)setTimeout(()=>runPopupChain(pops),_lapDone?2600:1500);
   });
 }
 /* 結果画面の入場アニメ：点数カウントアップ・ランクメダル・PWRフィル・獲得XP */
@@ -7454,6 +7523,16 @@ function startResultAnims(pwrAfter,xpGain,xpNow){
     const t=setInterval(()=>{c=Math.min(to,c+step);xg.innerHTML="+"+c+"<span> XP</span>";if(c>=to)clearInterval(t);},32);}
   const xf=document.getElementById("res-xpfill");
   if(xf&&xpNow)setTimeout(()=>{xf.style.width=Math.min(100,Math.round(xpNow.cur/xpNow.next*100))+"%";},200);
+  fitCheerLine();
+}
+/* 結果画面の一言コメントを1行に収める：入りきらないぶんだけ文字を小さくする（メール指示 2026-08-01） */
+function fitCheerLine(){
+  const el=document.querySelector("#s-result .res-cheer");if(!el)return;
+  const sp=el.querySelector(".rch");if(!sp)return;
+  const avail=el.clientWidth-24; // 左右のpadding(12px)ぶんを除いた実寸
+  if(avail<=0)return;
+  let s=15;sp.style.fontSize=s+"px";
+  while(s>8&&sp.getBoundingClientRect().width>avail){s-=0.5;sp.style.fontSize=s+"px";}
 }
 /* 出題された単語を「カード獲得」演出で1枚ずつ回転表示（結果表示の手前・タップでスキップ） */
 function showCardGetSequence(words,done){
@@ -7501,7 +7580,8 @@ function wdHistRows(wordId){
     const IC=c=>`<img class="dicon" src="emoji/${c}.svg" alt="">`;
     // 方向は国旗ではなく「韓 → 日」の言葉で出す（どちら向きの出題か国旗だと分かりにくい。メール指示 2026-07-29）
     const dir=(r.answerType==="writing"?`<span class="hdir">書き取り</span>`
-      :r.direction==="kr_to_jp"?`<span class="hdir">韓<i>→</i>日</span>`:`<span class="hdir">日<i>→</i>韓</span>`)
+      :r.direction==="kr_to_jp"?`<span class="hdir hdir-f">\u{1F1F0}\u{1F1F7}<i>\u2192</i>\u{1F1EF}\u{1F1F5}</span>`
+      :`<span class="hdir hdir-f">\u{1F1EF}\u{1F1F5}<i>\u2192</i>\u{1F1F0}\u{1F1F7}</span>`)
       +(r.isHintProvided?IC("1f4a1"):"");
     const mem=(r.displayMemoryScoreAfterDecay!=null)?r.displayMemoryScoreAfterDecay:"—";
     const sy=SYM[r.answerStatus]||["－",""];
@@ -7528,24 +7608,31 @@ function wdSlideHTML(id,i){
   const imgTag=hasImg?`<img class="wd-img2" src="${WORD_IMG[w.ko]}" alt="">`:`<div class="wd-img2 noimg">🃏</div>`;
   const ex=(typeof WORD_EX!=="undefined"&&WORD_EX[w.ko])?`<div class="wd-ex"><div class="wd-ex-ko">${esc(WORD_EX[w.ko][0])}</div><div class="wd-ex-ja">${esc(WORD_EX[w.ko][1])}</div></div>`:"";
   // 「×2」だけでは何の2か分からないので、枚数も記憶率も何の数字かを言葉で添える
+  // 左＝小カードの約2倍の大きい単語カード／右＝上からPWR・カード枚数・グラフ（メール指示 2026-08-01）
   return `
-    <div class="wd-card">
-      <div class="wd-cbar"><span class="wd-cards">獲得したカード <b>${cnt}</b>枚</span>${spk}</div>
-      <div class="wd-cimg">${imgTag}</div>
-      <div class="wd-ko2">${esc(w.ko)}</div>
-      <div class="wd-ja2">${esc(w.ja)}</div>
-      <div class="wd-crate">
-        <span class="wd-rlab">記憶率</span>
-        <div class="wd-rg"><div class="wd-rf ${ms.cls}" style="width:${Math.max(0,Math.min(100,rate))}%"></div></div>
-        <span class="wd-rval ${ms.cls}">${rate}<i>%</i></span>
+    <div class="wd-main">
+      <div class="wd-bigcard speakable" data-id="${id}" data-ko="${esc(w.ko)}">
+        <div class="wd-cimg">${imgTag}</div>
+        <div class="wd-ko2">${esc(w.ko)}</div>
+        <div class="wd-ja2">${esc(w.ja)}</div>
+      </div>
+      <div class="wd-side">
+        <div class="wd-crate">
+          <span class="wd-rlab">PWR</span>
+          <span class="wd-rval ${ms.cls}">${rate}<i>%</i></span>
+          <div class="wd-rg"><div class="wd-rf ${ms.cls}" style="width:${Math.max(0,Math.min(100,rate))}%"></div></div>
+        </div>
+        <div class="wd-cbar"><span class="wd-cards">獲得したカード <b>${cnt}</b>枚</span>${spk}</div>
+        <div class="st-graphpanel wd-graph">${memChart(chartPoints(Date.now(),[w]),{fs:13,padL:34})}</div>
       </div>
     </div>
     ${ex}
     ${note}
-    <div class="st-graphpanel" style="margin-top:12px">${memChart(chartPoints(Date.now(),[w]))}</div>
     <div class="tdetail-sec"><div class="h">学習履歴</div>
+      <div class="wd-histbox">
       <table class="htab"><thead><tr><th></th><th>方向</th><th>結果</th><th class="num">時間</th><th class="num">得点</th><th class="num">記憶率(%)</th></tr></thead>
       <tbody>${wdHistRows(id)||'<tr><td colspan="6" style="color:var(--mute);text-align:center;padding:20px">履歴なし</td></tr>'}</tbody></table>
+      </div>
     </div>`;
 }
 function renderWordDetail(wordId,back){
@@ -7554,30 +7641,25 @@ function renderWordDetail(wordId,back){
   let ids=sectionIds(); let idx=ids.indexOf(wordId);
   if(idx<0){ids=[wordId];idx=0;}
   const slides=ids.map((id,i)=>`<div class="wd-slide" data-i="${i}"><div class="wd-in" id="wd-in-${i}"></div></div>`).join("");
-  const _ri0=roomInfoFor(curSection);
-  const _rk=_ri0.best||(_ri0.recent&&_ri0.recent[_ri0.recent.length-1])||null;
-  // 単語帳ページと同じ黒帯＋同じ戻るボタン。ROOMメニュー（ROOM番号・語数・PWR・ランク）もここに出す
+  // 最上部は単語帳ページとまったく同じルームメニュー。その下に戻るボタン・ナンバーのバー（メール指示 2026-08-01）
   document.getElementById("s-wdetail").innerHTML=`
    <div class="q-rain" id="wd-rain"></div>
    <div class="page" style="padding-left:0;padding-right:0;position:relative;z-index:1">
-    <div class="zk-sum" style="position:static;margin-bottom:10px"><button class="zk-back" onclick="${_wdBack==='room'?"show('s-home')":"renderRoomCurve()"}" aria-label="戻る">‹</button><span id="wd-title">単語詳細</span></div>
-    <div class="wd-room">
-      <span class="wr-no">ROOM ${String(curSection).padStart(2,"0")}</span>
-      <span class="wr-m">${_ri0.total}語</span><span class="wr-m">PWR ${_ri0.pwr}%</span>
-      ${_rk?`<span class="wr-rank" style="background:${RANK_COLORS[_rk]||"#555"}">${_rk}</span>`:""}
-    </div>
+    <div class="wd-room" id="wd-rmwrap"><div class="wd-rmscale" id="wd-rmscale">${wdRoomMenuHTML(curSection)}</div></div>
+    <div class="zk-sum" style="position:static;margin:10px 0"><button class="zk-back" onclick="${_wdBack==='room'?"show('s-home')":"renderRoomCurve()"}" aria-label="戻る">‹</button><span id="wd-title">単語詳細</span></div>
     <div id="wd-pager" class="rp-pager"></div>
     <div class="wd-scroll" id="wd-scroll">${slides}</div>
     <button class="wd-nav wd-prev" onclick="wdNav(-1)" aria-label="前の単語">‹</button>
     <button class="wd-nav wd-next" onclick="wdNav(1)" aria-label="次の単語">›</button>
    </div>`;
-  const fill=i=>{if(i<0||i>=ids.length)return;const e=document.getElementById("wd-in-"+i);if(e&&!e.dataset.f){e.dataset.f="1";e.innerHTML=wdSlideHTML(ids[i],i);}};
+  const fill=i=>{if(i<0||i>=ids.length)return;const e=document.getElementById("wd-in-"+i);if(e&&!e.dataset.f){e.dataset.f="1";e.innerHTML=wdSlideHTML(ids[i],i);bindSpeakables(e);}}; // 大きい単語カードをタップ＝読み上げ
   fill(idx);fill(idx-1);fill(idx+1);fill(idx-2);fill(idx+2);
   // タイトル＝「初級 ROOM xx No.xxx」（所属ROOM＋室内番号。単語はカード側に表示するのでタイトルには出さない）
   const wdTitle=i=>{const t=document.getElementById("wd-title");if(t){const ri=wordRoomInfo(ids[i]);t.textContent=(ri.label?ri.label+" ":"")+(ri.no?`No.${String(ri.no).padStart(3,"0")}`:"");}};
   wdTitle(idx);
-  buildWdPager(ids,idx); // 上部ページャー
+  buildWdPager(ids,idx); // 上部の単語カードの並び
   show("s-wdetail");
+  fitWdRoomMenu(); // ルームメニューを画面幅に合わせて縮小
   wdRain(ids[idx]); // 表示中の単語の出題履歴ぶんの玉を降らせる
   const sc=document.getElementById("wd-scroll");
   sc.scrollLeft=idx*sc.clientWidth;
@@ -7591,12 +7673,45 @@ function renderWordDetail(wordId,back){
     if(String(i)!==sc.dataset.cur){sc.dataset.cur=i;wdRain(ids[i]);} // 単語が切り替わったら玉も入れ替え
   },90);});
 }
+/* 単語帳ページ（ホームの一覧モード）と同じルームメニューを、単語詳細の最上部に置く（メール指示 2026-08-01）。
+   ホームは602px基準の絶対配置なので、同じ座標のまま画面幅に合わせて縮小する。 */
+function wdRoomMenuHTML(n){
+  const ri=roomInfoFor(n),nn=String(n).padStart(2,"0");
+  const rk=(ri.recent&&ri.recent.length)?ri.recent[ri.recent.length-1]:null;
+  const big=rk?`<div class="rank-b" style="background:${RANK_COLORS[rk]||"#555"}">${rk}</div>`
+              :`<div class="rank-b" style="background:rgba(0,0,0,.22)">-</div>`;
+  const lapL=boardLapSize(curLevel,n),lapC=(loadBoard()[boardKey(curLevel,n)]||{}).cleared||0;
+  return `<div class="wd-rmenu" style="background:transparent">
+    <div class="rmenu-clip">
+      <div class="rmenu-bg"></div>
+      <div class="hv-roomlabel">ROOM</div>
+      <div class="hv-roomno">${nn}</div>
+      <div class="hv-learned">${ri.learned}<span class="unit">語</span></div>
+      <div class="gauge hv-wordsg"><div class="gfill" style="background:#00FFFF;width:${Math.round(ri.learned/ri.total*100)}%"></div></div>
+      <div class="hv-roompwr">${ri.pwr}<span class="unit">%</span></div>
+      <div class="gauge hv-roomg"><div class="gfill" style="background:#00FF37;width:${ri.pwr}%"></div></div>
+      <div class="hv-lap"><span class="lp-l">${Math.floor(lapC/lapL)+1}周目</span><span class="lp-v"><b>${lapC%lapL}</b><i>/</i>${lapL}</span></div>
+      ${big}
+    </div>
+  </div>`;
+}
+function fitWdRoomMenu(){
+  const w=document.getElementById("wd-rmwrap"),s=document.getElementById("wd-rmscale");
+  if(!w||!s)return;
+  const k=w.clientWidth/602;
+  s.style.transform="scale("+k+")";
+  w.style.height=Math.round(116*k)+"px"; // 座布団の上へのはみ出し12px＋本体104px
+}
 function wdNav(d){const sc=document.getElementById("wd-scroll");if(sc)sc.scrollBy({left:d*sc.clientWidth,behavior:"smooth"});} // 前後の単語へ
 /* 単語詳細ページ上部のページャー（番号を並べ、選択中を中央に。タップでその単語へ） */
 function buildWdPager(ids,idx){
   const p=document.getElementById("wd-pager");if(!p)return;
-  // 隣の単語は番号ではなく「韓国語＋日本語」の小さいカードで並べる（メール指示 2026-07-29）
-  p.innerHTML=ids.map((id,i)=>{const w=WORD_BY_ID[id];return `<div class="rp-dot wd-dot${i===idx?" cur":""}" data-i="${i}" onclick="wdPagerJump(${i})"><span class="wd-dk">${esc(w?w.ko:"")}</span><span class="wd-dj">${esc(w?w.ja:"")}</span></div>`;}).join("");
+  // 隣の単語は番号ではなく「絵＋韓国語＋日本語」の単語カードで並べる（メール指示 2026-07-29／2026-08-01）
+  p.innerHTML=ids.map((id,i)=>{
+    const w=WORD_BY_ID[id];
+    const im=(w&&typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko])?`<img class="wd-dimg" src="${WORD_IMG[w.ko]}" alt="">`:`<div class="wd-dimg noimg">🃏</div>`;
+    return `<div class="rp-dot wd-dot${i===idx?" cur":""}" data-i="${i}" onclick="wdPagerJump(${i})">${im}<span class="wd-dk">${esc(w?w.ko:"")}</span><span class="wd-dj">${esc(w?w.ja:"")}</span></div>`;
+  }).join("");
   requestAnimationFrame(()=>syncWdPager(idx));
 }
 function syncWdPager(idx){
@@ -7760,14 +7875,16 @@ function hoursTo70(st,nowMs){
   if(cur<=70)return 0;
   return Math.max(1,stabilityHours(st))*Math.log(cur/70);
 }
-function memChart(pts){
-  const W=320,H=180,padL=25,padB=26,padT=8,padR=4,innerW=W-padL-padR,innerH=H-padT-padB;
+function memChart(pts,opt){
+  // opt.fs / opt.padL: 小さく縮めて置く場所（単語詳細の右列など）で目盛りが読めるように大きくできる
+  const fs=(opt&&opt.fs)||8;
+  const W=320,H=180,padL=(opt&&opt.padL)||25,padB=26,padT=8,padR=4,innerW=W-padL-padR,innerH=H-padT-padB;
   // 縦軸は常に100ではなく、表示データの最大値に合わせて自動スケール（20刻み切り上げ→目盛りが整数になる）
   const ymax=Math.min(100,Math.max(20,Math.ceil(Math.max(...pts.map(p=>p.rate),1)/20)*20));
   const x=i=>padL+innerW*(i/(pts.length-1)),y=r=>padT+innerH*(1-Math.min(r,ymax)/ymax);
   let grid="",lbl="";
-  [0,.25,.5,.75,1].forEach(f=>{const v=Math.round(ymax*f),yy=y(v);grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="rgba(255,255,255,.30)" stroke-width="1"/><text x="${padL-4}" y="${yy+3}" fill="rgba(255,255,255,.85)" font-size="8" font-weight="700" text-anchor="end">${v}</text>`;});
-  pts.forEach((p,i)=>{lbl+=`<text x="${x(i)}" y="${H-padB+14}" fill="rgba(255,255,255,.9)" font-size="8" font-weight="700" text-anchor="middle">${p.label}</text>`;});
+  [0,.25,.5,.75,1].forEach(f=>{const v=Math.round(ymax*f),yy=y(v);grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="rgba(255,255,255,.30)" stroke-width="1"/><text x="${padL-4}" y="${yy+3}" fill="rgba(255,255,255,.85)" font-size="${fs}" font-weight="700" text-anchor="end">${v}</text>`;});
+  pts.forEach((p,i)=>{lbl+=`<text x="${x(i)}" y="${H-padB+14}" fill="rgba(255,255,255,.9)" font-size="${fs}" font-weight="700" text-anchor="middle">${p.label}</text>`;});
   const poly=pts.map(p=>`${x(p.i)},${y(p.rate)}`).join(" ");
   let dots="";pts.forEach(p=>{dots+=`<circle cx="${x(p.i)}" cy="${y(p.rate)}" r="2.6" fill="#00E650"/>`;});
   const th=ymax>=70?`<line x1="${padL}" y1="${y(70)}" x2="${W-padR}" y2="${y(70)}" stroke="#FFD84D" stroke-width="1.4" stroke-dasharray="3 3"/>`:""; // 70%基準線は表示範囲内のときだけ
@@ -7887,7 +8004,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v5.1 (2026-08-01)";
+const APP_VERSION="v5.2 (2026-08-01)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
