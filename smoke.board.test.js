@@ -284,14 +284,16 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
       numFs: n && getComputedStyle(n).fontSize,
       dailyTr: getComputedStyle(document.querySelector('#rr-daily .rr-txt')).transform,
       setTr: getComputedStyle(document.querySelector('#set-btn .rr-txt')).transform,
-      labels: ['rr-daily','rr-rank','rr-level','rr-pwr'].map(id => document.querySelector('#'+id+' .rr-txt').textContent) };
+      labels: [...document.querySelectorAll('.reward-rail:not(.reward-rail-left) .rr-btn .rr-txt')].map(e => e.textContent),
+      gone: !document.getElementById('rr-level') && !document.getElementById('rr-pwr') };
   });
   check(`ランクは58px・メダル風 (${look.w} / ${look.fs})`, look.w === '58px' && look.fs === '41px' && look.ring);
   check(`マス番号が大きい (${look.numFs})`, look.numFs === '40px');
   check('レールはフェード切替（回転しない）', look.dailyTr === 'none');
   check('設定マークだけ従来の回転のまま', look.setTr !== 'none');
-  // ランクの位置はテストのごほうびのガチャに変わった（メール指示 2026-08-01）
-  check(`右のレールはボーナス3つ＋ガチャ (${look.labels.join('|')})`, look.labels.join('|') === '毎日ボーナス|ガチャ|レベルボーナス|PWRボーナス');
+  // PWRボーナスは毎日ボーナスに統合・レベルボーナスは廃止し、右のレールは2つだけになった（メール指示 2026-08-02）
+  check(`右のレールは毎日ボーナスとガチャの2つ (${look.labels.join('|')})`, look.labels.join('|') === '毎日ボーナス|ガチャ');
+  check('レベル／PWRのボーナス箱は無くなった', look.gone);
 
   // --- 番号/ランクが絵の位置に追従するか・レール切替で重ならないか ---
   check('番号とランクが絵の角に追従する', await page.evaluate(async () => {

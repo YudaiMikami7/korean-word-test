@@ -114,17 +114,34 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     return /wd-rare/.test(h) && /SSR/.test(h);
   }));
 
-  const after = await page.evaluate(() => ({ spins: gachaSpins(), rank: presentsAvailable('rank'), q: gachaState().q.slice(-1)[0] }));
-  check(`テストを1本終えるとガチャが1回ふえる (${after.spins}回)`, after.spins === 1);
-  check('テストのごほうびのプレゼントは作られない', after.rank === 0);
-  check(`テストぶんのXPはガチャにくっついている (+${after.q && after.q.xp} XP)`, after.q && after.q.xp > 0);
+  // テストが終わると「プレゼント」が届き、受け取るとガチャコインになる（メール指示 2026-08-02）
+  const after = await page.evaluate(() => {
+    const coin = _presentState().queue.filter(x => x.kind === 'coin' && x.title === 'テストのごほうび');
+    return { spinsBefore: gachaSpins(), coins: coin.length, cat: coin[0] && coin[0].cat, xp: coin[0] && coin[0].total };
+  });
+  check(`テストを1本終えるとプレゼントが1個届く (${after.coins}個)`, after.coins === 1);
+  check(`プレゼントは毎日ボーナスの箱に入る (${after.cat})`, after.cat === 'daily');
+  check('受け取る前はまだガチャはまわせない', after.spinsBefore === 0);
+  check(`テストぶんのXPはコインにくっついている (+${after.xp} XP)`, after.xp > 0);
+  // プレゼントを受け取る → ガチャコイン1枚
+  const claimed = await page.evaluate(() => {
+    openPresent('daily');
+    const btn = [...document.querySelectorAll('#present-modal .pm-item')].find(b => b.dataset.kind === 'coin');
+    const face = btn && btn.querySelector('.pm-cn');
+    claimPresentItem(btn);
+    closePresent();
+    return { spins: gachaSpins(), q: gachaState().q.slice(-1)[0], hadCoinFace: !!face };
+  });
+  check('プレゼントの中身がガチャコインだと分かる', claimed.hadCoinFace);
+  check(`受け取るとガチャコインが1枚ふえる (${claimed.spins}枚)`, claimed.spins === 1);
+  check(`テストぶんのXPはコインと一緒にガチャへ渡る (+${claimed.q && claimed.q.xp} XP)`, claimed.q && claimed.q.xp > 0);
 
   // ================= ③ ガチャの見た目・景品 =================
   check('ホームのボタンがガチャになっている', await page.evaluate(() => {
     const b = document.getElementById('rr-rank');
     return /openGacha/.test(b.getAttribute('onclick')) && b.querySelector('.rr-txt').textContent.trim() === 'ガチャ';
   }));
-  check('ガチャの残り回数がバッジに出る', await page.evaluate(() => {
+  check('ガチャコインの枚数がバッジに出る', await page.evaluate(() => {
     updatePresent();
     const b = document.getElementById('pb-rank');
     return b.style.display === 'flex' && b.textContent === '1';

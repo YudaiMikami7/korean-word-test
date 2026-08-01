@@ -254,10 +254,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* バー：暗いトラック＋内側に角丸フィル（見本準拠） */
 .home-wrap .gauge,.dash-head .gauge{position:absolute;background:#333333;border-radius:999px;padding:3px;box-sizing:border-box;z-index:2}
 .home-wrap .gfill,.dash-head .gfill{height:100%;border-radius:999px;transition:width .5s ease;width:0}
-/* ステータスバーのPWRメータ：最大値→0へ徐々に減り、それを繰り返すドレイン演出（数値は実PWRを別途表示） */
-#hv-pwrfill{transition:none;animation:pwrDrain 10s linear infinite}
-#hv-pwrfill.pwr0{animation:none;width:0} /* PWRが0のときは「減り続ける」演出を止める（減るものが無いのに減って見えるため） */
-@keyframes pwrDrain{0%{width:100%}100%{width:0%}}
+/* ステータスバーのPWRメータ：一定スピードの繰り返しドレイン演出は廃止し、いまの実PWRをそのまま表示して
+   忘却モデルどおりの本当のスピードで減らす（メール指示 2026-08-02）。幅はJS(updatePwrFine)が0.3秒ごとに更新する */
+#hv-pwrfill{transition:none}
+#hv-pwrfill.pwr0{width:0} /* PWRが0のときは空のまま */
 /* ヘッダー（さらに上へ。茶色領域は黒80%透過。4色ドットは廃止） */
 .avatar-circle{position:absolute;left:40px;top:44px;width:114px;height:114px;border-radius:50%;background:#fff;border:5px solid rgba(0,0,0,.8);box-sizing:border-box;overflow:hidden;cursor:pointer;z-index:2} /* 背景=タイプ/PWRページと同じグレー */
 .avatar-image{width:100%;height:100%;object-fit:contain;padding:12px;box-sizing:border-box}
@@ -272,7 +272,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .avatar-circle.show-job .avatar-job{transform:rotateY(0);opacity:1}
 .hv-level{position:absolute;left:176px;top:44px;display:flex;align-items:baseline;gap:3px;line-height:1;z-index:2;font-size:20px}
 .hv-level span{font-size:38px}
-.hv-code{position:absolute;right:47px;top:39px;font-size:40px;letter-spacing:1px;line-height:1;cursor:pointer;z-index:2;display:flex;align-items:center;gap:5px} /* 数字上端がLv.数字(top44)と揃う位置：39+(50-40)/2=44 */
+.hv-code{position:absolute;right:47px;top:39px;font-size:40px;letter-spacing:1px;line-height:1;z-index:2;display:flex;align-items:center;gap:5px} /* 数字上端がLv.数字(top44)と揃う位置：39+(50-40)/2=44 */
 .streak-fire{width:50px;height:50px;object-fit:contain;display:block}
 #hv-pwrdown{position:absolute;left:166px;top:153px;width:403px;text-align:center;font-size:16px;font-weight:700;color:#fff;z-index:2;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.5);transition:opacity .28s ease}
 #hv-nextrev{position:absolute;left:166px;top:176px;width:403px;text-align:center;font-size:13px;font-weight:800;color:rgba(255,255,255,.92);z-index:2;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,.5);transition:opacity .28s ease}
@@ -286,7 +286,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rp-dot.cur{transform:scale(1.55);text-shadow:0 3px 7px rgba(0,0,0,.75),0 0 3px rgba(0,0,0,.6)}
 .rp-dot.pq{font-size:19px}
 .home-side-btn img{width:74%;height:74%;object-fit:contain;pointer-events:none;display:block;margin:auto}
-.status-panel{position:absolute;left:166px;top:83px;width:403px;height:64px;border-radius:32px;background:rgba(0,0,0,.8);z-index:1;cursor:pointer}
+.status-panel{position:absolute;left:166px;top:83px;width:403px;height:64px;border-radius:32px;background:rgba(0,0,0,.8);z-index:1}
 .hv-lab,.hv-xpg,.hv-pwrg{pointer-events:none}
 .hv-lab{position:absolute;font-size:18px;line-height:19px;z-index:2}
 .hv-xplabel{left:175px;top:92px;width:80px;text-align:right}
@@ -363,7 +363,8 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* プリQQは背景が淡いので三角を濃いピンクに（他スライドは白のまま） */
 .home-wrap.pq-active .rm-prev::before{border-right-color:#c04ea0}
 .home-wrap.pq-active .rm-next::before{border-left-color:#c04ea0}
-.home-wrap.status .rm-arrow,.home-wrap.hiderail .rm-arrow{opacity:0;pointer-events:none}
+/* 単語帳ページでもROOMメニューの左右矢印は出したまま（メール指示 2026-08-02）。--lift でメニューと一緒に上へ移動する */
+.home-wrap.status .rm-arrow{opacity:0;pointer-events:none}
 /* ルームメニューの3面ローテーション：語数/％/ランク(face0) ⇄ おすすめ単語 ⇄ PWRグラフ。
    ※メール指示（2026-07-29）でルームメニューのアニメーションは完全に廃止。回転の transition を外し、
      ローテーション自体も止めている（JS: ROOM_RECO_ROTATE）。この2面は常に非表示のまま */
@@ -531,12 +532,12 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .sg-here.spot{animation:sgherebob 1.6s ease-in-out infinite,hereSpot 1.1s ease-in-out 4} /* 「あなただけの12問」からスタートへ誘導 */
 @keyframes hereSpot{0%,100%{box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 0 4px rgba(255,196,0,.95)}50%{box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 0 14px rgba(255,196,0,.45)}}
 /* 今日学ぶべき単語の帯：スタートボタン上に半透明白、カードが左→右に流れる */
-.today-band{position:absolute;left:14px;top:962px;width:452px;height:170px;border-radius:14px;overflow:hidden;background:rgba(255,255,255,.6);z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease} /* 白帯は白寄り60%（背後の玉と重なっても見づらくならない） */
+.today-band{position:absolute;left:14px;top:962px;width:452px;height:170px;border-radius:14px;overflow:hidden;z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease} /* カードの裏に敷いていた白半透明の座布団は廃止（メール指示 2026-08-02） */
 /* カードは絵がはみ出す作りをやめ、結果画面の獲得カード(.rc-card)と同じ「普通の縦長カード」にした（メール指示 2026-07-31）
    → 見出しはカードに重ねてよいので、カードは帯の高さいっぱい＝縦幅マックスで流す（メール指示 2026-08-01） */
 .tb-clip{position:absolute;left:0;top:0;width:452px;height:170px;border-radius:14px;overflow:hidden;display:flex;align-items:flex-end}
-/* 帯左上の見出しは流れるカードの前面に重ねる。カードの絵と重なっても読めるよう白の座布団を敷く（メール指示 2026-08-01） */
-.tb-label{position:absolute;left:10px;top:6px;z-index:2;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,.82);font-size:14px;font-weight:900;letter-spacing:1px;color:rgba(0,0,0,.55);pointer-events:none}
+/* 帯左上の見出しは流れるカードの前面に重ねる。白の座布団は角丸のカプセル形に（メール指示 2026-08-02） */
+.tb-label{position:absolute;left:10px;top:6px;z-index:2;padding:3px 12px;border-radius:999px;background:rgba(255,255,255,.82);font-size:14px;font-weight:900;letter-spacing:1px;color:rgba(0,0,0,.55);pointer-events:none}
 .home-wrap.status .today-band,.home-wrap.hiderail .today-band{opacity:0}
 .tb-track{display:flex;animation:tbflow 30s linear infinite;will-change:transform;backface-visibility:hidden;margin-bottom:2px}
 .tb-group{display:flex;gap:12px;padding:0 6px;flex:0 0 auto} /* 同一グループ2連結で-50%＝ちょうど1周＝つなぎ目ゼロ */
@@ -607,8 +608,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 #set-btn .rr-txt{transform:rotate(-180deg)}
 #set-btn.show-label img{transform:rotate(180deg)}
 #set-btn.show-label .rr-txt{transform:rotate(0deg)}
-.rr-btn.rb{animation:rbglow 1.4s linear infinite}
-.rr-btn.bob{animation:bob 1.6s ease-in-out infinite}
+/* 左右のリールアイコンの動き（虹の発光・上下バウンド・アイコン⇄文字の回転入替）は廃止（メール指示 2026-08-02）。
+   受け取り待ちがあることは .rr-badge の赤い数字だけで知らせる */
+.rr-btn.rb{animation:none}
+.rr-btn.bob{animation:none}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes rbglow{0%{filter:drop-shadow(0 0 7px #ff3b3b)}17%{filter:drop-shadow(0 0 9px #ffb13b)}33%{filter:drop-shadow(0 0 10px #ffe93b)}50%{filter:drop-shadow(0 0 11px #3bff6a)}67%{filter:drop-shadow(0 0 10px #3bc4ff)}83%{filter:drop-shadow(0 0 9px #b13bff)}100%{filter:drop-shadow(0 0 7px #ff3b3b)}}
 .rr-badge{position:absolute;right:-4px;top:-4px;z-index:1;min-width:22px;height:22px;border-radius:11px;background:#FF3B3B;color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box;border:2px solid #fff}
@@ -643,6 +646,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .pm-close:active{background:rgba(0,0,0,.07)}
 /* おやすみチケットのプレゼント（箱ではなく💤の札。中身が開ける前から分かるように） */
 .pm-tk{width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-size:34px;background:rgba(22,136,255,.22);border:2px solid rgba(255,255,255,.5);box-sizing:border-box}
+.pm-tk.pm-cn{background:rgba(255,196,0,.26);border-radius:50%} /* ガチャコイン（メール指示 2026-08-02） */
+.pm-item .amt{font-size:16px}
+.pm-item .amt small{display:block;font-size:11px;font-weight:800;color:#FFE08A;margin-top:1px} /* コインに付いてくるXP */
+.pm-item.claimed .amt small{color:#aaa}
 /* --- ガチャ（メール指示 2026-08-01）。プレゼントのモーダルと同じトーン --- */
 #gacha-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
 #gacha-modal.on{display:flex}
@@ -944,6 +951,14 @@ body.bigtext .set-d{font-size:13.5px}
 .cc-item{background:rgba(255,255,255,.13);border-radius:16px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;font-size:14.5px;font-weight:800;color:#fff;cursor:pointer}
 .cc-item .cc-arw{color:rgba(255,255,255,.6);font-weight:900}
 .cc-item.cc-note{cursor:default;font-size:12px;font-weight:700;color:rgba(255,255,255,.75);line-height:1.5}
+/* ルームの色（4段階の見本ボタン。メール指示 2026-08-02） */
+.cc-item.cc-tone{cursor:default}
+.tone-sw{display:flex;gap:7px}
+.tone-b{background:transparent;border:none;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit}
+.tone-b i{display:block;width:34px;height:24px;border-radius:7px;box-shadow:0 0 0 2px rgba(255,255,255,.25) inset}
+.tone-b em{font-style:normal;font-size:9.5px;font-weight:800;color:rgba(255,255,255,.6);white-space:nowrap}
+.tone-b.on i{box-shadow:0 0 0 2.5px #fff}
+.tone-b.on em{color:#fff}
 .cc-item.cc-2btn{gap:10px;background:transparent;padding:0}
 .cc-item.cc-2btn button,.cc-item.cc-2btn label{flex:1;background:rgba(255,255,255,.13);border:none;border-radius:16px;padding:14px;font-size:13.5px;font-weight:800;color:#fff;cursor:pointer;text-align:center;font-family:inherit}
 .cc-links{display:flex;justify-content:center;gap:16px;margin-top:14px;font-size:12px;font-weight:700}
@@ -1028,9 +1043,11 @@ body.bigtext .set-d{font-size:13.5px}
 .ax2knob{position:absolute;top:50%;width:15px;height:15px;border-radius:50%;border:2px solid #fff;transform:translate(-50%,-50%);box-sizing:border-box}
 .ax2panel{background:rgba(255,255,255,.15);padding:10px 14px} /* 4メータの白15%背景 */
 .tdetail-sec .ax2row{margin:12px 0 4px}
-.ax2desc{font-size:11px;line-height:1.6;color:rgba(255,255,255,.82);padding:0 2px 9px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:9px} /* 各メータ直下の常時説明 */
+/* 各メータ直下の常時説明：文字を太くし、単語の途中で折り返らないよう改行位置を整える（メール指示 2026-08-02） */
+.ax2desc{font-size:12px;line-height:1.75;font-weight:800;color:#fff;padding:0 2px 10px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:10px;
+  word-break:keep-all;overflow-wrap:anywhere;line-break:strict;text-wrap:pretty}
 .ax2panel .ax2desc:last-child{border-bottom:none;margin-bottom:0;padding-bottom:2px}
-.ax2desc b{color:#fff;font-size:12px}
+.ax2desc b{color:#fff;font-size:13px;font-weight:900}
 .t16link{margin-top:auto;text-align:right;font-size:17px;font-weight:800;cursor:pointer;letter-spacing:1px}
 .t16link b{font-size:19px}
 /* ステータス内のROOM表記・PWRメーターはPWR詳細ページと同じ見た目サイズ（--invで逆スケール補正） */
@@ -1752,7 +1769,7 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-wrap{position:absolute;left:24px;top:104px;width:554px;height:636px;z-index:1;overflow:hidden;
   -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 40px,#000 calc(100% - 56px),transparent 100%);
           mask-image:linear-gradient(180deg,transparent 0,#000 40px,#000 calc(100% - 56px),transparent 100%)}
-.sg-bg{position:absolute;left:0;top:-10px;width:554px;height:507px;object-fit:contain;opacity:.2;pointer-events:none;filter:saturate(.7)} /* ROOMのジオラマを薄く敷いて奥行きを出す */
+.sg-bg{display:none;position:absolute;left:0;top:-10px;width:554px;height:507px;object-fit:contain;opacity:.2;pointer-events:none;filter:saturate(.7)} /* ROOMのジオラマ背景は一旦非表示（メール指示 2026-08-02）。display:none を外せば元に戻る */
 .sg-scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .sg-scroll::-webkit-scrollbar{display:none}
 .sg-track{position:relative;width:554px}
@@ -2070,8 +2087,9 @@ body.bigtext .set-d{font-size:13.5px}
     <div class="home-wrap" id="homewrap">
       <div class="home-head">
       <div class="avatar-circle" onclick="renderTypeDetail()" role="button" aria-label="タイプ詳細"><img class="avatar-image" id="hv-char" src="characters/analyzing.svg" alt=""><div class="avatar-mbti" id="hv-mbti"></div><div class="avatar-job" id="hv-job"></div></div><!-- タップで16TYPE詳細へ。一定時間でキャラ(50%)⇄MBTI(25%)⇄職業(25%)を切替 -->
-      <div class="hv-level" id="hv-level" onclick="enterStatusMode()" style="cursor:pointer">Lv.<span>1</span></div>
-      <div class="hv-code" id="hv-code" onclick="enterStatusMode()"></div>
+      <!-- ステータス画面は廃止したので、Lv./連続日数からの入口も外した（メール指示 2026-08-02） -->
+      <div class="hv-level" id="hv-level">Lv.<span>1</span></div>
+      <div class="hv-code" id="hv-code"></div>
       <div class="reward-rail reward-rail-left">
         <button class="rr-btn rr-set" id="set-btn" onclick="openSettings()" aria-label="設定"><img src="icons/settings.webp" alt="設定" onerror="this.replaceWith(document.createTextNode('⚙'))"><span class="rr-txt">設定</span></button>
         <button class="rr-btn rr-map" id="map-btn" onclick="openRoomMap()" aria-label="ROOM一覧"><img src="icons/map.webp" alt="ROOM一覧" onerror="this.replaceWith(document.createTextNode('🗺'))"><span class="rr-txt">ROOM<br>一覧</span></button>
@@ -2081,10 +2099,9 @@ body.bigtext .set-d{font-size:13.5px}
       <div class="reward-rail">
         <button class="rr-btn" id="rr-daily" onclick="openPresent('daily')"><img src="icons/bonus-daily.webp" alt="毎日"><span class="rr-txt">毎日<br>ボーナス</span><span class="rr-badge" id="pb-daily" style="display:none"></span></button>
         <button class="rr-btn" id="rr-rank" onclick="openGacha()"><img src="icons/bonus-rank.webp" alt="ガチャ"><span class="rr-txt">ガチャ</span><span class="rr-badge" id="pb-rank" style="display:none"></span><span class="rr-x2" id="rr-x2" style="display:none">✕2</span></button><!-- テストのごほうびはプレゼントではなくガチャ（メール指示 2026-08-01） -->
-        <button class="rr-btn" id="rr-level" onclick="openPresent('level')"><img src="icons/bonus-level.webp" alt="レベル"><span class="rr-txt">レベル<br>ボーナス</span><span class="rr-badge" id="pb-level" style="display:none"></span></button>
-        <button class="rr-btn" id="rr-pwr" onclick="openPresent('pwr')"><img src="icons/bonus-pwr.webp" alt="PWR"><span class="rr-txt">PWR<br>ボーナス</span><span class="rr-badge" id="pb-pwr" style="display:none"></span></button>
+        <!-- PWRボーナスは毎日ボーナスに統合し、レベルボーナスは廃止（代わりにガチャコイン）。リールは「毎日ボーナス」「ガチャ」の2つ（メール指示 2026-08-02） -->
       </div>
-      <div class="status-panel" onclick="enterStatusMode()"></div>
+      <div class="status-panel"></div>
       <div class="hv-lab hv-xplabel">XP</div>
       <div class="gauge hv-xpg"><div class="gfill" id="hv-xpfill" style="background:#FFFF37"></div></div>
       <div class="hv-lab hv-xpval" id="hv-xpval">0/100</div>
@@ -2107,7 +2124,7 @@ body.bigtext .set-d{font-size:13.5px}
       <div id="pull-hint">↓ さらに引くとホームに戻る</div>
       <div id="wb-search"><input id="wb-q" type="search" placeholder="単語をさがす（韓国語・日本語）" oninput="wbSearch(this.value)"><div id="wb-hits"></div></div>
       <div class="today-band" id="today-band" style="display:none"><div class="tb-label">最近学んだ単語</div><div class="tb-clip"><div class="tb-track" id="tb-track"></div></div></div><!-- 中身が入るまで非表示（空の白帯チラ見え防止） -->
-      <button class="home-side-btn hsb-left" onclick="enterStatusMode()" aria-label="ステータス"><img src="images-thumb/0912.webp" alt=""><span class="hsb-txt">ステータス</span></button>
+      <button class="home-side-btn hsb-left" aria-label="ステータス"><img src="images-thumb/0912.webp" alt=""><span class="hsb-txt">ステータス</span></button><!-- ステータス画面は廃止（CSSでも display:none） -->
       <button class="start-button" onclick="onStartBtn()"><span class="sb-bubble" id="sb-bubble"></span><span class="sb-txt"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span><span class="sb-gear" aria-hidden="true">⚙️</span><span class="sb-back">戻る</span></button>
       <button class="home-side-btn hsb-right" onclick="enterListMode()" aria-label="単語帳"><img src="images-thumb/1290.webp" alt=""><span class="hsb-txt">単語帳</span></button>
       <div id="status-ov"></div>
@@ -2510,14 +2527,19 @@ function openCalendar(off){
   m.classList.add("on");
 }
 function closeCalendar(){document.getElementById("calendar-modal").classList.remove("on");}
-const PRES_CATS=["daily","rank","level","pwr"];
-const PRES_LABEL={daily:"毎日ボーナス",rank:"テストのごほうび",level:"レベル・達成ボーナス",pwr:"PWRボーナス"};
+/* プレゼント箱は「毎日ボーナス」1つに集約（PWRボーナスは統合・レベルボーナスは廃止）。
+   rank はプレゼントではなくガチャのボタン位置を指す（メール指示 2026-08-02） */
+const PRES_CATS=["daily","rank"];
+const PRES_LABEL={daily:"毎日ボーナス",rank:"テストのごほうび"};
 function _presentState(){
   const o=_lsJSON(LS_PRESENT,()=>({}));
   if(!Array.isArray(o.queue))o.queue=[];
-  o.queue.forEach(it=>{ // 旧データ移行: catが無い項目に割り当て
-    if(!it.cat)it.cat=(it.kind==="achv")?((it.title&&(it.title.includes("プレイ達成")||it.title.includes("ROOM")))?"level":"daily"):"rank";
+  let moved=false;
+  o.queue.forEach(it=>{
+    if(!it.cat)it.cat="daily"; // 旧データ移行: catが無い項目
+    if(it.cat==="level"||it.cat==="pwr"){it.cat="daily";moved=true;} // レベル/PWRの箱は廃止・統合したので毎日ボーナスへ引っ越す
   });
+  if(moved)_lsSetJSON(LS_PRESENT,o);
   return o;
 }
 function _savePresent(o){_lsSetJSON(LS_PRESENT,o);}
@@ -2551,11 +2573,11 @@ function checkAchievements(){
   add("daily-"+dayKey(Date.now()),"毎日起動ボーナス",50,"daily");
   const _sp=specialBonusFor(new Date());
   if(_sp)add("sp-"+_sp.name+"-"+new Date().getFullYear(),_sp.name+"ボーナス",_sp.amount,"daily");
-  const tt=totalTests();
-  if(tt>=3)add("tests3","3回プレイ達成",100,"level");
-  if(tt>=5)add("tests5","5回プレイ達成",200,"level");
-  if(tt>=10)add("tests10","10回プレイ達成",300,"level");
-  if(roomsPlayed()>=3)add("rooms3","3種類のROOM達成",150,"level");
+  const tt=totalTests(); // 達成ボーナスもレベルの箱の廃止にともない毎日ボーナスへ（メール指示 2026-08-02）
+  if(tt>=3)add("tests3","3回プレイ達成",100,"daily");
+  if(tt>=5)add("tests5","5回プレイ達成",200,"daily");
+  if(tt>=10)add("tests10","10回プレイ達成",300,"daily");
+  if(roomsPlayed()>=3)add("rooms3","3種類のROOM達成",150,"daily");
   if(changed)_savePresent(st);
   updatePresent();
 }
@@ -2568,16 +2590,19 @@ function grantRestTicketPresent(){
   try{updatePresent();}catch(e){}
 }
 const RANK_BONUS={S:100,A:60,B:40,C:20,D:10};
-/* テスト終了時: レベル・PWRはプレゼント、テストのごほうびはプレゼントではなくガチャ1回（メール指示 2026-08-01）。
-   これまでプレゼントで渡していた基本＋レインボー＋ランクぶんのXPは、そのガチャ1回にくっつけて渡す。 */
+/* テスト終了時（メール指示 2026-08-02）:
+   ・テストが終わったら「プレゼント」が届き、受け取るとガチャコインが1枚もらえる（＝ガチャが1回まわせる）。
+     これまでプレゼントで渡していた基本＋レインボー＋ランクぶんのXPは、そのコインにくっつけて一緒に渡す。
+   ・レベルアップボーナス（XP）は廃止し、上がったレベルのぶんだけガチャコインを渡す。
+   ・PWRボーナスは毎日ボーナスの箱に統合。 */
 function enqueuePresent(rank,pwrDelta){
   const st=_presentState(),at=new Date().toISOString();
   const base=30,rainbow=totalTests()*5,rankBonus=RANK_BONUS[rank]||0;
-  addGachaSpin(base+rainbow+rankBonus,rank); // ← テストのごほうび＝ガチャが1回まわせるようになる
-  const levelBonus=Math.max(0,(xpInfo().level-(state.levelBefore||1)))*100;
-  if(levelBonus>0)st.queue.push({cat:"level",kind:"achv",title:"レベルアップ",total:levelBonus,at});
+  st.queue.push({cat:"daily",kind:"coin",title:"テストのごほうび",total:base+rainbow+rankBonus,rank:rank||"",at});
+  const levelUps=Math.max(0,(xpInfo().level-(state.levelBefore||1)));
+  for(let i=0;i<levelUps;i++)st.queue.push({cat:"daily",kind:"coin",title:"レベルアップ",total:0,rank:"",at});
   const pwrBonus=Math.max(0,Math.round(pwrDelta||0))*5;
-  if(pwrBonus>0)st.queue.push({cat:"pwr",kind:"achv",title:"PWRが上がった！ +"+Math.round(pwrDelta)+"%",total:pwrBonus,at});
+  if(pwrBonus>0)st.queue.push({cat:"daily",kind:"achv",title:"PWRが上がった！ +"+Math.round(pwrDelta)+"%",total:pwrBonus,at});
   _savePresent(st);
 }
 function updatePresent(){
@@ -2592,11 +2617,12 @@ function updatePresent(){
   if(x2)x2.style.display=xpBoostActive()?"flex":"none";
 }
 function _bonusRow(label,v,cls){return v>0?`<div class="pm-line"><span>${label}</span><span class="${cls||''}">+${v}</span></div>`:"";}
-let _presCat="rank";
-function _presItemLabel(r){return r.kind==="ticket"?"おやすみチケット":r.kind==="achv"?(r.title||"達成ボーナス"):("RANK "+r.rank+" のごほうび");}
-/* おやすみチケットはXPではなく「1枚」。中身が分かるように箱ではなく💤の札で出す（メール指示 2026-08-01） */
-function _presItemFace(r){return r.kind==="ticket"?`<span class="pm-tk">💤</span>`:`<img src="icons/present.webp" alt="">`;}
-function _presItemAmt(r){return r.kind==="ticket"?"1枚":("+"+r.total+" XP");}
+let _presCat="daily";
+function _presItemLabel(r){return r.kind==="ticket"?"おやすみチケット":r.kind==="coin"?(r.title||"ガチャコイン"):r.kind==="achv"?(r.title||"達成ボーナス"):("RANK "+r.rank+" のごほうび");}
+/* おやすみチケットはXPではなく「1枚」。中身が分かるように箱ではなく💤の札で出す（メール指示 2026-08-01）。
+   ガチャコインは🪙の札（メール指示 2026-08-02） */
+function _presItemFace(r){return r.kind==="ticket"?`<span class="pm-tk">💤</span>`:r.kind==="coin"?`<span class="pm-tk pm-cn">🪙</span>`:`<img src="icons/present.webp" alt="">`;}
+function _presItemAmt(r){return r.kind==="ticket"?"1枚":r.kind==="coin"?("コイン1枚"+(r.total>0?"<small>+"+r.total+" XP</small>":"")):("+"+r.total+" XP");}
 function openPresent(cat){if(!document.getElementById("present-modal").classList.contains("on"))pushNav("modal");
   _presCat=cat||"rank";
   const m=document.getElementById("present-modal");
@@ -2604,26 +2630,25 @@ function openPresent(cat){if(!document.getElementById("present-modal").classList
   if(q.length>0){
     // プレゼントが個数分ボタンで並ぶ（2列）。受け取ったボタンはその場で「受け取り済み」に変わる
     const items=q.map(r=>`
-      <button class="pm-item" data-at="${esc(r.at)}" data-total="${r.total}" data-kind="${esc(r.kind||"")}" onclick="claimPresentItem(this)">
+      <button class="pm-item" data-at="${esc(r.at)}" data-total="${r.total}" data-kind="${esc(r.kind||"")}" data-rank="${esc(r.rank||"")}" onclick="claimPresentItem(this)">
         ${_presItemFace(r)}
         <span class="ttl">${esc(_presItemLabel(r))}</span>
         <span class="amt">${_presItemAmt(r)}</span>
       </button>`).join("");
+    // 閉じるボタンは右上の×があるので置かない（メール指示 2026-08-02）
     m.innerHTML=`<div class="pm-card rainbow">
       <button class="pm-close" onclick="closePresent()">×</button>
       <div class="pm-title">${esc(PRES_LABEL[_presCat])}が ${q.length} 個</div>
       <div class="pm-sub">タップして受け取ろう</div>
       <div class="pm-grid">${items}</div>
       ${q.length>=2?`<button class="pm-btn" style="background:#1a1a1a;color:#fff" onclick="claimAllPresents()">まとめて受け取る</button>`:""}
-      <button class="pm-btn" onclick="closePresent()">とじる</button>
     </div>`;
   }else{
     m.innerHTML=`<div class="pm-card">
       <button class="pm-close" onclick="closePresent()">×</button>
       <img class="pm-img" src="icons/bonus-${_presCat}.webp" alt="">
       <div class="pm-title">${esc(PRES_LABEL[_presCat])}は空っぽ</div>
-      <div class="pm-sub">${_presCat==="daily"?"毎日起動すると届きます":_presCat==="rank"?"テストをこなすと届きます":_presCat==="level"?"レベルアップや達成で届きます":"PWRが上がると届きます"}</div>
-      <button class="pm-btn" onclick="closePresent()">とじる</button>
+      <div class="pm-sub">${_presCat==="daily"?"毎日起動したりテストを終えたりすると届きます":"テストをこなすと届きます"}</div>
     </div>`;
   }
   m.classList.add("on");
@@ -2656,27 +2681,36 @@ function claimAllPresents(){
   const st=_presentState();
   const items=st.queue.filter(x=>x.cat===_presCat);
   if(!items.length)return;
-  let sum=0,tk=0;items.forEach(r=>{if(r.kind==="ticket")tk++;else sum+=r.total;}); // おやすみチケットはXPではなく枚数で受け取る
+  let sum=0,tk=0;const coins=[];
+  items.forEach(r=>{ // おやすみチケットは枚数・ガチャコインは1枚ずつ（XPが付いていれば一緒に）
+    if(r.kind==="ticket")tk++;
+    else if(r.kind==="coin")coins.push(r);
+    else sum+=r.total;
+  });
   const cat=_presCat;
   const rects=[...document.querySelectorAll("#present-modal .pm-item:not(.claimed)")].map(el=>el.getBoundingClientRect()); // 消える前に各箱の位置を記録
   st.queue=st.queue.filter(x=>x.cat!==cat);
   _savePresent(st);
   sfxClaim();addBonus(sum);if(tk)addRestTicket(tk);
+  coins.forEach(r=>addGachaSpin(r.total,r.rank||""));
   rects.forEach((r,i)=>setTimeout(()=>flyClaimToBox(r,cat),i*90)); // 少しずつずらしてアーチで箱へ
   updatePresent();updateHomeStats(); // XP等だけ更新（ROOMスライドは再構築しない）
   openPresent(cat); // 空になったカードに切替（モーダルは開いたまま）
 }
 function claimPresentItem(btn){
   if(btn.classList.contains("claimed"))return;
-  const at=btn.dataset.at,total=+btn.dataset.total,kind=btn.dataset.kind||"";
+  const at=btn.dataset.at,total=+btn.dataset.total,kind=btn.dataset.kind||"",rank=btn.dataset.rank||"";
   const st=_presentState();
   const idx=st.queue.findIndex(x=>x.cat===_presCat&&x.at===at&&x.total===total&&(x.kind||"")===kind);
   if(idx<0)return;
   st.queue.splice(idx,1);
   _savePresent(st);
   sfxClaim();
-  if(kind==="ticket")addRestTicket(1); else addBonus(total); // おやすみチケットはXPではなく1枚たまる
-  flyClaimToBox(btn.getBoundingClientRect(),_presCat); // 箱がアーチを描いて報酬アイコンへ入っていく演出
+  // おやすみチケットは1枚／ガチャコインはガチャ1回ぶん（付いているXPも一緒に）／それ以外はXP
+  if(kind==="ticket")addRestTicket(1);
+  else if(kind==="coin")addGachaSpin(total,rank);
+  else addBonus(total);
+  flyClaimToBox(btn.getBoundingClientRect(),kind==="coin"?"rank":_presCat); // ガチャコインはガチャのアイコンへ吸い込まれる
   btn.classList.add("claimed");
   btn.querySelector(".amt").textContent="受け取り済み";
   updatePresent();
@@ -2742,10 +2776,10 @@ function gachaRenderIdle(){
   m.innerHTML=`<div class="pm-card gc-card${n>0?" rainbow":""}">
     <button class="pm-close" onclick="closeGacha()">×</button>
     <div class="pm-title">ガチャ</div>
-    <div class="pm-sub">${n>0?"テストのごほうび":"テストを1本終えるとまわせます"}</div>
+    <div class="pm-sub">${n>0?"ガチャコインでまわせます":"テストのプレゼントでガチャコインがもらえます"}</div>
     <div class="gc-machine${n>0?" ready":""}" id="gc-machine"><div class="gc-ball b1"></div><div class="gc-ball b2"></div><div class="gc-ball b3"></div><div class="gc-cap">${n>0?"🎰":"…"}</div></div>
     ${_gachaBoostLine()}
-    <div class="gc-count">${n>0?`のこり <b>${n}</b> 回`:"のこり <b>0</b> 回"}</div>
+    <div class="gc-count">🪙 ガチャコイン <b>${n}</b> 枚</div>
     ${n>0?`<button class="pm-btn gc-go" onclick="spinGacha()">まわす</button>`:""}
     <button class="pm-btn" onclick="closeGacha()">とじる</button>
   </div>`;
@@ -2781,7 +2815,7 @@ function gachaRenderResult(p,amt,tk){
     </div>
     ${tk&&tk.xp>0?`<div class="gc-extra">テストのごほうび <b>+${tk.xp} XP</b>${tk.rank?`（RANK ${esc(tk.rank)}）`:""}</div>`:""}
     ${_gachaBoostLine()}
-    <div class="gc-count">のこり <b>${n}</b> 回</div>
+    <div class="gc-count">🪙 ガチャコイン <b>${n}</b> 枚</div>
     ${n>0?`<button class="pm-btn gc-go" onclick="spinGacha()">もう1回まわす</button>`:""}
     <button class="pm-btn" onclick="closeGacha()">とじる</button>
   </div>`;
@@ -2832,20 +2866,43 @@ function restAskUse(){
   if(used>0)setTimeout(()=>showStreakCelebration(loginStreak()),320); // つながった連続日数をそのまま見せる
 }
 /* PWR=学習済み（1回以上出題）全単語の平均記憶率。時間で低下し復習で上昇 */
-function pwrOverallExact(){const s=loadStats(),ids=Object.keys(s);if(!ids.length)return 0;const now=Date.now();let t=0;ids.forEach(id=>t+=displayMemoryScore(getStat(id,s),now));return t/ids.length;}
-/* PWR表示は「ホーム表示時に1回実測→以後は10秒ごとに0.01%ずつ必ず減る」決め打ち方式（毎0.3秒の全単語再計算なし） */
-let _pwrT0=0,_pwrBase=0,_pwrFillLast=-1;
-function calibratePwr(){_pwrBase=pwrOverallExact();_pwrT0=Date.now();}
+function pwrOverallExactAt(t){const s=loadStats(),ids=Object.keys(s);if(!ids.length)return 0;let v=0;ids.forEach(id=>v+=displayMemoryScore(getStat(id,s),t));return v/ids.length;}
+function pwrOverallExact(){return pwrOverallExactAt(Date.now());}
+/* PWR表示は「ホーム表示時に1回実測→以後は実際の下がりかたで減らす」方式（毎0.3秒の全単語再計算はしない）。
+   減るスピードは決め打ちの「10秒で0.01%」ではなく、忘却モデルで1時間先を先読みして求めた本当の速度を使う（メール指示 2026-08-02）。 */
+const PWR_RATE_LOOKAHEAD_MS=3600000; // 1時間先を見て %/秒 を求める
+let _pwrT0=0,_pwrBase=0,_pwrRate=0,_pwrFillLast=-1;
+function calibratePwr(){
+  const now=Date.now();
+  _pwrBase=pwrOverallExactAt(now);_pwrT0=now;
+  const later=pwrOverallExactAt(now+PWR_RATE_LOOKAHEAD_MS);
+  _pwrRate=Math.max(0,(_pwrBase-later)/(PWR_RATE_LOOKAHEAD_MS/1000)); // %/秒（復習直後などで増える向きのときは0）
+}
+/* いま0.01%減るのにかかる秒数（減っていないときはnull） */
+function pwrStepSec(){return _pwrRate>0?0.01/_pwrRate:null;}
 function updatePwrFine(){
   const num=document.getElementById("hv-pwrval");if(!num)return;
   if(!_pwrT0)calibratePwr();
   const el=(Date.now()-_pwrT0)/1000;
-  const v=Math.max(0,_pwrBase-0.01*Math.floor(el/10)); // カウントダウンが0になった瞬間に0.01%必ず減る（段階減算）
-  num.textContent=v.toFixed(2)+"%"; // 数値は実PWRを0.01%桁で表示（バーはCSSで最大→0を徐々に繰り返しドレイン）
+  const step=pwrStepSec();
+  // 表示は0.01%きざみ。きざみの幅（何秒で0.01%減るか）を実際の速度から決める
+  const v=step?Math.max(0,_pwrBase-0.01*Math.floor(el/step)):Math.max(0,_pwrBase);
+  num.textContent=v.toFixed(2)+"%";
   const dn=document.getElementById("hv-pwrdown");
-  if(dn)dn.textContent=v>0?`PWRが0.01%減るまで あと${Math.ceil(10-el%10)}秒`:"";
-  const bar=document.getElementById("hv-pwrfill"); // 0のときはバーのドレイン演出も止める
-  if(bar){const zero=!(v>0);bar.classList.toggle("pwr0",zero);if(zero)bar.style.width="0%";}
+  if(dn)dn.textContent=(v>0&&step)?`PWRが0.01%減るまで あと${_pwrLeftLabel(step-(el%step))}`:"";
+  const bar=document.getElementById("hv-pwrfill"); // バーの長さ＝いまの実PWR（本当の速度でじわじわ減る）
+  if(bar){
+    const zero=!(v>0);bar.classList.toggle("pwr0",zero);
+    const w=zero?0:Math.max(0,Math.min(100,v));
+    if(Math.abs(w-_pwrFillLast)>0.004){_pwrFillLast=w;bar.style.width=w.toFixed(3)+"%";}
+  }
+}
+/* 残り時間の見せかた：秒→分→時間と、桁が大きくなりすぎないように単位を変える */
+function _pwrLeftLabel(sec){
+  const s=Math.max(0,Math.ceil(sec));
+  if(s<90)return s+"秒";
+  if(s<5400)return Math.ceil(s/60)+"分";
+  return Math.ceil(s/3600)+"時間";
 }
 setInterval(()=>{if(document.hidden)return;const h=document.getElementById("s-home");if(h&&h.classList.contains("on"))updatePwrFine();},300); // タブ非表示中は動かさない
 function pwrOverall(){
@@ -2865,7 +2922,30 @@ function roomInfo(){
 }
 /* ROOMごとの背景色（淡色パレットを循環） */
 const ROOM_BGS=["#E3A38D","#8FB6DC","#9CC79A","#C7A6D9","#DCC98F","#DC9AAE","#8FCFC4","#B0AFD9"];
-function roomBg(n){return ROOM_BGS[(n-1)%ROOM_BGS.length];}
+/* ルームの色の濃さは設定で選べる（メール指示 2026-08-02）。
+   0=いまの色 / 1=いまより少し濃い / 2=いまより濃い / 3=濃い灰色（色みを落として暗くする） */
+const ROOM_TONES=[{k:0,lab:"いまの色"},{k:1,lab:"少し濃い"},{k:2,lab:"濃い"},{k:3,lab:"濃い灰色"}];
+const _ROOM_TONE_MUL=[1,0.86,0.70,0.52];
+function roomTone(){const t=parseInt(loadSettings().roomTone||0,10);return (t>=1&&t<=3)?t:0;}
+function _shadeHex(hex,mul,gray){
+  const n=parseInt(hex.slice(1),16);let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  if(gray){const y=Math.round(r*0.299+g*0.587+b*0.114);r=g=b=y;} // 濃い灰色＝いったん灰色にしてから暗くする
+  const f=v=>Math.max(0,Math.min(255,Math.round(v*mul))).toString(16).padStart(2,"0");
+  return "#"+f(r)+f(g)+f(b);
+}
+const _roomBgCache={};
+function roomBg(n){
+  const base=ROOM_BGS[(n-1)%ROOM_BGS.length],t=roomTone();
+  if(!t)return base;
+  const key=base+"|"+t;
+  return _roomBgCache[key]||(_roomBgCache[key]=_shadeHex(base,_ROOM_TONE_MUL[t],t===3));
+}
+/* 設定でルームの色を切りかえる。スライドは色を持って作り直されるので組み直してから背景も合わせる */
+function setRoomTone(t){
+  const st=loadSettings();st.roomTone=(t>=1&&t<=3)?t:0;saveSettings(st);
+  try{buildRoomSlides();attachHomeRain();applyHomeBg();}catch(e){}
+  openSettings(); // 選択中の枠を更新
+}
 /* 上下端（ステータスバー/ホームバー領域）・全画面の背景をROOM色に統一 */
 function applyBgAll(bg){
   const sc=document.getElementById("s-home"),app=document.querySelector(".app"),wrap=document.getElementById("homewrap");
@@ -2993,7 +3073,7 @@ function openRoomMap(){
       <button class="rm-lvbtn ${curLevel==="beginner"?"on":""}" onclick="mapSwitchLevel('beginner')">初級</button>
       <button class="rm-lvbtn ${curLevel==="middle"?"on":""}" onclick="mapSwitchLevel('middle')">中級</button>
     </div>
-    <div class="rm-grid"><button class="rm-special" onclick="closeRoomMap();openPriQQ()">✨ SPECIAL ルーム プリQQ ✨</button>${cells}</div></div>`;
+    <div class="rm-grid">${PQ_ON?`<button class="rm-special" onclick="closeRoomMap();openPriQQ()">✨ SPECIAL ルーム プリQQ ✨</button>`:""}${cells}</div></div>`;
   m.classList.add("on");
   m.onclick=e=>{if(e.target===m)closeRoomMap();};
 }
@@ -3001,10 +3081,13 @@ function closeRoomMap(){document.getElementById("map-modal").classList.remove("o
 function jumpRoom(n){
   closeRoomMap();
   curSection=n;saveLastRoom();applyHomeBg();
-  const hv=document.getElementById("hv-rooms");if(hv)hv.scrollLeft=(n+1)*602; // 特別スライドぶんのオフセット
+  const hv=document.getElementById("hv-rooms");if(hv)hv.scrollLeft=(n+PQ_OFF)*602; // 難易度スライド＋（あれば）特別スライドぶんのオフセット
   document.getElementById("homewrap").classList.remove("pq-active");_onSpecial=false;
   attachHomeRain();fillNearbyBoards(); // スクロールイベント経由ではないので近傍のすごろくを自分で実描画する
 }
+/* 特別ルーム「プリQQ」は一旦非表示（メール指示 2026-08-02）。PQ_ON を true に戻せばスライド・ページャー・ROOM一覧の入口がまとめて復活する。
+   PQ_OFF＝スライド並びのオフセット（0=難易度スライドの右がすぐROOM01 / 1=あいだにプリQQが入る） */
+const PQ_ON=false, PQ_OFF=PQ_ON?1:0;
 let _onSpecial=false; // 特別ルーム プリQQ のスライドが選択中か
 function onStartBtn(){ // 特別ルーム選択中はプリQQ／それ以外は現在のすごろくのマス
   if(_counting){cancelHomeCountdown();return;} // カウントダウン中は「戻る」化：ポップアップなしで即キャンセル
@@ -3045,16 +3128,16 @@ let _pagerT=null;
 function buildRoomPager(){
   const p=document.getElementById("room-pager");if(!p)return;
   const count=LEVEL_INFO[curLevel].count;
-  let h=`<div class="rp-dot pq" data-sec="pq" onclick="pagerJump('pq')" aria-label="ルーム プリQQ">★</div>`;
+  let h=PQ_ON?`<div class="rp-dot pq" data-sec="pq" onclick="pagerJump('pq')" aria-label="ルーム プリQQ">★</div>`:"";
   for(let n=1;n<=count;n++)h+=`<div class="rp-dot" data-sec="${n}" onclick="pagerJump(${n})">${String(n).padStart(2,"0")}</div>`;
   p.innerHTML=h;
 }
 function syncRoomPager(){
   const p=document.getElementById("room-pager");if(!p||!p.children.length)return;
   const el=document.getElementById("hv-rooms");
-  const max=LEVEL_INFO[curLevel].count+1;
-  const frac=el?Math.min(Math.max(el.scrollLeft/602,0),max):(_onSpecial?1:curSection+1); // 連続値（0=難易度,1=特別,2=ROOM1…）
-  const dotPos=Math.max(0,frac-1); // ドット連続位置（0=特別/pq, 1=ROOM1…）。左右スワイプ中も滑らかに追従
+  const max=LEVEL_INFO[curLevel].count+PQ_OFF;
+  const frac=el?Math.min(Math.max(el.scrollLeft/602,0),max):(_onSpecial?1:curSection+PQ_OFF); // 連続値（0=難易度,（あれば）1=特別,…=ROOM）
+  const dotPos=Math.max(0,frac-1); // ドット連続位置（先頭のドット＝プリQQ or ROOM1）。左右スワイプ中も滑らかに追従
   const near=Math.round(dotPos); // 最寄りドットをハイライト
   [...p.children].forEach((d,i)=>d.classList.toggle("cur",i===near));
   // 隣り合うドットのoffsetLeftを線形補間して連続的に中央寄せ（〇がスクロールに連動）
@@ -3091,28 +3174,31 @@ function dismissRoomHint(persist){
   const hw=document.getElementById("homewrap");if(hw)hw.classList.remove("roomhint-on");
   setTimeout(()=>{h.style.display="none";},400);
 }
+let _pagerHold=false; // つかいかたガイドでルームメニューバーを指している間は、時間で引っ込めない（メール指示 2026-08-02）
 function showRoomPager(){
   if(_listMode)return; // 単語帳モード中は出さない
   const p=document.getElementById("room-pager");if(!p)return;
   if(!p.children.length)buildRoomPager();
   const hw=document.getElementById("homewrap");if(hw)hw.classList.add("pager-on");
   p.classList.add("on");syncRoomPager();
-  clearTimeout(_pagerT);_pagerT=setTimeout(hideRoomPager,1400); // 操作が止まったら戻す
+  clearTimeout(_pagerT);
+  if(!_pagerHold)_pagerT=setTimeout(hideRoomPager,1400); // 操作が止まったら戻す
 }
 function hideRoomPager(){
+  if(_pagerHold)return;
   const p=document.getElementById("room-pager");if(p)p.classList.remove("on");
   const hw=document.getElementById("homewrap");if(hw)hw.classList.remove("pager-on");
 }
 function pagerJump(sec){
   const el=document.getElementById("hv-rooms");if(!el)return;
-  const idx=sec==="pq"?1:(Number(sec)+1); // idx0=難易度 / idx1=特別 / idx>=2=ROOM
+  const idx=sec==="pq"?1:(Number(sec)+PQ_OFF); // idx0=難易度 /（PQ_ON時のみ）idx1=特別 / 以降=ROOM
   el.scrollTo({left:idx*602,behavior:"smooth"});
   showRoomPager();
 }
 /* フロートの三角ボタン／すごろく上の横スワイプ：いま見ているスライドの1つ隣へ（難易度・プリQQ・各ROOMを通しで移動） */
 function stepRoom(d){
   const el=document.getElementById("hv-rooms");if(!el)return;
-  const max=LEVEL_INFO[curLevel].count+1; // idx0=難易度 / idx1=特別 / idx>=2=ROOM
+  const max=LEVEL_INFO[curLevel].count+PQ_OFF; // idx0=難易度 /（PQ_ON時のみ）idx1=特別 / 以降=ROOM
   const idx=Math.min(Math.max(Math.round(el.scrollLeft/602)+d,0),max);
   el.scrollTo({left:idx*602,behavior:"smooth"});
   showRoomPager();
@@ -3121,7 +3207,7 @@ function stepRoom(d){
 function syncRoomArrows(){
   const el=document.getElementById("hv-rooms"),pv=document.getElementById("rm-prev"),nx=document.getElementById("rm-next");
   if(!el||!pv||!nx)return;
-  const max=LEVEL_INFO[curLevel].count+1,idx=Math.round(el.scrollLeft/602);
+  const max=LEVEL_INFO[curLevel].count+PQ_OFF,idx=Math.round(el.scrollLeft/602);
   pv.classList.toggle("off",idx<=0);
   nx.classList.toggle("off",idx>=max);
 }
@@ -3209,9 +3295,12 @@ function showStartBubble(){
 }
 function startBubbleLoop(){if(_bubbleTimer)return;_bubbleTimer=setInterval(()=>{if(Math.random()<0.7)showStartBubble();},7000);setTimeout(showStartBubble,2600);}
 
-/* リールの7ボタンもアイコン⇄日本語ラベルを回転入替。各ボタン独立のランダム間隔でバラバラに（時間配分はアイコン8割・文字2割） */
+/* リールの7ボタンもアイコン⇄日本語ラベルを回転入替。各ボタン独立のランダム間隔でバラバラに（時間配分はアイコン8割・文字2割）
+   ※メール指示（2026-08-02）で左右アイコンのアニメーションは廃止。RAIL_FLIP を true に戻せば従来どおり復活する */
+const RAIL_FLIP=false;
 let _railFlipStarted=false;
 function startRailFlip(){
+  if(!RAIL_FLIP)return;
   if(_railFlipStarted)return;_railFlipStarted=true;
   document.querySelectorAll(".reward-rail .rr-btn").forEach(b=>{
     const tick=()=>{
@@ -3239,7 +3328,10 @@ function fillAvatarJob(){
 }
 let _avatarTimer=null,_avatarStep=0;
 const _AVATAR_SEQ=["char","mbti"]; // キャラ⇄MBTIコードの2面だけ。職業名（「暗号解読者」等の日本語）は出さない（メール指示 2026-07-29）
-function startAvatarFlip(){if(_avatarTimer)return;_avatarTimer=setInterval(()=>{
+/* ※メール指示（2026-08-02）で左上アイコン（アバター）のアニメーションは廃止。キャラの絵で静止させる。
+     AVATAR_FLIP を true に戻せば従来どおりキャラ⇄MBTIの入替が復活する */
+const AVATAR_FLIP=false;
+function startAvatarFlip(){if(!AVATAR_FLIP)return;if(_avatarTimer)return;_avatarTimer=setInterval(()=>{
   const c=document.querySelector(".avatar-circle");if(!c)return;
   if(!document.getElementById("s-home").classList.contains("on")||_statusMode)return;
   _avatarStep=(_avatarStep+1)%_AVATAR_SEQ.length;
@@ -3404,7 +3496,8 @@ function wbResetPanel(){const q=document.getElementById("wb-q2");if(q)q.value=""
    ポップアップで読ませるのはやめ、実際のホーム画面の部品を四角く切り抜いて、
    そこへ矢印を向けた説明を1つずつ出す（メール指示 2026-07-31）。 */
 const COACH_STEPS=[
-  {sel:"#room-pager",h:"ここがROOM",sub:"1ROOM＝約100単語。左右にスワイプするとROOMを切りかえられます"},
+  // pager:true＝この説明の間だけルームメニューバーを出しっぱなしにする（時間で消えてしまい何を指しているか分からなくなるため。メール指示 2026-08-02）
+  {sel:"#room-pager",pager:true,h:"ここがROOM",sub:"1ROOM＝約100単語。左右にスワイプするとROOMを切りかえられます"},
   // スタートは「いまここ」の吹き出し＋光っているマスの2つで1かたまりなので、両方を囲む
   {sel:".sg-tile.now .sg-img,.sg-tile.now .sg-noimg",sel2:".sg-tile.now .sg-here",
    h:"光っているマスがスタート",sub:"タップすると12問。おわるとこのマスがクリアになり、次のマスへ進みます"},
@@ -3439,6 +3532,8 @@ function showCoach(){
   try{closeSettings();}catch(e){}                       // 設定から開いたときはシートを閉じて実画面を見せる
   const home=document.getElementById("s-home");
   if(!home||!home.classList.contains("on")){try{show("s-home");}catch(e){}}
+  // ルームメニューバーは普段ふだん隠れているので、囲む位置を測る前に出しておく（メール指示 2026-08-02）
+  _pagerHold=true;try{showRoomPager();}catch(e){}
   _coachSteps=COACH_STEPS.filter(st=>!!coachRectOf(st)); // 画面に出ていない部品（まだ作られていない今日の5問など）は飛ばす
   if(!_coachSteps.length){closeCoach();return;}
   _coachIdx=0;
@@ -3460,6 +3555,9 @@ function showCoach(){
 function coachPaint(){
   const root=document.getElementById("coach");if(!root)return;
   const st=_coachSteps[_coachIdx];if(!st)return;
+  // ルームメニューバーを指している間だけ出しっぱなし。次の説明に移ったら普段どおり引っ込める（メール指示 2026-08-02）
+  if(st.pager){_pagerHold=true;try{showRoomPager();}catch(e){}}
+  else if(_pagerHold){_pagerHold=false;try{hideRoomPager();}catch(e){}}
   const r=coachRectOf(st);if(!r){coachNext();return;}
   const pad=8;
   const hole=document.getElementById("cm-hole");
@@ -3485,7 +3583,7 @@ function coachNext(){
   if(_coachIdx>=_coachSteps.length-1){closeCoach();return;}
   _coachIdx++;coachPaint();
 }
-function closeCoach(){const el=document.getElementById("coach");if(el)el.remove();maybeAutoDaily5();} // ガイドを閉じたら、そのまま今日の5問へ
+function closeCoach(){const el=document.getElementById("coach");if(el)el.remove();_pagerHold=false;try{hideRoomPager();}catch(e){}maybeAutoDaily5();} // ガイドを閉じたら、そのまま今日の5問へ
 function maybeCoach(){
   if(localStorage.getItem("kwt_coach_v1"))return;
   localStorage.setItem("kwt_coach_v1","1");
@@ -3571,9 +3669,10 @@ function buildRoomSlides(){
     </div>
   </div>`;
   // ROOM01の左（難易度スライドの右）に特別ルーム プリQQ。通常ROOMのレイアウトを流用しプリティー化
-  const pqrate=PRIQQ.total?Math.round(PRIQQ.learned/PRIQQ.total*100):0;
-  const _pqc=loadCards();const pqlearned=PRIQQ.ids.filter(id=>(_pqc[id]||0)>0).length; // カードは1回だけ読む（語ごとに読み直さない）
-  const specialSlide=`<div class="room-slide pq-slide" data-n="pq" style="background:#ffe3f1">
+  // ※PQ_ON=false のあいだは組み立てない（メール指示 2026-08-02）
+  const pqrate=PQ_ON&&PRIQQ.total?Math.round(PRIQQ.learned/PRIQQ.total*100):0;
+  const _pqc=PQ_ON?loadCards():{};const pqlearned=PQ_ON?PRIQQ.ids.filter(id=>(_pqc[id]||0)>0).length:0; // カードは1回だけ読む（語ごとに読み直さない）
+  const specialSlide=!PQ_ON?"":`<div class="room-slide pq-slide" data-n="pq" style="background:#ffe3f1">
     <div class="slide-inner">
       <div class="rmenu-clip">
       <div class="rmenu-bg" onclick="roomMenuTap('pq')"></div>
@@ -3652,7 +3751,7 @@ function buildRoomSlides(){
       if(Math.abs(dy)>Math.abs(dx)*1.2&&Math.abs(dy)>10){
         _homeDir=dy<0?"up":"down";
         if(_homeDir==="up")showPullHint(-dy,"↑ さらに引くと単語帳","↑ 離して単語帳へ","bottom");
-        else showPullHint(dy,"↓ さらに引くとステータス","↓ 離してステータスへ","top");
+        else if(STATUS_ON)showPullHint(dy,"↓ さらに引くとステータス","↓ 離してステータスへ","top"); // ステータス画面は廃止。下引きは何も起こさない（メール指示 2026-08-02）
       }else{_homeDir=null;hidePullHint();}
     },{passive:true});
     el.addEventListener("touchend",()=>{
@@ -3679,23 +3778,23 @@ function buildRoomSlides(){
       });
     }
     el.addEventListener("scroll",()=>{
-      // スライド順: idx0=難易度 / idx1=特別ルーム プリQQ / idx>=2=ROOM(idx-1)
-      const idx=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count+1);
-      const onSp=idx===1;_onSpecial=onSp;
+      // スライド順: idx0=難易度 /（PQ_ON時のみ）idx1=特別ルーム プリQQ / 以降=ROOM(idx-PQ_OFF)
+      const idx=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count+PQ_OFF);
+      const onSp=PQ_ON&&idx===1;_onSpecial=onSp;
       document.getElementById("homewrap").classList.toggle("pq-active",onSp);
-      applyBgAll(idx===0?LEVEL_SLIDE_BG:(onSp?"#ffe3f1":roomBg(idx-1)));
+      applyBgAll(idx===0?LEVEL_SLIDE_BG:(onSp?"#ffe3f1":roomBg(idx-PQ_OFF)));
       syncRoomArrows(); // 両端では進めない側の三角を消す
       maybeDismissRoomHint(idx); // 隣のROOMへ動けた＝スワイプのヒントはもう要らない
       if(idx>=1)showRoomPager(); // ルーム切替中は丸ページャーを表示（難易度スライドは除く）
       _clearReco(); // 切替時は前スライドのおすすめ表示を戻す
       clearTimeout(_roomScrollT);
       _roomScrollT=setTimeout(()=>{
-        const i=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count+1);
-        if(i>=2){const n=i-1;if(n!==curSection){curSection=n;applyHomeBg();saveLastRoom();attachHomeRain();fillNearbyRoomLists();fillNearbyBoards();}} // 玉の山も新ROOMへ移す＋近傍の単語帳/すごろくを実描画
+        const i=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count+PQ_OFF);
+        if(i>=1+PQ_OFF){const n=i-PQ_OFF;if(n!==curSection){curSection=n;applyHomeBg();saveLastRoom();attachHomeRain();fillNearbyRoomLists();fillNearbyBoards();}} // 玉の山も新ROOMへ移す＋近傍の単語帳/すごろくを実描画
       },120);
     });
   }
-  el.scrollLeft=_onSpecial?602:(curSection+1)*602; // 特別ルーム選択中は特別スライド(index1=602)、通常はROOM n(index n+1)
+  el.scrollLeft=_onSpecial?602:(curSection+PQ_OFF)*602; // 特別ルーム選択中は特別スライド(index1=602)、通常はROOM n
   buildRoomPager(); // 丸ページャーを現在の難易度のルーム構成で組み直す
   syncRoomArrows(); // 難易度切替でROOM数が変わるので、両端の三角の出し分けも組み直す
 }
@@ -3732,7 +3831,7 @@ function updateHomeStats(){
   const pw=pwrOverallExact();
   document.getElementById("hv-pwrval").textContent=pw.toFixed(2)+"%";
   const _pwf=document.getElementById("hv-pwrfill");
-  _pwf.style.width=pw+"%";_pwf.classList.toggle("pwr0",!(pw>0)); // PWR=0ならドレイン演出を止める
+  _pwf.style.width=Math.max(0,Math.min(100,pw))+"%";_pwf.classList.toggle("pwr0",!(pw>0));_pwrFillLast=-1; // バーはいまの実PWRそのもの
   const nr=document.getElementById("hv-nextrev");if(nr)nr.textContent=nextReviewInfo();
 }
 function renderHome(){
@@ -3751,7 +3850,7 @@ function renderHome(){
   if(_fb&&!_fb.firstChild)_fb.innerHTML=sgD5HTML();
   updateD5Btn(); // 今日の5問：残り回数バッジ／消化済みのグレーアウト
   checkAchievements();
-  calibratePwr(); // ホーム表示のたびに実測し直し、以降は固定速度で減算
+  calibratePwr(); // ホーム表示のたびに実測し直し、以降は実際の下がりかたで減算
   updatePwrFine();
   startRoomRecoLoop(); // ルームメニューの3面ローテーションを開始
   startSideBtnFlip(); // 単語帳/忘却曲線ボタンのアイコン⇄ラベル入替
@@ -4339,8 +4438,10 @@ function renderTypeDetail(){
         <img class="t-char" src="${charPathFor(d)}" alt="">
         <div class="tb-info"><div class="t-code">${any?d.code:"分析中"}</div><div class="t-job">${any?esc((TYPE_INFO[fullCode]||[""])[0]):""}</div></div>
       </div>
-      <div class="tdetail-sec" style="margin-top:24px"><div class="ax2panel">${bars}</div></div>
-      <div class="tdetail-sec">${peek}<div class="tlist">${list}</div></div>
+      <!-- アイコン・職業のすぐ下に説明文、その下にメータ、いちばん下に16タイプ一覧（メール指示 2026-08-02） -->
+      <div class="tdetail-sec" style="margin-top:14px">${peek}</div>
+      <div class="tdetail-sec"><div class="ax2panel">${bars}</div></div>
+      <div class="tdetail-sec"><div class="tlist">${list}</div></div>
     </div>
    </div>`;
   show("s-type");
@@ -5937,7 +6038,9 @@ function _msRoomCandidates(){
 function buildWeeklyMissions(){
   const rooms=_msRoomCandidates().slice(0,2).map(r=>({
     kind:"room",sec:r.sec,rank:MS_RANK_UP[r.best]||"C",n:1})); // 未挑戦のROOMはまずCランクを目標にする
-  const pool=[{kind:"write",n:3},{kind:"special",n:6},{kind:"fast",n:10}];
+  // バリエーションを増やした（メール指示 2026-08-02）。どれも履歴・記憶率・今日の5問の記録から数え直せるものだけ
+  const pool=[{kind:"write",n:3},{kind:"special",n:6},{kind:"fast",n:10},
+    {kind:"tests",n:5},{kind:"d5",n:5},{kind:"newword",n:20},{kind:"rooms",n:3},{kind:"perfect",n:1},{kind:"streak",n:5}];
   const h=_d5Hash("kwt-ms|"+weekKey()+"|"+curLevel); // 週ごとに決まる＝週のあいだ入れ替わらない
   const i0=h%pool.length,i1=(i0+1+(Math.floor(h/pool.length)%(pool.length-1)))%pool.length;
   const list=[{kind:"trend",n:MS_TREND_N}].concat(rooms,[pool[i0],pool[i1]]);
@@ -5958,19 +6061,42 @@ function missionTitle(m){
   if(m.kind==="write")return "書き取り問題を"+m.n+"問正解する";
   if(m.kind==="special")return "スペシャル問題（青赤緑）のいずれかを"+m.n+"回クリアする";
   if(m.kind==="fast")return "3秒以内に答えて正解するを"+m.n+"問";
+  if(m.kind==="tests")return "テストを"+m.n+"本やりきる";
+  if(m.kind==="d5")return "今日の5問を"+m.n+"回こなす";
+  if(m.kind==="newword")return "はじめての単語を"+m.n+"語おぼえる";
+  if(m.kind==="rooms")return "ちがうROOMを"+m.n+"つあそぶ";
+  if(m.kind==="perfect")return "12問ぜんぶ正解を"+m.n+"回";
+  if(m.kind==="streak")return "連続学習を"+m.n+"日つづける";
   return "";
 }
-function missionIcon(m){return{trend:"🔥",room:"🚪",write:"✏️",special:"✨",fast:"⚡"}[m.kind]||"★";}
+function missionIcon(m){return{trend:"🔥",room:"🚪",write:"✏️",special:"✨",fast:"⚡",tests:"📝",d5:"🗓",newword:"🌱",rooms:"🧭",perfect:"💯",streak:"🔗"}[m.kind]||"★";}
 function missionProgress(m){
   const ws=weekStartMs();
   if(m.kind==="trend")return Object.keys(loadTrend()).filter(k=>k>=weekKey()).length;
   if(m.kind==="special")return loadSpClears().filter(t=>new Date(t).getTime()>=ws).length;
+  if(m.kind==="streak")return loginStreak();
+  if(m.kind==="d5"){ // 今週ぶんの「今日の5問」をやり切った枠の数
+    const rec=loadD5();
+    return Object.keys(rec).filter(k=>{const r=rec[k];return r&&r.done&&new Date(r.finished||r.started||0).getTime()>=ws;}).length;
+  }
+  if(m.kind==="newword"){ // 今週はじめて正解できた単語の数（記憶率データのfirstCorrectAtで数える）
+    const s=loadStats();let c=0;
+    Object.keys(s).forEach(id=>{const t=s[id]&&s[id].firstCorrectAt;if(t&&new Date(t).getTime()>=ws)c++;});
+    return c;
+  }
   if(m.kind==="room"){ // すごろくのマスに残っているランク（このROOM・今週ぶん）で判定する
     const need=RANK_VAL[m.rank]||2,tiles=boardState(curLevel,m.sec).tiles;
     return Object.keys(tiles).some(g=>{const t=tiles[g];
       return t&&t.at&&new Date(t.at).getTime()>=ws&&(RANK_VAL[t.rank]||0)>=need;})?1:0;
   }
-  const H=loadHistory().filter(r=>r&&r.isCorrect&&new Date(r.answeredAt).getTime()>=ws);
+  const W=loadHistory().filter(r=>r&&new Date(r.answeredAt).getTime()>=ws); // 今週の回答（正解・不正解の両方）
+  if(m.kind==="rooms"){const map=secOfWord(),set=new Set();W.forEach(r=>{const k=map[r.wordId];if(k)set.add(k);});return set.size;}
+  if(m.kind==="tests"||m.kind==="perfect"){ // テスト単位でまとめ直す（12問ぶん答えたものを1本と数える）
+    const by={};W.forEach(r=>{if(r.testId)(by[r.testId]=by[r.testId]||[]).push(r);});
+    const full=Object.values(by).filter(a=>a.length>=12);
+    return m.kind==="tests"?full.length:full.filter(a=>a.every(r=>r.isCorrect)).length;
+  }
+  const H=W.filter(r=>r.isCorrect);
   if(m.kind==="write")return H.filter(r=>r.questionType==="writing").length;
   if(m.kind==="fast")return H.filter(r=>r.responseTimeSec!=null&&r.responseTimeSec<=3).length;
   return 0;
@@ -6030,7 +6156,7 @@ function missionTapRoom(sec){
   show("s-home");
   setTimeout(()=>{
     const el=document.getElementById("hv-rooms");
-    if(el)el.scrollTo({left:(sec+1)*602,behavior:"smooth"}); // idx0=難易度 / idx1=特別 のぶんだけずらす
+    if(el)el.scrollTo({left:(sec+PQ_OFF)*602,behavior:"smooth"}); // idx0=難易度 /（PQ_ON時のみ）idx1=特別 のぶんだけずらす
     else{curSection=sec;saveLastRoom();applyHomeBg();} // スライドが無い状態（テスト等）でも行き先は合わせる
     if(typeof showRoomPager==="function")showRoomPager();
   },220);
@@ -8150,7 +8276,7 @@ function renderWordDetail(wordId,back){
    <div class="q-rain" id="wd-rain"></div>
    <div class="page" style="padding-left:0;padding-right:0;position:relative;z-index:1">
     <div class="wd-room" id="wd-rmwrap"><div class="wd-rmscale" id="wd-rmscale">${wdRoomMenuHTML(curSection)}</div></div>
-    <div class="zk-sum" style="position:static;margin:10px 0"><button class="zk-back" onclick="${_wdBack==='room'?"show('s-home')":"renderRoomCurve()"}" aria-label="戻る">‹</button><span id="wd-title">単語詳細</span></div>
+    <div class="zk-sum" style="position:static;margin:10px 0"><button class="zk-back" onclick="${(_wdBack==='room'||!CURVE_ON)?"show('s-home')":"renderRoomCurve()"}" aria-label="戻る">‹</button><span id="wd-title">単語詳細</span></div>
     <div id="wd-pager" class="rp-pager"></div>
     <div class="wd-scroll" id="wd-scroll">${slides}</div>
     <button class="wd-nav wd-prev" onclick="wdNav(-1)" aria-label="前の単語">‹</button>
@@ -8311,7 +8437,12 @@ function updateStatusOverlay(){
     fill(n);fill(Math.max(1,n-1));fill(Math.min(N,n+1));
   },90);});
 }
+/* ステータス画面は廃止（メール指示 2026-08-02）。
+   下スクロール（下引き）のジェスチャー自体は残してあるが、ここで何もせず打ち止めにするので画面は開かない。
+   STATUS_ON を true に戻せば従来どおり復活する（updateStatusOverlay等の描画処理もそのまま残している）。 */
+const STATUS_ON=false;
 function enterStatusMode(){
+  if(!STATUS_ON)return;
   if(_statusMode||_listMode)return;
   pushNav("status"); // OSバックでステータスを閉じられるように
   _statusMode=true;
@@ -8446,7 +8577,9 @@ function renderCurveCarousel(){
     applyBgAll(i>0?roomBg(i):LEVEL_SLIDE_BG); // スライドに応じて背景色も切替
   },90);});
 }
-function renderCurve(){_curveIdx=0;renderCurveCarousel();}
+/* PWRメータ詳細ページは廃止（メール指示 2026-08-02）。CURVE_ON を true に戻せば従来どおり開く（描画処理はそのまま残している） */
+const CURVE_ON=false;
+function renderCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=0;renderCurveCarousel();}
 function curveOverall(now,words){
   return `<div class="chartbox">${memChart(chartPoints(now,words))}</div>
     <div style="background:rgba(255,255,255,.92);color:#1a1a1a;font-weight:700;font-size:11.5px;line-height:1.7;margin-top:8px;padding:9px 11px">※ 横軸＝過去1週間の実績（日）と今後の予測，縦軸＝推定記憶率。黄色の点線=70%ライン。</div>`;
@@ -8503,12 +8636,12 @@ function renderPastResult(testId){
 }
 
 /* ROOM限定: 現在ROOMのスライドから開始（左右スワイプで他ROOM/全体へ） */
-function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
+function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSection;renderCurveCarousel();}
 
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v5.4 (2026-08-01)";
+const APP_VERSION="v5.5 (2026-08-02)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -8662,6 +8795,8 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
       ${tile("k-big","🔠","文字大",st.bigText,"大きめ","標準","toggleSetting('bigText')")}
     </div>
     <div class="cc-list">
+      <div class="cc-item cc-tone"><span>🎨 ルームの色</span><span class="tone-sw">${ROOM_TONES.map(t=>
+        `<button class="tone-b${roomTone()===t.k?" on":""}" onclick="setRoomTone(${t.k})" aria-label="${t.lab}"><i style="background:${t.k?_shadeHex(ROOM_BGS[0],_ROOM_TONE_MUL[t.k],t.k===3):ROOM_BGS[0]}"></i><em>${t.lab}</em></button>`).join("")}</span></div>
       <div class="cc-item" onclick="showCoach()"><span>📖 つかいかた</span><span class="cc-arw">›</span></div>
       <div class="cc-item cc-2btn"><button onclick="exportData()">⬆ 書き出す</button><label>⬇ 読み込む<input type="file" accept="application/json" style="display:none" onchange="importData(this)"></label></div>
       ${/iPhone|iPad|iPod/.test(navigator.userAgent)&&!(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)?`<div class="cc-item cc-note">📲 Safariの共有 →「ホーム画面に追加」でアプリのように使えます</div>`:""}
@@ -8716,7 +8851,7 @@ function saveLastRoom(){try{localStorage.setItem(LS_LASTROOM,JSON.stringify({lev
     if(v&&LEVEL_INFO[v.level]&&v.section>=1&&v.section<=LEVEL_INFO[v.level].count){
       curLevel=v.level;curSection=v.section;
       renderHome();
-      requestAnimationFrame(()=>{const el=document.getElementById("hv-rooms");if(el)el.scrollLeft=(curSection+1)*602;});
+      requestAnimationFrame(()=>{const el=document.getElementById("hv-rooms");if(el)el.scrollLeft=(curSection+PQ_OFF)*602;});
     }
   }catch(e){}
 })();

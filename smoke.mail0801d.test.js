@@ -138,8 +138,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check(`おすすめROOM＋目標ランクのミッションが2つ (${roomIdx.map(i => list.titles[i]).join(' / ')})`, roomIdx.length === 2);
   check('ROOMミッションは「ROOM NN で X ランクをとる」の形', roomIdx.every(i => /^ROOM \d\d で [SABCD] ランクをとる$/.test(list.titles[i])));
   check('ROOMミッションはタッチできる', roomIdx.every(i => list.tapable[i] === true));
-  const skills = list.kinds.filter(k => k === 'write' || k === 'special' || k === 'fast');
-  check(`書き取り／スペシャル問題／3秒以内 から2つ (${skills.join(',')})`, skills.length === 2);
+  // バリエーションを増やしたので、4〜5つめは「トレンド・ROOM以外」の種類から2つ（メール指示 2026-08-02）
+  const skills = list.kinds.filter(k => k !== 'trend' && k !== 'room');
+  check(`トレンド・ROOM以外から2つ (${skills.join(',')})`, skills.length === 2 && new Set(skills).size === 2);
   check('スキル系ミッションの文言が指示どおり', list.titles.every(t =>
     !/書き取り|スペシャル|3秒/.test(t) ||
     /書き取り問題を3問正解する|スペシャル問題（青赤緑）のいずれかを6回クリアする|3秒以内に答えて正解するを10問/.test(t)));
@@ -154,7 +155,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     const from = hv.scrollLeft;
     missionTapRoom(m.sec);
     await new Promise(r => setTimeout(r, 1400));
-    return { sec: m.sec, from, to: hv.scrollLeft, want: (m.sec + 1) * 602, closed: !document.getElementById('d5-modal').classList.contains('on') };
+    return { sec: m.sec, from, to: hv.scrollLeft, want: (m.sec + PQ_OFF) * 602, closed: !document.getElementById('d5-modal').classList.contains('on') }; // プリQQ非表示ぶんのオフセット（メール指示 2026-08-02）
   });
   check('タッチしたら吹き出しが閉じる', jump.closed);
   check(`そのROOMまで移動する (ROOM${jump.sec}: ${jump.from} → ${jump.to} / 目標${jump.want})`, Math.abs(jump.to - jump.want) < 20);
