@@ -290,7 +290,8 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check(`マス番号が大きい (${look.numFs})`, look.numFs === '40px');
   check('レールはフェード切替（回転しない）', look.dailyTr === 'none');
   check('設定マークだけ従来の回転のまま', look.setTr !== 'none');
-  check('右のレールは全部「◯◯ボーナス」', look.labels.join('|') === '毎日ボーナス|ランクボーナス|レベルボーナス|PWRボーナス');
+  // ランクの位置はテストのごほうびのガチャに変わった（メール指示 2026-08-01）
+  check(`右のレールはボーナス3つ＋ガチャ (${look.labels.join('|')})`, look.labels.join('|') === '毎日ボーナス|ガチャ|レベルボーナス|PWRボーナス');
 
   // --- 番号/ランクが絵の位置に追従するか・レール切替で重ならないか ---
   check('番号とランクが絵の角に追従する', await page.evaluate(async () => {

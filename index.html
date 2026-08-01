@@ -97,6 +97,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rn-slot{position:absolute;bottom:0;width:17px;height:26px;box-sizing:border-box;border-radius:4px;background:#F5C518;
   border:2px solid #fff;animation:rnCardIn .28s ease both;--fly:-120px}
 .rn-slot.got{animation:rnCardGot .62s cubic-bezier(.3,.9,.3,1) forwards}
+/* レア度が出た札は色の光をまとう（黄色い座布団＋白枠はそのまま／影は付けない。メール指示 2026-08-01） */
+.rn-slot.rn-R{filter:drop-shadow(0 0 4px #2F6FE0)}
+.rn-slot.rn-SR{filter:drop-shadow(0 0 5px #A05BD6)}
+.rn-slot.rn-SSR{filter:drop-shadow(0 0 7px #FFC400)}
 @keyframes rnCardIn{0%{opacity:0;transform:translateX(14px)}100%{opacity:1;transform:none}}
 @keyframes rnCardGot{0%{opacity:1;transform:none}
   70%{opacity:1;transform:translateX(calc(var(--fly) * .82)) translateY(-6px) scale(.6) rotate(-10deg)}
@@ -566,6 +570,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .cal-legend .cl-d5{width:13px;height:13px;border-radius:3px;box-shadow:0 0 0 2.5px #E0831A inset;display:block;flex:0 0 auto}
 .cal-grid .sp{color:#E0433b}
 .cal-grid .lv3.sp,.cal-grid .lv4.sp{color:#fff;text-decoration:underline}
+.cal-grid .rested{background:rgba(22,136,255,.18);color:#1688FF;font-size:14px} /* おやすみチケットを使った日（メール指示 2026-08-01） */
 .cal-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:4px}
 .cal-mv{background:transparent;border:none;font-size:26px;font-weight:900;color:#B45A00;cursor:pointer;padding:0 8px;line-height:1}
 .cal-mv:disabled{color:#ddd;cursor:default}
@@ -636,6 +641,60 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .pm-btn:active{background:rgba(0,0,0,.7)}
 .pm-close{position:absolute;right:2px;top:2px;width:46px;height:46px;background:transparent;border:none;font-size:26px;font-weight:900;color:#888;cursor:pointer;line-height:1;font-family:inherit;display:flex;align-items:center;justify-content:center}
 .pm-close:active{background:rgba(0,0,0,.07)}
+/* おやすみチケットのプレゼント（箱ではなく💤の札。中身が開ける前から分かるように） */
+.pm-tk{width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-size:34px;background:rgba(22,136,255,.22);border:2px solid rgba(255,255,255,.5);box-sizing:border-box}
+/* --- ガチャ（メール指示 2026-08-01）。プレゼントのモーダルと同じトーン --- */
+#gacha-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
+#gacha-modal.on{display:flex}
+.gc-machine{position:relative;width:126px;height:126px;margin:10px auto 8px;border-radius:50%;background:rgba(0,0,0,.85);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.gc-machine .gc-cap{font-size:44px;line-height:1;position:relative;z-index:2}
+.gc-ball{position:absolute;width:26px;height:26px;border-radius:50%;opacity:.9}
+.gc-ball.b1{background:#FF3B3B;left:16px;top:20px}
+.gc-ball.b2{background:#FFC400;right:14px;top:34px}
+.gc-ball.b3{background:#1688FF;left:44px;bottom:16px}
+.gc-machine.ready .gc-ball{animation:gcFloat 2.4s ease-in-out infinite}
+.gc-machine.ready .gc-ball.b2{animation-delay:.5s}
+.gc-machine.ready .gc-ball.b3{animation-delay:1s}
+@keyframes gcFloat{0%,100%{transform:none}50%{transform:translateY(-9px)}}
+.gc-machine.spin{animation:gcShake .16s linear infinite}
+.gc-machine.spin .gc-ball{animation:gcSpin .5s linear infinite}
+.gc-machine.spin .gc-cap{animation:gcPulse .4s ease-in-out infinite}
+@keyframes gcShake{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}
+@keyframes gcSpin{0%{transform:rotate(0) translateX(34px)}100%{transform:rotate(360deg) translateX(34px)}}
+@keyframes gcPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+.gc-count{font-size:14px;font-weight:800;color:#444;margin:6px 0 12px}
+.gc-count b{font-size:20px;color:#1a1a1a}
+.gc-boost{display:inline-block;font-size:12px;font-weight:900;color:#fff;background:#E0433B;padding:4px 10px;margin-bottom:4px}
+.gc-prize{border:3px solid var(--pc,#FFC400);padding:14px 10px 12px;margin:8px 0 10px;background:rgba(255,255,255,.72)}
+.gc-prize.in{animation:gcPop .5s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes gcPop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+.gc-pico{font-size:46px;line-height:1}
+.gc-plab{font-size:17px;font-weight:900;color:var(--pc,#1a1a1a);margin-top:4px}
+.gc-pval{font-size:34px;font-weight:900;color:#1a1a1a;line-height:1.1}
+.gc-pval small{font-size:15px}
+.gc-pmsg{font-size:12px;font-weight:700;color:#555;margin-top:5px}
+.gc-extra{font-size:13px;font-weight:800;color:#333;margin-bottom:8px}
+.gc-extra b{color:#E0831A}
+.gc-go:disabled{opacity:.5}
+/* ガチャアイコンに付く「XP2倍チャンス中」の小さな札 */
+.rr-x2{position:absolute;left:-6px;bottom:-4px;z-index:1;height:19px;padding:0 6px;border-radius:10px;background:#E0433B;color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-sizing:border-box}
+/* --- おやすみチケットを使うか尋ねるポップアップ --- */
+.rest-ask{position:fixed;inset:0;z-index:520;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.62);opacity:0;transition:opacity .26s ease}
+.rest-ask.on{opacity:1}
+.ra-card{background:#fff}
+.ra-ico{font-size:52px;line-height:1;margin-bottom:2px}
+.ra-line{font-size:13px;font-weight:800;color:#333;line-height:1.5;margin:8px 0 6px}
+.ra-line b{color:#1688FF}
+.ra-have{font-size:12px;font-weight:800;color:#666;margin-bottom:12px}
+.ra-have b{color:#1a1a1a;font-size:15px}
+/* --- 単語カードのレア度（メール指示 2026-08-01）。枠の色だけで見分けられるようにする --- */
+.rare-N{--rc:#B8862B}.rare-R{--rc:#2F6FE0}.rare-SR{--rc:#A05BD6}.rare-SSR{--rc:#E0831A}
+.rc-rare,.cg-rare{position:absolute;left:3px;top:3px;z-index:3;font-size:9px;font-weight:900;color:#fff;background:var(--rc,#B8862B);padding:1px 4px;line-height:1.3;letter-spacing:.5px}
+.rc-card.rare-R,.rc-card.rare-SR,.rc-card.rare-SSR,.cg-card.rare-R,.cg-card.rare-SR,.cg-card.rare-SSR{box-shadow:0 0 0 2px var(--rc) inset,0 6px 16px rgba(0,0,0,.4)}
+.cg-card.rare-SSR{animation:cgslam .5s cubic-bezier(.2,1.5,.4,1) forwards,cgSSR 1.2s ease-in-out .5s infinite}
+@keyframes cgSSR{0%,100%{filter:none}50%{filter:drop-shadow(0 0 10px #ffc400)}}
+.wd-rare{width:100%;display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin-top:3px} /* 枚数と音声マークの下の段に折り返す */
+.wd-rare i{font-style:normal;font-size:10px;font-weight:900;color:#fff;background:var(--rc,#B8862B);padding:1px 5px}
 .home-head{position:absolute;inset:0;pointer-events:none;z-index:2;
   transform:translateY(calc(var(--p,0)*-190px + var(--down,0px)));transition:transform .35s ease} /* 上スワイプ退場/下スワイプ1x */
 .home-head>*{pointer-events:auto}
@@ -1205,7 +1264,7 @@ body.bigtext .set-d{font-size:13.5px}
 .wd-bigcard{background:linear-gradient(160deg,#fff,#ffe9c2);color:#1a1a1a;border-radius:18px;padding:8px 6px 10px;width:100%;max-width:220px;justify-self:center;box-sizing:border-box;
   box-shadow:0 6px 18px rgba(0,0,0,.28);text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden}
 .wd-side{display:flex;flex-direction:column;gap:8px;min-width:0}
-.wd-cbar{display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(0,0,0,.35);border-radius:12px;padding:6px 8px}
+.wd-cbar{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;background:rgba(0,0,0,.35);border-radius:12px;padding:6px 8px}
 .wd-cards{font-size:12px;font-weight:900;color:#FFD86B}
 .wd-cards b{font-size:19px;margin:0 2px}
 .wd-cimg{position:relative;width:100%;height:118px;display:flex;align-items:center;justify-content:center}
@@ -2020,7 +2079,7 @@ body.bigtext .set-d{font-size:13.5px}
       </div>
       <div class="reward-rail">
         <button class="rr-btn" id="rr-daily" onclick="openPresent('daily')"><img src="icons/bonus-daily.webp" alt="毎日"><span class="rr-txt">毎日<br>ボーナス</span><span class="rr-badge" id="pb-daily" style="display:none"></span></button>
-        <button class="rr-btn" id="rr-rank" onclick="openPresent('rank')"><img src="icons/bonus-rank.webp" alt="ランク"><span class="rr-txt">ランク<br>ボーナス</span><span class="rr-badge" id="pb-rank" style="display:none"></span></button>
+        <button class="rr-btn" id="rr-rank" onclick="openGacha()"><img src="icons/bonus-rank.webp" alt="ガチャ"><span class="rr-txt">ガチャ</span><span class="rr-badge" id="pb-rank" style="display:none"></span><span class="rr-x2" id="rr-x2" style="display:none">✕2</span></button><!-- テストのごほうびはプレゼントではなくガチャ（メール指示 2026-08-01） -->
         <button class="rr-btn" id="rr-level" onclick="openPresent('level')"><img src="icons/bonus-level.webp" alt="レベル"><span class="rr-txt">レベル<br>ボーナス</span><span class="rr-badge" id="pb-level" style="display:none"></span></button>
         <button class="rr-btn" id="rr-pwr" onclick="openPresent('pwr')"><img src="icons/bonus-pwr.webp" alt="PWR"><span class="rr-txt">PWR<br>ボーナス</span><span class="rr-badge" id="pb-pwr" style="display:none"></span></button>
       </div>
@@ -2085,6 +2144,7 @@ body.bigtext .set-d{font-size:13.5px}
   <div class="screen" id="s-priqq"></div>
 </div>
 <div id="present-modal"></div>
+<div id="gacha-modal"></div><!-- テストのごほうびのガチャ（メール指示 2026-08-01） -->
 <div id="calendar-modal"></div>
 <div id="settings-modal"></div>
 <div id="special-modal"></div>
@@ -2293,6 +2353,35 @@ function loadBonus(){return parseInt(localStorage.getItem(LS_BONUS)||"0",10)||0;
 function loadCards(){return _lsJSON(LS_CARDS,()=>({}));}
 function addCards(wordId,n){if(n<=0)return;const c=loadCards();c[wordId]=(c[wordId]||0)+n;_lsSetJSON(LS_CARDS,c);}
 function totalCards(){const c=loadCards();return Object.values(c).reduce((a,b)=>a+b,0);}
+/* ---- 単語カードのレア度（メール指示 2026-08-01） ----
+   早く正解するほど枚数が多くもらえるのは今までどおり。それに加えて、速いほどレア度の高いカードが出る。
+   枚数(kwt_cards_v1)は今までどおり数だけを持ち、レア度の内訳はこちらに別で持つ（既存の枚数表示はそのまま動く）。 */
+const CARD_RARITY=[
+  {k:"N",  lab:"ノーマル",  col:"#B8862B"},
+  {k:"R",  lab:"レア",      col:"#2F6FE0"},
+  {k:"SR", lab:"スーパーレア", col:"#A05BD6"},
+  {k:"SSR",lab:"ウルトラレア", col:"#E0831A"}
+];
+const RARITY_ORDER=["N","R","SR","SSR"];
+function rarityInfo(k){return CARD_RARITY.find(r=>r.k===k)||CARD_RARITY[0];}
+function loadCardRare(){return _lsJSON(LS_CARDR,()=>({}));}
+function addCardRare(wordId,n,rare){
+  if(n<=0||!rare)return;
+  const c=loadCardRare(),o=c[wordId]||{};
+  o[rare]=(o[rare]||0)+n;c[wordId]=o;_lsSetJSON(LS_CARDR,c);
+}
+function cardRareOf(wordId){return loadCardRare()[wordId]||{};}
+/* その単語で持っている一番高いレア度（持っていなければ null） */
+function bestRarity(wordId){const o=cardRareOf(wordId);for(let i=RARITY_ORDER.length-1;i>=0;i--){if(o[RARITY_ORDER[i]]>0)return RARITY_ORDER[i];}return null;}
+/* 残り時間の割合(0〜1)が大きい＝速く答えたほど、高いレア度が出やすい。不正解・時間切れはノーマルどまり */
+function rollCardRarity(ratio,isCorrect){
+  if(!isCorrect)return "N";
+  const p=Math.max(0,Math.min(1,ratio||0)),r=Math.random();
+  if(r<p*p*0.10)return "SSR";
+  if(r<p*0.30)return "SR";
+  if(r<0.20+p*0.50)return "R";
+  return "N";
+}
 function addBonus(n){localStorage.setItem(LS_BONUS,String(loadBonus()+n));}
 function xpInfo(){
   const total=Math.round(loadHistory().reduce((a,r)=>a+(r.score||0),0))+loadBonus();
@@ -2329,9 +2418,44 @@ function doneCountByDay(){
   Object.values(by).forEach(arr=>{if(arr.length>=12){const t=arr[arr.length-1].answeredAt;if(t){const k=dayKey(new Date(t).getTime());m[k]=(m[k]||0)+1;}}});
   return m;
 }
+/* ============================================================ おやすみチケット（メール指示 2026-08-01）
+ * 「今日の5問」を1回終えるたびに、プレゼントの中へ1枚入る。使うと、その日は学習していなくても
+ * 連続学習が途切れなかったことにできる。連続が途切れたまま起動した日は、まずこれを使うか尋ねる。 */
+function restState(){const o=_lsJSON(LS_REST,()=>({}));if(typeof o.n!=="number")o.n=0;if(!Array.isArray(o.used))o.used=[];return o;}
+function saveRest(o){_lsSetJSON(LS_REST,o);}
+function restTickets(){return restState().n;}
+function addRestTicket(n){const o=restState();o.n=Math.max(0,o.n+(n==null?1:n));saveRest(o);return o.n;}
+function restCovered(){return new Set(restState().used);}
+/* 日付キー("2026-8-1")→その日の0時のDate */
+function _dayFromKey(k){const a=String(k).split("-");return new Date(+a[0],(+a[1])-1,+a[2]);}
+/* 連続が途切れている原因の日（学習もチケットも無い日）を古い順に返す。
+   直近の学習日と今日のあいだだけを見る（今日はまだ学習していなくても途切れではない） */
+function restMissedDays(){
+  const done=Object.keys(doneCountByDay());
+  if(!done.length)return [];
+  const all=new Set(done);restCovered().forEach(k=>all.add(k));
+  let last=0;done.forEach(k=>{const t=_dayFromKey(k).getTime();if(t>last)last=t;});
+  const today=new Date();today.setHours(0,0,0,0);
+  const miss=[],d=new Date(last);d.setDate(d.getDate()+1);
+  for(let i=0;i<400&&d.getTime()<today.getTime();i++,d.setDate(d.getDate()+1)){
+    const k=dayKey(d.getTime());if(!all.has(k))miss.push(k);
+  }
+  return miss;
+}
+/* 持っているぶんだけ、今日に近い側の抜けた日から順に埋める（今日から遡って数えるので、近い日から埋めるほど連続が伸びる） */
+function useRestTickets(miss){
+  const o=restState(),k=Math.min(o.n,(miss||[]).length);
+  if(k<=0)return 0;
+  miss.slice(-k).forEach(d=>{if(!o.used.includes(d))o.used.push(d);});
+  if(o.used.length>400)o.used.splice(0,o.used.length-400);
+  o.n-=k;saveRest(o);
+  return k;
+}
 /* 連続学習日数：12問を完了した日が連続している数（起動だけではカウントしない） */
 function loginStreak(){
-  const s=new Set(Object.keys(doneCountByDay()));const d=new Date();
+  const s=new Set(Object.keys(doneCountByDay()));
+  restCovered().forEach(k=>s.add(k)); // おやすみチケットを使った日は「途切れなかった」ことにする
+  const d=new Date();
   if(!s.has(dayKey(d.getTime())))d.setDate(d.getDate()-1); // 今日まだ未完了なら昨日から数える（今日やれば+1）
   let n=0,grace=false;
   for(;;){
@@ -2352,7 +2476,7 @@ function openCalendar(off){
   const base=new Date();
   const view=new Date(base.getFullYear(),base.getMonth()+_calOffset,1);
   const y=view.getFullYear(),mo=view.getMonth();
-  const launched=new Set(launchedDays());const cnt=doneCountByDay();
+  const launched=new Set(launchedDays());const cnt=doneCountByDay();const rested=restCovered(); // おやすみチケットを使った日
   const d5days=new Set(Object.values(loadD5()).map(r=>dayKey(new Date(r.finished||r.started||0).getTime()))); // 今日の5問テストを実施した日（枠のキーではなく実際に遊んだ日付で塗る）
   const first=new Date(y,mo,1).getDay(),days=new Date(y,mo+1,0).getDate();
   const wd=["日","月","火","水","木","金","土"].map(w=>`<div class="cd wd">${w}</div>`).join("");
@@ -2364,7 +2488,8 @@ function openCalendar(off){
     const lv=c>=3?4:c===2?3:c===1?2:(launched.has(k)?1:0); // 0=なし/1=起動のみ/2〜4=学習回数で濃く
     const isToday=(k===todayK);
     const sp=specialBonusFor(new Date(y,mo,d));
-    cells+=`<div class="cd lv${lv}${isToday?" today":""}${sp?" sp":""}${d5days.has(k)?" d5done":""}"${d5days.has(k)?' title="今日の5問テスト実施"':""}>${d}</div>`;
+    const rest=rested.has(k);
+    cells+=`<div class="cd lv${lv}${isToday?" today":""}${sp?" sp":""}${d5days.has(k)?" d5done":""}${rest?" rested":""}"${rest?' title="おやすみチケットを使った日"':(d5days.has(k)?' title="今日の5問テスト実施"':"")}>${rest?"💤":d}</div>`;
   }
   const sp=_calOffset===0?specialBonusFor(base):null;
   const spHTML=_calOffset!==0?"":(sp?`<div class="cal-sp"><span class="rbtext">${esc(sp.name)}ボーナス</span> +${sp.amount} XP（プレゼントに追加）</div>`:`<div class="cal-sp" style="color:#888">今日は特別ボーナスはありません</div>`);
@@ -2378,6 +2503,7 @@ function openCalendar(off){
     <div class="cal-grid">${wd}${cells}</div>
     <div class="cal-legend"><span class="cl-t">学習回数が多い日ほど濃く</span><span class="cl-scale"><i class="lv1"></i><i class="lv2"></i><i class="lv3"></i><i class="lv4"></i></span></div>
     <div class="cal-legend"><span class="cl-d5"></span><span class="cl-t">枠線＝今日の5問テストを実施した日</span></div>
+    <div class="cal-legend"><span class="cl-t">💤＝おやすみチケットを使った日（連続はつながります）　持っている枚数 ${restTickets()}枚</span></div>
     ${spHTML}
   </div>`;
   m.classList.add("on");
@@ -2417,6 +2543,7 @@ function secOfWord(){if(_secOfWord)return _secOfWord;const m={};["beginner","mid
 function roomsPlayed(){const m=secOfWord(),set=new Set();loadHistory().forEach(r=>{const k=m[r.wordId];if(k)set.add(k);});return set.size;}
 /* 達成ボーナス（毎日起動/特別日→daily、回数/ROOM種類→level）。各1回 */
 function checkAchievements(){
+  migrateRankPresents(); // 受け取っていない「テストのごほうび」はガチャ1回へ引っ越す（メール指示 2026-08-01）
   const st=_presentState();st.achv=st.achv||{};let changed=false;
   const add=(id,title,amount,cat)=>{if(!st.achv[id]){st.achv[id]=1;st.queue.push({cat:cat||"daily",kind:"achv",title,total:amount,at:new Date().toISOString()});changed=true;}};
   markLaunch();
@@ -2432,12 +2559,20 @@ function checkAchievements(){
   updatePresent();
 }
 function presentsAvailable(cat){const q=_presentState().queue;return cat?q.filter(x=>x.cat===cat).length:q.length;}
+/* 「今日の5問」を1回終えるごとに、毎日ボーナスのプレゼントとして おやすみチケット を1枚入れる（メール指示 2026-08-01） */
+function grantRestTicketPresent(){
+  const st=_presentState();
+  st.queue.push({cat:"daily",kind:"ticket",title:"おやすみチケット",total:0,at:new Date().toISOString()});
+  _savePresent(st);
+  try{updatePresent();}catch(e){}
+}
 const RANK_BONUS={S:100,A:60,B:40,C:20,D:10};
-/* テスト終了時: 4種それぞれ独立のプレゼントとして追加 */
+/* テスト終了時: レベル・PWRはプレゼント、テストのごほうびはプレゼントではなくガチャ1回（メール指示 2026-08-01）。
+   これまでプレゼントで渡していた基本＋レインボー＋ランクぶんのXPは、そのガチャ1回にくっつけて渡す。 */
 function enqueuePresent(rank,pwrDelta){
   const st=_presentState(),at=new Date().toISOString();
   const base=30,rainbow=totalTests()*5,rankBonus=RANK_BONUS[rank]||0;
-  st.queue.push({cat:"rank",kind:"test",rank,base,rainbow,rankBonus,total:base+rainbow+rankBonus,at});
+  addGachaSpin(base+rainbow+rankBonus,rank); // ← テストのごほうび＝ガチャが1回まわせるようになる
   const levelBonus=Math.max(0,(xpInfo().level-(state.levelBefore||1)))*100;
   if(levelBonus>0)st.queue.push({cat:"level",kind:"achv",title:"レベルアップ",total:levelBonus,at});
   const pwrBonus=Math.max(0,Math.round(pwrDelta||0))*5;
@@ -2448,14 +2583,19 @@ function updatePresent(){
   PRES_CATS.forEach(cat=>{
     const btn=document.getElementById("rr-"+cat),badge=document.getElementById("pb-"+cat);
     if(!btn)return;
-    const n=presentsAvailable(cat);
+    const n=(cat==="rank")?gachaSpins():presentsAvailable(cat); // ランクの位置はガチャ（残り回数をバッジに出す）
     btn.classList.toggle("rb",n>0);btn.classList.toggle("bob",n>0);
     if(badge){badge.style.display=n>0?"flex":"none";badge.textContent=n>0?String(n):"";}
   });
+  const x2=document.getElementById("rr-x2"); // XP2倍チャンスが生きている間だけ出す小さな札
+  if(x2)x2.style.display=xpBoostActive()?"flex":"none";
 }
 function _bonusRow(label,v,cls){return v>0?`<div class="pm-line"><span>${label}</span><span class="${cls||''}">+${v}</span></div>`:"";}
 let _presCat="rank";
-function _presItemLabel(r){return r.kind==="achv"?(r.title||"達成ボーナス"):("RANK "+r.rank+" のごほうび");}
+function _presItemLabel(r){return r.kind==="ticket"?"おやすみチケット":r.kind==="achv"?(r.title||"達成ボーナス"):("RANK "+r.rank+" のごほうび");}
+/* おやすみチケットはXPではなく「1枚」。中身が分かるように箱ではなく💤の札で出す（メール指示 2026-08-01） */
+function _presItemFace(r){return r.kind==="ticket"?`<span class="pm-tk">💤</span>`:`<img src="icons/present.webp" alt="">`;}
+function _presItemAmt(r){return r.kind==="ticket"?"1枚":("+"+r.total+" XP");}
 function openPresent(cat){if(!document.getElementById("present-modal").classList.contains("on"))pushNav("modal");
   _presCat=cat||"rank";
   const m=document.getElementById("present-modal");
@@ -2463,10 +2603,10 @@ function openPresent(cat){if(!document.getElementById("present-modal").classList
   if(q.length>0){
     // プレゼントが個数分ボタンで並ぶ（2列）。受け取ったボタンはその場で「受け取り済み」に変わる
     const items=q.map(r=>`
-      <button class="pm-item" data-at="${esc(r.at)}" data-total="${r.total}" onclick="claimPresentItem(this)">
-        <img src="icons/present.webp" alt="">
+      <button class="pm-item" data-at="${esc(r.at)}" data-total="${r.total}" data-kind="${esc(r.kind||"")}" onclick="claimPresentItem(this)">
+        ${_presItemFace(r)}
         <span class="ttl">${esc(_presItemLabel(r))}</span>
-        <span class="amt">+${r.total} XP</span>
+        <span class="amt">${_presItemAmt(r)}</span>
       </button>`).join("");
     m.innerHTML=`<div class="pm-card rainbow">
       <button class="pm-close" onclick="closePresent()">×</button>
@@ -2515,26 +2655,26 @@ function claimAllPresents(){
   const st=_presentState();
   const items=st.queue.filter(x=>x.cat===_presCat);
   if(!items.length)return;
-  let sum=0;items.forEach(r=>sum+=r.total);
+  let sum=0,tk=0;items.forEach(r=>{if(r.kind==="ticket")tk++;else sum+=r.total;}); // おやすみチケットはXPではなく枚数で受け取る
   const cat=_presCat;
   const rects=[...document.querySelectorAll("#present-modal .pm-item:not(.claimed)")].map(el=>el.getBoundingClientRect()); // 消える前に各箱の位置を記録
   st.queue=st.queue.filter(x=>x.cat!==cat);
   _savePresent(st);
-  sfxClaim();addBonus(sum);
+  sfxClaim();addBonus(sum);if(tk)addRestTicket(tk);
   rects.forEach((r,i)=>setTimeout(()=>flyClaimToBox(r,cat),i*90)); // 少しずつずらしてアーチで箱へ
   updatePresent();updateHomeStats(); // XP等だけ更新（ROOMスライドは再構築しない）
   openPresent(cat); // 空になったカードに切替（モーダルは開いたまま）
 }
 function claimPresentItem(btn){
   if(btn.classList.contains("claimed"))return;
-  const at=btn.dataset.at,total=+btn.dataset.total;
+  const at=btn.dataset.at,total=+btn.dataset.total,kind=btn.dataset.kind||"";
   const st=_presentState();
-  const idx=st.queue.findIndex(x=>x.cat===_presCat&&x.at===at&&x.total===total);
+  const idx=st.queue.findIndex(x=>x.cat===_presCat&&x.at===at&&x.total===total&&(x.kind||"")===kind);
   if(idx<0)return;
   st.queue.splice(idx,1);
   _savePresent(st);
   sfxClaim();
-  addBonus(total);
+  if(kind==="ticket")addRestTicket(1); else addBonus(total); // おやすみチケットはXPではなく1枚たまる
   flyClaimToBox(btn.getBoundingClientRect(),_presCat); // 箱がアーチを描いて報酬アイコンへ入っていく演出
   btn.classList.add("claimed");
   btn.querySelector(".amt").textContent="受け取り済み";
@@ -2543,6 +2683,152 @@ function claimPresentItem(btn){
   const title=document.querySelector("#present-modal .pm-title");
   const n=presentsAvailable(_presCat);
   if(title)title.textContent=PRES_LABEL[_presCat]+(n>0?`が ${n} 個`:" 完了！");
+}
+/* ============================================================ ガチャ（メール指示 2026-08-01）
+ * テストのごほうびはプレゼントではなくガチャ。テストを1本終えるたびにまわせる回数が1増える。
+ * 景品は「おやすみチケット」「XP（ランダム）」「XP2倍（30分）チャンス」の3種類。
+ * これまでプレゼントで渡していたテストぶんのXPは、その1回にくっつけて一緒に渡す。 */
+function gachaState(){const o=_lsJSON(LS_GACHA,()=>({}));if(!Array.isArray(o.q))o.q=[];return o;}
+function saveGacha(o){_lsSetJSON(LS_GACHA,o);}
+function gachaSpins(){return gachaState().q.length;}
+function addGachaSpin(xp,rank){
+  const o=gachaState();
+  o.q.push({xp:Math.max(0,Math.round(xp||0)),rank:rank||"",at:new Date().toISOString()});
+  if(o.q.length>60)o.q.splice(0,o.q.length-60); // ためこみすぎの上限
+  saveGacha(o);
+  return o.q.length;
+}
+/* 旧データの引っ越し: 受け取っていない「テストのごほうび」のプレゼントは、同じ数だけガチャ1回に置きかえる */
+function migrateRankPresents(){
+  const st=_presentState(),rank=st.queue.filter(x=>x.cat==="rank");
+  if(!rank.length)return;
+  st.queue=st.queue.filter(x=>x.cat!=="rank");_savePresent(st);
+  rank.forEach(r=>addGachaSpin(r.total,r.rank||""));
+}
+/* ---- XP2倍チャンス（30分） ---- */
+function xpBoostUntil(){return parseInt(localStorage.getItem(LS_XPBOOST)||"0",10)||0;}
+function xpBoostActive(){return xpBoostUntil()>Date.now();}
+function xpBoostLeftMin(){return Math.max(0,Math.ceil((xpBoostUntil()-Date.now())/60000));}
+function startXpBoost(min){localStorage.setItem(LS_XPBOOST,String(Math.max(xpBoostUntil(),Date.now())+(min||30)*60000));}
+const GACHA_PRIZES=[
+  {k:"ticket",w:22,ico:"💤",lab:"おやすみチケット",col:"#1688FF",msg:"連続学習を1日ぶん守れます"},
+  {k:"xp",    w:52,ico:"⭐",lab:"XP",            col:"#FFC400",msg:"そのままXPが増えました"},
+  {k:"x2",    w:26,ico:"✕2",lab:"XP2倍チャンス",  col:"#E0433B",msg:"これから30分、もらえるXPが2倍"}
+];
+function rollGachaPrize(){
+  const tot=GACHA_PRIZES.reduce((a,p)=>a+p.w,0);let r=Math.random()*tot;
+  for(const p of GACHA_PRIZES){if((r-=p.w)<0)return p;}
+  return GACHA_PRIZES[0];
+}
+/* XPの当たりは小さいほど出やすい（大当たりはたまに） */
+function rollGachaXp(){
+  const t=[[30,30],[50,25],[80,20],[120,13],[200,8],[300,4]];
+  let tot=t.reduce((a,x)=>a+x[1],0),r=Math.random()*tot;
+  for(const x of t){if((r-=x[1])<0)return x[0];}
+  return 30;
+}
+let _gachaBusy=false;
+function openGacha(){
+  if(!document.getElementById("gacha-modal").classList.contains("on"))pushNav("modal");
+  _gachaBusy=false;
+  gachaRenderIdle();
+  document.getElementById("gacha-modal").classList.add("on");
+}
+function closeGacha(){_gachaBusy=false;document.getElementById("gacha-modal").classList.remove("on");}
+function _gachaBoostLine(){return xpBoostActive()?`<div class="gc-boost">✕2 XP2倍チャンス 残り ${xpBoostLeftMin()}分</div>`:"";}
+function gachaRenderIdle(){
+  const m=document.getElementById("gacha-modal"),n=gachaSpins();
+  m.innerHTML=`<div class="pm-card gc-card${n>0?" rainbow":""}">
+    <button class="pm-close" onclick="closeGacha()">×</button>
+    <div class="pm-title">ガチャ</div>
+    <div class="pm-sub">${n>0?"テストのごほうび":"テストを1本終えるとまわせます"}</div>
+    <div class="gc-machine${n>0?" ready":""}" id="gc-machine"><div class="gc-ball b1"></div><div class="gc-ball b2"></div><div class="gc-ball b3"></div><div class="gc-cap">${n>0?"🎰":"…"}</div></div>
+    ${_gachaBoostLine()}
+    <div class="gc-count">${n>0?`のこり <b>${n}</b> 回`:"のこり <b>0</b> 回"}</div>
+    ${n>0?`<button class="pm-btn gc-go" onclick="spinGacha()">まわす</button>`:""}
+    <button class="pm-btn" onclick="closeGacha()">とじる</button>
+  </div>`;
+}
+function spinGacha(){
+  if(_gachaBusy)return;
+  const o=gachaState();
+  if(!o.q.length){gachaRenderIdle();return;}
+  _gachaBusy=true;
+  const tk=o.q.shift();saveGacha(o);
+  const p=rollGachaPrize();
+  let amt=0;
+  if(p.k==="ticket")addRestTicket(1);
+  else if(p.k==="xp"){amt=rollGachaXp();addBonus(amt);}
+  else startXpBoost(30);
+  if(tk.xp>0)addBonus(tk.xp); // テストぶんのXPは景品とは別に必ずもらえる
+  const mc=document.getElementById("gc-machine");if(mc)mc.classList.add("spin");
+  const go=document.querySelector("#gacha-modal .gc-go");if(go)go.disabled=true;
+  try{sfxClaim();}catch(e){}
+  setTimeout(()=>{gachaRenderResult(p,amt,tk);_gachaBusy=false;},1150);
+}
+function gachaRenderResult(p,amt,tk){
+  const m=document.getElementById("gacha-modal"),n=gachaSpins();
+  const val=p.k==="xp"?`+${amt} <small>XP</small>`:p.k==="ticket"?`1 <small>枚</small>`:`30 <small>分</small>`;
+  m.innerHTML=`<div class="pm-card gc-card rainbow">
+    <button class="pm-close" onclick="closeGacha()">×</button>
+    <div class="pm-title">ガチャ結果</div>
+    <div class="gc-prize" style="--pc:${p.col}">
+      <div class="gc-pico">${p.ico}</div>
+      <div class="gc-plab">${esc(p.lab)}</div>
+      <div class="gc-pval">${val}</div>
+      <div class="gc-pmsg">${esc(p.msg)}</div>
+    </div>
+    ${tk&&tk.xp>0?`<div class="gc-extra">テストのごほうび <b>+${tk.xp} XP</b>${tk.rank?`（RANK ${esc(tk.rank)}）`:""}</div>`:""}
+    ${_gachaBoostLine()}
+    <div class="gc-count">のこり <b>${n}</b> 回</div>
+    ${n>0?`<button class="pm-btn gc-go" onclick="spinGacha()">もう1回まわす</button>`:""}
+    <button class="pm-btn" onclick="closeGacha()">とじる</button>
+  </div>`;
+  updatePresent();updateHomeStats();
+  const sp=m.querySelector(".gc-prize");if(sp){sp.classList.remove("in");void sp.offsetWidth;sp.classList.add("in");}
+}
+/* ============================================================ おやすみチケットを使うか尋ねる（メール指示 2026-08-01）
+ * 連続が途切れたまま起動した日は、いちばん最初にこのポップアップを出す。 */
+const LS_RESTASK="kwt_restask_v1";
+function maybeRestAsk(){
+  try{
+    if(document.getElementById("coach")||document.getElementById("resume-ask"))return false;
+    const home=document.getElementById("s-home");
+    if(!home||!home.classList.contains("on"))return false;
+    if(restTickets()<=0)return false;
+    const miss=restMissedDays();
+    if(!miss.length)return false;
+    if(localStorage.getItem(LS_RESTASK)===dayKey(Date.now()))return false; // 同じ日に何度も聞かない
+    localStorage.setItem(LS_RESTASK,dayKey(Date.now()));
+    showRestAsk(miss);
+    return true;
+  }catch(e){return false;}
+}
+function _restDayLabel(k){const d=_dayFromKey(k);return (d.getMonth()+1)+"/"+d.getDate();}
+function showRestAsk(miss){
+  const old=document.querySelector(".rest-ask");if(old)old.remove();
+  const have=restTickets(),use=Math.min(have,miss.length);
+  const days=miss.slice(-use);
+  const ov=document.createElement("div");ov.className="rest-ask";ov._miss=miss;
+  ov.innerHTML=`<div class="pm-card ra-card">
+    <div class="ra-ico">💤</div>
+    <div class="pm-title">おやすみチケットを使いますか？</div>
+    <div class="pm-sub">${_restDayLabel(miss[0])}${miss.length>1?"〜"+_restDayLabel(miss[miss.length-1]):""} のぶんで連続学習が途切れています</div>
+    <div class="ra-line">使うと <b>${days.map(_restDayLabel).join("・")}</b> は<br>お休みした日として連続がつながります</div>
+    <div class="ra-have">持っているチケット <b>${have}</b> 枚 ／ 使うのは <b>${use}</b> 枚</div>
+    <button class="pm-btn" style="background:#E0831A" onclick="restAskUse()">使う</button>
+    <button class="pm-btn" onclick="closeRestAsk()">使わない</button>
+  </div>`;
+  document.body.appendChild(ov);
+  requestAnimationFrame(()=>ov.classList.add("on"));
+}
+function closeRestAsk(){const ov=document.querySelector(".rest-ask");if(ov){ov.classList.remove("on");setTimeout(()=>ov.remove(),260);}}
+function restAskUse(){
+  const ov=document.querySelector(".rest-ask");if(!ov)return;
+  const used=useRestTickets(ov._miss||[]);
+  closeRestAsk();
+  updateHomeStats();updatePresent();
+  if(used>0)setTimeout(()=>showStreakCelebration(loginStreak()),320); // つながった連続日数をそのまま見せる
 }
 /* PWR=学習済み（1回以上出題）全単語の平均記憶率。時間で低下し復習で上昇 */
 function pwrOverallExact(){const s=loadStats(),ids=Object.keys(s);if(!ids.length)return 0;const now=Date.now();let t=0;ids.forEach(id=>t+=displayMemoryScore(getStat(id,s),now));return t/ids.length;}
@@ -3207,6 +3493,7 @@ function maybeCoach(){
 /* 起動時：前回の途中があれば復帰をたずねる（使い方ガイド・今日の5問より先に出す） */
 function maybeResume(){
   try{
+    if(document.querySelector(".rest-ask")){setTimeout(maybeResume,600);return false;} // おやすみチケットの確認がいちばん先（メール指示 2026-08-01）
     if(document.getElementById("coach"))return false;
     const home=document.getElementById("s-home");
     if(!home||!home.classList.contains("on"))return false;
@@ -3454,7 +3741,7 @@ function renderHome(){
   updateHomeStats();
   buildRoomSlides();
   attachHomeRain(); // スライド再構築後に玉レイヤーを差し直し（玉は保持）
-  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();initRoomHint();setTimeout(maybeResume,600);setTimeout(()=>{if(!document.getElementById("resume-ask"))maybeCoach();},900);setTimeout(maybeAutoDaily5,1500);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋ROOMスワイプのヒント＋初回コーチ＋今日の5問の自動スタート＋バックアップ提案
+  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();initRoomHint();setTimeout(maybeRestAsk,300);setTimeout(maybeResume,600);setTimeout(()=>{if(!document.getElementById("resume-ask")&&!document.querySelector(".rest-ask"))maybeCoach();},900);setTimeout(maybeAutoDaily5,1500);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋ROOMスワイプのヒント＋（連続が途切れていれば）おやすみチケット＋初回コーチ＋今日の5問の自動スタート＋バックアップ提案
   buildTodayBand();
   applyHomeBg();
   scaleHome();
@@ -3502,7 +3789,9 @@ function showPresentBubble(done){
   document.querySelectorAll(".pbub").forEach(e=>e.remove());
   const cat=PRES_CATS.find(c=>presentsAvailable(c)>0)||"rank";
   const target=document.getElementById("rr-"+cat);
-  const el=document.createElement("div");el.className="pbub";el.textContent="🎁 プレゼントが届きました";
+  const el=document.createElement("div");el.className="pbub";
+  // ランクの位置はガチャに変わったので、プレゼントが空でガチャだけ残っている場合は言い方を変える（メール指示 2026-08-01）
+  el.textContent=presentsAvailable(cat)>0?"🎁 プレゼントが届きました":"🎰 ガチャが回せます";
   document.body.appendChild(el);
   if(target){
     const r=target.getBoundingClientRect();
@@ -4142,7 +4431,8 @@ const IME={
 /* ============================================================ ストレージ（全件保存） ============================================================ */
 const LS_HIST="kwt_history_v1", LS_PERFECT="kwt_perfect_v1", LS_USER="kwt_user_v1",
       LS_STATS="kwt_stats_v1", LS_PROG="kwt_progress_v1", LS_SESS="kwt_session_v1",
-      LS_BONUS="kwt_bonus_v1", LS_PRESENT="kwt_present_v1", LS_CARDS="kwt_cards_v1", LS_LAUNCH="kwt_launch_v1", LS_LASTROOM="kwt_lastroom_v1", LS_SETTINGS="kwt_settings_v1";
+      LS_BONUS="kwt_bonus_v1", LS_PRESENT="kwt_present_v1", LS_CARDS="kwt_cards_v1", LS_LAUNCH="kwt_launch_v1", LS_LASTROOM="kwt_lastroom_v1", LS_SETTINGS="kwt_settings_v1",
+      LS_CARDR="kwt_cardrare_v1", LS_REST="kwt_rest_v1", LS_GACHA="kwt_gacha_v1", LS_XPBOOST="kwt_xpboost_v1"; // 単語カードのレア度／おやすみチケット／ガチャ／XP2倍（メール指示 2026-08-01）
 function getUserId(){let u=localStorage.getItem(LS_USER);if(!u){u="u-"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);localStorage.setItem(LS_USER,u);}return u;}
 function loadHistory(){const h=_lsJSON(LS_HIST,()=>[]);return Array.isArray(h)?h:[];}
 /* 保存の安全弁: 容量オーバー時は再生成可能な診断履歴を捨て→古い回答明細を強めに間引いて再試行し、学習の核(stats/cards)が静かに失われるのを防ぐ */
@@ -4180,9 +4470,15 @@ const LS_TXN="kwt_txn_v1";
 let _txn=null;
 function _txnSave(){try{if(_txn)localStorage.setItem(LS_TXN,JSON.stringify(_txn));else localStorage.removeItem(LS_TXN);}catch(e){}}
 function _txnLoad(){try{return JSON.parse(localStorage.getItem(LS_TXN)||"null");}catch(e){return null;}}
-function txnBegin(testId){_txn={testId:testId||"",stats:{},cards:{}};_txnSave();}
+function txnBegin(testId){_txn={testId:testId||"",stats:{},cards:{},cardr:{}};_txnSave();}
 function txnNoteStat(id,prev){if(!_txn||(id in _txn.stats))return;_txn.stats[id]=(prev===undefined?null:prev);_txnSave();}
-function txnNoteCards(id,prev){if(!_txn||(id in _txn.cards))return;_txn.cards[id]=(prev===undefined?null:prev);_txnSave();}
+function txnNoteCards(id,prev){
+  if(!_txn||(id in _txn.cards))return;
+  _txn.cards[id]=(prev===undefined?null:prev);
+  if(!_txn.cardr)_txn.cardr={};
+  const r=loadCardRare()[id];_txn.cardr[id]=r?JSON.parse(JSON.stringify(r)):null; // レア度の内訳も同じタイミングで控える
+  _txnSave();
+}
 function txnCommit(){_txn=null;_txnSave();} // 完走＝記録を確定
 function txnRollback(){
   const t=_txn||_txnLoad();_txn=null;_txnSave();
@@ -4196,6 +4492,9 @@ function txnRollback(){
     if(t.cards&&Object.keys(t.cards).length){const c=loadCards();
       for(const id in t.cards){if(t.cards[id]==null)delete c[id];else c[id]=t.cards[id];}
       _lsSetJSON(LS_CARDS,c);}
+    if(t.cardr&&Object.keys(t.cardr).length){const cr=loadCardRare();
+      for(const id in t.cardr){if(t.cardr[id]==null)delete cr[id];else cr[id]=t.cardr[id];}
+      _lsSetJSON(LS_CARDR,cr);}
   }catch(e){}
 }
 
@@ -4667,7 +4966,7 @@ window.addEventListener("popstate",()=>{
     const _spg=document.getElementById("spov");
     if(_spg&&_spg.classList.contains("on")){spExitGame();return;}
     // 1) 開いているモーダルを閉じる
-    for(const id of ["present-modal","calendar-modal","settings-modal","special-modal","history-modal","map-modal","d5-modal"]){
+    for(const id of ["present-modal","gacha-modal","calendar-modal","settings-modal","special-modal","history-modal","map-modal","d5-modal"]){
       const m=document.getElementById(id);
       if(m&&m.classList.contains("on")){m.classList.remove("on");if(id==="d5-modal"){clearInterval(_d5Timer);_d5Timer=null;}return;}
     }
@@ -5143,6 +5442,7 @@ const LS_D5AUTO="kwt_d5auto_v1";
 const D5_AUTO_SEC=10; // 触らなければ始まるまでの秒数（2.6秒は短すぎるとのご指摘で10秒に）
 function maybeAutoDaily5(){
   try{
+    if(document.querySelector(".rest-ask")){setTimeout(maybeAutoDaily5,800);return;} // おやすみチケットの確認を先に済ませる（メール指示 2026-08-01）
     if(document.getElementById("coach"))return;                    // 使い方ガイドの表示中（閉じたときに改めて呼ばれる）
     if(document.getElementById("resume-ask"))return;               // 前回の途中の復帰をたずねている最中
     if(_d5.on||_gearActive)return;
@@ -5226,6 +5526,7 @@ function finishDaily5(){
     correct:nCorrect,total:items.length,done:true,items};
   all[_d5.key]=rec;saveD5(all);
   _d5.on=false;_sgFly.d5=true; // ホームへ戻ったらカプセルを左へ吸い込む→トレンドボタン登場
+  grantRestTicketPresent(); // 5問を1回終えるたびに、プレゼントへ「おやすみチケット」を1枚入れる（メール指示 2026-08-01）
   updateDiagnosis(); // タイプ診断だけ更新（ランク／プレゼントは通常テスト専用）
   if(typeof track==="function")track("daily5_complete",{slot:rec.slot,correct:nCorrect});
   d5RenderResult(rec,true);
@@ -6716,11 +7017,12 @@ function runnerPlace(){
   const ch=document.getElementById("rn-char");if(!ch)return;
   ch.style.left=Math.round(_rnHead+_runIdx*_rnGap)+"px";
 }
-function runnerStep(ok){
+function runnerStep(ok,rarity){
   const bar=document.getElementById("pbar");if(!bar)return;
   // 目の前のカードは、正解でも不正解でもキャラのほうへ飛んできて獲得する（メール指示 2026-08-01）
   const slot=document.querySelector('#rn-rail .rn-slot[data-i="'+_runIdx+'"]');
   if(slot){
+    if(rarity&&rarity!=="N"){slot.classList.add("rn-"+rarity);slot.dataset.rare=rarity;} // 出たレア度の色に変わってから飛んでくる
     const chr=document.getElementById("rn-char");
     if(chr){const c=slot.getBoundingClientRect(),h=chr.getBoundingClientRect();
       slot.style.setProperty("--fly",Math.round((h.left+h.width/2)-(c.left+c.width/2))+"px");}
@@ -7155,7 +7457,10 @@ function submit(status,userAnswer){
   const isCorrect=status==="correct";
   const isHint=!!q.isHintProvided;
   const score=scoreFor(q.type,isCorrect,elapsed,isHint);
-  runnerStep(isCorrect); // 正解なら景色が流れてキャラが1歩前へ／不正解はつまずくだけ
+  // 単語カードの枚数とレア度は同じ「残り時間」から決める（速いほど枚数もレア度も上がる／メール指示 2026-08-01）
+  const remainSec=Math.max(0,limit-elapsed);
+  const cardRarity=(q.trend||status==="timeout")?null:rollCardRarity(remainSec/limit,isCorrect);
+  runnerStep(isCorrect,cardRarity); // 正解なら景色が流れてキャラが1歩前へ／不正解はつまずくだけ。札はレア度の色になる
   // 今日のトレンド問題は単語帳の外の言葉なので、記憶スコア・単語カード・回答履歴には一切入れない
   if(q.trend){
     state.results.push({userId:state.userId,wordId:q.word.id,testId:state.testId,questionNumber:state.idx+1,
@@ -7227,13 +7532,13 @@ function submit(status,userAnswer){
   txnNoteStat(q.word.id,stats[q.word.id]?JSON.parse(JSON.stringify(stats[q.word.id])):null); // 中断したら戻せるよう、更新前の記憶率を控える
   stats[q.word.id]=st; saveStats(stats);
   // 単語カード獲得: 正解=残り秒ぶん(最大10) / 不正解・unknown=残り秒÷3(最大3) / 時間切れ=0
-  const remainSec=Math.max(0,limit-elapsed);
   let cardsEarned;
   if(isCorrect)cardsEarned=Math.min(10,Math.floor(remainSec));
   else if(status==="timeout")cardsEarned=0;
   else cardsEarned=Math.min(3,Math.floor(remainSec/3));
   txnNoteCards(q.word.id,loadCards()[q.word.id]!=null?loadCards()[q.word.id]:null); // 同上（単語カード）
   addCards(q.word.id,cardsEarned);
+  addCardRare(q.word.id,cardsEarned,cardRarity); // この1問ぶんのカードのレア度（メール指示 2026-08-01）
   // 履歴（上書きせず全保存）
   const rec={
     userId:state.userId,wordId:q.word.id,testId:state.testId,questionNumber:state.idx+1,
@@ -7248,7 +7553,7 @@ function submit(status,userAnswer){
     displayMemoryScoreBefore:Math.round(dispBefore),displayMemoryScoreAfter:Math.round(dispAfter),
     predictedMemory:Math.round(Mp),actualMemory:Math.round(A),predictionError:Math.round(E),
     wordDifficultyBefore:dwBefore,wordDifficultyAfter:st.wordDifficulty,
-    nextReviewAt:st.nextReviewAt,cardsEarned,
+    nextReviewAt:st.nextReviewAt,cardsEarned,cardRarity,
     displayMemoryScoreAfterDecay:Math.round(dispAfter) // 互換
   };
   state.results.push(rec);saveAnswer(rec);
@@ -7624,7 +7929,10 @@ function finishTest(){
     const cardsGot=(r.cardsEarned!=null?r.cardsEarned:0); // このカードで獲得した枚数
     const memDelta=Math.round(dAfter-dBefore); // 記憶率の増減（±）＝テスト前後の記憶率の差
     const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[r.korean])?`<img src="${WORD_IMG[r.korean]}" alt="">`:`<div class="cg-noimg">🃏</div>`;
-    return `<div class="rc-card speakable" data-id="${r.wordId||0}" data-ko="${esc(r.korean)}">
+    const rare=(cardsGot>0&&r.cardRarity)?r.cardRarity:null; // このカードのレア度（メール指示 2026-08-01）
+    const rareTag=(rare&&rare!=="N")?`<span class="rc-rare">${rare}</span>`:"";
+    return `<div class="rc-card speakable${rare?" rare-"+rare:""}" data-id="${r.wordId||0}" data-ko="${esc(r.korean)}">
+      ${rareTag}
       <div class="rc-imgw"><span class="rc-sym" style="color:${syc}">${sy[0]}</span>${img}</div>
       <div class="rc-ko">${esc(r.korean)}</div>
       <div class="rc-ja">${esc(r.japanese)}</div>
@@ -7632,7 +7940,10 @@ function finishTest(){
     </div>`;
   }).join("");
   // このテストで増えたXP（XP＝履歴の得点累計なので、今回の得点合計がそのまま増分）
-  const xpGain=Math.max(0,Math.round(totalRaw)),xpNow=xpInfo(),xpLvBefore=state.levelBefore||1,xpLeveled=xpNow.level>xpLvBefore;
+  // ガチャの「XP2倍チャンス」が生きている間は、同じぶんをボーナスXPとして足して合計2倍にする（メール指示 2026-08-01）
+  const _xpRaw=Math.max(0,Math.round(totalRaw)),xpDoubled=xpBoostActive()&&_xpRaw>0;
+  if(xpDoubled)addBonus(_xpRaw);
+  const xpGain=xpDoubled?_xpRaw*2:_xpRaw,xpNow=xpInfo(),xpLvBefore=state.levelBefore||1,xpLeveled=xpNow.level>xpLvBefore;
   const _ri=roomInfoFor(curSection),pwrAfter=_ri.pwr,pwrBefore=(state.roomPwrBefore!=null?state.roomPwrBefore:0),pwrDelta=pwrAfter-pwrBefore; // そのROOMのPWR
   enqueuePresent(rank,pwrDelta); // このテストのプレゼント（レベル/ランク/PWR/レインボー）を1個追加
   // ホーム復帰時のお知らせ：その日初テストなら連続ログインボーナス、それ以外はプレゼント到着
@@ -7681,14 +7992,14 @@ function finishTest(){
   activateAds(document.getElementById("s-result"));
   bindSpeakables(document.getElementById("s-result")); // 結果のカードをタップ＝その単語を読み上げ
   // 結果表示の前に「単語カード獲得」演出を全面オーバーレイで見せ、閉じたら結果のアニメを開始
-  const cgWords=R.map(r=>({ko:r.korean,ja:r.japanese}));
+  const cgWords=R.map(r=>({ko:r.korean,ja:r.japanese,rare:(r.cardsEarned>0&&r.cardRarity)?r.cardRarity:null}));
   showCardGetSequence(cgWords,()=>{
     startResultAnims(pwrAfter,xpGain,xpNow);
     fitCheerLine(); // 一言コメントは1行に収める（メール指示 2026-08-01）
     if(_lapDone)setTimeout(showLapDone,260);
     // 増えたものは順番に全面ポップアップで知らせる：XP → PWR → レベルアップ（メール指示 2026-08-01）
     const pops=[];
-    if(xpGain>0)pops.push(next=>showGainPopup({lab:"XP GET!",unit:" XP",num:xpGain,color:"#FFFF37",msg:"問題を解いてXPがたまりました"},next));
+    if(xpGain>0)pops.push(next=>showGainPopup({lab:xpDoubled?"XP GET! ✕2":"XP GET!",unit:" XP",num:xpGain,color:"#FFFF37",msg:xpDoubled?"XP2倍チャンス中！ もらえるXPが2倍になりました":"問題を解いてXPがたまりました"},next));
     if(pwrDelta>0)pops.push(next=>showGainPopup({lab:"PWR UP!",unit:" %",num:pwrDelta,color:"#00FF37",msg:"このROOMのPWRが上がりました"},next));
     if(xpLeveled)pops.push(next=>showLevelUp(xpNow.level,xpLvBefore,next)); // レベルが上がったらその場で知らせる
     if(pops.length)setTimeout(()=>runPopupChain(pops),_lapDone?2600:1500);
@@ -7725,7 +8036,8 @@ function showCardGetSequence(words,done){
   const ov=document.createElement("div");ov.className="cardget";
   ov.innerHTML=`<div class="cg-title">獲得した単語カード</div><div class="cg-grid">${words.map((w,i)=>{
     const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko])?`<img src="${WORD_IMG[w.ko]}" alt="">`:`<div class="cg-noimg">🃏</div>`;
-    return `<div class="cg-card" style="animation-delay:${(i*0.08).toFixed(2)}s">${img}<div class="cg-ko">${esc(w.ko)}</div></div>`;
+    const tag=(w.rare&&w.rare!=="N")?`<span class="cg-rare">${w.rare}</span>`:""; // レア度が出たカードは枠の色とラベルで分かる
+    return `<div class="cg-card${w.rare?" rare-"+w.rare:""}" style="animation-delay:${(i*0.08).toFixed(2)}s">${tag}${img}<div class="cg-ko">${esc(w.ko)}</div></div>`;
   }).join("")}</div>`;
   document.body.appendChild(ov);
   requestAnimationFrame(()=>ov.classList.add("on"));
@@ -7783,6 +8095,12 @@ function wordRoomInfo(id){
   const arr=(LEVEL_SECTIONS[lv]||{})[n]||[];
   return {label:(lv==="beginner"?"初級":"中級")+" ROOM "+String(n).padStart(2,"0"),no:arr.indexOf(id)+1};
 }
+/* 持っているカードのレア度の内訳（0枚のレア度は出さない。メール指示 2026-08-01） */
+function wdRareHTML(id){
+  const o=cardRareOf(id);
+  const tags=RARITY_ORDER.filter(k=>o[k]>0).map(k=>`<i class="rare-${k}">${k} ${o[k]}</i>`).join("");
+  return tags?`<div class="wd-rare">${tags}</div>`:"";
+}
 function wdSlideHTML(id,i){
   const w=WORD_BY_ID[id],cnt=(loadCards()[id]||0);
   const rate=Math.round(displayScore(getStat(id),Date.now())),ms=memState(rate);
@@ -7807,7 +8125,7 @@ function wdSlideHTML(id,i){
           <span class="wd-rval ${ms.cls}">${rate}<i>%</i></span>
           <div class="wd-rg"><div class="wd-rf ${ms.cls}" style="width:${Math.max(0,Math.min(100,rate))}%"></div></div>
         </div>
-        <div class="wd-cbar"><span class="wd-cards">獲得したカード <b>${cnt}</b>枚</span>${spk}</div>
+        <div class="wd-cbar"><span class="wd-cards">獲得したカード <b>${cnt}</b>枚</span>${spk}${wdRareHTML(id)}</div><!-- 枚数の下の段にレア度の内訳（メール指示 2026-08-01。右の列はPWR→カード枚数→グラフの3段のまま） -->
         <div class="st-graphpanel wd-graph">${memChart(chartPoints(Date.now(),[w]),{fs:13,padL:34})}</div>
       </div>
     </div>
@@ -8189,7 +8507,7 @@ function renderRoomCurve(){_curveIdx=curSection;renderCurveCarousel();}
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v5.3 (2026-08-01)";
+const APP_VERSION="v5.4 (2026-08-01)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
