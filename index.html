@@ -7374,8 +7374,9 @@ function renderQuestion(){
   _counting=false; // 実際の問題に入ったのでカウントダウン中フラグを解除（以後の戻るは確認ダイアログ）
   saveResumePoint(); // 途中でアプリを閉じられてもここから復帰できるようにする
   if(typeof track==="function"){if(state.idx===0)track("q1_shown");else if(state.idx===5)track("q6_reached");} // 離脱ファネル計測（GA_ID設定時のみ有効）
-  // 遷移時に音声を止めない（長い単語が途中で切れないよう最後まで再生させる）。
-  // 重複防止は次の正解時に speakKorean() 側の stopSpeak() が担う。
+  // 遷移そのものでは音声を止めない（長い単語が途中で切れないよう最後まで再生させる）。
+  // 重複防止は次の読み上げ時に speakKorean() 側の stopSpeak() が担う
+  //（韓国語→日本語の問題は下で表示と同時に読み上げるため、そこで前の音声が止まる）。
   const q=state.questions[state.idx];
   document.getElementById("prog").textContent=(_d5.on?(_d5.mode==="trend"?"今日のトレンド　":"今日の5問　"):"")+(state.idx+1)+" / "+((state.questions&&state.questions.length)||12);
   const _qa=document.getElementById("qadv");if(_qa)_qa.style.visibility=_d5.on?"hidden":"visible";
@@ -7392,6 +7393,7 @@ function renderQuestion(){
         <button class="unknown" onclick="submit('unknown','')">わからない</button>
       </div>`;
     bindChoiceDrag(); // タップ即確定でなく、触れた選択肢が黄色く光り→スライドして離した位置で確定
+    if(q.type==="kj")speakKorean(q.word); // 韓国語→日本語は、韓国語が出るのと同時に読み上げる（メール指示 2026-08-02）
   }else{
     IME.reset();
     // 成績連動：Q1〜Q10の正解数が7問以下ならヒント付き（先頭1音節を自動表示）、8問以上なら通常
@@ -8815,7 +8817,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v5.7 (2026-08-02)";
+const APP_VERSION="v5.8 (2026-08-02)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
