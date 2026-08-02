@@ -75,7 +75,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       popsOutTop: r.top < br.top - 1, popsOutBottom: r.bottom > br.bottom + 1,
       imgPopsOut: ir ? (ir.top < r.top - 1 || ir.bottom > r.bottom + 1) : false,
       bg: getComputedStyle(card).backgroundImage,
-      clipOverflow: getComputedStyle(clip).overflow
+      clipOverflow: getComputedStyle(clip).overflowX + ' / ' + getComputedStyle(clip).overflowY
     };
   });
 
@@ -100,7 +100,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('カードが帯から上下にはみ出していない', !band.popsOutTop && !band.popsOutBottom);
   check('絵がカードから飛び出していない', !band.imgPopsOut);
   check('黄色いグラデーションのまま', band.bg === 'linear-gradient(160deg, rgb(255, 255, 255), rgb(255, 233, 194))');
-  check(`器で切り抜いている (${band.clipOverflow})`, band.clipOverflow === 'hidden');
+  // 自動で流れるのをやめ、指で左右にスクロールする形にした（メール指示 2026-08-02 19:24）ので、
+  // 器は overflow:hidden ではなく overflow-x:auto（縦は従来どおり切り抜き）
+  check(`器で左右にスクロールできる (${band.clipOverflow})`, band.clipOverflow === 'auto / hidden');
 
   // 流れても高さは変わらない（アニメーション中の実測）
   await page.waitForTimeout(1200);

@@ -307,11 +307,12 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .hv-pwrlabel{left:149px;top:120px;width:80px;text-align:right}
 .hv-pwrg{left:237px;top:120px;width:138px;height:19px}
 .hv-pwrval{left:384px;top:120px}
-/* ヘッダー右の角丸ボタン2つ（上=設定／下=メニュー）。アバターの上端(44)からステータスバーの下端(147)まで。
-   アイコンは左のアイコン群(.rr-btn)と同じもの。左側にあった設定ボタンは廃止（メール指示 2026-08-02） */
-.hd-rail{position:absolute;right:14px;top:44px;width:104px;display:flex;flex-direction:column;gap:5px;z-index:5;transition:opacity .3s ease}
-.home-wrap.status .hd-rail,.home-wrap.listmode .hd-rail{opacity:0;pointer-events:none}
-.hd-btn{width:104px;height:49px;border:none;border-radius:16px;background:#fff;cursor:pointer;padding:0;position:relative;
+/* ヘッダー右のボタン2つ（上=設定／下=メニュー）。横長の角丸ではなく「正方形の角丸」にした（メール指示 2026-08-02 19:24）。
+   56px角×2＋すき間5px＝117px（上端44px→下端161px）で、ルームメニューの上端(173px)には掛からない。
+   単語帳ページ・単語詳細ページでも出したままにする（同メール）。消すのはステータス表示中だけ */
+.hd-rail{position:absolute;right:14px;top:44px;width:56px;display:flex;flex-direction:column;gap:5px;z-index:5;transition:opacity .3s ease}
+.home-wrap.status .hd-rail{opacity:0;pointer-events:none}
+.hd-btn{width:56px;height:56px;border:none;border-radius:16px;background:#fff;cursor:pointer;padding:0;position:relative;
   display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.12);font-family:inherit}
 .hd-btn:active{background:#f0f0f0}
 .hd-btn img{width:32px;height:32px;object-fit:contain}
@@ -561,15 +562,17 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .today-band{position:absolute;left:14px;top:962px;width:452px;height:170px;border-radius:14px;overflow:hidden;z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease} /* カードの裏に敷いていた白半透明の座布団は廃止（メール指示 2026-08-02） */
 /* カードは絵がはみ出す作りをやめ、結果画面の獲得カード(.rc-card)と同じ「普通の縦長カード」にした（メール指示 2026-07-31）
    → 見出しはカードに重ねてよいので、カードは帯の高さいっぱい＝縦幅マックスで流す（メール指示 2026-08-01） */
-.tb-clip{position:absolute;left:0;top:0;width:452px;height:170px;border-radius:14px;overflow:hidden;display:flex;align-items:flex-end}
+/* カードが自動で流れるのはやめ、指で左右にスクロールして見る形にした（メール指示 2026-08-02 19:24） */
+.tb-clip{position:absolute;left:0;top:0;width:452px;height:170px;border-radius:14px;display:flex;align-items:flex-end;
+  overflow-x:auto;overflow-y:hidden;pointer-events:auto;touch-action:pan-x;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.tb-clip::-webkit-scrollbar{display:none}
 /* 帯左上の見出しは流れるカードの前面に重ねる。白の座布団は角丸のカプセル形に（メール指示 2026-08-02） */
 .tb-label{position:absolute;left:10px;top:6px;z-index:2;padding:3px 12px;border-radius:999px;background:rgba(255,255,255,.82);font-size:14px;font-weight:900;letter-spacing:1px;color:rgba(0,0,0,.55);pointer-events:none}
 .home-wrap.status .today-band{opacity:0}
 /* 単語帳ページでは「最近学んだ単語」は出さない。その場所には検索バーが入る（メール指示 2026-08-02） */
 .home-wrap.listmode .today-band{opacity:0;pointer-events:none}
-.tb-track{display:flex;animation:tbflow 30s linear infinite;will-change:transform;backface-visibility:hidden;margin-bottom:2px}
-.tb-group{display:flex;gap:12px;padding:0 6px;flex:0 0 auto} /* 同一グループ2連結で-50%＝ちょうど1周＝つなぎ目ゼロ */
-@keyframes tbflow{from{transform:translateX(0)}to{transform:translateX(-50%)}} /* 右→左 */
+.tb-track{display:flex;margin-bottom:2px}
+.tb-group{display:flex;gap:12px;padding:0 6px;flex:0 0 auto}
 .tb-card{position:relative;flex:0 0 auto;height:166px;aspect-ratio:3/3.5;box-sizing:border-box;background:linear-gradient(160deg,#fff,#ffe9c2);box-shadow:0 3px 8px rgba(0,0,0,.25);border-radius:12px;padding:3px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;pointer-events:auto;cursor:pointer}
 .tb-imgw{position:relative;height:57%;max-width:100%;display:flex;align-items:center;justify-content:center} /* 絵はカードの中に収める（結果カードと同じ） */
 .tb-img{height:100%;width:auto;object-fit:contain;display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,.2))}
@@ -684,22 +687,67 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* --- ガチャ（メール指示 2026-08-01）。プレゼントのモーダルと同じトーン --- */
 #gacha-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
 #gacha-modal.on{display:flex}
-.gc-machine{position:relative;width:126px;height:126px;margin:10px auto 8px;border-radius:50%;background:rgba(0,0,0,.85);overflow:hidden;display:flex;align-items:center;justify-content:center}
-.gc-machine .gc-cap{font-size:44px;line-height:1;position:relative;z-index:2}
-.gc-ball{position:absolute;width:26px;height:26px;border-radius:50%;opacity:.9}
-.gc-ball.b1{background:#FF3B3B;left:16px;top:20px}
-.gc-ball.b2{background:#FFC400;right:14px;top:34px}
-.gc-ball.b3{background:#1688FF;left:44px;bottom:16px}
+/* ガチャ本体：黒丸＋絵文字ではなく、実物のカプセルトイ販売機に寄せた作りにした（メール指示 2026-08-02 19:24）。
+   上＝カプセルが入ったガラスのドーム／中央＝コイン投入口と銀のハンドル／下＝取り出し口。
+   まわすとハンドルが1回転し、中のカプセルが跳ね、取り出し口のフタが開いてカプセルが1個落ちてくる。 */
+.gc-machine{position:relative;width:150px;height:198px;margin:10px auto 10px}
+.gc-machine:not(.ready){filter:grayscale(.42);opacity:.78}
+/* ガラスのドーム（中が透けて見える） */
+.gcm-dome{position:absolute;left:9px;top:0;width:132px;height:108px;box-sizing:border-box;overflow:hidden;
+  border-radius:66px 66px 12px 12px;
+  background:linear-gradient(158deg,rgba(255,255,255,.92),rgba(206,231,245,.5) 44%,rgba(142,183,210,.52));
+  box-shadow:inset 0 -7px 13px rgba(0,0,0,.2),inset 0 7px 15px rgba(255,255,255,.92),0 2px 7px rgba(0,0,0,.22)}
+.gcm-glare{position:absolute;left:17px;top:13px;width:32px;height:50px;border-radius:50%;background:rgba(255,255,255,.7);transform:rotate(-20deg);filter:blur(2px)}
+/* カプセル：上下2色の本物と同じ塗り分け */
+.gc-ball{position:absolute;width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(180deg,var(--bc,#FF3B3B) 0 49%,#fbfbfb 49% 100%);
+  box-shadow:inset -3px -4px 6px rgba(0,0,0,.24),inset 3px 3px 5px rgba(255,255,255,.75),0 1px 2px rgba(0,0,0,.25)}
+.gc-ball.b1{--bc:#FF3B3B;left:12px;bottom:5px}
+.gc-ball.b2{--bc:#FFC400;left:46px;bottom:3px}
+.gc-ball.b3{--bc:#1688FF;left:80px;bottom:6px}
+.gc-ball.b4{--bc:#39B54A;left:28px;bottom:34px}
+.gc-ball.b5{--bc:#A05BD6;left:62px;bottom:36px}
+.gc-ball.b6{--bc:#FF7A1A;left:44px;bottom:66px}
+/* 赤い本体 */
+.gcm-body{position:absolute;left:0;bottom:0;width:150px;height:100px;box-sizing:border-box;border-radius:10px 10px 13px 13px;
+  background:linear-gradient(180deg,#E0433B,#A8271F);box-shadow:0 4px 11px rgba(0,0,0,.32),inset 0 2px 0 rgba(255,255,255,.34)}
+.gcm-slot{position:absolute;left:18px;top:26px;width:28px;height:7px;border-radius:4px;background:#241f1f;
+  box-shadow:inset 0 2px 3px rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.28)}
+.gcm-knob{position:absolute;right:16px;top:14px;width:36px;height:36px;border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,#fff,#ccd1d7 52%,#868d95);
+  box-shadow:0 2px 4px rgba(0,0,0,.4),inset 0 0 0 3px rgba(255,255,255,.5)}
+.gcm-knob i{position:absolute;left:50%;top:50%;width:5px;height:24px;border-radius:3px;background:#3a3f45;transform:translate(-50%,-50%)}
+/* 取り出し口（フタが手前に開く） */
+.gcm-mouth{position:absolute;left:32px;bottom:12px;width:86px;height:34px;border-radius:7px;background:#6d1712;
+  box-shadow:inset 0 4px 8px rgba(0,0,0,.65);perspective:220px}
+.gcm-flap{position:absolute;inset:0;border-radius:7px;transform-origin:top center;transition:transform .28s ease;
+  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.1))}
+.gcm-drop{position:absolute;left:60px;bottom:16px;width:31px;height:31px;border-radius:50%;opacity:0;
+  background:linear-gradient(180deg,#FFC400 0 49%,#fbfbfb 49% 100%);
+  box-shadow:inset -3px -4px 6px rgba(0,0,0,.24),0 2px 5px rgba(0,0,0,.35)}
+/* まだまわせるときは、中のカプセルがゆっくり息をする */
 .gc-machine.ready .gc-ball{animation:gcFloat 2.4s ease-in-out infinite}
-.gc-machine.ready .gc-ball.b2{animation-delay:.5s}
-.gc-machine.ready .gc-ball.b3{animation-delay:1s}
-@keyframes gcFloat{0%,100%{transform:none}50%{transform:translateY(-9px)}}
-.gc-machine.spin{animation:gcShake .16s linear infinite}
-.gc-machine.spin .gc-ball{animation:gcSpin .5s linear infinite}
-.gc-machine.spin .gc-cap{animation:gcPulse .4s ease-in-out infinite}
-@keyframes gcShake{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}
-@keyframes gcSpin{0%{transform:rotate(0) translateX(34px)}100%{transform:rotate(360deg) translateX(34px)}}
-@keyframes gcPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+.gc-machine.ready .gc-ball.b2{animation-delay:.4s}
+.gc-machine.ready .gc-ball.b3{animation-delay:.8s}
+.gc-machine.ready .gc-ball.b4{animation-delay:1.2s}
+.gc-machine.ready .gc-ball.b5{animation-delay:1.6s}
+.gc-machine.ready .gc-ball.b6{animation-delay:2s}
+@keyframes gcFloat{0%,100%{transform:none}50%{transform:translateY(-5px)}}
+/* まわしているあいだ */
+.gc-machine.spin{animation:gcShake .14s linear infinite}
+.gc-machine.spin .gc-ball{animation:gcTumble .52s ease-in-out infinite}
+.gc-machine.spin .gc-ball.b2{animation-delay:.07s}
+.gc-machine.spin .gc-ball.b3{animation-delay:.14s}
+.gc-machine.spin .gc-ball.b4{animation-delay:.21s}
+.gc-machine.spin .gc-ball.b5{animation-delay:.28s}
+.gc-machine.spin .gc-ball.b6{animation-delay:.35s}
+.gc-machine.spin .gcm-knob{animation:gcTurn .9s cubic-bezier(.36,0,.5,1) both}
+.gc-machine.spin .gcm-flap{transform:rotateX(74deg)}
+.gc-machine.spin .gcm-drop{animation:gcDrop .48s cubic-bezier(.3,.9,.5,1) .62s both}
+@keyframes gcShake{0%,100%{transform:translateX(-2.5px)}50%{transform:translateX(2.5px)}}
+@keyframes gcTumble{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-9px) rotate(20deg)}65%{transform:translateY(4px) rotate(-16deg)}}
+@keyframes gcTurn{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes gcDrop{0%{opacity:0;transform:translateY(-30px) scale(.72)}35%{opacity:1}72%{opacity:1;transform:translateY(0) scale(1)}86%{transform:translateY(-7px)}100%{opacity:1;transform:translateY(0)}}
 .gc-count{font-size:14px;font-weight:800;color:#444;margin:6px 0 12px}
 .gc-count b{font-size:20px;color:#1a1a1a}
 .gc-boost{display:inline-block;font-size:12px;font-weight:900;color:#fff;background:#E0433B;padding:4px 10px;margin-bottom:4px}
@@ -843,7 +891,6 @@ body.bigtext .set-t{font-size:17px}
 body.bigtext .set-d{font-size:13.5px}
 /* OSの「動きを減らす」設定では常時アニメーションを止める */
 @media (prefers-reduced-motion: reduce){
-  .tb-track{animation:none}
   .wb-img{animation:none}
   .wb-card{animation:none}
 }
@@ -863,6 +910,13 @@ body.bigtext .set-d{font-size:13.5px}
 .res-cheer .rch{display:inline-block;white-space:nowrap}
 /* 初回完走の白い座布団（res-first）は廃止。初テストの案内はランク下の一言コメントに集約（メール指示 2026-07-29） */
 /* 単語数（N / M）の表示は廃止。カード枚数だけを絞り込みの列の「全部」の左に置く（メール指示 2026-08-02） */
+/* 絞り込み＋「単語をさがす」の帯は、一覧を縦にスクロールしても上に固定して残す（メール指示 2026-08-02 19:24）。
+   カードが裏を通るので、うっすら暗くぼかした座布団を敷く */
+.wb-fixhead{position:sticky;top:0;z-index:3;padding:0 0 7px;border-radius:0 0 12px 12px;
+  background:rgba(0,0,0,.34);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:opacity .28s ease}
+/* この帯はルーム番号のページャー(292〜340px)とちょうど同じ場所にあるので、
+   左右スクロールでページャーが出ているあいだは引っ込める（メール指示 2026-08-02 19:24） */
+.home-wrap.pager-on .wb-fixhead{opacity:0;pointer-events:none}
 .wb-tabs{display:flex;align-items:center;gap:6px;padding:10px 2px 0}
 .wb-cnt-chip{flex:0 0 auto;color:#fff;font-size:12px;font-weight:800;letter-spacing:.5px;white-space:nowrap;padding:0 2px 0 0;text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .wb-cnt-chip b{color:#FFC400;font-size:16px;margin:0 1px}
@@ -1966,15 +2020,21 @@ body.bigtext .set-d{font-size:13.5px}
   background:#fff;color:#111;font-size:26px;font-weight:900;letter-spacing:.08em;white-space:nowrap;cursor:pointer;font-family:inherit;
   box-shadow:0 8px 18px rgba(0,0,0,.55);transform:translateX(-50%);transition:transform .16s ease,opacity .2s ease}
 .sg-d5:active{transform:translateX(-50%) scale(.93)}
-/* プレゼントとガチャを1つにまとめたボタン。位置は「今日の5問」のすぐ上（メール指示 2026-08-02）。
-   押すと吹き出し(#gift-modal)が出て、プレゼント画面／ガチャ画面へ行くボタンが2つ横並びで並ぶ */
-.sg-gift{position:absolute;left:50%;bottom:calc(var(--fbtm) + 72px);z-index:60;border:none;padding:6px 18px 7px;border-radius:999px;
-  background:#fff;color:#111;font-size:19px;font-weight:900;letter-spacing:.04em;white-space:nowrap;cursor:pointer;font-family:inherit;
-  display:flex;align-items:center;gap:7px;box-shadow:0 6px 15px rgba(0,0,0,.45);transform:translateX(-50%);transition:opacity .2s ease}
-.sg-gift:active{transform:translateX(-50%) scale(.93)}
-.sg-gift img{width:30px;height:30px;object-fit:contain}
+/* プレゼントとガチャを1つにまとめたボタン。押すと吹き出し(#gift-modal)が出て、
+   プレゼント画面／ガチャ画面へ行くボタンが2つ横並びで並ぶ。
+   置き場所は、廃止した左のアイコン3つとまったく同じところ（left:14px / top:340px）で、
+   大きさ・白の丸・影も同じ（.rr-btn と同一）にする（メール指示 2026-08-02 19:24）。
+   ※「今日の5問の上」は中央のカプセル位置という意味ではなく、左に並んだときの一番上、という意味 */
+.sg-gift{position:absolute;left:14px;top:340px;z-index:60;border:none;padding:0;width:68px;height:68px;border-radius:50%;
+  background:#fff;color:#111;cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.12);transition:opacity .2s ease}
+.sg-gift:active{transform:scale(.93)}
+.sg-gift img{width:86%;height:86%;object-fit:contain}
+.sg-gift .sggf-t{display:none} /* 丸アイコンにしたので文字は出さない */
+/* 受け取れるものがあるときは上下に動かして知らせる。すぐ上（292〜340px）がルーム番号のページャーの帯なので、
+   上ではなく下へ沈む向きにして、置き場所(top:340px)からはみ出さないようにする（メール指示 2026-08-02 19:24） */
 .sg-gift.bob{animation:giftbob 1.5s ease-in-out infinite}
-@keyframes giftbob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
+@keyframes giftbob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
 /* 文字はスタートボタンと同じく1文字ずつ回転 */
 .sg-d5 .sgd5-t span{display:inline-block;animation:sbchar 3s ease-in-out infinite;backface-visibility:hidden}
 .sg-d5 .sgd5-t span:nth-child(2){animation-delay:.12s}
@@ -2231,13 +2291,8 @@ body.bigtext .set-d{font-size:13.5px}
         <button class="hd-btn" id="hd-set" onclick="openSettings()" aria-label="設定"><img src="icons/settings.webp" alt="設定" onerror="this.replaceWith(document.createTextNode('⚙'))"></button>
         <button class="hd-btn" id="hd-menu" onclick="openHomeMenu()" aria-label="メニュー"><span class="hd-bars" aria-hidden="true"><i></i><i></i><i></i></span></button>
       </div>
-      <div class="reward-rail reward-rail-left">
-        <!-- 設定ボタンはヘッダー右の角丸ボタンへ移したのでここからは廃止（メール指示 2026-08-02） -->
-        <button class="rr-btn rr-map" id="map-btn" onclick="openRoomMap()" aria-label="ROOM一覧"><img src="icons/map.webp" alt="ROOM一覧" onerror="this.replaceWith(document.createTextNode('🗺'))"><span class="rr-txt">ROOM<br>一覧</span></button>
-        <button class="rr-btn" id="cal-btn" onclick="openCalendar()"><img src="icons/calendar.webp" alt="カレンダー"><span class="rr-txt">カレンダー</span></button>
-        <button class="rr-btn" id="sp-btn" onclick="openSpecial()" aria-label="スペシャルモード"><img src="images-thumb/0731.webp" alt="スペシャル"><span class="rr-txt">スペシャル</span></button>
-      </div>
-      <!-- プレゼント／ガチャは1つのボタン（.sg-gift＝今日の5問のすぐ上）に統合したので、右のリールは廃止（メール指示 2026-08-02） -->
+      <!-- 左のアイコン3つ（ROOM一覧／カレンダー／スペシャル）は、ハンバーガーメニューに入れたので廃止（メール指示 2026-08-02 19:24）。
+           空いたその場所（left:14px / top:340px）には、プレゼント・ガチャの丸アイコン(.sg-gift)が入る -->
       <div class="status-panel"></div>
       <div class="hv-lab hv-xplabel">XP</div>
       <div class="gauge hv-xpg"><div class="gfill" id="hv-xpfill" style="background:#FFFF37"></div></div>
@@ -2924,6 +2979,18 @@ function rollGachaXp(){
   for(const x of t){if((r-=x[1])<0)return x[0];}
   return 30;
 }
+/* カプセルトイ販売機の絵（メール指示 2026-08-02 19:24） */
+function gcMachineHTML(ready){
+  return `<div class="gc-machine${ready?" ready":""}" id="gc-machine">
+    <div class="gcm-dome"><span class="gcm-glare"></span>${[1,2,3,4,5,6].map(i=>`<span class="gc-ball b${i}"></span>`).join("")}</div>
+    <div class="gcm-body">
+      <span class="gcm-slot"></span>
+      <span class="gcm-knob"><i></i></span>
+      <span class="gcm-mouth"><span class="gcm-flap"></span></span>
+    </div>
+    <span class="gcm-drop"></span>
+  </div>`;
+}
 let _gachaBusy=false;
 function openGacha(){
   if(!document.getElementById("gacha-modal").classList.contains("on"))pushNav("modal");
@@ -2940,7 +3007,7 @@ function gachaRenderIdle(){
     <button class="pm-close" onclick="closeGacha()">×</button>
     <div class="pm-title">ガチャ</div>
     <div class="pm-sub">${n>0?"ガチャコインでまわせます":"テストのプレゼントでガチャコインがもらえます"}</div>
-    <div class="gc-machine${n>0?" ready":""}" id="gc-machine"><div class="gc-ball b1"></div><div class="gc-ball b2"></div><div class="gc-ball b3"></div><div class="gc-cap">${n>0?"🎰":"…"}</div></div>
+    ${gcMachineHTML(n>0)}
     ${_gachaBoostLine()}
     <div class="gc-count">🪙 ガチャコイン <b>${n}</b> 枚</div>
     ${n>0?`<button class="pm-btn gc-go" onclick="spinGacha()">まわす</button>`:""}
@@ -3644,9 +3711,12 @@ function roomListHTMLFromIds(ids){
   const cells=pairs.map(p=>wbCardHTML(p.id,p.i,st,cards,now)).join("");
   // 「単語帳 N / M」の単語数表示は廃止し、カード枚数だけを絞り込みの列の「全部」の左に置く（メール指示 2026-08-02）
   // 「単語をさがす」欄は浮かせず、絞り込みの列のすぐ下に一覧の一部として置く（メール指示 2026-08-02）
+  // 絞り込みと「単語をさがす」は1つの帯にまとめ、一覧をスクロールしても上に残す（メール指示 2026-08-02 19:24）
   return `<div class="slide-list wb-list">
-    <div class="wb-tabs"><span class="wb-cnt-chip">カード <b>${totalCnt}</b>枚</span>${tab("all","全部")}${tab("unowned","未獲得")}${tab("review","要復習")}${tab("owned","獲得済み")}</div>
-    <div class="wb-searchrow"><input class="wb-qin" type="search" value="${esc(_wbQ)}" placeholder="単語をさがす（韓国語・日本語）" autocomplete="off" oninput="wbSearch2(this.value)" onfocus="wbFocus()" onblur="wbBlur()"></div>
+    <div class="wb-fixhead">
+      <div class="wb-tabs"><span class="wb-cnt-chip">カード <b>${totalCnt}</b>枚</span>${tab("all","全部")}${tab("unowned","未獲得")}${tab("review","要復習")}${tab("owned","獲得済み")}</div>
+      <div class="wb-searchrow"><input class="wb-qin" type="search" value="${esc(_wbQ)}" placeholder="単語をさがす（韓国語・日本語）" autocomplete="off" oninput="wbSearch2(this.value)" onfocus="wbFocus()" onblur="wbBlur()"></div>
+    </div>
     ${pairs.length?`<div class="wb-grid">${cells}</div>`:'<div class="wb-none">該当する単語はありません</div>'}</div>`;
 }
 /* 単語検索：現在レベルの全語からkoまたは訳の部分一致（最大20件）。タップで単語詳細へ */
@@ -3722,7 +3792,7 @@ const COACH_STEPS=[
   {sel:".sg-tile.now .sg-img,.sg-tile.now .sg-noimg",sel2:".sg-tile.now .sg-here",
    h:"光っているマスがスタート",sub:"タップすると12問。おわるとこのマスがクリアになり、次のマスへ進みます"},
   {sel:".sg-d5",h:"今日の5問",sub:"アプリを開くと自動ではじまります。まずはこれだけでOK"},
-  {sel:".reward-rail-left",h:"ゲームとROOM一覧",sub:"スペシャル問題で遊ぶとXPがもらえます"},
+  {sel:"#hd-menu",h:"ゲームとROOM一覧",sub:"メニューの中にスペシャル問題・ROOM一覧・カレンダーがあります"},
   {sel:".hv-pwrg",h:"PWRとXPの見かた",sub:"PWR＝いま覚えている度合い／XP＝解くほどたまる。下スワイプでステータス"}
 ];
 let _coachIdx=0,_coachSteps=[];
@@ -4377,16 +4447,17 @@ function buildTodayBand(){
   if(!picks.length){band.style.display="none";_tbKey="";return;}
   band.style.display="block";
   const key=picks.map(x=>x.w.id).join(",");
-  if(key===_tbKey&&track.childElementCount)return; // 内容が同じなら作り直さない（アニメーションを途切れさせない）
+  if(key===_tbKey&&track.childElementCount)return; // 内容が同じなら作り直さない（見ている途中のスクロール位置を保つ）
   _tbKey=key;
-  // 語数が少ないとグループ幅<帯幅でループが破綻するため、8枚になるまで循環リピートして密度を確保
+  // 自動で流れるのをやめ、指で左右にスクロールする形にしたので、
+  // ループ用の水増し・同一グループ2連結はどちらも不要になった（メール指示 2026-08-02 19:24）
   const list=picks.slice();
-  for(let i=0;list.length<8;i++)list.push(picks[i%picks.length]);
   const cards=list.map(x=>{
     const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[x.w.ko])?`<span class="tb-imgw"><img class="tb-img" src="${WORD_IMG[x.w.ko]}" loading="lazy" alt=""></span>`:"";
     return `<div class="tb-card" onclick="renderWordDetail(${x.w.id},'room')">${img}<div class="tb-ko">${esc(x.w.ko)}</div><div class="tb-ja">${esc(x.w.ja)}</div></div>`;
   }).join("");
-  track.innerHTML=`<div class="tb-group">${cards}</div><div class="tb-group">${cards}</div>`; // 同一グループ2連結
+  track.innerHTML=`<div class="tb-group">${cards}</div>`;
+  const clip=band.querySelector(".tb-clip");if(clip)clip.scrollLeft=0;
 }
 let _tbKey="";
 
@@ -8956,7 +9027,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v6.1 (2026-08-02)";
+const APP_VERSION="v6.2 (2026-08-02)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

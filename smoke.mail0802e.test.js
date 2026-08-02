@@ -89,7 +89,9 @@ const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1.5 : tol);
       cardUnderHome: cardUnder(document.querySelector('.home-side-btn.hsb-right'))
     };
   });
-  check('検索欄の裏にはカードが来ない（一覧と一緒に動く欄になった）', !behind.cardUnderBar);
+  // 検索欄は一覧と一緒に動く欄から「上に固定して残る欄」に変わった（メール指示 2026-08-02 19:24）。
+  // スクロールするとカードがその裏を通るが、欄は必ず手前にいて押せる（次のチェック）
+  check('検索欄は固定なのでカードが裏を通る', behind.cardUnderBar);
   check('ホーム画面ボタンの位置に単語カードが重なっている', behind.cardUnderHome);
   check(`検索欄はカードより手前（押せる） (${behind.barTop})`, String(behind.barTop).indexOf('card') < 0);
   check(`ホーム画面ボタンもカードより手前（押せる） (${behind.homeTop})`, String(behind.homeTop).indexOf('card') < 0);

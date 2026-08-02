@@ -84,7 +84,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     const hw = document.getElementById('homewrap');
     const btn = document.querySelector('.home-side-btn.hsb-right');
     const list = document.querySelector(`.room-slide[data-n="${curSection}"] .slide-list`);
-    const rail = document.querySelector('.reward-rail');
+    // 左右のアイコン列は廃止（メール指示 2026-08-02 19:24）。代わりに、その場所に置いたプレゼント・ガチャの丸が単語帳では出ないことを見る
+    const rail = document.querySelector('.sg-gift');
     const band = document.getElementById('today-band');
     const menu = document.querySelector(`.room-slide[data-n="${curSection}"] .rmenu-bg`);
     const listBox = list.getBoundingClientRect();
@@ -96,7 +97,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       statusPanel: cs(document.querySelector('.status-panel')).opacity,
       headTransform: cs(document.querySelector('.home-head')).transform,
       menuShown: !!menu && cs(menu).opacity !== '0',
-      railShown: cs(rail).opacity !== '0',
+      railShown: !!document.querySelector('.reward-rail') || !!(rail && cs(rail).opacity !== '0' && rail.getBoundingClientRect().width > 0),
       bandShown: band.style.display !== 'none' && cs(band).opacity !== '0',
       pagerBlocked: (() => { showRoomPager(); return !document.getElementById('homewrap').classList.contains('pager-on'); })(),
       listLeft: lcs.left, listTop: lcs.top, listW: lcs.width, listH: lcs.height, listOpacity: lcs.opacity,
@@ -124,7 +125,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check(`ヘッダーは退場していない (${wb.headTransform})`, wb.headTransform === 'none' || /matrix\(1, 0, 0, 1, 0, 0\)/.test(wb.headTransform));
   check('ルームメニューバーが出ている', wb.menuShown);
   // 単語帳ページでは左右のアイコンと「最近学んだ単語」は出さず、その場所に検索バーを置く（メール指示 2026-08-02）
-  check('左右のアイコン（リール）は出さない', !wb.railShown);
+  check('左右のアイコン（リール）・プレゼントの丸は出さない', !wb.railShown);
   check('「最近学んだ単語」の帯も出さない', !wb.bandShown);
   // 検索バーは「最近学んだ単語」の帯のあった場所ではなく、カード枚数・絞り込みの列のすぐ下へ移した（メール指示 2026-08-02 14:55）
   const barPos = await page.evaluate(() => {

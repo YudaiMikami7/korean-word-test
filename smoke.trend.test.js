@@ -51,9 +51,9 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
     const slide = document.querySelector('.room-slide[data-n="' + curSection + '"]');
     // 今日の5問／トレンドは home-wrap 直下のフロート1組。現在地ボタンだけスライドの中にある
     const d5 = document.querySelector('.sg-d5'), home = slide.querySelector('.sg-home'), tr = document.querySelector('.sg-mission');
-    // 右のレール（毎日ボーナス／ガチャ）は統合ボタンへ移して廃止したので、
-    // 現在地ボタンの横位置は左アイコン群の左右対称（＝器の端から同じ距離）で見る（メール指示 2026-08-02 16:32）
-    const railL = document.querySelector('.reward-rail-left .rr-btn');
+    // 左右のレールはどちらも廃止し、左アイコンの場所にはプレゼント・ガチャの丸(.sg-gift)が入った
+    // （メール指示 2026-08-02 19:24）。位置・大きさ・影は従来の左アイコンとまったく同じなので、基準はこれで見る
+    const railL = document.querySelector('.sg-gift');
     return {
       d5: vis(d5), home: vis(home), tr: vis(tr), railL: vis(railL), wrap: vis(document.getElementById('homewrap')),
       d5Shadow: getComputedStyle(d5).boxShadow, railShadow: getComputedStyle(railL).boxShadow,

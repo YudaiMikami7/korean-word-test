@@ -284,14 +284,17 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     return { w: cs && cs.width, fs: cs && cs.fontSize, ring: cs && cs.boxShadow.includes('rgba(255, 196, 0'),
       numFs: n && getComputedStyle(n).fontSize,
       // 設定はヘッダー右の角丸ボタンへ、プレゼント／ガチャは統合ボタンの吹き出しへ移した（メール指示 2026-08-02 16:32）
-      calTr: getComputedStyle(document.querySelector('#cal-btn .rr-txt')).transform,
+      // 左のアイコン列は廃止し、カレンダー／ROOM一覧／スペシャルはハンバーガーメニューへ入れた（メール指示 2026-08-02 19:24）
+      railGone: !document.querySelector('.reward-rail') && !document.getElementById('cal-btn'),
+      menuCaps: [...document.querySelectorAll('#menu-modal .hm-cap span')].map(e => e.textContent.trim()),
       hdSet: !!document.querySelector('.hd-rail #hd-set img') && !document.getElementById('set-btn'),
       labels: [...document.querySelectorAll('#gift-modal .gf-btn .gf-txt')].map(e => e.textContent),
       gone: !document.getElementById('rr-level') && !document.getElementById('rr-pwr') };
   });
   check(`ランクは58px・メダル風 (${look.w} / ${look.fs})`, look.w === '58px' && look.fs === '41px' && look.ring);
   check(`マス番号が大きい (${look.numFs})`, look.numFs === '32px'); // 「周-マス」の2つ組みになったぶん一段小さく（メール指示 2026-08-02）
-  check('レールはフェード切替（回転しない）', look.calTr === 'none');
+  check('左のアイコン列は廃止された', look.railGone);
+  check(`カレンダー等はメニューの中にある (${look.menuCaps.join('|')})`, look.menuCaps.join('|') === 'カレンダー|ROOM一覧|スペシャルモード');
   check('設定はヘッダー右の角丸ボタンへ移った（左のレールには無い）', look.hdSet);
   // プレゼントとガチャは1つのボタンに統合し、中身は吹き出しの2ボタンになった（メール指示 2026-08-02 16:32）
   check(`統合ボタンの中はプレゼントとガチャの2つ (${look.labels.join('|')})`, look.labels.join('|') === 'プレゼント|ガチャ');
@@ -323,16 +326,18 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     const w = 236 * (narrow[1][2] - narrow[1][0]) / 100;
     return w < 236 * 0.75;  // データ上そういう画像が実在する
   }));
-  check('レール切替でアイコンと文字が重ならない', await page.evaluate(async () => {
-    const btn = document.getElementById('cal-btn'); // 右のレールは廃止したので左のレールで見る（メール指示 2026-08-02 16:32）
-    const img = btn.querySelector('img'), txt = btn.querySelector('.rr-txt');
-    let worst = 0;
-    btn.classList.add('show-label');
-    for (let i = 0; i < 40; i++) { await new Promise(r => requestAnimationFrame(r)); worst = Math.max(worst, +getComputedStyle(img).opacity + +getComputedStyle(txt).opacity); }
+  // 左のアイコン列（アイコン⇄文字の切替）は廃止したので、メニューから同じ機能へ行けることを見る（メール指示 2026-08-02 19:24）
+  check('メニューからカレンダーが開ける', await page.evaluate(async () => {
+    openHomeMenu();
+    await new Promise(r => setTimeout(r, 300));
+    const cap = [...document.querySelectorAll('#menu-modal .hm-cap')].find(b => b.textContent.indexOf('カレンダー') >= 0);
+    if (!cap) return false;
+    cap.click();
     await new Promise(r => setTimeout(r, 400));
-    btn.classList.remove('show-label');
-    for (let i = 0; i < 40; i++) { await new Promise(r => requestAnimationFrame(r)); worst = Math.max(worst, +getComputedStyle(img).opacity + +getComputedStyle(txt).opacity); }
-    return worst < 1.15;
+    const on = document.getElementById('calendar-modal').classList.contains('on');
+    closeCalendar();
+    await new Promise(r => setTimeout(r, 300));
+    return on;
   }));
 
   // --- 描画量の上限（ページが落ちないこと） ---

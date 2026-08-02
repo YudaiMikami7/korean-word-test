@@ -124,9 +124,11 @@ const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1.5 : tol);
     };
   });
   check('プレゼントとガチャが1つのボタンに統合されている', gift.exists && gift.oldRail === 0 && !gift.dailyInRail);
-  check(`統合ボタンは今日の5問のすぐ上 (統合 ${gift.gacha.t.toFixed(0)}〜${gift.gacha.b.toFixed(0)} / 5問 ${gift.d5.t.toFixed(0)})`,
-    gift.gacha.b <= gift.d5.t && gift.d5.t - gift.gacha.b < 40);
-  check('統合ボタンは今日の5問と同じ中央ぞろえ', gift.centered);
+  // 置き場所はその後「左に並んでいたアイコン3つのところ・丸アイコン」に変更（メール指示 2026-08-02 19:24）。
+  // ＝中央のカプセル位置ではなく、今日の5問より上・画面の左寄せ
+  check(`統合ボタンは今日の5問より上 (統合 ${gift.gacha.t.toFixed(0)}〜${gift.gacha.b.toFixed(0)} / 5問 ${gift.d5.t.toFixed(0)})`,
+    gift.gacha.b <= gift.d5.t);
+  check('統合ボタンは中央ぞろえではなく左に置く', !gift.centered && gift.gacha.r < gift.d5.l);
 
   await page.evaluate(() => document.getElementById('sg-gift').click()); // 受け取り待ちがあると上下に動くので座標クリックは使わない
   await page.waitForTimeout(450);
@@ -188,7 +190,7 @@ const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1.5 : tol);
       afterTabs: row && tabs ? (r(row).t >= r(tabs).b - 1 && r(row).t - r(tabs).b < 14) : false,
       h: inp ? r(inp).h : 0,
       font: inp ? parseFloat(getComputedStyle(inp).fontSize) : 0,
-      scrolls: (() => { // 一覧をスクロールすると一緒に動く＝浮いていない
+      scrolls: (() => { // 一覧をスクロールしたときに動く量（固定になったので0のはず）
         const before = row.getBoundingClientRect().top;
         list.scrollTop = 200;
         const after = row.getBoundingClientRect().top;
@@ -202,7 +204,8 @@ const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1.5 : tol);
   check(`欄は浮いていない（position:${sb.pos}）`, sb.pos === 'static');
   check(`浮いて見える影も無い (${sb.shadow})`, sb.shadow === 'none');
   check('カード枚数・絞り込みの列のすぐ下にある', sb.afterTabs);
-  check(`一覧をスクロールすると一緒に動く (${sb.scrolls.toFixed(0)}px)`, sb.scrolls > 100);
+  // 一覧と一緒に動く欄から「上に固定して残る欄」へ変更（メール指示 2026-08-02 19:24）
+  check(`一覧をスクロールしても動かない (${sb.scrolls.toFixed(0)}px)`, Math.abs(sb.scrolls) < 2);
   check(`欄の高さは従来どおり約26px (${sb.h.toFixed(1)}px)`, sb.h > 8 && sb.h < 34);
   check(`文字は16pxのまま（iPhoneで勝手に拡大しない） (${sb.font}px)`, sb.font >= 16);
 

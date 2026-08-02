@@ -44,7 +44,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
       no: g(`.room-slide[data-n="${curSection}"] .hv-roomno`),
       board: g(`.room-slide[data-n="${curSection}"] .sg-wrap`),
       pager: g('#room-pager'), hint: g('#room-hint'),
-      prev: g('#rm-prev'), rail: g('.reward-rail-left'), d5: g('.sg-d5'), gift: g('.sg-gift'),
+      prev: g('#rm-prev'), rail: g('.sg-gift'), d5: g('.sg-d5'), gift: g('.sg-gift'),
       sghome: g(`.room-slide[data-n="${curSection}"] .sg-home`)
     };
   });
@@ -80,13 +80,15 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check(`ページャーがルームメニューより下にある (メニュー下端${a.menu.b} → ページャー上端${a.pager.t})`, a.pager.t >= a.menu.b);
   check(`ページャーとルームメニューが重なっていない (すき間${(a.pager.t - a.menu.b).toFixed(1)}px)`, a.pager.t - a.menu.b >= 0 && a.pager.t - a.menu.b <= 20);
   check(`ページャーはステータスバーの下ではなくなった (ステータス下端${a.status.b} / ページャー上端${a.pager.t})`, a.pager.t > a.status.b + 100);
-  check(`ページャーは左のアイコン列に重ならない (ページャー下端${a.pager.b} ≦ アイコン上端${a.rail.t})`, a.pager.b <= a.rail.t + 1);
+  // 左のアイコン列は廃止し、その場所（left:14px / top:340px）にはプレゼント・ガチャの丸が入った（メール指示 2026-08-02 19:24）
+  check(`ページャーは左の丸アイコンに重ならない (ページャー下端${a.pager.b} ≦ アイコン上端${a.rail.t})`, a.pager.b <= a.rail.t + 1);
   const cur = await page.evaluate(() => { const d = document.querySelector('#room-pager .rp-dot.cur'); return d ? d.dataset.sec : null; });
   check(`いま見ているROOMがページャーで大きく出る (${cur})`, cur != null);
 
   // ================= ③ ステータスとルームメニュー＋ページャーのマージンを少しに =================
   await page.evaluate(() => { hideRoomPager();
-    document.querySelectorAll('.sg-home').forEach(b => b.classList.add('on')); }); // 隠れている間は縮小の transform が掛かるので、出した状態で測る
+    document.querySelectorAll('.sg-home').forEach(b => b.classList.add('on')); // 隠れている間は縮小の transform が掛かるので、出した状態で測る
+    document.querySelectorAll('.sg-gift').forEach(b => b.classList.remove('bob')); }); // 上下に動く演出は止めて、置き場所そのものを測る
   await page.waitForTimeout(400);
   const b = await design();
   const gapStatus = b.menu.t - b.status.b, gapAvatar = b.menu.t - b.avatar.b;
@@ -98,7 +100,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check(`すごろくもルームメニューのすぐ下のまま (メニュー下端${b.menu.b} / 盤上端${b.board.t})`, Math.abs(b.board.t - b.menu.b) <= 2);
   check(`下のボタン類（今日の5問）は動かしていない (${b.d5 ? b.d5.b : 'なし'})`, !b.d5 || b.d5.b > 880);
   check(`現在地ボタンも今までどおり今日の5問と同じ行 (${b.sghome ? b.sghome.b : 'なし'})`, !b.d5 || !b.sghome || Math.abs(b.sghome.b - b.d5.b) <= 2);
-  check(`左のアイコン列も今までどおりの位置 (上端${b.rail.t})`, b.rail.t === 340);
+  // 左のアイコン列は廃止し、同じ場所（上端340px）にプレゼント・ガチャの丸が入った（メール指示 2026-08-02 19:24）
+  check(`左の丸アイコンも今までのアイコン列と同じ位置 (上端${b.rail.t})`, b.rail.t === 340);
 
   // ================= ④ スワイプの案内・使い方ガイドが壊れていない =================
   const hint = await page.evaluate(async () => {
