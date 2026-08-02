@@ -79,7 +79,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check('3-2 丸（縦横68px）', bGift && Math.abs(bGift.w - 68) < 1 && Math.abs(bGift.h - 68) < 1);
   check('3-3 border-radiusが50%（丸）', await page.evaluate(() => getComputedStyle(document.querySelector('.sg-gift')).borderRadius === '50%'));
   check('3-4 左端14px＝消した左アイコンと同じ横位置', bGift && Math.abs(bGift.x - 14) < 1);
-  check('3-5 上端340px＝消した左アイコン列の一番上と同じ縦位置', bGift && Math.abs(bGift.y - 340) < 1);
+  // 置き場所は 20:47 の指示で「左下＝今日の5問の縮まった丸の上」へ移した（top:340pxではなくなった）
+  check('3-5 画面の左下にある（ヘッダー側ではない）', bGift && bGift.y > 602);
   check('3-6 画面中央のカプセル位置ではない（左に寄っている）', bGift && bGift.x + bGift.w < 602 / 2);
   check('3-7 文字ラベルは出さない（丸アイコンのみ）',
     await page.evaluate(() => getComputedStyle(document.querySelector('.sg-gift .sggf-t')).display === 'none'));
@@ -284,7 +285,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check('R-6 ルーム番号ページャーはルームメニューの下のまま', await (async () => {
     const p = await box('#room-pager'); return p && Math.abs(p.y - 292) < 1.5;
   })());
-  check('R-7 版数が上がっている', await page.evaluate(() => APP_VERSION.indexOf('v6.2') === 0));
+  check('R-7 版数が上がっている', await page.evaluate(() => { const m = /^v6\.(\d+)/.exec(APP_VERSION); return !!m && +m[1] >= 2; }));
   check('R-8 JSコンソールエラーが無い', errors.length === 0);
   if (errors.length) console.log(errors);
 

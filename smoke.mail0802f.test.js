@@ -63,7 +63,9 @@ const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1.5 : tol);
   });
   check(`左上アイコンの左マージンが詰まっている (左端 ${(hd.avatar.l - hd.wrapL).toFixed(1)}px ＝ 602基準で ${((hd.avatar.l - hd.wrapL) / hd.k).toFixed(0)}px)`,
     near((hd.avatar.l - hd.wrapL) / hd.k, 14, 2));
-  check(`ステータスバーが短くなった (幅 ${(hd.panel.w / hd.k).toFixed(0)}px < 従来403px)`, hd.panel.w / hd.k < 380);
+  // 20:46 の指示で、文字がはみ出さないよう右端を460→520px（幅380px）へ伸ばし直した。
+  // 「右に角丸ボタン2つぶんの余地を残して短い」という当初の狙いは保たれている（下の重なり判定も参照）
+  check(`ステータスバーが短くなった (幅 ${(hd.panel.w / hd.k).toFixed(0)}px < 従来403px)`, hd.panel.w / hd.k < 403);
   check('角丸ボタンが縦に2つある', hd.btnN === 2);
   check(`上が設定ボタン・下がメニューボタン (${hd.btns.map(b => b.id).join(',')})`,
     hd.btns.length === 2 && hd.btns[0].id === 'hd-set' && hd.btns[1].id === 'hd-menu' && hd.btns[0].box.t < hd.btns[1].box.t);
