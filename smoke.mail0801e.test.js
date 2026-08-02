@@ -139,9 +139,10 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check(`テストぶんのXPはコインと一緒にガチャへ渡る (+${claimed.q && claimed.q.xp} XP)`, claimed.q && claimed.q.xp > 0);
 
   // ================= ③ ガチャの見た目・景品 =================
+  // ボタンはプレゼントと統合され、統合ボタンの吹き出しの中に入った（メール指示 2026-08-02 16:32）
   check('ホームのボタンがガチャになっている', await page.evaluate(() => {
     const b = document.getElementById('rr-rank');
-    return /openGacha/.test(b.getAttribute('onclick')) && b.querySelector('.rr-txt').textContent.trim() === 'ガチャ';
+    return /openGacha/.test(b.getAttribute('onclick')) && b.querySelector('.gf-txt').textContent.trim() === 'ガチャ';
   }));
   check('ガチャコインの枚数がバッジに出る', await page.evaluate(() => {
     updatePresent();

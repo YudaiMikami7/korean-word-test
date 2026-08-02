@@ -106,10 +106,11 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       oldSum: !!document.querySelector('.slide-list .wb-sum'),
       chipText: (document.querySelector('.slide-list .wb-tabs .wb-cnt-chip') || {}).textContent,
       chipFirst: (() => { const t = document.querySelector('.slide-list .wb-tabs'); return !!t && t.firstElementChild.classList.contains('wb-cnt-chip') && t.children[1].classList.contains('wb-tab'); })(),
-      searchBox: (() => { const s = document.getElementById('wb-searchbar'), b = document.getElementById('today-band');
+      // 検索欄は浮かせず一覧の中に入れた（メール指示 2026-08-02 16:32）
+      searchBox: (() => { const s = document.querySelector('.slide-list .wb-searchrow'), b = document.getElementById('today-band');
         if (!s || !b) return null; const sr = s.getBoundingClientRect(), br = b.getBoundingClientRect();
         return { inBand: sr.top >= br.top - 2 && sr.bottom <= br.bottom + 2, w: Math.round(sr.width), bw: Math.round(br.width) }; })(),
-      searchOverBtn: (() => { const s = document.getElementById('wb-searchbar'), b = document.querySelector('.home-side-btn.hsb-right');
+      searchOverBtn: (() => { const s = document.querySelector('.slide-list .wb-searchrow'), b = document.querySelector('.home-side-btn.hsb-right');
         if (!s || !b) return true; const sr = s.getBoundingClientRect(), br = b.getBoundingClientRect();
         return sr.left < br.right && sr.right > br.left && sr.top < br.bottom && sr.bottom > br.top; })(),
       btnImg: btn.querySelector('img').getAttribute('src'), btnTxt: btn.querySelector('.hsb-txt').textContent,
@@ -127,9 +128,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('「最近学んだ単語」の帯も出さない', !wb.bandShown);
   // 検索バーは「最近学んだ単語」の帯のあった場所ではなく、カード枚数・絞り込みの列のすぐ下へ移した（メール指示 2026-08-02 14:55）
   const barPos = await page.evaluate(() => {
-    const s = document.getElementById('wb-searchbar').getBoundingClientRect();
+    const s = document.querySelector(`.room-slide[data-n="${curSection}"] .wb-searchrow`).getBoundingClientRect();
     const t = document.querySelector(`.room-slide[data-n="${curSection}"] .wb-tabs`).getBoundingClientRect();
-    return { gap: s.top - t.bottom, h: document.querySelector('#wb-searchbar input').getBoundingClientRect().height };
+    return { gap: s.top - t.bottom, h: document.querySelector(`.room-slide[data-n="${curSection}"] .wb-qin`).getBoundingClientRect().height };
   });
   check(`検索バーが絞り込みの列のすぐ下に入る (すき間${barPos.gap.toFixed(1)}px)`, barPos.gap >= -1 && barPos.gap < 14);
   check(`検索の入力欄は従来の半分の高さ (${barPos.h.toFixed(1)}px)`, barPos.h > 8 && barPos.h < 34);

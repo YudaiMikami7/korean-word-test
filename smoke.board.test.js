@@ -283,17 +283,18 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     const cs = r && getComputedStyle(r);
     return { w: cs && cs.width, fs: cs && cs.fontSize, ring: cs && cs.boxShadow.includes('rgba(255, 196, 0'),
       numFs: n && getComputedStyle(n).fontSize,
-      dailyTr: getComputedStyle(document.querySelector('#rr-daily .rr-txt')).transform,
-      setTr: getComputedStyle(document.querySelector('#set-btn .rr-txt')).transform,
-      labels: [...document.querySelectorAll('.reward-rail:not(.reward-rail-left) .rr-btn .rr-txt')].map(e => e.textContent),
+      // 設定はヘッダー右の角丸ボタンへ、プレゼント／ガチャは統合ボタンの吹き出しへ移した（メール指示 2026-08-02 16:32）
+      calTr: getComputedStyle(document.querySelector('#cal-btn .rr-txt')).transform,
+      hdSet: !!document.querySelector('.hd-rail #hd-set img') && !document.getElementById('set-btn'),
+      labels: [...document.querySelectorAll('#gift-modal .gf-btn .gf-txt')].map(e => e.textContent),
       gone: !document.getElementById('rr-level') && !document.getElementById('rr-pwr') };
   });
   check(`ランクは58px・メダル風 (${look.w} / ${look.fs})`, look.w === '58px' && look.fs === '41px' && look.ring);
   check(`マス番号が大きい (${look.numFs})`, look.numFs === '32px'); // 「周-マス」の2つ組みになったぶん一段小さく（メール指示 2026-08-02）
-  check('レールはフェード切替（回転しない）', look.dailyTr === 'none');
-  check('設定マークだけ従来の回転のまま', look.setTr !== 'none');
-  // PWRボーナスは毎日ボーナスに統合・レベルボーナスは廃止し、右のレールは2つだけになった（メール指示 2026-08-02）
-  check(`右のレールは毎日ボーナスとガチャの2つ (${look.labels.join('|')})`, look.labels.join('|') === '毎日ボーナス|ガチャ');
+  check('レールはフェード切替（回転しない）', look.calTr === 'none');
+  check('設定はヘッダー右の角丸ボタンへ移った（左のレールには無い）', look.hdSet);
+  // プレゼントとガチャは1つのボタンに統合し、中身は吹き出しの2ボタンになった（メール指示 2026-08-02 16:32）
+  check(`統合ボタンの中はプレゼントとガチャの2つ (${look.labels.join('|')})`, look.labels.join('|') === 'プレゼント|ガチャ');
   check('レベル／PWRのボーナス箱は無くなった', look.gone);
 
   // --- 番号/ランクが絵の位置に追従するか・レール切替で重ならないか ---
@@ -323,7 +324,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     return w < 236 * 0.75;  // データ上そういう画像が実在する
   }));
   check('レール切替でアイコンと文字が重ならない', await page.evaluate(async () => {
-    const btn = document.getElementById('rr-daily');
+    const btn = document.getElementById('cal-btn'); // 右のレールは廃止したので左のレールで見る（メール指示 2026-08-02 16:32）
     const img = btn.querySelector('img'), txt = btn.querySelector('.rr-txt');
     let worst = 0;
     btn.classList.add('show-label');

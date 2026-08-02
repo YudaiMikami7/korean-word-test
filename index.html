@@ -265,7 +265,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 #hv-pwrfill{transition:none}
 #hv-pwrfill.pwr0{width:0} /* PWRが0のときは空のまま */
 /* ヘッダー（さらに上へ。茶色領域は黒80%透過。4色ドットは廃止） */
-.avatar-circle{position:absolute;left:40px;top:44px;width:114px;height:114px;border-radius:50%;background:#fff;border:5px solid rgba(0,0,0,.8);box-sizing:border-box;overflow:hidden;cursor:pointer;z-index:2} /* 背景=タイプ/PWRページと同じグレー */
+.avatar-circle{position:absolute;left:14px;top:44px;width:114px;height:114px;border-radius:50%;background:#fff;border:5px solid rgba(0,0,0,.8);box-sizing:border-box;overflow:hidden;cursor:pointer;z-index:2} /* 背景=タイプ/PWRページと同じグレー */
 .avatar-image{width:100%;height:100%;object-fit:contain;padding:12px;box-sizing:border-box}
 /* アバター：キャラクター⇄MBTI(4文字2行・軸カラー) を一定時間で回転入替 */
 .avatar-circle .avatar-image{transition:transform .5s ease,opacity .4s ease;backface-visibility:hidden}
@@ -276,12 +276,14 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .avatar-circle.show-mbti .avatar-image,.avatar-circle.show-job .avatar-image{transform:rotateY(90deg);opacity:0}
 .avatar-circle.show-mbti .avatar-mbti{transform:rotateY(0);opacity:1}
 .avatar-circle.show-job .avatar-job{transform:rotateY(0);opacity:1}
-.hv-level{position:absolute;left:176px;top:44px;display:flex;align-items:baseline;gap:3px;line-height:1;z-index:2;font-size:20px}
+.hv-level{position:absolute;left:150px;top:44px;display:flex;align-items:baseline;gap:3px;line-height:1;z-index:2;font-size:20px}
 .hv-level span{font-size:38px}
-.hv-code{position:absolute;right:47px;top:39px;font-size:40px;letter-spacing:1px;line-height:1;z-index:2;display:flex;align-items:center;gap:5px} /* 数字上端がLv.数字(top44)と揃う位置：39+(50-40)/2=44 */
+/* 連続ログインは、短くしたステータスバーの右端（460px）に合わせて右寄せする（メール指示 2026-08-02）。
+   ここから右（484px〜）はヘッダーの角丸ボタン2つ（設定／メニュー）の場所になる */
+.hv-code{position:absolute;right:142px;top:39px;font-size:40px;letter-spacing:1px;line-height:1;z-index:2;display:flex;align-items:center;gap:5px} /* 数字上端がLv.数字(top44)と揃う位置：39+(50-40)/2=44 */
 .streak-fire{width:50px;height:50px;object-fit:contain;display:block}
-#hv-pwrdown{position:absolute;left:166px;top:153px;width:403px;text-align:center;font-size:16px;font-weight:700;color:#fff;z-index:2;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.5);transition:opacity .28s ease}
-#hv-nextrev{position:absolute;left:166px;top:176px;width:403px;text-align:center;font-size:13px;font-weight:800;color:rgba(255,255,255,.92);z-index:2;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,.5);transition:opacity .28s ease}
+#hv-pwrdown{position:absolute;left:140px;top:153px;width:320px;text-align:center;font-size:16px;font-weight:700;color:#fff;z-index:2;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.5);transition:opacity .28s ease}
+#hv-nextrev{position:absolute;left:140px;top:176px;width:320px;text-align:center;font-size:13px;font-weight:800;color:rgba(255,255,255,.92);z-index:2;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,.5);transition:opacity .28s ease}
 /* ルーム切替中に出るルーム番号の丸ページャー（復習どき/カウントダウンはフェードで隠す・選択中を中央に） */
 #room-pager{position:absolute;left:0;right:0;top:150px;box-sizing:border-box;z-index:4;display:flex;gap:9px;align-items:center;overflow-x:auto;padding:5px 16px;scrollbar-width:none;opacity:0;pointer-events:none;transition:opacity .28s ease}
 #room-pager::-webkit-scrollbar{display:none}
@@ -292,15 +294,28 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rp-dot.cur{transform:scale(1.55);text-shadow:0 3px 7px rgba(0,0,0,.75),0 0 3px rgba(0,0,0,.6)}
 .rp-dot.pq{font-size:19px}
 .home-side-btn img{width:74%;height:74%;object-fit:contain;pointer-events:none;display:block;margin:auto}
-.status-panel{position:absolute;left:166px;top:83px;width:403px;height:64px;border-radius:32px;background:rgba(0,0,0,.8);z-index:1}
+/* ステータスバーは左のアイコンぶん左へ寄せ、右端を569px→460pxまで短くした。
+   空いた右側（484〜588px）にヘッダーの角丸ボタン2つを縦に置く（メール指示 2026-08-02） */
+.status-panel{position:absolute;left:140px;top:83px;width:320px;height:64px;border-radius:32px;background:rgba(0,0,0,.8);z-index:1}
 .hv-lab,.hv-xpg,.hv-pwrg{pointer-events:none}
 .hv-lab{position:absolute;font-size:18px;line-height:19px;z-index:2}
-.hv-xplabel{left:175px;top:92px;width:80px;text-align:right}
-.hv-xpg{left:263px;top:92px;width:178px;height:19px}
-.hv-xpval{left:450px;top:92px}
-.hv-pwrlabel{left:175px;top:120px;width:80px;text-align:right}
-.hv-pwrg{left:263px;top:120px;width:178px;height:19px}
-.hv-pwrval{left:450px;top:120px}
+.hv-xplabel{left:149px;top:92px;width:80px;text-align:right}
+.hv-xpg{left:237px;top:92px;width:138px;height:19px}
+.hv-xpval{left:384px;top:92px}
+.hv-pwrlabel{left:149px;top:120px;width:80px;text-align:right}
+.hv-pwrg{left:237px;top:120px;width:138px;height:19px}
+.hv-pwrval{left:384px;top:120px}
+/* ヘッダー右の角丸ボタン2つ（上=設定／下=メニュー）。アバターの上端(44)からステータスバーの下端(147)まで。
+   アイコンは左のアイコン群(.rr-btn)と同じもの。左側にあった設定ボタンは廃止（メール指示 2026-08-02） */
+.hd-rail{position:absolute;right:14px;top:44px;width:104px;display:flex;flex-direction:column;gap:5px;z-index:5;transition:opacity .3s ease}
+.home-wrap.status .hd-rail,.home-wrap.listmode .hd-rail{opacity:0;pointer-events:none}
+.hd-btn{width:104px;height:49px;border:none;border-radius:16px;background:#fff;cursor:pointer;padding:0;position:relative;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.12);font-family:inherit}
+.hd-btn:active{background:#f0f0f0}
+.hd-btn img{width:32px;height:32px;object-fit:contain}
+/* ハンバーガー：左のアイコン群と同じ濃さ(#333)の3本線 */
+.hd-bars{display:flex;flex-direction:column;gap:5px}
+.hd-bars i{display:block;width:30px;height:4px;border-radius:2px;background:#333}
 /* ROOM選択：ROOM情報＋ジオラマを丸ごと左右スワイプ（番号やパラメータも一緒にスクロール）。
    コンテナは全幅＝画像は画面の端で見切れる */
 /* スライドは全画面高＋ROOM色の背景：スワイプで「色の区切れ目」が指と一緒に移動する */
@@ -734,9 +749,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .wb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 10px;padding:14px 0 24px} /* 長い単語でも3列とも同幅・画面からはみ出さない */
 /* 単語帳ページでは左右のアイコン（.reward-rail）を出さないので、そのぶん一覧は左右いっぱいまで使う（メール指示 2026-08-02） */
 .wb-list{padding:0}
-/* カードは検索バー・右下のホームボタンの裏まで来る（メール指示 2026-08-02）。
-   ただし最初と最後の行がそこに居座ったままにならないよう、上下だけ送り分の余白を持たせる */
-.wb-list .wb-grid{padding:34px 0 150px}
+/* カードは右下のホームボタンの裏まで来る（メール指示 2026-08-02）。
+   ただし最後の行がそこに居座ったままにならないよう、下だけ送り分の余白を持たせる。
+   検索欄は浮かせず一覧の中に入れたので、上の送り分の余白は不要になった（メール指示 2026-08-02） */
+.wb-list .wb-grid{padding:10px 0 150px}
 .wb-card{min-width:0;max-width:100%}
 /* 単語帳のカードは結果画面の「獲得した単語カード」(.rc-card)と同じ見た目に揃える（メール指示 2026-07-29）
    絵がカードから飛び出す作りはやめ、縦長カードの中に収める（メール指示 2026-07-31） */
@@ -785,20 +801,20 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* 単語検索（一覧モード上部） */
 .wb-back,#wb-search{display:none!important} /* 旧・単語帳の戻る/検索は廃止（body直下の#wb-panelに移行） */
 #pull-hint{position:absolute;left:50%;top:120px;transform:translateX(-50%);z-index:60;display:block;background:rgba(0,0,0,.72);color:#fff;font-size:14px;font-weight:800;padding:9px 18px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s ease}
-/* 単語帳の検索パネル（body直下・固定。キーボードで押し上げられない） */
+/* 単語帳の検索：候補の一覧だけを body 直下の固定パネルで出す（キーボードで押し上げられない）。
+   入力欄そのものは浮かせず（フロート廃止・メール指示 2026-08-02）、単語帳の一覧の中に組み込んである */
 #wb-panel{position:fixed;inset:0;z-index:9;pointer-events:none;display:none}
 #wb-panel.on{display:block}
 #wb-head{display:none} /* 「単語帳」見出し・戻るボタンは廃止（戻るはカード枚数バー左の.zk-backへ） */
-#wb-searchbar{position:absolute;left:0;right:0;bottom:0;padding:14px 16px calc(14px + env(safe-area-inset-bottom));pointer-events:auto;transition:top .3s ease}
-/* カード枚数・絞り込みの列のすぐ下に置くときは、余白なしで座標そのものに合わせる（メール指示 2026-08-02） */
-#wb-panel.on:not(.searching) #wb-searchbar{padding:0}
-/* 入力欄の縦幅は従来の半分（約50px→約26px。メール指示 2026-08-02）。
-   文字は16pxのまま＝iOSでフォーカス時に画面が拡大されない */
-#wb-searchbar input{width:100%;border:none;border-radius:999px;padding:2px 16px;font-size:16px;line-height:22px;font-weight:700;background:rgba(255,255,255,.97);color:#1a1a1a;outline:none;box-sizing:border-box;box-shadow:0 4px 16px rgba(0,0,0,.28)}
-#wb-panel.searching #wb-searchbar{top:58px;bottom:auto}
+/* 「単語をさがす」欄は、カード枚数・絞り込みの列のすぐ下に、一覧の一部として置く（浮かせない）。
+   縦幅は約26px（文字は16pxのまま＝iOSでフォーカス時に画面が拡大されない）。
+   単語詳細ページには置かないので、詳細を見ている間は検索欄が出ない（メール指示 2026-08-02） */
+.wb-searchrow{padding:4px 2px 0}
+.wb-searchrow input{width:100%;border:none;border-radius:999px;padding:2px 16px;font-size:16px;line-height:22px;font-weight:700;background:rgba(255,255,255,.97);color:#1a1a1a;outline:none;box-sizing:border-box;-webkit-appearance:none}
 #wb-hits2{position:absolute;top:118px;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 14px 20px;pointer-events:none;opacity:0;transition:opacity .2s ease}
 #wb-panel.typing #wb-hits2{pointer-events:auto;opacity:1}
-.home-wrap.wb-typing #hv-rooms{opacity:0;pointer-events:none;transition:opacity .2s ease} /* 入力開始で単語帳カードを隠す */
+/* 入力開始で単語帳カードだけを隠す（検索欄は一覧の中にあるので残す） */
+.home-wrap.wb-typing .wb-grid,.home-wrap.wb-typing .wb-none{opacity:0;pointer-events:none;transition:opacity .2s ease}
 #wb-hits2 .wbh-row{display:flex;align-items:center;gap:12px;padding:14px 16px;margin-bottom:8px;border-radius:14px;background:rgba(255,255,255,.97);color:#1a1a1a;cursor:pointer;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.14)}
 .wbh-ko{font-size:20px}
 .wbh-ja{font-size:13px;color:#666;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1327,8 +1343,9 @@ body.bigtext .set-d{font-size:13.5px}
    左右の余白は単語帳と同じくゼロ＝ルームメニューの左右矢印を含む横幅と同じ（メール指示 2026-08-02） */
 .wd-center{padding:0 0 10px;box-sizing:border-box}
 .wd-center .wd-in{display:block}
-/* 一番下の「単語帳へもどる」。ここまでスクロールしてさらに引くと戻る */
-.wd-more{display:block;width:100%;margin:12px 0 4px;border:none;border-radius:999px;background:rgba(0,0,0,.35);color:rgba(255,255,255,.9);
+/* 一番下の「さらに下へ引くと単語帳へもどる」の表示は廃止（メール指示 2026-08-02）。
+   引いて戻る機能はそのまま（下端まで見てさらに引くと単語帳へ戻る）ので、ボタン自体は残して隠すだけにしてある */
+.wd-more{display:none;width:100%;margin:12px 0 4px;border:none;border-radius:999px;background:rgba(0,0,0,.35);color:rgba(255,255,255,.9);
   font-family:inherit;font-size:13px;font-weight:800;letter-spacing:1px;padding:11px;cursor:pointer}
 .wd-more:active{background:rgba(0,0,0,.55)}
 /* 単語詳細（メール指示 2026-08-01）：左＝小カードの約2倍の大きい単語カード／右＝上からPWR・カードの札・グラフ。
@@ -1943,6 +1960,15 @@ body.bigtext .set-d{font-size:13.5px}
   background:#fff;color:#111;font-size:26px;font-weight:900;letter-spacing:.08em;white-space:nowrap;cursor:pointer;font-family:inherit;
   box-shadow:0 8px 18px rgba(0,0,0,.55);transform:translateX(-50%);transition:transform .16s ease,opacity .2s ease}
 .sg-d5:active{transform:translateX(-50%) scale(.93)}
+/* プレゼントとガチャを1つにまとめたボタン。位置は「今日の5問」のすぐ上（メール指示 2026-08-02）。
+   押すと吹き出し(#gift-modal)が出て、プレゼント画面／ガチャ画面へ行くボタンが2つ横並びで並ぶ */
+.sg-gift{position:absolute;left:50%;bottom:calc(var(--fbtm) + 72px);z-index:60;border:none;padding:6px 18px 7px;border-radius:999px;
+  background:#fff;color:#111;font-size:19px;font-weight:900;letter-spacing:.04em;white-space:nowrap;cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;gap:7px;box-shadow:0 6px 15px rgba(0,0,0,.45);transform:translateX(-50%);transition:opacity .2s ease}
+.sg-gift:active{transform:translateX(-50%) scale(.93)}
+.sg-gift img{width:30px;height:30px;object-fit:contain}
+.sg-gift.bob{animation:giftbob 1.5s ease-in-out infinite}
+@keyframes giftbob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
 /* 文字はスタートボタンと同じく1文字ずつ回転 */
 .sg-d5 .sgd5-t span{display:inline-block;animation:sbchar 3s ease-in-out infinite;backface-visibility:hidden}
 .sg-d5 .sgd5-t span:nth-child(2){animation-delay:.12s}
@@ -2085,6 +2111,23 @@ body.bigtext .set-d{font-size:13.5px}
 /* 左端のボタン（消化後の丸い「今日の5問」）から出したときは、しっぽを左下向きにしてボタンを指す */
 .d5-card.edge-l::after{border-top-color:#fff;border-right-color:#fff;border-left-color:transparent}
 .d5-card.edge-r::after{border-top-color:#fff;border-left-color:#fff;border-right-color:transparent}
+/* --- ハンバーガーメニューの吹き出し（アイコン＋文字のカプセルが縦に3つ。メール指示 2026-08-02） --- */
+#menu-modal,#gift-modal{position:fixed;inset:0;z-index:400;display:none;background:rgba(0,0,0,.34)}
+#menu-modal.on,#gift-modal.on{display:block}
+.hm-card{width:212px;padding:10px;display:flex;flex-direction:column;gap:7px;text-align:left}
+.hm-cap{display:flex;align-items:center;gap:9px;width:100%;border:none;border-radius:999px;background:#F2F2F2;padding:7px 14px 7px 7px;
+  cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:900;color:#1a1a1a;-webkit-tap-highlight-color:transparent}
+.hm-cap:active{background:#E3E3E3}
+.hm-cap img{width:30px;height:30px;object-fit:contain;flex:0 0 auto}
+/* --- プレゼント／ガチャの吹き出し（「単語帳ボタン」と同じ白い角丸ボタンを2つ横並び。メール指示 2026-08-02） --- */
+.gf-card{width:252px;padding:12px}
+.gf-row{display:flex;gap:10px;justify-content:center}
+.gf-btn{position:relative;flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  height:148px;border:2px solid #E3E3E3;border-radius:14px;background:#fff;cursor:pointer;font-family:inherit;padding:0 0 10px;
+  box-shadow:0 3px 10px rgba(0,0,0,.12);-webkit-tap-highlight-color:transparent}
+.gf-btn:active{background:#F2F2F2}
+.gf-btn img{width:84px;height:84px;object-fit:contain}
+.gf-txt{font-size:18px;font-weight:900;color:#333}
 /* --- 今日のトレンド問題（黄色いカプセルから出す吹き出し） --- */
 .tr-topic{font-size:11.5px;font-weight:800;color:#777;margin-top:3px;line-height:1.4}
 .tr-list{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:9px 0 10px}
@@ -2177,17 +2220,18 @@ body.bigtext .set-d{font-size:13.5px}
       <!-- ステータス画面は廃止したので、Lv./連続日数からの入口も外した（メール指示 2026-08-02） -->
       <div class="hv-level" id="hv-level">Lv.<span>1</span></div>
       <div class="hv-code" id="hv-code"></div>
+      <!-- ヘッダー右：設定／メニュー（角丸ボタン縦2つ。メール指示 2026-08-02） -->
+      <div class="hd-rail">
+        <button class="hd-btn" id="hd-set" onclick="openSettings()" aria-label="設定"><img src="icons/settings.webp" alt="設定" onerror="this.replaceWith(document.createTextNode('⚙'))"></button>
+        <button class="hd-btn" id="hd-menu" onclick="openHomeMenu()" aria-label="メニュー"><span class="hd-bars" aria-hidden="true"><i></i><i></i><i></i></span></button>
+      </div>
       <div class="reward-rail reward-rail-left">
-        <button class="rr-btn rr-set" id="set-btn" onclick="openSettings()" aria-label="設定"><img src="icons/settings.webp" alt="設定" onerror="this.replaceWith(document.createTextNode('⚙'))"><span class="rr-txt">設定</span></button>
+        <!-- 設定ボタンはヘッダー右の角丸ボタンへ移したのでここからは廃止（メール指示 2026-08-02） -->
         <button class="rr-btn rr-map" id="map-btn" onclick="openRoomMap()" aria-label="ROOM一覧"><img src="icons/map.webp" alt="ROOM一覧" onerror="this.replaceWith(document.createTextNode('🗺'))"><span class="rr-txt">ROOM<br>一覧</span></button>
         <button class="rr-btn" id="cal-btn" onclick="openCalendar()"><img src="icons/calendar.webp" alt="カレンダー"><span class="rr-txt">カレンダー</span></button>
         <button class="rr-btn" id="sp-btn" onclick="openSpecial()" aria-label="スペシャルモード"><img src="images-thumb/0731.webp" alt="スペシャル"><span class="rr-txt">スペシャル</span></button>
       </div>
-      <div class="reward-rail">
-        <button class="rr-btn" id="rr-daily" onclick="openPresent('daily')"><img src="icons/bonus-daily.webp" alt="毎日"><span class="rr-txt">毎日<br>ボーナス</span><span class="rr-badge" id="pb-daily" style="display:none"></span></button>
-        <button class="rr-btn" id="rr-rank" onclick="openGacha()"><img src="icons/bonus-rank.webp" alt="ガチャ"><span class="rr-txt">ガチャ</span><span class="rr-badge" id="pb-rank" style="display:none"></span><span class="rr-x2" id="rr-x2" style="display:none">✕2</span></button><!-- テストのごほうびはプレゼントではなくガチャ（メール指示 2026-08-01） -->
-        <!-- PWRボーナスは毎日ボーナスに統合し、レベルボーナスは廃止（代わりにガチャコイン）。リールは「毎日ボーナス」「ガチャ」の2つ（メール指示 2026-08-02） -->
-      </div>
+      <!-- プレゼント／ガチャは1つのボタン（.sg-gift＝今日の5問のすぐ上）に統合したので、右のリールは廃止（メール指示 2026-08-02） -->
       <div class="status-panel"></div>
       <div class="hv-lab hv-xplabel">XP</div>
       <div class="gauge hv-xpg"><div class="gfill" id="hv-xpfill" style="background:#FFFF37"></div></div>
@@ -2223,7 +2267,7 @@ body.bigtext .set-d{font-size:13.5px}
   <div id="wb-panel">
     <div id="wb-head"></div><!-- 「単語帳」見出し・戻るボタンは廃止（戻るはカード枚数バー左の.zk-backへ移設） -->
     <div id="wb-hits2"></div>
-    <div id="wb-searchbar"><input id="wb-q2" type="search" placeholder="単語をさがす（韓国語・日本語）" autocomplete="off" oninput="wbSearch2(this.value)" onfocus="wbFocus()" onblur="wbBlur()"></div>
+    <!-- 入力欄はここ（浮かぶバー）ではなく、単語帳の一覧の中（.wb-searchrow）へ移した（メール指示 2026-08-02） -->
   </div>
 
   <!-- QUIZ -->
@@ -2255,6 +2299,23 @@ body.bigtext .set-d{font-size:13.5px}
 <div id="settings-modal"></div>
 <div id="special-modal"></div>
 <div id="d5-modal"></div>
+<!-- ハンバーガーメニューの吹き出し（カレンダー／ROOM一覧／スペシャルモードのカプセル3つ。メール指示 2026-08-02） -->
+<div id="menu-modal">
+  <div class="d5-card hm-card">
+    <button class="hm-cap" onclick="closeHomeMenu();openCalendar()"><img src="icons/calendar.webp" alt=""><span>カレンダー</span></button>
+    <button class="hm-cap" onclick="closeHomeMenu();openRoomMap()"><img src="icons/map.webp" alt=""><span>ROOM一覧</span></button>
+    <button class="hm-cap" onclick="closeHomeMenu();openSpecial()"><img src="images-thumb/0731.webp" alt=""><span>スペシャルモード</span></button>
+  </div>
+</div>
+<!-- プレゼント／ガチャを1つにまとめたボタンの吹き出し（単語帳ボタンと同じ見た目のボタン2つを横並び。メール指示 2026-08-02） -->
+<div id="gift-modal">
+  <div class="d5-card gf-card">
+    <div class="gf-row">
+      <button class="gf-btn" id="rr-daily" onclick="closeGiftMenu();openPresent('daily')"><img src="icons/bonus-daily.webp" alt=""><span class="gf-txt">プレゼント</span><span class="rr-badge" id="pb-daily" style="display:none"></span></button>
+      <button class="gf-btn" id="rr-rank" onclick="closeGiftMenu();openGacha()"><img src="icons/bonus-rank.webp" alt=""><span class="gf-txt">ガチャ</span><span class="rr-badge" id="pb-rank" style="display:none"></span><span class="rr-x2" id="rr-x2" style="display:none">✕2</span></button>
+    </div>
+  </div>
+</div>
 <div id="history-modal"></div>
 <div id="map-modal"></div>
 <div id="rotate-hint">📱 縦向きでのご利用がおすすめです</div>
@@ -2695,13 +2756,19 @@ function enqueuePresent(rank,pwrDelta){
   _savePresent(st);
 }
 function updatePresent(){
+  let total=0;
   PRES_CATS.forEach(cat=>{
     const btn=document.getElementById("rr-"+cat),badge=document.getElementById("pb-"+cat);
-    if(!btn)return;
     const n=(cat==="rank")?gachaSpins():presentsAvailable(cat); // ランクの位置はガチャ（残り回数をバッジに出す）
+    total+=n;
+    if(!btn)return;
     btn.classList.toggle("rb",n>0);btn.classList.toggle("bob",n>0);
     if(badge){badge.style.display=n>0?"flex":"none";badge.textContent=n>0?String(n):"";}
   });
+  // 受け取れるものがあるときは、統合ボタン（今日の5問のすぐ上）にまとめてバッジを出して上下に動かす
+  const gf=document.getElementById("sg-gift"),gb=document.getElementById("pb-gift");
+  if(gf)gf.classList.toggle("bob",total>0);
+  if(gb){gb.style.display=total>0?"flex":"none";gb.textContent=total>0?String(total):"";}
   const x2=document.getElementById("rr-x2"); // XP2倍チャンスが生きている間だけ出す小さな札
   if(x2)x2.style.display=xpBoostActive()?"flex":"none";
 }
@@ -3548,6 +3615,7 @@ function wbCardHTML(id,i,st,cards,now){
   </div>`;
 }
 let _wbFilter="all";
+let _wbQ=""; // 「単語をさがす」欄はROOMスライドごとに描かれるので、入力中の言葉はここで持ち回る
 function wbSetFilter(f){_wbFilter=f;buildRoomSlides();attachHomeRain();fillNearbyRoomLists();}
 /* 遅延単語帳: 未描画(data-lazy)の該当ROOMだけ実描画する。全ROOM×100カード同時生成を避ける */
 function fillRoomList(n){
@@ -3570,8 +3638,10 @@ function roomListHTMLFromIds(ids){
   const tab=(f,l)=>`<button class="wb-tab${_wbFilter===f?" on":""}" onclick="wbSetFilter('${f}')">${l}</button>`;
   const cells=pairs.map(p=>wbCardHTML(p.id,p.i,st,cards,now)).join("");
   // 「単語帳 N / M」の単語数表示は廃止し、カード枚数だけを絞り込みの列の「全部」の左に置く（メール指示 2026-08-02）
+  // 「単語をさがす」欄は浮かせず、絞り込みの列のすぐ下に一覧の一部として置く（メール指示 2026-08-02）
   return `<div class="slide-list wb-list">
     <div class="wb-tabs"><span class="wb-cnt-chip">カード <b>${totalCnt}</b>枚</span>${tab("all","全部")}${tab("unowned","未獲得")}${tab("review","要復習")}${tab("owned","獲得済み")}</div>
+    <div class="wb-searchrow"><input class="wb-qin" type="search" value="${esc(_wbQ)}" placeholder="単語をさがす（韓国語・日本語）" autocomplete="off" oninput="wbSearch2(this.value)" onfocus="wbFocus()" onblur="wbBlur()"></div>
     ${pairs.length?`<div class="wb-grid">${cells}</div>`:'<div class="wb-none">該当する単語はありません</div>'}</div>`;
 }
 /* 単語検索：現在レベルの全語からkoまたは訳の部分一致（最大20件）。タップで単語詳細へ */
@@ -3590,32 +3660,43 @@ function wbSearch(q){
   }).join(""):'<div class="wbh-row" style="cursor:default;color:#888">見つかりませんでした</div>';
 }
 function wbPickHit(id){const q=document.getElementById("wb-q");if(q)q.value="";const b=document.getElementById("wb-hits");if(b)b.innerHTML="";renderWordDetail(id,'room');} // 検索候補を選んだら検索欄と候補を消してから詳細へ（戻ったとき単語帳に被らない）
-/* 検索バーは、カード枚数と絞り込み（全部／未獲得／要復習／獲得済み）のボタンの列のすぐ下に置く
-   （メール指示 2026-08-02）。単語カードはこのバーの裏まで来る。
-   入力中（.searching）は今までどおり画面上部へ動かす＝キーボードで隠れない */
+/* 「単語をさがす」欄は一覧の中（絞り込みの列のすぐ下）に組み込んだので、バーの位置合わせは不要になった。
+   代わりに、検索の候補一覧（body直下の固定パネル）を、その入力欄のすぐ下から始まるように置く（メール指示 2026-08-02） */
 function wbPlaceSearchBar(){
-  const bar=document.getElementById("wb-searchbar"),p=document.getElementById("wb-panel");
-  if(!bar||!p)return;
-  if(!p.classList.contains("on")||p.classList.contains("searching")){bar.style.left=bar.style.width=bar.style.top=bar.style.bottom="";return;}
+  const box=document.getElementById("wb-hits2"),p=document.getElementById("wb-panel");
+  if(!box||!p)return;
+  if(!p.classList.contains("on")){box.style.left=box.style.width=box.style.top="";return;}
   const h=document.getElementById("homewrap"),hr=h?h.getBoundingClientRect():null;
-  if(!hr||!hr.width){bar.style.left=bar.style.width=bar.style.top=bar.style.bottom="";return;}
+  const row=wbSearchInput();
+  const rr=row?row.getBoundingClientRect():null;
+  if(!hr||!hr.width){box.style.left=box.style.width=box.style.top="";return;}
   const k=hr.width/602;
-  // いま見えているROOMの絞り込みの列の真下へ。単語詳細を出している間など列が無いときは同じ座標を縮小率から割り出す
-  const tabs=document.querySelector(`.room-slide[data-n="${curSection}"] .wb-tabs`);
-  const tr=tabs?tabs.getBoundingClientRect():null;
-  bar.style.left=Math.round(hr.left+8*k)+"px";
-  bar.style.width=Math.round(586*k)+"px";
-  bar.style.top=Math.round((tr&&tr.height)?tr.bottom+4*k:hr.top+151*k)+"px";
-  bar.style.bottom="auto";
+  box.style.left=Math.round(hr.left+4*k)+"px";
+  box.style.width=Math.round(594*k)+"px";
+  box.style.top=Math.round((rr&&rr.height)?rr.bottom+8*k:hr.top+180*k)+"px";
+}
+/* いま画面に見えている「単語をさがす」欄（ROOMスライドごとに同じものがある） */
+function wbSearchInput(){
+  const cur=document.querySelector(`.room-slide[data-n="${curSection}"] .wb-qin`);
+  if(cur)return cur;
+  return document.querySelector(".wb-qin");
 }
 window.addEventListener("resize",wbPlaceSearchBar);
-/* 単語帳パネル（body直下）の検索。フォーカスで検索バーが上へ、入力開始でカードを隠し結果を下に表示 */
-function wbFocus(){const p=document.getElementById("wb-panel");if(p)p.classList.add("searching");wbPlaceSearchBar();}
-function wbBlur(){const q=document.getElementById("wb-q2");if(q&&!q.value.trim()){const p=document.getElementById("wb-panel");if(p)p.classList.remove("searching");}wbPlaceSearchBar();}
+/* 単語帳の検索。入力開始でカードを隠し、候補を欄のすぐ下に出す */
+function wbFocus(){
+  const p=document.getElementById("wb-panel");if(p)p.classList.add("searching");
+  // 欄が上に見えている状態から探せるよう、一覧を先頭まで戻してから位置を測る
+  const q=wbSearchInput(),list=q?q.closest(".slide-list"):null;
+  if(list)list.scrollTop=0;
+  wbPlaceSearchBar();
+}
+function wbBlur(){const q=wbSearchInput();if(q&&!q.value.trim()){const p=document.getElementById("wb-panel");if(p)p.classList.remove("searching");}wbPlaceSearchBar();}
 function wbSearch2(q){
   q=(q||"").trim();
+  _wbQ=q; // ROOMを切りかえても入力した言葉が消えないように覚えておく
   const p=document.getElementById("wb-panel"),hw=document.getElementById("homewrap"),box=document.getElementById("wb-hits2");
   if(!q){if(p)p.classList.remove("typing");if(hw)hw.classList.remove("wb-typing");if(box)box.innerHTML="";return;}
+  wbPlaceSearchBar();
   if(p)p.classList.add("typing");if(hw)hw.classList.add("wb-typing"); // 単語帳カードを隠す
   if(!box)return;
   const m=secOfWord(),seen=new Set();
@@ -3623,8 +3704,9 @@ function wbSearch2(q){
   const hits=pool.filter(w=>w.ko.indexOf(q)>=0||(w.ja||"").indexOf(q)>=0).slice(0,40);
   box.innerHTML=hits.length?hits.map(w=>{const key=m[w.id],rn=key?key.split("-")[1]:"";const lv=key?(key.indexOf("beginner")===0?"初級":"中級"):"";return `<div class="wbh-row" onclick="wbPickHit2(${w.id})"><span class="wbh-ko">${esc(w.ko)}</span><span class="wbh-ja">${esc(w.ja)}</span><span class="wbh-room">${lv}${rn?" ROOM "+rn:""}</span></div>`;}).join(""):'<div class="wbh-row" style="cursor:default;color:#888;justify-content:center">見つかりませんでした</div>';
 }
-function wbPickHit2(id){const q=document.getElementById("wb-q2");if(q)q.value="";wbSearch2("");const p=document.getElementById("wb-panel");if(p)p.classList.remove("searching","typing");renderWordDetail(id,'room');}
-function wbResetPanel(){const q=document.getElementById("wb-q2");if(q)q.value="";const p=document.getElementById("wb-panel");if(p)p.classList.remove("searching","typing");const hw=document.getElementById("homewrap");if(hw)hw.classList.remove("wb-typing");const box=document.getElementById("wb-hits2");if(box)box.innerHTML="";}
+function wbPickHit2(id){wbClearQ();wbSearch2("");const p=document.getElementById("wb-panel");if(p)p.classList.remove("searching","typing");renderWordDetail(id,'room');}
+function wbClearQ(){_wbQ="";document.querySelectorAll(".wb-qin").forEach(q=>{q.value="";});}
+function wbResetPanel(){wbClearQ();const p=document.getElementById("wb-panel");if(p)p.classList.remove("searching","typing");const hw=document.getElementById("homewrap");if(hw)hw.classList.remove("wb-typing");const box=document.getElementById("wb-hits2");if(box)box.innerHTML="";}
 /* 初回だけ表示する使い方ガイド（LINEから開いた人がここで初めてアプリに触る）。
    ポップアップで読ませるのはやめ、実際のホーム画面の部品を四角く切り抜いて、
    そこへ矢印を向けた説明を1つずつ出す（メール指示 2026-07-31）。 */
@@ -3992,10 +4074,10 @@ function renderHome(){
   buildTodayBand();
   applyHomeBg();
   scaleHome();
-  updatePresent();
   const _fb=document.getElementById("home-fbtn"); // 今日の5問／トレンドはスライドではなくホーム直下のフロート（作り直すと演出が飛ぶので初回だけ）
-  if(_fb&&!_fb.firstChild)_fb.innerHTML=sgD5HTML();
+  if(_fb&&!_fb.firstChild)_fb.innerHTML=sgGiftHTML()+sgD5HTML(); // プレゼント・ガチャの統合ボタンは今日の5問のすぐ上
   updateD5Btn(); // 今日の5問：残り回数バッジ／消化済みのグレーアウト
+  updatePresent(); // プレゼント・ガチャの統合ボタンを描いてからバッジを付ける
   checkAchievements();
   calibratePwr(); // ホーム表示のたびに実測し直し、以降は実際の下がりかたで減算
   updatePwrFine();
@@ -5215,7 +5297,7 @@ window.addEventListener("popstate",()=>{
     const _spg=document.getElementById("spov");
     if(_spg&&_spg.classList.contains("on")){spExitGame();return;}
     // 1) 開いているモーダルを閉じる
-    for(const id of ["present-modal","gacha-modal","calendar-modal","settings-modal","special-modal","history-modal","map-modal","d5-modal"]){
+    for(const id of ["present-modal","gacha-modal","calendar-modal","settings-modal","special-modal","history-modal","map-modal","d5-modal","menu-modal","gift-modal"]){
       const m=document.getElementById(id);
       if(m&&m.classList.contains("on")){m.classList.remove("on");if(id==="d5-modal"){clearInterval(_d5Timer);_d5Timer=null;}return;}
     }
@@ -6140,6 +6222,31 @@ function sgD5HTML(){
     +'<span class="d5-b"'+(used?' style="display:none"':'')+'>!</span></button>'
     +sgMissionHTML(); // 5問を終えたあとの中央カプセルは「今週のミッション」（メール指示 2026-08-01）
 }
+/* プレゼント＋ガチャの統合ボタン（今日の5問のすぐ上）。中身は吹き出しで選ばせる（メール指示 2026-08-02） */
+function sgGiftHTML(){
+  return '<button class="sg-fbtn sg-gift" id="sg-gift" onclick="openGiftMenu()" aria-label="プレゼントとガチャ">'
+    +'<img src="icons/present.webp" alt="">'
+    +'<span class="sggf-t">プレゼント・ガチャ</span>'
+    +'<span class="rr-badge" id="pb-gift" style="display:none"></span></button>';
+}
+/* 統合ボタンの吹き出し：プレゼント画面／ガチャ画面へ行くボタンが2つ横並び */
+function openGiftMenu(){
+  const m=document.getElementById("gift-modal");if(!m)return;
+  if(!m.classList.contains("on"))pushNav("modal");
+  m.classList.add("on");
+  m.onclick=e=>{if(e.target===m)closeGiftMenu();};
+  d5AnchorBubble(".sg-gift",m.querySelector(".gf-card"));
+}
+function closeGiftMenu(){const m=document.getElementById("gift-modal");if(m)m.classList.remove("on");}
+/* ハンバーガーメニューの吹き出し：カレンダー／ROOM一覧／スペシャルモード */
+function openHomeMenu(){
+  const m=document.getElementById("menu-modal");if(!m)return;
+  if(!m.classList.contains("on"))pushNav("modal");
+  m.classList.add("on");
+  m.onclick=e=>{if(e.target===m)closeHomeMenu();};
+  d5AnchorBubble("#hd-menu",m.querySelector(".hm-card"));
+}
+function closeHomeMenu(){const m=document.getElementById("menu-modal");if(m)m.classList.remove("on");}
 /* 今日のトレンド問題（5問を消化したあと、カプセルの位置に出る黄色いボタン） */
 function sgTrendHTML(){
   const on=(typeof trendAvailable==="function")&&trendAvailable();
@@ -8844,7 +8951,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v5.9 (2026-08-02)";
+const APP_VERSION="v6.0 (2026-08-02)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

@@ -51,9 +51,11 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
     const slide = document.querySelector('.room-slide[data-n="' + curSection + '"]');
     // 今日の5問／トレンドは home-wrap 直下のフロート1組。現在地ボタンだけスライドの中にある
     const d5 = document.querySelector('.sg-d5'), home = slide.querySelector('.sg-home'), tr = document.querySelector('.sg-mission');
-    const railL = document.querySelector('.reward-rail-left .rr-btn'), railR = document.querySelector('.reward-rail:not(.reward-rail-left) .rr-btn');
+    // 右のレール（毎日ボーナス／ガチャ）は統合ボタンへ移して廃止したので、
+    // 現在地ボタンの横位置は左アイコン群の左右対称（＝器の端から同じ距離）で見る（メール指示 2026-08-02 16:32）
+    const railL = document.querySelector('.reward-rail-left .rr-btn');
     return {
-      d5: vis(d5), home: vis(home), tr: vis(tr), railL: vis(railL), railR: vis(railR),
+      d5: vis(d5), home: vis(home), tr: vis(tr), railL: vis(railL), wrap: vis(document.getElementById('homewrap')),
       d5Shadow: getComputedStyle(d5).boxShadow, railShadow: getComputedStyle(railL).boxShadow,
       d5Radius: getComputedStyle(d5).borderRadius, trBg: getComputedStyle(tr).backgroundColor,
       slideCx: vis(slide).cx
@@ -63,8 +65,9 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   check(`丸の大きさが左アイコン群と同じ (${lay.d5.w.toFixed(1)}×${lay.d5.h.toFixed(1)} vs ${lay.railL.w.toFixed(1)})`, near(lay.d5.w, lay.railL.w, 2) && near(lay.d5.h, lay.railL.h, 2));
   check('影のデザインが左アイコン群と同じ', lay.d5Shadow === lay.railShadow);
   check('丸くなっている', /50%|9999px|34px/.test(lay.d5Radius));
-  check(`現在地ボタンが右アイコン群と同じ横位置 (${lay.home.r.toFixed(1)} vs ${lay.railR.r.toFixed(1)})`, near(lay.home.r, lay.railR.r, 2));
-  check(`現在地ボタンの丸の大きさがアイコン群と同じ (${lay.home.w.toFixed(1)})`, near(lay.home.w, lay.railR.w, 2));
+  check(`現在地ボタンが左アイコン群と左右対称の横位置 (右 ${(lay.wrap.r - lay.home.r).toFixed(1)} vs 左 ${(lay.railL.l - lay.wrap.l).toFixed(1)})`,
+    near(lay.wrap.r - lay.home.r, lay.railL.l - lay.wrap.l, 2));
+  check(`現在地ボタンの丸の大きさがアイコン群と同じ (${lay.home.w.toFixed(1)})`, near(lay.home.w, lay.railL.w, 2));
   check(`5問ボタンと現在地ボタンの縦位置が揃う (${lay.d5.b.toFixed(1)} vs ${lay.home.b.toFixed(1)})`, near(lay.d5.b, lay.home.b, 2));
   check('今週のミッションが中央カプセルの位置に出る', near(lay.tr.cx, lay.slideCx, 3) && near(lay.tr.b, lay.d5.b, 3));
   check('今週のミッションは黄色', lay.trBg === 'rgb(255, 196, 0)');

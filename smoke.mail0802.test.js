@@ -142,7 +142,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
 
   // ================= ⑤ アイコンのアニメーション =================
   const anim = await page.evaluate(async () => {
-    const rr = document.getElementById('rr-daily');
+    // 受け取り待ちの上下の動きは、統合したプレゼント・ガチャのボタンが担う（メール指示 2026-08-02 16:32）
+    const rr = document.getElementById('sg-gift');
     rr.classList.add('rb', 'bob');
     const av = document.querySelector('.avatar-circle');
     const before = av.className;
@@ -156,7 +157,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     };
   });
   // 受け取り待ちのプレゼント／コインがあるときだけ上下に動かす（メール指示 2026-08-02）
-  check(`受け取り待ちがあるときは上下に動く (${anim.rrAnim})`, anim.rrAnim === 'bob');
+  check(`受け取り待ちがあるときは上下に動く (${anim.rrAnim})`, anim.rrAnim === 'giftbob');
   check(`受け取り待ちが無いときは動かない (${anim.rrAnimOff})`, anim.rrAnimOff === 'none');
   check('アイコン⇄文字の入替も止まっている', anim.railFlip === false && anim.labelShown === false);
   check('左上アバターが切りかわらない', anim.avatarFlip === false && !anim.avChanged);
@@ -233,10 +234,11 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
 
   // ================= ⑨⑩ ボーナスの統合・ガチャコイン =================
   const rail = await page.evaluate(() => ({
-    labels: [...document.querySelectorAll('.reward-rail:not(.reward-rail-left) .rr-btn .rr-txt')].map(e => e.textContent),
+    // 右のレールは1つのボタンに統合し、中身は吹き出しの2ボタンになった（メール指示 2026-08-02 16:32）
+    labels: [...document.querySelectorAll('#gift-modal .gf-btn .gf-txt')].map(e => e.textContent),
     level: !!document.getElementById('rr-level'), pwr: !!document.getElementById('rr-pwr'), cats: PRES_CATS.slice()
   }));
-  check(`右のレールは毎日ボーナスとガチャの2つ (${rail.labels.join('|')})`, rail.labels.join('|') === '毎日ボーナス|ガチャ');
+  check(`プレゼントとガチャの2つ (${rail.labels.join('|')})`, rail.labels.join('|') === 'プレゼント|ガチャ');
   check('レベルボーナス／PWRボーナスのボタンが無い', !rail.level && !rail.pwr);
   check(`プレゼントの箱は毎日ボーナスに統合 (${rail.cats.join(',')})`, rail.cats.length === 2 && rail.cats[0] === 'daily');
 

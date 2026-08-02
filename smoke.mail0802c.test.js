@@ -74,7 +74,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
 
   // ================= ⑨ 受け取り待ちがあるときだけアイコンが上下に動く =================
   const bob = await page.evaluate(() => {
-    const b = document.getElementById('rr-daily');
+    const b = document.getElementById('sg-gift'); // 統合ボタンが上下に動く（メール指示 2026-08-02 16:32）
     b.classList.remove('rb', 'bob');
     const off = getComputedStyle(b).animationName;
     b.classList.add('rb', 'bob');
@@ -82,7 +82,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     b.classList.remove('rb', 'bob');
     return { off, on };
   });
-  check(`受け取り待ちがあると上下に動く (${bob.on})`, bob.on === 'bob');
+  check(`受け取り待ちがあると上下に動く (${bob.on})`, bob.on === 'giftbob');
   check(`何も無いときは動かない (${bob.off})`, bob.off === 'none');
 
   // ================= ①②③ 単語帳ページ =================
@@ -93,7 +93,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     const cs = e => e ? getComputedStyle(e) : null;
     const list = document.querySelector(`.room-slide[data-n="${curSection}"] .slide-list`);
     const tabs = list.querySelector('.wb-tabs');
-    const bar = document.getElementById('wb-searchbar'), band = document.getElementById('today-band');
+    const bar = list.querySelector('.wb-searchrow'), band = document.getElementById('today-band'); // 検索欄は一覧の中へ（メール指示 2026-08-02 16:32）
     const home = document.querySelector('.home-side-btn.hsb-right');
     const sr = bar.getBoundingClientRect(), br = band.getBoundingClientRect(), hr = home.getBoundingClientRect();
     return {
@@ -115,7 +115,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('「最近学んだ単語」は出さない', wb.bandHidden);
   // 検索バーは帯のあった場所から、カード枚数・絞り込みの列のすぐ下へ移した（メール指示 2026-08-02 14:55）
   const searchGap = await page.evaluate(() => {
-    const s = document.getElementById('wb-searchbar').getBoundingClientRect();
+    const s = document.querySelector(`.room-slide[data-n="${curSection}"] .wb-searchrow`).getBoundingClientRect();
     const t = document.querySelector(`.room-slide[data-n="${curSection}"] .wb-tabs`).getBoundingClientRect();
     return s.top - t.bottom;
   });

@@ -51,16 +51,17 @@ const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1.5 : tol);
       prev: r(document.getElementById('rm-prev')),
       next: r(document.getElementById('rm-next')),
       home: r(document.querySelector('.home-side-btn.hsb-right')),
-      bar: r(document.getElementById('wb-searchbar')),
+      bar: r(list.querySelector('.wb-searchrow')), // 検索欄は浮かせず一覧の中へ（メール指示 2026-08-02 16:32）
       tabs: r(document.querySelector(`.room-slide[data-n="${curSection}"] .wb-tabs`)),
-      inputH: document.querySelector('#wb-searchbar input').getBoundingClientRect().height
+      inputH: list.querySelector('.wb-qin').getBoundingClientRect().height
     };
   });
   check(`単語帳の左端がルームメニューの左矢印と同じ (${box.list.l.toFixed(1)} / ${box.prev.l.toFixed(1)})`, near(box.list.l, box.prev.l));
   check(`単語帳の右端がルームメニューの右矢印と同じ (${box.list.r.toFixed(1)} / ${box.next.r.toFixed(1)})`, near(box.list.r, box.next.r));
 
-  // ================= ② 検索バー・ホーム画面ボタンの裏にも単語カードが来る =================
-  check(`一覧が検索バーの裏まで伸びている (list ${box.list.t.toFixed(0)}〜${box.list.b.toFixed(0)} / bar ${box.bar.t.toFixed(0)})`,
+  // ================= ② ホーム画面ボタンの裏にも単語カードが来る =================
+  // 検索欄はフロートをやめて一覧の中に入れたので、「検索バーの裏にカードが来る」は無くなった（メール指示 2026-08-02 16:32）
+  check(`検索欄は一覧の枠の中にある (list ${box.list.t.toFixed(0)}〜${box.list.b.toFixed(0)} / 欄 ${box.bar.t.toFixed(0)})`,
     box.list.t < box.bar.t && box.list.b > box.bar.b);
   check(`一覧がホーム画面ボタンの裏まで伸びている (home ${box.home.t.toFixed(0)}〜${box.home.b.toFixed(0)})`,
     box.list.b >= box.home.b - 1 && box.list.l < box.home.l && box.list.r > box.home.r);
@@ -80,21 +81,22 @@ const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1.5 : tol);
         return cb.right > b.left && cb.left < b.right && cb.bottom > b.top && cb.top < b.bottom;
       });
     };
+    const bar = document.querySelector(`.room-slide[data-n="${curSection}"] .wb-searchrow`);
     return {
-      barTop: hit(document.getElementById('wb-searchbar')),
+      barTop: hit(bar),
       homeTop: hit(document.querySelector('.home-side-btn.hsb-right')),
-      cardUnderBar: cardUnder(document.getElementById('wb-searchbar')),
+      cardUnderBar: cardUnder(bar),
       cardUnderHome: cardUnder(document.querySelector('.home-side-btn.hsb-right'))
     };
   });
-  check('検索バーの位置に単語カードが重なっている', behind.cardUnderBar);
+  check('検索欄の裏にはカードが来ない（一覧と一緒に動く欄になった）', !behind.cardUnderBar);
   check('ホーム画面ボタンの位置に単語カードが重なっている', behind.cardUnderHome);
-  check(`検索バーはカードより手前（押せる） (${behind.barTop})`, String(behind.barTop).indexOf('card') < 0);
+  check(`検索欄はカードより手前（押せる） (${behind.barTop})`, String(behind.barTop).indexOf('card') < 0);
   check(`ホーム画面ボタンもカードより手前（押せる） (${behind.homeTop})`, String(behind.homeTop).indexOf('card') < 0);
 
   // ================= ③ 検索バーは縦幅が半分・絞り込みの列のすぐ下 =================
   check(`検索の入力欄が約半分の高さ (${box.inputH.toFixed(1)}px)`, box.inputH > 8 && box.inputH < 34);
-  check(`検索バーがカード枚数・絞り込みの列のすぐ下 (tabs下端 ${box.tabs.b.toFixed(1)} / bar上端 ${box.bar.t.toFixed(1)})`,
+  check(`検索欄がカード枚数・絞り込みの列のすぐ下 (tabs下端 ${box.tabs.b.toFixed(1)} / 欄上端 ${box.bar.t.toFixed(1)})`,
     box.bar.t >= box.tabs.b - 1 && box.bar.t - box.tabs.b < 14);
   check('カード枚数と絞り込みボタンは同じ列にある',
     await page.evaluate(() => {
