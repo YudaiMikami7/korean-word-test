@@ -45,9 +45,10 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   // 単語詳細
   await page.evaluate(() => renderWordDetail(BEGINNER_WORDS[0].id, 'room'));
   await page.waitForTimeout(500);
-  check('単語詳細表示', await page.evaluate(() => document.getElementById('s-wdetail').classList.contains('on')));
-  check('学習履歴にNaN無し', await page.evaluate(() => document.getElementById('s-wdetail').innerHTML.indexOf('NaN') === -1));
-  await page.evaluate(() => show('s-home'));
+  // 単語詳細はホームの真ん中に入る方式になった（メール指示 2026-08-02）
+  check('単語詳細表示', await page.evaluate(() => !!document.getElementById('wd-center') && document.getElementById('s-home').classList.contains('on')));
+  check('学習履歴にNaN無し', await page.evaluate(() => document.getElementById('wd-center').innerHTML.indexOf('NaN') === -1));
+  await page.evaluate(() => { closeWordDetail(); exitListMode(); });
   await page.waitForTimeout(400);
 
   // 設定

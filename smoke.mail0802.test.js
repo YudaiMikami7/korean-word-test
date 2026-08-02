@@ -149,12 +149,15 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     await new Promise(r => setTimeout(r, 3200)); // アバターは2.6秒周期だったので、それより長く待つ
     return {
       rrAnim: getComputedStyle(rr).animationName,
+      rrAnimOff: (rr.classList.remove('rb', 'bob'), getComputedStyle(rr).animationName),
       railFlip: RAIL_FLIP, avatarFlip: AVATAR_FLIP,
       avChanged: av.className !== before,
       labelShown: [...document.querySelectorAll('.reward-rail .rr-btn')].some(b => b.classList.contains('show-label'))
     };
   });
-  check(`左右のリールアイコンが動かない (${anim.rrAnim})`, anim.rrAnim === 'none');
+  // 受け取り待ちのプレゼント／コインがあるときだけ上下に動かす（メール指示 2026-08-02）
+  check(`受け取り待ちがあるときは上下に動く (${anim.rrAnim})`, anim.rrAnim === 'bob');
+  check(`受け取り待ちが無いときは動かない (${anim.rrAnimOff})`, anim.rrAnimOff === 'none');
   check('アイコン⇄文字の入替も止まっている', anim.railFlip === false && anim.labelShown === false);
   check('左上アバターが切りかわらない', anim.avatarFlip === false && !anim.avChanged);
 

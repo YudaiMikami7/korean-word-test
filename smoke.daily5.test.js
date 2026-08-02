@@ -38,7 +38,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check('設定にカードのトグルが2つある', await page.evaluate(() => {
     openSettings();
     const html = document.getElementById('settings-modal').innerHTML;
-    const ok = html.includes('カード（メイン）') && html.includes('カード（出題中）');
+    const ok = html.includes('カード ホーム') && html.includes('カード 出題中');
     closeSettings(); return ok;
   }));
 
@@ -146,10 +146,14 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check('ホームのボタンがグレーアウト', await page.evaluate(() => { show('s-home'); return document.querySelector('.sg-d5').classList.contains('d5-off'); }));
   // 単語帳: 見出し/旧戻るボタン/黒帯を廃止し、ホームへは右下のホームボタンで戻る（メール指示 2026-08-02）
   check('単語帳の見出し・旧戻るボタンが無い', await page.evaluate(() => !document.querySelector('.wb-title') && !document.getElementById('wb-back2')));
-  check('単語帳の黒帯は無く、枚数の行だけが残る', await page.evaluate(async () => {
+  // 単語数(N/M)の表示は廃止し、カード枚数だけを絞り込みの列の左に置いた（メール指示 2026-08-02）
+  check('単語数の行は廃止され、カード枚数が絞り込みの列に入る', await page.evaluate(async () => {
     enterListMode(); await new Promise(r => setTimeout(r, 900));
-    const sum = document.querySelector(`.room-slide[data-n="${curSection}"] .wb-sum`);
-    return !document.querySelector('.slide-list .zk-sum') && !!sum && /カード/.test(sum.textContent);
+    const row = document.querySelector(`.room-slide[data-n="${curSection}"] .wb-tabs`);
+    const chip = row && row.firstElementChild;
+    return !document.querySelector('.slide-list .zk-sum') && !document.querySelector('.slide-list .wb-sum')
+      && !!chip && chip.classList.contains('wb-cnt-chip') && /カード/.test(chip.textContent)
+      && row.children[1].classList.contains('wb-tab');
   }));
   check('右下のホームボタンでホームに戻れる', await page.evaluate(async () => {
     document.querySelector('.home-side-btn.hsb-right').click();

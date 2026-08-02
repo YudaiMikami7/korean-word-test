@@ -153,26 +153,26 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   await page.waitForTimeout(1200);
 
   const wd = await page.evaluate(() => {
-    const page_ = document.querySelector('#s-wdetail .page');
+    // 単語詳細はホームの真ん中だけが差し替わる方式。上のルームメニューはホームのものがそのまま見えている
+    // ので、詳細ページ側の「初級 ROOM xx」のバーとタイトルの行は廃止（メール指示 2026-08-02）
+    const page_ = document.getElementById('wd-center');
     const kids = [...page_.children].map(e => e.id || e.className.split(' ')[0]);
-    const rm = document.getElementById('wd-rmwrap');
-    const bar = document.querySelector('#s-wdetail .wd-titlebar'); // 黒帯(.zk-sum)は廃止（メール指示 2026-08-02）
+    const homeMenu = document.querySelector(`.room-slide[data-n="${curSection}"] .rmenu-clip`);
     const pager = document.getElementById('wd-pager');
     const dot = pager.querySelector('.wd-dot');
-    const big = document.querySelector('#s-wdetail .wd-bigcard');
-    const side = document.querySelector('#s-wdetail .wd-side');
+    const big = document.querySelector('#wd-center .wd-bigcard');
+    const side = document.querySelector('#wd-center .wd-side');
     const sideKids = side ? [...side.children].map(e => e.className.split(' ')[0]) : [];
     const r = e => e.getBoundingClientRect();
     return {
       order: kids,
-      rmTop: rm ? r(rm).top : null, barTop: bar ? r(bar).top : null, pagerTop: pager ? r(pager).top : null,
-      rmH: rm ? r(rm).height : 0,
-      hasMenuParts: !!(rm && rm.querySelector('.hv-roomlabel') && rm.querySelector('.hv-roomno') &&
-                       rm.querySelector('.hv-learned') && rm.querySelector('.hv-roompwr') &&
-                       rm.querySelector('.hv-wordsg') && rm.querySelector('.hv-roomg') && rm.querySelector('.rank-b')),
-      menuNo: rm && rm.querySelector('.hv-roomno') && rm.querySelector('.hv-roomno').textContent,
-      barHasBack: !!(bar && bar.querySelector('.wd-back')),
-      barTitle: bar && (bar.querySelector('#wd-title') || {}).textContent,
+      menuTop: homeMenu ? r(homeMenu).top : null, pagerTop: pager ? r(pager).top : null,
+      oldRoomBar: !!document.getElementById('wd-rmwrap') || !!document.querySelector('.wd-titlebar'),
+      hasMenuParts: !!(homeMenu && homeMenu.querySelector('.hv-roomlabel') && homeMenu.querySelector('.hv-roomno') &&
+                       homeMenu.querySelector('.hv-learned') && homeMenu.querySelector('.hv-roompwr') &&
+                       homeMenu.querySelector('.hv-wordsg') && homeMenu.querySelector('.hv-roomg') && homeMenu.querySelector('.rank-b')),
+      menuNo: homeMenu && homeMenu.querySelector('.hv-roomno') && homeMenu.querySelector('.hv-roomno').textContent,
+      hasMore: !!page_.querySelector('.wd-more'),
       dotBg: dot && getComputedStyle(dot).backgroundImage,
       dotImg: !!(dot && dot.querySelector('.wd-dimg')),
       dotShadowCur: getComputedStyle(pager.querySelector('.wd-dot.cur')).boxShadow,
@@ -180,17 +180,17 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       bigW: big ? r(big).width : 0,
       bigLeftOfSide: !!(big && side) && r(big).right <= r(side).left + 1,
       sideKids,
-      rlab: (document.querySelector('#s-wdetail .wd-rlab') || {}).textContent,
+      rlab: (document.querySelector('#wd-center .wd-rlab') || {}).textContent,
       graphInSide: !!(side && side.querySelector('.st-graphpanel svg')),
-      stroke: +((document.querySelector('#s-wdetail .st-graphpanel polyline') || {}).getAttribute
-        ? document.querySelector('#s-wdetail .st-graphpanel polyline').getAttribute('stroke-width') : 0)
+      stroke: +((document.querySelector('#wd-center .st-graphpanel polyline') || {}).getAttribute
+        ? document.querySelector('#wd-center .st-graphpanel polyline').getAttribute('stroke-width') : 0)
     };
   });
-  check(`最上部がルームメニュー → その下が戻る/ナンバーのバー → その下が単語カードの並び (${wd.order.join(' / ')})`,
-    wd.rmTop < wd.barTop && wd.barTop < wd.pagerTop);
-  check(`ルームメニューが単語帳ページと同じ中身 (ROOM ${wd.menuNo})`, wd.hasMenuParts);
-  check(`ルームメニューに高さがある (${Math.round(wd.rmH)}px)`, wd.rmH > 40);
-  check(`バーに戻るボタンとナンバー (${wd.barTitle})`, wd.barHasBack && /No\./.test(wd.barTitle || ''));
+  check(`真ん中の中身は 単語カードの並び → 詳細 → 単語帳へ戻る (${wd.order.join(' / ')})`,
+    wd.order[0] === 'wd-pagerow' && wd.order[1] === 'wd-in' && wd.order[2] === 'wd-more');
+  check('詳細ページ側のROOMメニュー／タイトルのバーは廃止', !wd.oldRoomBar);
+  check(`ホームのルームメニューが上に出たまま (ROOM ${wd.menuNo})`, wd.hasMenuParts && wd.menuTop < wd.pagerTop);
+  check('一番下に単語帳へ戻る導線がある', wd.hasMore);
   check(`並びは白座布団ではなく単語カードの意匠 (${wd.dotBg})`,
     wd.dotBg === 'linear-gradient(160deg, rgb(255, 255, 255), rgb(255, 233, 194))');
   check('並びのカードに絵が入っている', wd.dotImg);
@@ -204,27 +204,28 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('グラフは右の列の中', wd.graphInSide);
   check(`グラフの線は太いまま (${wd.stroke})`, wd.stroke >= 4);
 
-  // 学習履歴：表の中だけでスクロール／国旗の絵文字
+  // 学習履歴：器ごと縦スクロール（表の中の別スクロールはやめた）／国旗は絵ファイル（メール指示 2026-08-02）
   const hist = await page.evaluate(() => {
-    const box = document.querySelector('#s-wdetail .wd-histbox');
+    const box = document.querySelector('#wd-center .wd-histbox');
     if (!box) return null;
-    const st = getComputedStyle(box);
-    const cell = document.querySelector('#s-wdetail .htab tbody tr td:nth-child(2)');
-    const before = box.scrollTop; box.scrollTop = 60;
-    const moved = box.scrollTop !== before || box.scrollHeight <= box.clientHeight;
-    return { oy: st.overflowY, maxH: st.maxHeight, scrollable: box.scrollHeight > box.clientHeight, moved,
-             last: box === document.querySelector('#s-wdetail .tdetail-sec').lastElementChild,
-             dir: cell ? cell.textContent.trim() : '',
-             fam: cell ? getComputedStyle(cell.querySelector('.hdir') || cell).fontFamily : '' };
+    const center = document.getElementById('wd-center');
+    const cell = document.querySelector('#wd-center .htab tbody tr td:nth-child(2)');
+    return { oy: getComputedStyle(center).overflowY,
+             centerScrolls: center.scrollHeight > center.clientHeight,
+             last: box === document.querySelector('#wd-center .tdetail-sec').lastElementChild,
+             dirTxt: cell ? cell.textContent.replace(/\s+/g, '') : '',
+             flags: cell ? [...cell.querySelectorAll('img.dicon')].map(i => i.getAttribute('src')).join(',') : '',
+             year: cell ? (document.querySelector('#wd-center .htab tbody tr td:first-child') || {}).textContent : '' };
   });
-  check(`学習履歴は表の中だけでスクロール (${hist.oy} / ${hist.maxH})`, hist.oy === 'auto' || hist.oy === 'scroll');
+  check(`単語詳細は真ん中の器ごと縦スクロールする (${hist.oy})`, hist.oy === 'auto' || hist.oy === 'scroll');
   check('学習履歴は一番下にある', hist.last);
-  check(`方向は国旗の絵文字 (${hist.dir})`, /[\u{1F1E6}-\u{1F1FF}]{2}→[\u{1F1E6}-\u{1F1FF}]{2}/u.test(hist.dir) || hist.dir === '書き取り');
-  check(`絵文字フォントを指定している (${hist.fam})`, /Emoji/i.test(hist.fam));
+  check(`方向は国旗の絵ファイル (${hist.flags})`,
+    hist.dirTxt === '書き取り' || /emoji\/1f1(f0-1f1f7|ef-1f1f5)\.svg/.test(hist.flags));
+  check(`学習履歴に西暦を出さない (${hist.year})`, !/^\d{4}/.test((hist.year || '').trim()));
 
   // 大きいカードをタップで読み上げが動く（onclickが付いている）
   const speak = await page.evaluate(() => {
-    const c = document.querySelector('#s-wdetail .wd-bigcard');
+    const c = document.querySelector('#wd-center .wd-bigcard');
     return !!(c && c.onclick && c.dataset.ko);
   });
   check('大きい単語カードはタップで読み上げできる', speak);

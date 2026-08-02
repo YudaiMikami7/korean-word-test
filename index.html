@@ -75,9 +75,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .qbar .time{color:#FFFFFF;font-variant-numeric:tabular-nums;margin-left:auto;font-weight:800;font-size:14.3px} /* カウントダウンは1段太く(700→800)・1.1倍(13→14.3px) */
 /* 進捗＝山吹色のメーターは廃止。正解するとキャラが1歩ぶん前へ進む（景色が右から左へ流れ、キャラ自身は歩いて見える）。
    背景はナシ（空の水色ベタも廃止）。白い地面の線は廃止し、キャラはそのすぐ下のタイムメータ（白枠線つき）の上を歩く（メール指示 2026-08-02） */
-/* 上段＝この1本ぶんの単語カードの列 / 下段＝キャラの歩く段。段を分けたので、
-   カードがキャラのほうへ飛んでくる獲得アニメはどの問でも必ず帯の中に収まり、キャラもカードに埋もれない（メール指示 2026-08-02） */
-.pbar{position:relative;height:58px;margin:8px 18px 0;border-radius:0;overflow:visible;box-sizing:border-box;--rp:0;
+/* 単語カードの列とキャラの歩く段は分けず、同じ1列に置く（メール指示 2026-08-02）。
+   カードはキャラの半コマ先に並ぶので重ならず、獲得アニメも同じ高さを真横に飛ぶ */
+.pbar{position:relative;height:30px;margin:8px 18px 0;border-radius:0;overflow:visible;box-sizing:border-box;--rp:0;
   background:transparent}
 /* 動物のほうが右へ進んでいく（カードは動かない）。left を1問ぶんずつ増やす（メール指示 2026-08-01） */
 .rn-char{position:absolute;left:14px;bottom:0;width:29px;height:29px;transform:translateX(-50%);
@@ -89,8 +89,8 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
    12問なら最初から12枚ぜんぶ見えている（メール指示 2026-08-01）。
    正解でも不正解でもキャラのほうへ飛んできて獲得する。
    札に韓国語は書かない（答えが見えてしまうため） */
-/* 札の列はキャラの1段上に置く（キャラの歩く段と重ならない＝キャラが札に埋もれない） */
-.rn-rail{position:absolute;left:0;right:0;top:0;height:26px;pointer-events:none}
+/* 札の列はキャラと同じ列（メール指示 2026-08-02） */
+.rn-rail{position:absolute;left:0;right:0;top:2px;height:26px;pointer-events:none}
 /* 札は黄色い座布団＋白枠（メール指示 2026-08-01）。影はナシ。枠は外へ広げず、17x26pxの見た目のまま */
 .rn-slot{position:absolute;top:0;width:17px;height:26px;box-sizing:border-box;border-radius:4px;background:#F5C518;
   border:2px solid #fff;animation:rnCardIn .28s ease both;--fly:-120px;--flyY:30px}
@@ -101,7 +101,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rn-slot.rn-SR{filter:drop-shadow(0 0 5px #A05BD6)}
 .rn-slot.rn-SSR{filter:drop-shadow(0 0 7px #FFC400)}
 @keyframes rnCardIn{0%{opacity:0;transform:translateX(14px)}100%{opacity:1;transform:none}}
-/* 札は1段下のキャラのところへ斜めに飛んでいく（--fly=横 / --flyY=縦。どちらもJSが実測して入れる） */
+/* 札は同じ列のキャラのところへ飛んでいく（--fly=横 / --flyY=縦。どちらもJSが実測して入れる） */
 @keyframes rnCardGot{0%{opacity:1;transform:none}
   70%{opacity:1;transform:translate(calc(var(--fly) * .82),calc(var(--flyY) * .82)) scale(.6) rotate(-10deg)}
   100%{opacity:0;transform:translate(var(--fly),var(--flyY)) scale(.18) rotate(-14deg)}}
@@ -544,7 +544,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .tb-clip{position:absolute;left:0;top:0;width:452px;height:170px;border-radius:14px;overflow:hidden;display:flex;align-items:flex-end}
 /* 帯左上の見出しは流れるカードの前面に重ねる。白の座布団は角丸のカプセル形に（メール指示 2026-08-02） */
 .tb-label{position:absolute;left:10px;top:6px;z-index:2;padding:3px 12px;border-radius:999px;background:rgba(255,255,255,.82);font-size:14px;font-weight:900;letter-spacing:1px;color:rgba(0,0,0,.55);pointer-events:none}
-.home-wrap.status .today-band{opacity:0} /* 単語帳ページでも「最近学んだ単語」はホームと同じように出す（メール指示 2026-08-02） */
+.home-wrap.status .today-band{opacity:0}
+/* 単語帳ページでは「最近学んだ単語」は出さない。その場所には検索バーが入る（メール指示 2026-08-02） */
+.home-wrap.listmode .today-band{opacity:0;pointer-events:none}
 .tb-track{display:flex;animation:tbflow 30s linear infinite;will-change:transform;backface-visibility:hidden;margin-bottom:2px}
 .tb-group{display:flex;gap:12px;padding:0 6px;flex:0 0 auto} /* 同一グループ2連結で-50%＝ちょうど1周＝つなぎ目ゼロ */
 @keyframes tbflow{from{transform:translateX(0)}to{transform:translateX(-50%)}} /* 右→左 */
@@ -592,7 +594,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .reward-rail{position:absolute;right:14px;top:340px;display:flex;flex-direction:column;gap:8px;z-index:5;
   opacity:1;transition:opacity .3s ease} /* ROOMメニュー(下端329px)のすぐ下から縦に並ぶ */
 .reward-rail-left{left:14px;right:auto} /* 設定/マップ/カレンダーは画面左側に */
-.home-wrap.status .reward-rail,.home-wrap.status .home-side-btn,.home-wrap.status .start-button{opacity:0;pointer-events:none} /* 単語帳ページではアイコン類もそのまま出す（メール指示 2026-08-02） */
+.home-wrap.status .reward-rail,.home-wrap.status .home-side-btn,.home-wrap.status .start-button{opacity:0;pointer-events:none}
+/* 単語帳ページでは左右のアイコン（設定・ROOM一覧・カレンダー・スペシャル／毎日ボーナス・ガチャ）は出さない。
+   そのぶん一覧を左右いっぱいまで広げる（メール指示 2026-08-02）。右下のホームボタンだけは残す */
+.home-wrap.listmode .reward-rail{opacity:0;pointer-events:none}
 .home-side-btn{opacity:1;transition:transform .4s ease,opacity .3s ease}
 .rr-btn{width:68px;height:68px;border:none;background:#fff;border-radius:50%;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 2px 6px rgba(0,0,0,.12)} /* 背景は不透明の白 */
 .rr-btn img{width:86%;height:86%;object-fit:contain}
@@ -614,10 +619,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 #set-btn .rr-txt{transform:rotate(-180deg)}
 #set-btn.show-label img{transform:rotate(180deg)}
 #set-btn.show-label .rr-txt{transform:rotate(0deg)}
-/* 左右のリールアイコンの動き（虹の発光・上下バウンド・アイコン⇄文字の回転入替）は廃止（メール指示 2026-08-02）。
-   受け取り待ちがあることは .rr-badge の赤い数字だけで知らせる */
+/* 左右のリールアイコンの虹の発光・アイコン⇄文字の回転入替は廃止（メール指示 2026-08-02）。
+   ただし、受け取り待ちのプレゼント／ガチャコインがあるときだけは上下に動かして気づけるようにする（メール指示 2026-08-02） */
 .rr-btn.rb{animation:none}
-.rr-btn.bob{animation:none}
+.rr-btn.bob{animation:bob 1.5s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes rbglow{0%{filter:drop-shadow(0 0 7px #ff3b3b)}17%{filter:drop-shadow(0 0 9px #ffb13b)}33%{filter:drop-shadow(0 0 10px #ffe93b)}50%{filter:drop-shadow(0 0 11px #3bff6a)}67%{filter:drop-shadow(0 0 10px #3bc4ff)}83%{filter:drop-shadow(0 0 9px #b13bff)}100%{filter:drop-shadow(0 0 7px #ff3b3b)}}
 .rr-badge{position:absolute;right:-4px;top:-4px;z-index:1;min-width:22px;height:22px;border-radius:11px;background:#FF3B3B;color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box;border:2px solid #fff}
@@ -703,7 +708,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .ra-have b{color:#1a1a1a;font-size:15px}
 /* --- 単語カードのレア度（メール指示 2026-08-01）。枠の色だけで見分けられるようにする --- */
 .rare-N{--rc:#B8862B}.rare-R{--rc:#2F6FE0}.rare-SR{--rc:#A05BD6}.rare-SSR{--rc:#E0831A}
-.rc-rare,.cg-rare{position:absolute;left:3px;top:3px;z-index:3;font-size:9px;font-weight:900;color:#fff;background:var(--rc,#B8862B);padding:1px 4px;line-height:1.3;letter-spacing:.5px}
+.cg-rare{position:absolute;left:3px;top:3px;z-index:3;font-size:9px;font-weight:900;color:#fff;background:var(--rc,#B8862B);padding:1px 4px;line-height:1.3;letter-spacing:.5px}
+/* 結果画面のカード：レア度は絵の裏に薄く大きく、右上に寄せて出す（メール指示 2026-08-02） */
+.rc-rareb{position:absolute;right:-3px;top:-6px;z-index:0;font-size:46px;font-weight:900;line-height:1;letter-spacing:-2px;
+  color:var(--rc,#B8862B);opacity:.2;pointer-events:none;font-style:normal}
 .rc-card.rare-R,.rc-card.rare-SR,.rc-card.rare-SSR,.cg-card.rare-R,.cg-card.rare-SR,.cg-card.rare-SSR{box-shadow:0 0 0 2px var(--rc) inset,0 6px 16px rgba(0,0,0,.4)}
 .cg-card.rare-SSR{animation:cgslam .5s cubic-bezier(.2,1.5,.4,1) forwards,cgSSR 1.2s ease-in-out .5s infinite}
 @keyframes cgSSR{0%,100%{filter:none}50%{filter:drop-shadow(0 0 10px #ffc400)}}
@@ -722,10 +730,8 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* 単語帳の流れる帯（ホームの帯と同デザイン系・番号/枚数/％付き） */
 /* 単語帳: 3列グリッド（縦スクロール）＋動的演出（カスケード出現・画像のゆらぎ） */
 .wb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 10px;padding:14px 0 24px} /* 長い単語でも3列とも同幅・画面からはみ出さない */
-/* ホームの上に重なる左右のアイコン（.reward-rail＝左右14px・幅68px＝内側の端は82pxと520px）に
-   カードが隠れないよう、一覧の左右を空けておく（メール指示 2026-08-02）。
-   一覧は left:24px から始まるので 64px 空ければ 88〜514px に収まり、アイコンとは6pxずつ離れる */
-.wb-list{padding:0 64px}
+/* 単語帳ページでは左右のアイコン（.reward-rail）を出さないので、そのぶん一覧は左右いっぱいまで使う（メール指示 2026-08-02） */
+.wb-list{padding:0 2px}
 .wb-card{min-width:0;max-width:100%}
 /* 単語帳のカードは結果画面の「獲得した単語カード」(.rc-card)と同じ見た目に揃える（メール指示 2026-07-29）
    絵がカードから飛び出す作りはやめ、縦長カードの中に収める（メール指示 2026-07-31） */
@@ -779,6 +785,8 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 #wb-panel.on{display:block}
 #wb-head{display:none} /* 「単語帳」見出し・戻るボタンは廃止（戻るはカード枚数バー左の.zk-backへ） */
 #wb-searchbar{position:absolute;left:0;right:0;bottom:0;padding:14px 16px calc(14px + env(safe-area-inset-bottom));pointer-events:auto;transition:top .3s ease}
+/* 「最近学んだ単語」の帯があった場所に置くときは、余白なしで座標そのものに合わせる（メール指示 2026-08-02） */
+#wb-panel.on:not(.searching) #wb-searchbar{padding:0}
 #wb-searchbar input{width:100%;border:none;border-radius:999px;padding:14px 20px;font-size:16px;font-weight:700;background:rgba(255,255,255,.97);color:#1a1a1a;outline:none;box-sizing:border-box;box-shadow:0 4px 16px rgba(0,0,0,.28)}
 #wb-panel.searching #wb-searchbar{top:58px;bottom:auto}
 #wb-hits2{position:absolute;top:118px;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 14px 20px;pointer-events:none;opacity:0;transition:opacity .2s ease}
@@ -821,11 +829,11 @@ body.bigtext .set-d{font-size:13.5px}
 .res-cheer{font-size:15px;font-weight:800;color:rgba(255,255,255,.95);margin-top:5px;line-height:1.45;padding:0 12px;white-space:nowrap;overflow:hidden}
 .res-cheer .rch{display:inline-block;white-space:nowrap}
 /* 初回完走の白い座布団（res-first）は廃止。初テストの案内はランク下の一言コメントに集約（メール指示 2026-07-29） */
-/* 「単語帳 N / M　カード N枚」の行。黒帯は廃止して白文字だけで置く（メール指示 2026-08-02） */
-.wb-sum{color:#fff;font-size:14px;font-weight:800;letter-spacing:1px;padding:8px 2px 0;text-shadow:0 1px 3px rgba(0,0,0,.5)}
-.wb-sum b{color:#FFC400;font-size:17px}
-.wb-tabs{display:flex;gap:8px;padding:10px 2px 0}
-.wb-tab{flex:1;border:none;border-radius:999px;padding:9px 4px;font-weight:800;font-size:13px;background:rgba(0,0,0,.35);color:#fff;cursor:pointer;font-family:inherit}
+/* 単語数（N / M）の表示は廃止。カード枚数だけを絞り込みの列の「全部」の左に置く（メール指示 2026-08-02） */
+.wb-tabs{display:flex;align-items:center;gap:6px;padding:10px 2px 0}
+.wb-cnt-chip{flex:0 0 auto;color:#fff;font-size:12px;font-weight:800;letter-spacing:.5px;white-space:nowrap;padding:0 2px 0 0;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.wb-cnt-chip b{color:#FFC400;font-size:16px;margin:0 1px}
+.wb-tab{flex:1 1 0;min-width:0;border:none;border-radius:999px;padding:9px 2px;font-weight:800;font-size:12.5px;background:rgba(0,0,0,.35);color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap}
 .wb-tab.on{background:#fff;color:#1a1a1a}
 .wb-none{color:#fff;padding:40px 0;text-align:center;font-weight:800}
 .rr-map{font-size:28px;line-height:1}
@@ -937,49 +945,45 @@ body.bigtext .set-d{font-size:13.5px}
 .hv-ver{position:absolute;left:0;right:0;bottom:10px;text-align:center;font-size:11px;color:rgba(255,255,255,.5);z-index:2} /* 帯(下端1132px)の下に余白を確保 */
 #settings-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.42)}
 #settings-modal.on{display:flex}
-/* iPhoneコントロールセンター風の設定パネル */
-.set-card.cc-card{width:376px;max-width:92vw;max-height:88vh;overflow-y:auto;color:#fff;padding:0 16px calc(18px + env(safe-area-inset-bottom));position:relative;border-radius:30px;-webkit-overflow-scrolling:touch;
-  background:rgba(28,28,32,.66);backdrop-filter:blur(30px) saturate(1.6);-webkit-backdrop-filter:blur(30px) saturate(1.6);box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.12)}
-.cc-head{position:sticky;top:0;display:flex;align-items:center;justify-content:center;padding:14px 0 10px;z-index:3;background:transparent}
-.cc-grab{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:40px;height:5px;border-radius:3px;background:rgba(255,255,255,.4)}
-.cc-head .set-h{font-size:18px;font-weight:900;color:#fff}
-.cc-head .set-close{position:absolute;right:2px;top:2px;background:rgba(255,255,255,.16);border:none;width:46px;height:46px;border-radius:50%;font-size:24px;font-weight:900;color:#fff;cursor:pointer;line-height:1;font-family:inherit}
-.sp-card .cc-head{background:#fff}
-.sp-card .cc-head .set-h{color:#1a1a1a}
-.sp-card .cc-head .set-close{background:rgba(0,0,0,.07);color:#333}
-.cc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
-.cc-tile{background:rgba(255,255,255,.13);border-radius:20px;padding:14px;min-height:72px;cursor:pointer;display:flex;flex-direction:row;align-items:center;gap:12px;transition:background .2s ease,transform .08s ease;-webkit-tap-highlight-color:transparent}
-.cc-txt{display:flex;flex-direction:column;min-width:0}
-.cc-ico{flex:0 0 auto}
-.cc-tile:active{transform:scale(.96)}
-.cc-ico{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:21px;transition:background .2s ease}
-.cc-lab{font-size:14.5px;font-weight:800;color:#fff}
-.cc-state{font-size:11px;font-weight:700;color:rgba(255,255,255,.62)}
-.cc-tile.on .cc-state{color:rgba(255,255,255,.95)}
-.cc-tile.on .cc-ico{background:rgba(255,255,255,.28)}
-.cc-tile.on.k-tap{background:linear-gradient(160deg,#0a84ff,#0060df)}
-.cc-tile.on.k-snd{background:linear-gradient(160deg,#ff9f0a,#ff7a00)}
-.cc-tile.on.k-slow{background:linear-gradient(160deg,#bf5af2,#8944ab)}
-.cc-tile.on.k-notf{background:linear-gradient(160deg,#ff453a,#d70015)}
-.cc-tile.on.k-ball{background:linear-gradient(160deg,#30d158,#28a745)}
-.cc-tile.on.k-big{background:linear-gradient(160deg,#5e5ce6,#3634a3)}
-.cc-tile.on.k-gear{background:linear-gradient(160deg,#ffb300,#e07800)}
-.cc-list{margin-top:12px;display:flex;flex-direction:column;gap:10px}
-.cc-item{background:rgba(255,255,255,.13);border-radius:16px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;font-size:14.5px;font-weight:800;color:#fff;cursor:pointer}
-.cc-item .cc-arw{color:rgba(255,255,255,.6);font-weight:900}
-.cc-item.cc-note{cursor:default;font-size:12px;font-weight:700;color:rgba(255,255,255,.75);line-height:1.5}
+/* 設定・スペシャルモードは「今日の5問」の吹き出し(.d5-card)と同じ見た目に全面刷新（メール指示 2026-08-02）。
+   白い座布団／黒文字／薄いグレーの枠のマス／黄色い選択枠／黒い丸ボタン。
+   文字は小さめ・ラベルは短くして、マスの大きさが中身で変わらないようにする */
+.set-card.cc-card{width:330px;max-width:90vw;max-height:88vh;overflow-y:auto;color:#1a1a1a;padding:0 14px calc(16px + env(safe-area-inset-bottom));position:relative;border-radius:20px;-webkit-overflow-scrolling:touch;
+  background:#fff;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.cc-head{position:sticky;top:0;display:flex;align-items:center;justify-content:center;padding:13px 0 9px;z-index:3;background:#fff}
+.cc-grab{display:none} /* 白い座布団では上のつまみは出さない（今日の5問と同じ） */
+.cc-head .set-h{font-size:16px;font-weight:900;color:#1a1a1a;letter-spacing:.04em}
+.cc-head .set-close{position:absolute;right:0;top:0;background:transparent;border:none;width:38px;height:38px;border-radius:50%;font-size:20px;font-weight:900;color:#999;cursor:pointer;line-height:1;font-family:inherit;display:flex;align-items:center;justify-content:center}
+.cc-head .set-close:active{background:rgba(0,0,0,.1)}
+.cc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:2px}
+/* マスは「今日の5問」の朝の部／夜の部のマス(.d5-slot)と同じ作り。中身の長さで大きさが変わらないよう
+   高さ固定・1行固定にしてある */
+.cc-tile{background:#F2F2F2;border:2px solid #E3E3E3;padding:7px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;-webkit-tap-highlight-color:transparent;transition:background .15s ease,border-color .15s ease}
+.cc-tile:active{background:#E8E8E8}
+.cc-txt{display:flex;flex-direction:column;min-width:0;width:100%}
+.cc-ico{flex:0 0 auto;font-size:17px;line-height:1.2}
+.cc-lab{font-size:11px;font-weight:900;color:#777;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-state{font-size:12px;font-weight:900;color:#aaa;margin-top:1px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-tile.on{border-color:#FFC400;background:#FFF7E0}
+.cc-tile.on .cc-lab{color:#777}
+.cc-tile.on .cc-state{color:#E0831A}
+.cc-list{margin-top:9px;display:flex;flex-direction:column;gap:7px}
+.cc-item{background:#F6F6F6;padding:11px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;font-weight:900;color:#1a1a1a;cursor:pointer}
+.cc-item .cc-arw{color:#aaa;font-weight:900}
+.cc-item.cc-note{cursor:default;font-size:11px;font-weight:800;color:#777;line-height:1.5}
 /* ルームの色（4段階の見本ボタン。メール指示 2026-08-02） */
 .cc-item.cc-tone{cursor:default}
-.tone-sw{display:flex;gap:7px}
-.tone-b{background:transparent;border:none;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit}
-.tone-b i{display:block;width:34px;height:24px;border-radius:7px;box-shadow:0 0 0 2px rgba(255,255,255,.25) inset}
-.tone-b em{font-style:normal;font-size:9.5px;font-weight:800;color:rgba(255,255,255,.6);white-space:nowrap}
-.tone-b.on i{box-shadow:0 0 0 2.5px #fff}
-.tone-b.on em{color:#fff}
-.cc-item.cc-2btn{gap:10px;background:transparent;padding:0}
-.cc-item.cc-2btn button,.cc-item.cc-2btn label{flex:1;background:rgba(255,255,255,.13);border:none;border-radius:16px;padding:14px;font-size:13.5px;font-weight:800;color:#fff;cursor:pointer;text-align:center;font-family:inherit}
-.cc-links{display:flex;justify-content:center;gap:16px;margin-top:14px;font-size:12px;font-weight:700}
-.cc-links a{color:rgba(255,255,255,.7);text-decoration:none}
+.tone-sw{display:flex;gap:6px}
+.tone-b{background:transparent;border:none;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit}
+.tone-b i{display:block;width:30px;height:20px;box-shadow:0 0 0 2px rgba(0,0,0,.12) inset}
+.tone-b em{font-style:normal;font-size:9px;font-weight:800;color:#aaa;white-space:nowrap}
+.tone-b.on i{box-shadow:0 0 0 2.5px #FFC400}
+.tone-b.on em{color:#E0831A}
+.cc-item.cc-2btn{gap:8px;background:transparent;padding:0}
+.cc-item.cc-2btn button,.cc-item.cc-2btn label{flex:1;background:#000;border:none;border-radius:999px;padding:11px;font-size:12.5px;font-weight:900;color:#fff;cursor:pointer;text-align:center;font-family:inherit}
+.cc-item.cc-2btn button:active,.cc-item.cc-2btn label:active{background:#1c1c1c}
+.cc-links{display:flex;justify-content:center;gap:14px;margin-top:11px;font-size:11px;font-weight:800}
+.cc-links a{color:#999;text-decoration:none}
 .set-card:not(.cc-card){width:360px;max-width:90vw;max-height:88vh;overflow-y:auto;background:#fff;color:#1a1a1a;padding:0 20px calc(18px + env(safe-area-inset-bottom));position:relative;border-radius:16px;-webkit-overflow-scrolling:touch}
 .set-head{position:sticky;top:0;background:#fff;display:flex;align-items:center;justify-content:center;padding:15px 0 11px;margin:0 -20px 2px;border-bottom:1px solid #eee;z-index:3}
 .set-h{font-size:19px;font-weight:900}
@@ -1159,8 +1163,13 @@ body.bigtext .set-d{font-size:13.5px}
 /* 左右マージンは詰める。min-width:0＝中身（意味の長い日本語など）の最小幅で列が広がるのを断ち、
    3列を必ず器の幅に収める（列が広がると器が横スクロールして「大きく描かれている」ように見えていた） */
 .rc-card{position:relative;aspect-ratio:3/3.5;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.25);padding:2px 1px;box-sizing:border-box;min-width:0;overflow:hidden}
-/* 器を画像とぴったり同じ大きさにして、正誤記号を画像の左上の角へ重ねる */
-.rc-imgw{position:relative;height:51%;max-width:100%;display:flex;align-items:center;justify-content:center}
+/* レア度ごとにカードの色を変える（メール指示 2026-08-02） */
+.rc-card.rare-R{background:linear-gradient(160deg,#fff,#d6e4ff)}
+.rc-card.rare-SR{background:linear-gradient(160deg,#fff,#ecd8ff)}
+.rc-card.rare-SSR{background:linear-gradient(160deg,#fff,#ffdcac)}
+/* 器を画像とぴったり同じ大きさにして、正誤記号を画像の左上の角へ重ねる。レア度の文字より前面に置く */
+.rc-imgw{position:relative;z-index:1;height:51%;max-width:100%;display:flex;align-items:center;justify-content:center}
+.rc-ko,.rc-ja,.rc-foot{position:relative;z-index:1}
 .rc-imgw img{height:100%;width:auto;object-fit:contain}
 .rc-card .cg-noimg{font-size:26px}
 .rc-sym{position:absolute;top:-2px;left:-7px;font-size:21px;font-weight:900;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.15);z-index:1} /* 画像の左上角に重ねる（カードからはみ出すと切れるので寄せ量は控えめ） */
@@ -1182,16 +1191,19 @@ body.bigtext .set-d{font-size:13.5px}
 .pwr-delta{font-size:18px;font-weight:900}
 .res-right{display:flex;flex-direction:column;align-items:flex-start;gap:4px} /* 「過去の結果」画面で使用 */
 .res-counts{display:flex;flex-direction:row;align-items:baseline;gap:8px;font-size:14px;font-weight:900;line-height:1.15} /* 点数の右に 正解数 / 不正解数 */
-.res-cnt{flex:0 0 auto;min-width:42px;text-align:right;font-size:16px;font-weight:900;line-height:1.15} /* 上の段の 中＝正解数 / 右＝不正解数 */
+.res-cnt{flex:0 0 auto;text-align:left;font-size:16px;font-weight:900;line-height:1.15} /* 上の段の 中＝正解数 / 右＝不正解数（左寄せ。メール指示 2026-08-02） */
 /* 右側は上＝点数と正誤／下＝メーター2本 */
 .res-side{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:5px}
-.res-scorerow{display:flex;align-items:baseline;gap:8px;padding:0 2px}
-.res-scorerow .res-score{flex:1 1 auto} /* 点数は左寄せ。正解数・不正解数がその右に並ぶ */
+/* 点数・正解数・不正解数は今までどおり横1列のまま、まとめて左へ寄せる（メール指示 2026-08-02）。
+   左端に少しマージンを取り、3つの間隔も少し広げて詰まって見えないようにする */
+.res-scorerow{display:flex;align-items:baseline;justify-content:flex-start;gap:16px;padding:0 2px 0 14px}
+.res-scorerow .res-score{flex:0 0 auto}
 /* レベル(XP)とPWRはステータス画面（ホームのヘッダー）と同じ見た目に統一：
    黒の座布団／右揃えラベル／#333の溝に太いゲージ／XPは黄・PWRは緑（メール指示 2026-07-29）
    太さ・文字サイズ・行間はホームのステータスバー（602px基準: ゲージ19px・溝の内側3px・行送り9px・文字18px）を
    --hs（ホームの縮小率）で実寸に直したもの＝ホームと全く同じ大きさで出る（メール指示 2026-07-31） */
-.res-meters{display:flex;flex-direction:column;gap:calc(9px * var(--hs));background:rgba(0,0,0,.8);border-radius:14px;padding:calc(9px * var(--hs)) calc(12px * var(--hs))}
+/* 黒い座布団は角丸ではなくカプセル型にする（メール指示 2026-08-02） */
+.res-meters{display:flex;flex-direction:column;gap:calc(9px * var(--hs));background:rgba(0,0,0,.8);border-radius:999px;padding:calc(9px * var(--hs)) calc(16px * var(--hs))}
 /* ラベル・ゲージ・数値・増分を格子で固定＝レベルとPWRのゲージが必ず同じ横幅になる（メール指示 2026-07-29） */
 .res-mrow{display:grid;grid-template-columns:calc(80px * var(--hs)) minmax(36px,1fr) calc(96px * var(--hs)) calc(84px * var(--hs));align-items:center;gap:calc(9px * var(--hs));height:calc(19px * var(--hs))} /* 行の高さ＝ゲージの太さ。行送りはホームと同じ28px相当になる */
 .res-mlab{min-width:0;text-align:right;font-size:calc(18px * var(--hs));font-weight:900;color:#fff;line-height:calc(19px * var(--hs))}
@@ -1287,8 +1299,8 @@ body.bigtext .set-d{font-size:13.5px}
 .bignote{background:var(--panel);border:1px solid var(--line);padding:14px;text-align:center;font-size:14px;line-height:1.8;font-weight:700;margin-bottom:12px}
 .bignote b{color:var(--green);font-size:18px}
 .bignote .improve{color:var(--green);font-weight:800}
-#s-wdetail .htab th,#s-wdetail .htab td{padding:6px 4px}
-#s-wdetail .htab td:first-child{font-size:11px;color:var(--faint)}
+.wd-center .htab th,.wd-center .htab td{padding:6px 4px}
+.wd-center .htab td:first-child{font-size:11px;color:rgba(255,255,255,.65)}
 .dicon{width:20px;height:20px;vertical-align:-4px;margin-right:2px}
 .wd-scroll{flex:1;min-height:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none}
 .wd-scroll::-webkit-scrollbar{display:none}
@@ -1296,21 +1308,32 @@ body.bigtext .set-d{font-size:13.5px}
 .wd-slide{flex:0 0 100%;width:100%;scroll-snap-align:start;overflow:hidden;padding:4px 16px 16px;box-sizing:border-box;
   display:flex;flex-direction:column;min-height:0}
 .wd-in{flex:1 1 auto;min-height:0;display:flex;flex-direction:column} /* 中身の入れ物も高さを引き継ぐ（そうしないと学習履歴が縮まず下にはみ出す） */
-/* 単語詳細のヘッダー行：黒帯は廃止（メール指示 2026-08-02）。戻るボタンと単語のナンバーだけを白文字で置く */
-.wd-titlebar{display:flex;align-items:center;gap:10px;margin:10px 12px;color:#fff;font-size:15px;font-weight:800;letter-spacing:1px}
-.wd-back{flex:0 0 auto;width:34px;height:34px;border:none;border-radius:8px;background:rgba(255,255,255,.16);color:#fff;font-size:24px;font-weight:900;line-height:1;padding:0 0 3px;cursor:pointer;font-family:inherit}
-.wd-back:active{background:rgba(255,255,255,.3)}
 /* 単語カードの並びと、その最左右の移動ボタンを1行にまとめる（メール指示 2026-08-02） */
 .wd-pagerow{display:flex;align-items:center;gap:2px;padding:0 4px}
 .wd-top{display:flex;justify-content:center;align-items:baseline;gap:22px;font-size:19px;font-weight:900;margin:2px 0 4px}
-/* 単語詳細（メール指示 2026-08-01）：左＝小カードの約2倍の大きい単語カード／右＝上からPWR・カード枚数・グラフ */
+/* 単語詳細はホームの真ん中（単語帳と同じ器）に入る。器ごと縦にスクロールする（メール指示 2026-08-02） */
+.wd-center{padding:0 6px 10px;box-sizing:border-box}
+.wd-center .wd-in{display:block}
+/* 一番下の「単語帳へもどる」。ここまでスクロールしてさらに引くと戻る */
+.wd-more{display:block;width:100%;margin:12px 0 4px;border:none;border-radius:999px;background:rgba(0,0,0,.35);color:rgba(255,255,255,.9);
+  font-family:inherit;font-size:13px;font-weight:800;letter-spacing:1px;padding:11px;cursor:pointer}
+.wd-more:active{background:rgba(0,0,0,.55)}
+/* 単語詳細（メール指示 2026-08-01）：左＝小カードの約2倍の大きい単語カード／右＝上からPWR・カードの札・グラフ */
 .wd-main{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:10px;align-items:start;margin-top:6px}
 .wd-bigcard{background:linear-gradient(160deg,#fff,#ffe9c2);color:#1a1a1a;border-radius:18px;padding:8px 6px 10px;width:100%;max-width:220px;justify-self:center;box-sizing:border-box;
   box-shadow:0 6px 18px rgba(0,0,0,.28);text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden}
 .wd-side{display:flex;flex-direction:column;gap:8px;min-width:0}
-.wd-cbar{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;background:rgba(0,0,0,.35);border-radius:12px;padding:6px 8px}
-.wd-cards{font-size:12px;font-weight:900;color:#FFD86B}
-.wd-cards b{font-size:19px;margin:0 2px}
+/* 持っているカードは「獲得したカード N枚」の文字ではなく、出題中の帯と同じ黄色い座布団＋白枠の札で出す。
+   レア度ごとに札を分け、その札の枚数を右に添える（メール指示 2026-08-02） */
+.wd-cbar{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;background:rgba(0,0,0,.8);border-radius:999px;padding:7px 12px}
+.wd-cchip{display:inline-flex;align-items:center;gap:4px}
+.wd-cico{display:block;width:17px;height:26px;box-sizing:border-box;border-radius:4px;background:#F5C518;border:2px solid #fff;flex:0 0 auto}
+.wd-cico.rn-R{filter:drop-shadow(0 0 4px #2F6FE0)}
+.wd-cico.rn-SR{filter:drop-shadow(0 0 5px #A05BD6)}
+.wd-cico.rn-SSR{filter:drop-shadow(0 0 7px #FFC400)}
+.wd-cchip b{font-size:17px;font-weight:900;color:#FFD86B;line-height:1}
+.wd-cchip.none .wd-cico{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.55)}
+.wd-cchip.none b{color:rgba(255,255,255,.55)}
 .wd-cimg{position:relative;width:100%;height:118px;display:flex;align-items:center;justify-content:center}
 .wd-cimg .wd-img2{max-width:100%;height:100%;object-fit:contain}
 .wd-cimg .wd-img2.noimg{display:flex;align-items:center;justify-content:center;font-size:52px}
@@ -1331,45 +1354,35 @@ body.bigtext .set-d{font-size:13.5px}
 .rp-pager .wd-dno{font-size:10px;font-weight:900;color:#b8862b;line-height:1;letter-spacing:.5px} /* カードの通し番号（メール指示 2026-08-02） */
 .rp-pager .wd-dk{font-size:16px;font-weight:900;white-space:nowrap;line-height:1.15;margin-top:1px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .rp-pager .wd-dj{font-size:11px;font-weight:800;color:#7a6a4a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;line-height:1.2}
-.wd-ko2{text-align:center;font-size:44px;font-weight:900;line-height:1.1;color:#1a1a1a}
-.wd-ja2{text-align:center;font-size:24px;font-weight:800;color:#5c5142;margin-top:2px}
-/* PWR（この単語の記憶率）はラベル＋数字＋バーの縦積みで、右の列に収める（メール指示 2026-08-01） */
-.wd-crate{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:3px 6px;background:rgba(0,0,0,.35);border-radius:12px;padding:7px 10px}
-.wd-crate .wd-rg{grid-column:1/-1}
-.wd-crate .wd-rval{justify-self:end}
-.wd-rlab{flex:0 0 auto;font-size:14px;font-weight:900;color:#fff;letter-spacing:1px}
-.wd-rg{flex:1 1 auto;height:12px;background:#333;border-radius:999px;overflow:hidden}
+.wd-ko2{text-align:center;font-size:36px;font-weight:900;line-height:1.1;color:#1a1a1a} /* 韓国語は少し小さく（メール指示 2026-08-02） */
+.wd-ja2{text-align:center;font-size:22px;font-weight:800;color:#5c5142;margin-top:2px}
+/* PWR（この単語の記憶率）はホームのステータスバーと同じ形：黒のカプセル／右揃えラベル／
+   #333の溝に太いゲージ／右に数値（メール指示 2026-08-02） */
+.wd-crate{display:grid;grid-template-columns:auto minmax(30px,1fr) auto;align-items:center;gap:8px;background:rgba(0,0,0,.8);border-radius:999px;padding:7px 12px}
+.wd-rlab{flex:0 0 auto;text-align:right;font-size:14px;font-weight:900;color:#fff;letter-spacing:1px}
+.wd-rg{flex:1 1 auto;min-width:30px;height:19px;background:#333;border-radius:999px;padding:3px;box-sizing:border-box}
 .wd-rf{height:100%;border-radius:999px;background:#1FAD62;transition:width .6s ease}
 .wd-rf.ms-review{background:#C79A00}.wd-rf.ms-urgent{background:#E0433B}
 .wd-rval{flex:0 0 auto;font-size:20px;font-weight:900;line-height:1}
 .wd-rval i{font-style:normal;font-size:12px;margin-left:1px}
 .wd-rval{color:#fff}
 .wd-rval.ms-stable{color:#37E08A}.wd-rval.ms-review{color:#FFD84D}.wd-rval.ms-urgent{color:#FF7B72}
-/* 単語詳細の最上部：単語帳ページとまったく同じルームメニュー（602px基準を横幅に合わせて縮小して置く。メール指示 2026-08-01） */
-.wd-room{position:relative;width:100%;overflow:hidden}
-.wd-rmscale{transform-origin:top left;width:602px;padding-top:12px} /* 座布団が上へ12pxはみ出すぶん */
-.wd-rmenu{position:relative;width:602px;height:104px;color:#fff;font-weight:800;
-  font-family:"LINESeedJP","LINESeedKR","Hiragino Kaku Gothic ProN",sans-serif}
-.wd-rmenu .gauge{position:absolute;background:#333333;border-radius:999px;padding:3px;box-sizing:border-box;z-index:2}
-.wd-rmenu .gfill{height:100%;border-radius:999px;width:0}
-/* ホームの通常ROOMスライドと同じ左右位置（.room-slide:not(.pq-slide) の上書きぶんを再現） */
-.wd-rmenu .hv-learned,.wd-rmenu .hv-roompwr{left:206px}
-.wd-rmenu .hv-wordsg,.wd-rmenu .hv-roomg{left:200px}
-.wd-rmenu .rank-b{left:390px}
-/* 学習履歴はその表の中だけでスクロールさせる（ページ全体は動かさない。メール指示 2026-08-01／2026-08-02）。
-   ページを縦スクロールさせないぶん、履歴は残りの高さいっぱいを取って中だけ動かす */
-#s-wdetail .tdetail-sec{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;margin:10px 0 0}
-#s-wdetail .tdetail-sec .h{flex:0 0 auto} /* 「学習履歴」の見出しは縮めない（縮むと字が切れる） */
-.wd-histbox{flex:1 1 auto;min-height:60px;max-height:none;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:10px}
-.wd-histbox::-webkit-scrollbar{width:6px}
-.wd-histbox::-webkit-scrollbar-thumb{background:rgba(255,255,255,.35);border-radius:3px}
+/* 単語詳細の最上部にあった「初級 ROOM xx」のルームメニューとタイトルの行は廃止（メール指示 2026-08-02）。
+   単語詳細はホームの真ん中に入るので、上のルームメニューはホームのものがそのまま見えている */
+/* 単語詳細は器（真ん中）ごと縦にスクロールする。学習履歴は最後まで流し込み、
+   その先まで引くと単語帳へ戻る（メール指示 2026-08-02） */
+.wd-center .tdetail-sec{margin:10px 0 0}
+.wd-center .tdetail-sec .h{color:rgba(255,255,255,.75)}
+.wd-histbox{border-radius:10px}
+.wd-center .htab td.num{font-size:16px;font-weight:900}
+.wd-center .htab th.num{font-size:12px}
 /* 学習履歴：日付の見出しは省き、時間・得点・記憶率は大きく太く */
-/* 出題の向きは国旗の絵文字で出す（韓→日／日→韓。メール指示 2026-08-01） */
-.hdir-f{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla",sans-serif;font-size:15px}
+/* 出題の向きは国旗で出す（韓→日／日→韓。メール指示 2026-08-01）。
+   国旗は端末まかせの絵文字フォントではなく、動物アイコン等と同じ絵ファイル（emoji/*.svg）で出す（メール指示 2026-08-02） */
+.hdir-f{font-size:15px}
+.hdir-f .dicon{width:17px;height:17px;vertical-align:-3px;margin:0}
 .hdir{font-size:13px;font-weight:900;white-space:nowrap}
 .hdir i{font-style:normal;margin:0 2px;opacity:.7}
-#s-wdetail .htab td.num{font-size:16px;font-weight:900}
-#s-wdetail .htab th.num{font-size:12px}
 /* 音声ボタンはカードの中・絵の右上に重ねる（メール指示 2026-08-02） */
 .wd-spk{position:absolute;right:0;top:0;z-index:2;background:rgba(0,0,0,.45);border:none;border-radius:50%;width:34px;height:34px;font-size:18px;cursor:pointer;color:#fff;display:inline-flex;align-items:center;justify-content:center;padding:0}
 .wd-spk:active{background:rgba(0,0,0,.7)}
@@ -1531,14 +1544,29 @@ body.bigtext .set-d{font-size:13.5px}
 /* ============================================================ スペシャルモード（ミニゲーム集） ============================================================ */
 #special-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.42)}
 #special-modal.on{display:flex}
-.sp-card{width:376px;max-width:92vw;max-height:88vh;overflow-y:auto;color:#1a1a1a;padding:0 16px calc(18px + env(safe-area-inset-bottom));position:relative;border-radius:0;background:#fff;-webkit-overflow-scrolling:touch}
-.sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
-.sp-tile{background:#F4F4F4;border:2px solid #E6E6E6;border-radius:0;padding:14px 12px;min-height:98px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;transition:background .2s,transform .08s;-webkit-tap-highlight-color:transparent}
-.sp-tile:active{transform:scale(.96);background:#FFF3D6;border-color:#FFC400}
-.sp-tile .sp-ico{width:48px;height:48px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;font-size:24px}
-.sp-tile .sp-lab{font-size:14px;font-weight:900;color:#1a1a1a}
-.sp-tile .sp-desc{font-size:11px;font-weight:700;color:#888;line-height:1.2}
-.sp-note{font-size:11.5px;font-weight:700;color:#888;text-align:center;margin-top:14px;line-height:1.7}
+/* スペシャルモードも「今日の5問」と同じ見た目に全面刷新（メール指示 2026-08-02）。
+   マスを押すとプレビューが出て、もう一度押すとカウントダウンとともに始まる */
+.sp-card{width:330px;max-width:90vw;max-height:88vh;overflow-y:auto;color:#1a1a1a;padding:0 14px calc(16px + env(safe-area-inset-bottom));position:relative;border-radius:20px;background:#fff;box-shadow:0 18px 50px rgba(0,0,0,.45);-webkit-overflow-scrolling:touch}
+.sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:2px}
+.sp-tile{background:#F2F2F2;border:2px solid #E3E3E3;border-radius:0;padding:7px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;transition:background .15s ease,border-color .15s ease;-webkit-tap-highlight-color:transparent}
+.sp-tile:active{background:#E8E8E8}
+.sp-tile.sel{border-color:#FFC400;background:#FFF7E0}
+.sp-tile .sp-ico{width:auto;height:auto;border-radius:0;background:transparent;box-shadow:none;display:block;font-size:17px;line-height:1.2}
+.sp-tile .sp-lab{font-size:12px;font-weight:900;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.sp-tile .sp-desc{font-size:10px;font-weight:800;color:#aaa;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.sp-tile.sel .sp-desc{color:#E0831A}
+/* プレビュー（選んだゲームの遊び方）。もう一度押すとカウントダウン */
+.sp-prev{margin-top:9px;background:#F6F6F6;padding:11px 12px;text-align:center}
+.sp-prev .spp-ico{font-size:26px;line-height:1}
+.sp-prev .spp-lab{font-size:14px;font-weight:900;color:#1a1a1a;margin-top:3px}
+.sp-prev .spp-how{font-size:11.5px;font-weight:800;color:#777;line-height:1.6;margin-top:4px;text-wrap:balance}
+.sp-prev .spp-go{width:100%;margin-top:9px;border:none;border-radius:999px;background:#000;color:#fff;font-size:14px;font-weight:900;padding:12px;cursor:pointer;font-family:inherit}
+.sp-prev .spp-go:active{background:#1c1c1c}
+.sp-prev .spp-cd{font-size:11.5px;font-weight:800;color:#777;line-height:1.5;margin-top:9px}
+.sp-prev .spp-cd b{font-size:26px;font-weight:900;color:#1a1a1a;font-variant-numeric:tabular-nums;margin:0 4px;display:inline-block}
+.sp-prev .spp-cd b.pop{animation:sppcd .5s ease}
+@keyframes sppcd{0%{transform:scale(1.5);opacity:.2}100%{transform:scale(1);opacity:1}}
+.sp-note{font-size:11px;font-weight:800;color:#aaa;text-align:center;margin-top:11px;line-height:1.7}
 /* ゲーム全画面オーバーレイ */
 .spov{position:fixed;inset:0;z-index:560;background:linear-gradient(170deg,#241d38,#14111f);display:flex;flex-direction:column;color:#fff;opacity:0;transition:opacity .2s ease;padding:calc(10px + env(safe-area-inset-top)) 16px calc(14px + env(safe-area-inset-bottom))}
 .spov.on{opacity:1}
@@ -2431,13 +2459,14 @@ function addCardRare(wordId,n,rare){
 function cardRareOf(wordId){return loadCardRare()[wordId]||{};}
 /* その単語で持っている一番高いレア度（持っていなければ null） */
 function bestRarity(wordId){const o=cardRareOf(wordId);for(let i=RARITY_ORDER.length-1;i>=0;i--){if(o[RARITY_ORDER[i]]>0)return RARITY_ORDER[i];}return null;}
-/* 残り時間の割合(0〜1)が大きい＝速く答えたほど、高いレア度が出やすい。不正解・時間切れはノーマルどまり */
+/* レア度は運ではなく「回答スピード」で決まる（メール指示 2026-08-02）。
+   残り時間の割合(0〜1)が大きい＝速く答えたほど高いレア度。不正解・時間切れはノーマルどまり */
 function rollCardRarity(ratio,isCorrect){
   if(!isCorrect)return "N";
-  const p=Math.max(0,Math.min(1,ratio||0)),r=Math.random();
-  if(r<p*p*0.10)return "SSR";
-  if(r<p*0.30)return "SR";
-  if(r<0.20+p*0.50)return "R";
+  const p=Math.max(0,Math.min(1,ratio||0));
+  if(p>=0.80)return "SSR"; // 制限時間の2割以内で正解
+  if(p>=0.60)return "SR";
+  if(p>=0.35)return "R";
   return "N";
 }
 function addBonus(n){localStorage.setItem(LS_BONUS,String(loadBonus()+n));}
@@ -2999,6 +3028,7 @@ function applyHomeBg(){applyBgAll(roomBg(curSection));}
 
 /* ROOM選択：番号・パラメータ・ジオラマを1スライドにまとめ、丸ごと左右スワイプ */
 let _roomScrollT=null,_listMode=false;
+let _wdId=null; // 単語詳細としてホームの真ん中に出している単語（null＝単語帳の一覧。メール指示 2026-08-02）
 /* 単語一覧モード：ROOMメニューが上へスライドし、下に単語一覧。横スワイプで隣のROOMの一覧へ */
 const LIFT_MAX=180; // ROOMメニューが最上部に達するまでの移動量（slide-innerを30px上げたぶん減らし、一覧モードの位置は従来どおり）
 /* ※単語帳ページはホームのまま中央だけ差し替える形になったので、いまはどこからも呼んでいない
@@ -3009,15 +3039,19 @@ function setLift(px){ // ピル上昇量(px)とヘッダー/写真用の進捗(-
   w.style.setProperty("--p",String(Math.min(1,Math.max(0,px/-LIFT_MAX))));
 }
 /* 単語帳ページはホーム画面そのままで、真ん中（すごろくのところ）だけが単語の一覧に変わる。
-   ステータスバー・ルームメニュー・ページャー・最近学んだ単語はホームと同じように出したまま（メール指示 2026-08-02）。
+   ステータスバー・ルームメニュー・ページャーはホームと同じように出したまま（メール指示 2026-08-02）。
+   ただし左右のアイコンと「最近学んだ単語」は出さず、そのぶん一覧を広く取り、
+   帯があった場所には検索バーを置く（メール指示 2026-08-02）。
    ROOMメニューを上へ持ち上げる演出（setLift）とアイコン類を隠す hiderail は使わない。 */
 function enterListMode(){
   if(_listMode)return;
   pushNav("list"); // OSバックで一覧を閉じられるように
-  wbResetPanel();const wp=document.getElementById("wb-panel");if(wp)wp.classList.add("on"); // 検索パネル表示（検索バーは下部から）
+  wbResetPanel();const wp=document.getElementById("wb-panel");if(wp)wp.classList.add("on"); // 検索パネル表示
   _listMode=true;buildRoomSlides();
+  document.getElementById("homewrap").classList.add("listmode"); // 左右アイコン・最近学んだ単語を隠す
   attachHomeRain(); // スライド再構築でカードのレイヤーが剥がれるため差し直す
   syncWordbookBtn(); // 右下のボタンを「ホーム」に入れ替える
+  wbPlaceSearchBar(); // 検索バーを「最近学んだ単語」の帯があった場所へ
   // 一覧をフェードイン（強制リフローでtransitionを確実に発火）
   const ls=document.querySelectorAll(".slide-list,.wl-mid");
   ls.forEach(e=>e.style.opacity="0");
@@ -3026,8 +3060,8 @@ function enterListMode(){
 }
 function exitListMode(){
   wbResetPanel();const wp=document.getElementById("wb-panel");if(wp)wp.classList.remove("on"); // 検索パネルを閉じる
-  document.getElementById("homewrap").classList.remove("wb-typing");
-  _listMode=false;buildRoomSlides();
+  document.getElementById("homewrap").classList.remove("wb-typing","listmode");
+  _listMode=false;_wdId=null;buildRoomSlides();
   attachHomeRain(); // スライド再構築でカードのレイヤーが剥がれるため差し直す（単語帳から戻るとカードが消える問題の修正）
   syncWordbookBtn(); // 右下のボタンを「単語帳」に戻す
   // すごろく・写真はフェードインで再表示
@@ -3040,12 +3074,14 @@ function exitListMode(){
 const WB_BTN_IMG="images-thumb/1290.webp", HOME_BTN_IMG="images-thumb/1111.webp"; // 책（本）/ 집（家）
 function syncWordbookBtn(){
   const b=document.querySelector(".home-side-btn.hsb-right");if(!b)return;
+  // 単語詳細を出している間は「単語帳」＝一覧へ戻るボタンになる（メール指示 2026-08-02）
+  const lab=(_wdId!=null)?"単語帳":(_listMode?"ホーム":"単語帳");
   const img=b.querySelector("img"),txt=b.querySelector(".hsb-txt");
-  if(img)img.src=_listMode?HOME_BTN_IMG:WB_BTN_IMG;
-  if(txt)txt.textContent=_listMode?"ホーム":"単語帳";
-  b.setAttribute("aria-label",_listMode?"ホーム":"単語帳");
+  if(img)img.src=(lab==="ホーム")?HOME_BTN_IMG:WB_BTN_IMG;
+  if(txt)txt.textContent=lab;
+  b.setAttribute("aria-label",lab);
 }
-function toggleWordbook(){_listMode?exitListMode():enterListMode();}
+function toggleWordbook(){if(_wdId!=null){closeWordDetail();return;}_listMode?exitListMode():enterListMode();}
 /* 引っ張り式ジェスチャーのヒント（上下どちらの引きにも対応）。90px超で発動可 */
 let _pullVal=0;
 function showPullHint(px,near,ready,pos){
@@ -3505,9 +3541,9 @@ function roomListHTMLFromIds(ids){
     .sort((a,b)=>displayScore(getStat(a.id,st),now)-displayScore(getStat(b.id,st),now)); // 記憶率が低い順
   const tab=(f,l)=>`<button class="wb-tab${_wbFilter===f?" on":""}" onclick="wbSetFilter('${f}')">${l}</button>`;
   const cells=pairs.map(p=>wbCardHTML(p.id,p.i,st,cards,now)).join("");
+  // 「単語帳 N / M」の単語数表示は廃止し、カード枚数だけを絞り込みの列の「全部」の左に置く（メール指示 2026-08-02）
   return `<div class="slide-list wb-list">
-    <div class="wb-sum">単語帳 <b>${owned}</b> / ${ids.length}　カード <b>${totalCnt}</b>枚</div><!-- 黒帯は廃止。ホームへ戻るのは右下のホームボタン（メール指示 2026-08-02） -->
-    <div class="wb-tabs">${tab("all","全部")}${tab("unowned","未獲得")}${tab("review","要復習")}${tab("owned","獲得済み")}</div>
+    <div class="wb-tabs"><span class="wb-cnt-chip">カード <b>${totalCnt}</b>枚</span>${tab("all","全部")}${tab("unowned","未獲得")}${tab("review","要復習")}${tab("owned","獲得済み")}</div>
     ${pairs.length?`<div class="wb-grid">${cells}</div>`:'<div class="wb-none">該当する単語はありません</div>'}</div>`;
 }
 /* 単語検索：現在レベルの全語からkoまたは訳の部分一致（最大20件）。タップで単語詳細へ */
@@ -3526,9 +3562,29 @@ function wbSearch(q){
   }).join(""):'<div class="wbh-row" style="cursor:default;color:#888">見つかりませんでした</div>';
 }
 function wbPickHit(id){const q=document.getElementById("wb-q");if(q)q.value="";const b=document.getElementById("wb-hits");if(b)b.innerHTML="";renderWordDetail(id,'room');} // 検索候補を選んだら検索欄と候補を消してから詳細へ（戻ったとき単語帳に被らない）
+/* 検索バーは「最近学んだ単語」の帯があった場所（左14px・上962px・幅452px＝602px基準）に置く。
+   画面下いっぱいに敷くと右下のホームボタンに重なってしまうため（メール指示 2026-08-02）。
+   入力中（.searching）は今までどおり画面上部へ動かす＝キーボードで隠れない */
+function wbPlaceSearchBar(){
+  const bar=document.getElementById("wb-searchbar"),p=document.getElementById("wb-panel");
+  if(!bar||!p)return;
+  if(!p.classList.contains("on")||p.classList.contains("searching")){bar.style.left=bar.style.width=bar.style.top=bar.style.bottom="";return;}
+  const band=document.getElementById("today-band");
+  let r=band?band.getBoundingClientRect():null;
+  if(!r||!r.width){ // 帯が非表示（学習履歴なし）のときはホーム画面の縮小率から座標を割り出す
+    const h=document.getElementById("homewrap");const hr=h?h.getBoundingClientRect():null;
+    if(!hr||!hr.width){bar.style.left=bar.style.width=bar.style.top=bar.style.bottom="";return;}
+    const k=hr.width/602;r={left:hr.left+14*k,top:hr.top+962*k,width:452*k,height:170*k};
+  }
+  bar.style.left=Math.round(r.left)+"px";
+  bar.style.width=Math.round(r.width)+"px";
+  bar.style.top=Math.round(r.top+r.height/2-24)+"px"; // 帯のあった場所の中央に置く（入力欄の高さ＝約48px）
+  bar.style.bottom="auto";
+}
+window.addEventListener("resize",wbPlaceSearchBar);
 /* 単語帳パネル（body直下）の検索。フォーカスで検索バーが上へ、入力開始でカードを隠し結果を下に表示 */
-function wbFocus(){const p=document.getElementById("wb-panel");if(p)p.classList.add("searching");}
-function wbBlur(){const q=document.getElementById("wb-q2");if(q&&!q.value.trim()){const p=document.getElementById("wb-panel");if(p)p.classList.remove("searching");}}
+function wbFocus(){const p=document.getElementById("wb-panel");if(p)p.classList.add("searching");wbPlaceSearchBar();}
+function wbBlur(){const q=document.getElementById("wb-q2");if(q&&!q.value.trim()){const p=document.getElementById("wb-panel");if(p)p.classList.remove("searching");}wbPlaceSearchBar();}
 function wbSearch2(q){
   q=(q||"").trim();
   const p=document.getElementById("wb-panel"),hw=document.getElementById("homewrap"),box=document.getElementById("wb-hits2");
@@ -3765,7 +3821,8 @@ function buildRoomSlides(){
       <div class="rmenu-reco"></div>
       <div class="rmenu-pwr"></div>
       </div>
-      ${_listMode?(Math.abs(n-curSection)<=1?roomListHTML(n):`<div class="slide-list wb-list" data-lazy="${n}"></div>`)
+      ${_listMode?((_wdId!=null&&n===curSection)?wdCenterHTML(_wdId) /* 単語詳細も真ん中だけ差し替え（メール指示 2026-08-02） */
+          :(Math.abs(n-curSection)<=1?roomListHTML(n):`<div class="slide-list wb-list" data-lazy="${n}"></div>`))
         :(Math.abs(n-curSection)<=1?sgBoardHTML(n):`<div class="sg-wrap" data-sglazy="${n}"></div>`)} <!-- すごろくは近傍3ROOMだけ実描画（全ROOM分を持つとページが落ちる） -->
       </div>
     </div>`;
@@ -3790,6 +3847,18 @@ function buildRoomSlides(){
         return;
       }
       if(_listMode){
+        // 単語詳細：一番下まで見たあと、さらに下へスクロール（＝指を上へ引く）と単語帳へ戻る（メール指示 2026-08-02）
+        if(_wdId!=null){
+          const atBottom=_plList&&(_plList.scrollHeight-_plList.clientHeight-_plList.scrollTop<=2);
+          if(atBottom&&dy<0&&Math.abs(dy)>Math.abs(dx)){
+            if(_plBase==null){_plBase=y;return;}
+            showPullHint(_plBase-y,"↑ さらに引くと単語帳へ","↑ 離して単語帳へ","bottom");
+          }else if(_plList&&_plList.scrollTop<=0&&dy>0&&Math.abs(dy)>Math.abs(dx)){
+            if(_plBase==null){_plBase=y;return;}
+            showPullHint(y-_plBase,"↓ さらに引くと単語帳へ","↓ 離して単語帳へ","top");
+          }else{_plBase=null;hidePullHint();}
+          return;
+        }
         // 単語帳の縦スクロールが最上部(scrollTop<=0)のとき、下方向の引っ張りで戻るヒント
         if(_plList&&_plList.scrollTop<=0&&dy>0&&Math.abs(dy)>Math.abs(dx)){
           if(_plBase==null){_plBase=y;return;}
@@ -3805,7 +3874,7 @@ function buildRoomSlides(){
       }else{_homeDir=null;hidePullHint();}
     },{passive:true});
     el.addEventListener("touchend",()=>{
-      if(_listMode){if(_plBase!=null){const go=_pullVal>=90;hidePullHint();if(go)exitListMode();}}
+      if(_listMode){if(_plBase!=null){const go=_pullVal>=90;hidePullHint();if(go){_wdId!=null?closeWordDetail():exitListMode();}}}
       else if(_homeDir){const go=_pullVal>=90,dir=_homeDir;hidePullHint();if(go){dir==="up"?enterListMode():enterStatusMode();}}
       _ty=null;_plBase=null;_plList=null;_homeDir=null;_sgDrag=false;_sgSwiped=false;
     });
@@ -3840,7 +3909,7 @@ function buildRoomSlides(){
       clearTimeout(_roomScrollT);
       _roomScrollT=setTimeout(()=>{
         const i=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count+PQ_OFF);
-        if(i>=1+PQ_OFF){const n=i-PQ_OFF;if(n!==curSection){curSection=n;applyHomeBg();saveLastRoom();attachHomeRain();fillNearbyRoomLists();fillNearbyBoards();}} // 玉の山も新ROOMへ移す＋近傍の単語帳/すごろくを実描画
+        if(i>=1+PQ_OFF){const n=i-PQ_OFF;if(n!==curSection){curSection=n;applyHomeBg();saveLastRoom();if(_wdId!=null)closeWordDetail();attachHomeRain();fillNearbyRoomLists();fillNearbyBoards();}} // 玉の山も新ROOMへ移す＋近傍の単語帳/すごろくを実描画（別ROOMへ移ったら単語詳細は閉じる）
       },120);
     });
   }
@@ -3867,6 +3936,7 @@ function scaleHome(){
   el.style.setProperty("--inv",String(1/s)); // スケール補正係数（ステータス内をPWR詳細ページと同じ実寸にする）
   document.documentElement.style.setProperty("--hs",String(s)); // ホーム外（結果画面のメーター等）でも同じ実寸を作るための縮小率
   el.style.marginBottom=`-${Math.round(1178*(1-s))}px`; // transformはレイアウト高を変えないため余白を回収
+  try{wbPlaceSearchBar();}catch(e){} // 単語帳の検索バーも「最近学んだ単語」の位置に追従させる
 }
 window.addEventListener("resize",scaleHome);
 if(window.visualViewport)window.visualViewport.addEventListener("resize",scaleHome); // ツールバー出入りに追従
@@ -5125,6 +5195,7 @@ window.addEventListener("popstate",()=>{
     const home=document.getElementById("s-home");
     // 2) ホームの一覧/ステータスモードを解除
     if(home.classList.contains("on")){
+      if(_wdId!=null){closeWordDetail();return;} // 単語詳細→単語帳→ホームの順に1段ずつ戻す
       if(_listMode){exitListMode();return;}
       if(_statusMode){exitStatusMode();return;}
       return; // ホーム最上位はそのまま（これ以上戻ればブラウザ既定の離脱）
@@ -6275,13 +6346,13 @@ function sgBoardHTML(n){
     tiles.push('<button class="sg-tile'+(done?" done":"")+(now?" now":"")+(lock?" lock":"")+'" data-x="'+p.x+'" data-y="'+p.y+'" style="left:'+p.x+'px;top:'+p.y+'px"'
       +' onclick="sgTap('+n+','+g+')" aria-label="マス'+g+'">'
       +(src?'<img class="sg-img" src="'+src+'" alt="" loading="lazy" decoding="async" onload="sgFitBadges(this)">':'<span class="sg-noimg">🃏</span>')
-      +'<span class="sg-num">'+lap+'-'+(idx+1)+'</span>' /* 番号は「周-その周の何マス目」（例 1-2 / 13-12。メール指示 2026-08-02） */
+      +'<span class="sg-num">'+n+'-'+g+'</span>' /* 番号は「ROOMナンバー-ステップナンバー」（例 ROOM3の5マス目＝3-5。メール指示 2026-08-02） */
       +(rank?'<span class="sg-rank" style="background:'+(RANK_COLORS[rank]||"#555")+'">'+rank+'</span>':"")
       +(now?'<span class="sg-here'+(sp?" sp":"")+(spk==="red"?" sp-red":"")+(spk==="green"?" sp-green":"")+'"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span>':"")
       +((now&&sp)?'<span class="sg-spbub'+(spk==="red"?" red":"")+(spk==="green"?" green":"")+'"><i>✦</i>スペシャル問題発生中！<i>✦</i></span>':"")
       +'</button>');
     // 周の変わり目にだけ薄い線を引く（1周目の手前＝すごろくの出発点には引かない）
-    if(idx===0&&lap>=2)laps.push('<div class="sg-lap" style="top:'+Math.round(p.y+SG_STEP*0.56)+'px"></div>');
+    if(idx===0&&lap>=2)laps.push('<div class="sg-lap" style="top:'+Math.round(p.y+SG_STEP*0.42)+'px"></div>'); /* 少し下がって見えたので上へ寄せた（メール指示 2026-08-02） */
     // 自然物は道の反対側の外周へ1マスにつき1つ（マス・道・左レールに被らせない）
     const side=p.x<SG_CX?1:-1;
     const dx=Math.max(96,Math.min(462,p.x+side*(132+rnd()*74)));
@@ -6618,21 +6689,61 @@ const SP_MENU=[
   ['rush','🔥','○×ラッシュ','30秒で連打'],
   ['survival','❤️','サバイバル','3ミスまで連答']
 ];
+/* それぞれのゲームの遊び方（プレビューに出す一言。メール指示 2026-08-02） */
+const SP_HOW={
+  gear:"歯車を回して、韓国語とその意味をぴったり合わせます。",
+  listen:"読み上げられた韓国語を、4つの意味から選びます。",
+  karuta:"読み上げられた単語の札を、いちばん早くとります。",
+  blank:"抜けているハングルを埋めて、単語を完成させます。",
+  order:"バラバラのハングルを並べかえて、単語を作ります。",
+  match:"左の韓国語と右の意味を、線でつないでいきます。",
+  rush:"30秒間、合っているか合っていないかを連打で答えます。",
+  survival:"3回まちがえるまで、ひたすら答え続けます。"
+};
+let _spSel=null,_spCdIv=null; // 選んでいるゲーム／カウントダウン
 function openSpecial(){
   if(!document.getElementById("special-modal").classList.contains("on"))pushNav("modal");
   const m=document.getElementById("special-modal");
-  const tile=(g,ico,lab,desc)=>`<div class="sp-tile" onclick="spLaunch('${g}')"><div class="sp-ico">${ico}</div><div class="sp-lab">${lab}</div><div class="sp-desc">${desc}</div></div>`;
+  // マスを押すと下にプレビューが出る。同じマス（またはボタン）をもう一度押すとカウントダウンで始まる
+  const tile=(g,ico,lab,desc)=>`<div class="sp-tile${_spSel===g?" sel":""}" onclick="spTileTap('${g}')"><div class="sp-ico">${ico}</div><div class="sp-lab">${lab}</div><div class="sp-desc">${desc}</div></div>`;
+  const sel=SP_MENU.find(t=>t[0]===_spSel);
+  const prev=!sel?"":`<div class="sp-prev">
+      <div class="spp-ico">${sel[1]}</div>
+      <div class="spp-lab">${sel[2]}</div>
+      <div class="spp-how">${SP_HOW[sel[0]]||sel[3]}</div>
+      <button class="spp-go" onclick="spTileTap('${sel[0]}')">このゲームをはじめる</button>
+      <div class="spp-cd" id="spp-cd" style="display:none">はじまるまで<b id="spp-cdn">3</b>秒</div>
+    </div>`;
   m.innerHTML=`<div class="sp-card">
     <div class="cc-head"><div class="cc-grab"></div><div class="set-h">スペシャルモード</div><button class="set-close" onclick="closeSpecial()" aria-label="閉じる">×</button></div>
     <div class="sp-grid">
       ${SP_MENU.map(t=>tile(t[0],t[1],t[2],t[3])).join("")}
     </div>
+    ${prev}
     <div class="sp-note">遊ぶとXPがもらえます（記憶スコアには影響しません）。<br>出題はいま選んでいるROOMの単語から。</div>
   </div>`;
   m.classList.add("on");
   m.onclick=e=>{if(e.target===m)closeSpecial();};
 }
-function closeSpecial(){document.getElementById("special-modal").classList.remove("on");}
+/* 1回目＝プレビュー表示 / 2回目＝カウントダウンして開始（メール指示 2026-08-02） */
+function spTileTap(g){
+  if(_spSel===g&&!_spCdIv){spCountdownStart(g);return;}
+  if(_spCdIv&&_spSel===g)return; // カウントダウン中の連打は無視
+  spCdStop();_spSel=g;openSpecial();
+}
+function spCdStop(){if(_spCdIv){clearInterval(_spCdIv);_spCdIv=null;}}
+function spCountdownStart(g){
+  const box=document.getElementById("spp-cd"),num=document.getElementById("spp-cdn");
+  if(!box||!num){spLaunch(g);return;}
+  let n=3;
+  box.style.display="";num.textContent=n;
+  _spCdIv=setInterval(()=>{
+    n--;
+    if(n<=0){spCdStop();_spSel=null;spLaunch(g);return;}
+    num.textContent=n;num.classList.remove("pop");void num.offsetWidth;num.classList.add("pop");
+  },800);
+}
+function closeSpecial(){spCdStop();_spSel=null;document.getElementById("special-modal").classList.remove("on");}
 function spLaunch(g){
   closeSpecial();
   if(g==='gear'){startGearQuiz();return;}
@@ -7217,7 +7328,7 @@ function runnerStep(ok,rarity){
   if(slot){
     if(rarity&&rarity!=="N"){slot.classList.add("rn-"+rarity);slot.dataset.rare=rarity;} // 出たレア度の色に変わってから飛んでくる
     const chr=document.getElementById("rn-char");
-    // 札は1段上にあるので、キャラのところまで斜めに飛ばす（縦の距離も実測して渡す）
+    // 札とキャラは同じ列なので横に飛ぶ。ズレたぶんの縦の距離も実測して渡す（メール指示 2026-08-02）
     if(chr){const c=slot.getBoundingClientRect(),h=chr.getBoundingClientRect();
       slot.style.setProperty("--fly",Math.round((h.left+h.width/2)-(c.left+c.width/2))+"px");
       slot.style.setProperty("--flyY",Math.round((h.top+h.height/2)-(c.top+c.height/2))+"px");}
@@ -7731,6 +7842,9 @@ function submit(status,userAnswer){
   if(isCorrect)cardsEarned=Math.min(10,Math.floor(remainSec));
   else if(status==="timeout")cardsEarned=0;
   else cardsEarned=Math.min(3,Math.floor(remainSec/3));
+  // レア度が付いたカード（R/SR/SSR）は1単語につき1枚だけ。
+  // レア度ふつうの黄色いカードは今までどおり複数もらえる（メール指示 2026-08-02）
+  if(cardRarity&&cardRarity!=="N")cardsEarned=1;
   txnNoteCards(q.word.id,loadCards()[q.word.id]!=null?loadCards()[q.word.id]:null); // 同上（単語カード）
   addCards(q.word.id,cardsEarned);
   addCardRare(q.word.id,cardsEarned,cardRarity); // この1問ぶんのカードのレア度（メール指示 2026-08-01）
@@ -8126,7 +8240,8 @@ function finishTest(){
     const memDelta=Math.round(dAfter-dBefore); // 記憶率の増減（±）＝テスト前後の記憶率の差
     const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[r.korean])?`<img src="${WORD_IMG[r.korean]}" alt="">`:`<div class="cg-noimg">🃏</div>`;
     const rare=(cardsGot>0&&r.cardRarity)?r.cardRarity:null; // このカードのレア度（メール指示 2026-08-01）
-    const rareTag=(rare&&rare!=="N")?`<span class="rc-rare">${rare}</span>`:"";
+    // レア度は左上の小さな札をやめ、カードの中・絵の裏に薄く大きく、右上に寄せて出す（メール指示 2026-08-02）
+    const rareTag=(rare&&rare!=="N")?`<span class="rc-rareb">${rare}</span>`:"";
     return `<div class="rc-card speakable${rare?" rare-"+rare:""}" data-id="${r.wordId||0}" data-ko="${esc(r.korean)}">
       ${rareTag}
       <div class="rc-imgw"><span class="rc-sym" style="color:${syc}">${sy[0]}</span>${img}</div>
@@ -8245,6 +8360,8 @@ function showCardGetSequence(words,done){
 /* 学習履歴ページは廃止（単語の履歴はROOMメニュー→単語詳細で確認） */
 const STATUS_JA={correct:"正解",incorrect:"不正解",unknown:"わからない",timeout:"時間切れ"};
 function fmtDate(iso){const d=new Date(iso);const p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;}
+/* 単語詳細の学習履歴用: 西暦は出さない（メール指示 2026-08-02） */
+function fmtDateNoYear(iso){const d=new Date(iso),p=n=>String(n).padStart(2,"0");return `${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`;}
 /* 履歴用の短い日時: 通常は M/D HH:MM、別の年のものだけ年を前置（履歴は90日で間引くため通常は年不要） */
 function fmtDateShort(iso){const d=new Date(iso),p=n=>String(n).padStart(2,"0");const md=`${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`;return d.getFullYear()!==new Date().getFullYear()?`${d.getFullYear()}/${md}`:md;}
 function rateClass(r){return r<0.5?"rate-bad":r<0.8?"rate-mid":"rate-good";}
@@ -8271,16 +8388,17 @@ function wdHistRows(wordId){
   const SYM={correct:["○","#FF3B3B"],incorrect:["×","#2F6FE0"],unknown:["－","rgba(255,255,255,.75)"],timeout:["△","#DFB10F"]};
   return recs.map(r=>{
     const IC=c=>`<img class="dicon" src="emoji/${c}.svg" alt="">`;
-    // 方向は国旗ではなく「韓 → 日」の言葉で出す（どちら向きの出題か国旗だと分かりにくい。メール指示 2026-07-29）
+    // 日韓の国旗は、端末まかせの絵文字フォントではなく動物アイコン等と同じ絵ファイルで出す（メール指示 2026-08-02）
+    const KR=IC("1f1f0-1f1f7"),JP=IC("1f1ef-1f1f5");
     const dir=(r.answerType==="writing"?`<span class="hdir">書き取り</span>`
-      :r.direction==="kr_to_jp"?`<span class="hdir hdir-f">\u{1F1F0}\u{1F1F7}<i>\u2192</i>\u{1F1EF}\u{1F1F5}</span>`
-      :`<span class="hdir hdir-f">\u{1F1EF}\u{1F1F5}<i>\u2192</i>\u{1F1F0}\u{1F1F7}</span>`)
+      :r.direction==="kr_to_jp"?`<span class="hdir hdir-f">${KR}<i>\u2192</i>${JP}</span>`
+      :`<span class="hdir hdir-f">${JP}<i>\u2192</i>${KR}</span>`)
       +(r.isHintProvided?IC("1f4a1"):"");
     const mem=(r.displayMemoryScoreAfterDecay!=null)?r.displayMemoryScoreAfterDecay:"—";
     const sy=SYM[r.answerStatus]||["－",""];
     const secs=(r.responseTimeMs!=null?r.responseTimeMs/1000:(r.responseTimeSec!=null?r.responseTimeSec:null)); // 旧データ等でms欠損でもNaNにしない
     const secTxt=secs!=null?secs.toFixed(1):"—";
-    return `<tr><td>${fmtDate(r.answeredAt)}</td><td>${dir}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}</td><td class="num">${secTxt}</td><td class="num">${r.score}</td><td class="num">${mem}</td></tr>`;
+    return `<tr><td>${fmtDateNoYear(r.answeredAt)}</td><td>${dir}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}</td><td class="num">${secTxt}</td><td class="num">${r.score}</td><td class="num">${mem}</td></tr>`;
   }).join("");
 }
 /* 単語IDから正しい所属ROOMと室内番号を求める（一覧の並び位置ではなくデータ上の所属。最近学んだ単語などどこから開いてもズレない） */
@@ -8291,11 +8409,16 @@ function wordRoomInfo(id){
   const arr=(LEVEL_SECTIONS[lv]||{})[n]||[];
   return {label:(lv==="beginner"?"初級":"中級")+" ROOM "+String(n).padStart(2,"0"),no:arr.indexOf(id)+1};
 }
-/* 持っているカードのレア度の内訳（0枚のレア度は出さない。メール指示 2026-08-01） */
-function wdRareHTML(id){
-  const o=cardRareOf(id);
-  const tags=RARITY_ORDER.filter(k=>o[k]>0).map(k=>`<i class="rare-${k}">${k} ${o[k]}</i>`).join("");
-  return tags?`<div class="wd-rare">${tags}</div>`:"";
+/* 持っているカードは「獲得したカード N枚」という言葉ではなく、出題中の帯と同じ
+   黄色い座布団＋白枠の札のアイコンで出す。レア度ごとに札を分けて枚数を添える（メール指示 2026-08-02）。
+   レア度の記録が無い古いぶんは、レア度なしの札としてまとめて出す */
+function wdCardIconsHTML(id){
+  const o=cardRareOf(id),cnt=(loadCards()[id]||0);
+  const chip=(k,n,cls)=>`<span class="wd-cchip${cls||""}"><i class="wd-cico${k?" rn-"+k:""}"></i><b>${n}</b></span>`;
+  let tags=RARITY_ORDER.filter(k=>o[k]>0).map(k=>chip(k,o[k])).join("");
+  const rest=cnt-RARITY_ORDER.reduce((a,k)=>a+(o[k]||0),0);
+  if(rest>0)tags+=chip("",rest);
+  return `<div class="wd-cbar">${tags||chip("",0," none")}</div>`; // 1枚も持っていないときは灰色の札
 }
 function wdSlideHTML(id,i){
   const w=WORD_BY_ID[id],cnt=(loadCards()[id]||0);
@@ -8307,8 +8430,8 @@ function wdSlideHTML(id,i){
   const hasImg=(typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko]);
   const imgTag=hasImg?`<img class="wd-img2${owned?"":" sil"}" src="${WORD_IMG[w.ko]}" alt="">`:`<div class="wd-img2 noimg">🃏</div>`;
   const ex=(typeof WORD_EX!=="undefined"&&WORD_EX[w.ko])?`<div class="wd-ex"><div class="wd-ex-ko">${esc(WORD_EX[w.ko][0])}</div><div class="wd-ex-ja">${esc(WORD_EX[w.ko][1])}</div></div>`:"";
-  // 「×2」だけでは何の2か分からないので、枚数も記憶率も何の数字かを言葉で添える
-  // 左＝小カードの約2倍の大きい単語カード／右＝上からPWR・カード枚数・グラフ（メール指示 2026-08-01）
+  // 左＝小カードの約2倍の大きい単語カード／右＝上からPWR・カードの札・グラフ（メール指示 2026-08-01）
+  // PWRメーターはホームのステータスバーと同じ形（黒のカプセル＋右揃えラベル＋太い溝。メール指示 2026-08-02）
   return `
     <div class="wd-main">
       <div class="wd-bigcard speakable" data-id="${id}" data-ko="${esc(w.ko)}">
@@ -8319,10 +8442,10 @@ function wdSlideHTML(id,i){
       <div class="wd-side">
         <div class="wd-crate">
           <span class="wd-rlab">PWR</span>
-          <span class="wd-rval ${ms.cls}">${rate}<i>%</i></span>
           <div class="wd-rg"><div class="wd-rf ${ms.cls}" style="width:${Math.max(0,Math.min(100,rate))}%"></div></div>
+          <span class="wd-rval ${ms.cls}">${rate}<i>%</i></span>
         </div>
-        <div class="wd-cbar"><span class="wd-cards">獲得したカード <b>${cnt}</b>枚</span>${wdRareHTML(id)}</div><!-- 枚数の下の段にレア度の内訳（メール指示 2026-08-01。右の列はPWR→カード枚数→グラフの3段のまま） -->
+        ${wdCardIconsHTML(id)}
         <div class="st-graphpanel wd-graph">${memChart(chartPoints(Date.now(),[w]),{fs:13,padL:34})}</div>
       </div>
     </div>
@@ -8335,97 +8458,72 @@ function wdSlideHTML(id,i){
       </div>
     </div>`;
 }
+/* 単語詳細も、単語帳と同じく「ホーム画面の真ん中だけが差し替わる」方式にした（メール指示 2026-08-02）。
+   ステータスバー・ルームメニュー・ページャーはホームのまま出ているので、最上部にあった
+   「初級 ROOM xx」のバーとタイトルの行は廃止。一番下までスクロールしてさらに引くと単語帳へ戻る。 */
 function renderWordDetail(wordId,back){
   _wdBack=back||"room";
-  qrClearLayer("wd-rain"); // 前回の詳細ページの玉参照を破棄
-  let ids=sectionIds(); let idx=ids.indexOf(wordId);
-  if(idx<0){ids=[wordId];idx=0;}
-  const slides=ids.map((id,i)=>`<div class="wd-slide" data-i="${i}"><div class="wd-in" id="wd-in-${i}"></div></div>`).join("");
-  // 最上部は単語帳ページとまったく同じルームメニュー。その下に戻るボタン・ナンバーの行（メール指示 2026-08-01）。
-  // 黒帯は廃止し、左右の移動ボタンは単語カードの並びの最左右へ移した（メール指示 2026-08-02）
-  document.getElementById("s-wdetail").innerHTML=`
-   <div class="q-rain" id="wd-rain"></div>
-   <div class="page" style="padding-left:0;padding-right:0;position:relative;z-index:1">
-    <div class="wd-room" id="wd-rmwrap"><div class="wd-rmscale" id="wd-rmscale">${wdRoomMenuHTML(curSection)}</div></div>
-    <div class="wd-titlebar"><button class="wd-back" onclick="${(_wdBack==='room'||!CURVE_ON)?"show('s-home')":"renderRoomCurve()"}" aria-label="戻る">‹</button><span id="wd-title">単語詳細</span></div>
+  // その単語が入っているROOMへ合わせる（最近学んだ単語など一覧の外から開いても背景・ルームメニューが合う）
+  const key=secOfWord()[wordId];
+  if(key){
+    const h=key.indexOf("-"),lv=key.slice(0,h),n=parseInt(key.slice(h+1),10);
+    if(LEVEL_INFO[lv]&&n>=1&&n<=LEVEL_INFO[lv].count){curLevel=lv;curSection=n;saveLastRoom();}
+  }
+  const first=(_wdId==null);
+  _wdId=wordId;
+  if(!_listMode)enterListMode(); // 単語帳ページに入ってから中央を詳細に差し替える（enterListModeが履歴を1段積む）
+  else{if(first)pushNav("wd");buildRoomSlides();attachHomeRain();syncWordbookBtn();}
+  applyHomeBg();
+  show("s-home");
+  requestAnimationFrame(()=>{
+    const el=document.getElementById("hv-rooms");if(el)el.scrollLeft=(curSection+PQ_OFF)*602;
+    const c=document.getElementById("wd-center");
+    if(c){bindSpeakables(c);c.scrollTop=0;} // 大きい単語カードをタップ＝読み上げ
+    syncWdPager(sectionIds().indexOf(_wdId));
+  });
+}
+/* 単語詳細を閉じて単語帳の一覧へ戻る */
+function closeWordDetail(){
+  if(_wdId==null)return;
+  _wdId=null;
+  buildRoomSlides();attachHomeRain();syncWordbookBtn();
+  requestAnimationFrame(()=>{const el=document.getElementById("hv-rooms");if(el)el.scrollLeft=(curSection+PQ_OFF)*602;});
+}
+/* ホームの真ん中（すごろく／単語帳と同じ器）に入る単語詳細 */
+function wdCenterHTML(id){
+  const ids=sectionIds(),idx=ids.indexOf(id);
+  return `<div class="slide-list wd-center" id="wd-center">
     <div class="wd-pagerow">
       <button class="wd-nav wd-prev" onclick="wdNav(-1)" aria-label="前の単語">‹</button>
-      <div id="wd-pager" class="rp-pager"></div>
+      <div id="wd-pager" class="rp-pager">${wdPagerHTML(ids,idx)}</div>
       <button class="wd-nav wd-next" onclick="wdNav(1)" aria-label="次の単語">›</button>
     </div>
-    <div class="wd-scroll" id="wd-scroll">${slides}</div>
-   </div>`;
-  const fill=i=>{if(i<0||i>=ids.length)return;const e=document.getElementById("wd-in-"+i);if(e&&!e.dataset.f){e.dataset.f="1";e.innerHTML=wdSlideHTML(ids[i],i);bindSpeakables(e);}}; // 大きい単語カードをタップ＝読み上げ
-  fill(idx);fill(idx-1);fill(idx+1);fill(idx-2);fill(idx+2);
-  // タイトル＝「初級 ROOM xx No.xxx」（所属ROOM＋室内番号。単語はカード側に表示するのでタイトルには出さない）
-  const wdTitle=i=>{const t=document.getElementById("wd-title");if(t){const ri=wordRoomInfo(ids[i]);t.textContent=(ri.label?ri.label+" ":"")+(ri.no?`No.${String(ri.no).padStart(3,"0")}`:"");}};
-  wdTitle(idx);
-  buildWdPager(ids,idx); // 上部の単語カードの並び
-  show("s-wdetail");
-  fitWdRoomMenu(); // ルームメニューを画面幅に合わせて縮小
-  wdRain(ids[idx]); // 表示中の単語の出題履歴ぶんの玉を降らせる
-  const sc=document.getElementById("wd-scroll");
-  sc.scrollLeft=idx*sc.clientWidth;
-  sc.dataset.cur=idx;
-  let t=null;
-  sc.addEventListener("scroll",()=>{clearTimeout(t);t=setTimeout(()=>{
-    const i=Math.max(0,Math.min(ids.length-1,Math.round(sc.scrollLeft/sc.clientWidth)));
-    fill(i);fill(i-1);fill(i+1);fill(i-2);fill(i+2); // 前後2枚まで先読み（ボタン連打でも空白を見せない）
-    wdTitle(i); // ヘッダーに現在の単語と位置
-    syncWdPager(i); // 上部ページャーも現在位置へ
-    if(String(i)!==sc.dataset.cur){sc.dataset.cur=i;wdRain(ids[i]);} // 単語が切り替わったら玉も入れ替え
-  },90);});
-}
-/* 単語帳ページ（ホームの一覧モード）と同じルームメニューを、単語詳細の最上部に置く（メール指示 2026-08-01）。
-   ホームは602px基準の絶対配置なので、同じ座標のまま画面幅に合わせて縮小する。 */
-function wdRoomMenuHTML(n){
-  const ri=roomInfoFor(n),nn=String(n).padStart(2,"0");
-  const rk=(ri.recent&&ri.recent.length)?ri.recent[ri.recent.length-1]:null;
-  const big=rk?`<div class="rank-b" style="background:${RANK_COLORS[rk]||"#555"}">${rk}</div>`
-              :`<div class="rank-b" style="background:rgba(0,0,0,.22)">-</div>`;
-  const lapL=boardLapSize(curLevel,n),lapC=(loadBoard()[boardKey(curLevel,n)]||{}).cleared||0;
-  return `<div class="wd-rmenu" style="background:transparent">
-    <div class="rmenu-clip">
-      <div class="rmenu-bg"></div>
-      <div class="hv-roomlabel">ROOM</div>
-      <div class="hv-roomno">${nn}</div>
-      <div class="hv-learned">${ri.learned}<span class="unit">語</span></div>
-      <div class="gauge hv-wordsg"><div class="gfill" style="background:#00FFFF;width:${Math.round(ri.learned/ri.total*100)}%"></div></div>
-      <div class="hv-roompwr">${ri.pwr}<span class="unit">%</span></div>
-      <div class="gauge hv-roomg"><div class="gfill" style="background:#00FF37;width:${ri.pwr}%"></div></div>
-      <div class="hv-lap"><span class="lp-l">${Math.floor(lapC/lapL)+1}周目</span><span class="lp-v"><b>${lapC%lapL}</b><i>/</i>${lapL}</span></div>
-      ${big}
-    </div>
+    <div class="wd-in">${wdSlideHTML(id,idx)}</div>
+    <button class="wd-more" onclick="closeWordDetail()">↑ さらに下へ引くと単語帳へもどる</button>
   </div>`;
 }
-function fitWdRoomMenu(){
-  const w=document.getElementById("wd-rmwrap"),s=document.getElementById("wd-rmscale");
-  if(!w||!s)return;
-  const k=w.clientWidth/602;
-  s.style.transform="scale("+k+")";
-  w.style.height=Math.round(116*k)+"px"; // 座布団の上へのはみ出し12px＋本体104px
+function wdNav(d){ // 前後の単語へ（同じROOMの並び順）
+  const ids=sectionIds(),i=ids.indexOf(_wdId);
+  if(i<0)return;
+  const j=i+d;if(j<0||j>=ids.length)return;
+  renderWordDetail(ids[j],_wdBack);
 }
-function wdNav(d){const sc=document.getElementById("wd-scroll");if(sc)sc.scrollBy({left:d*sc.clientWidth,behavior:"smooth"});} // 前後の単語へ
-/* 単語詳細ページ上部のページャー（番号を並べ、選択中を中央に。タップでその単語へ） */
-function buildWdPager(ids,idx){
-  const p=document.getElementById("wd-pager");if(!p)return;
-  // 隣の単語は番号ではなく「絵＋韓国語＋日本語」の単語カードで並べる（メール指示 2026-07-29／2026-08-01）。
+/* 単語詳細の上に並ぶ単語カード（番号＋絵＋韓国語＋日本語。タップでその単語へ） */
+function wdPagerHTML(ids,idx){
   // カードの横幅は中身によらず固定にし、番号を添える。未獲得の絵はシルエットのまま（メール指示 2026-08-02）
   const cards=loadCards();
-  p.innerHTML=ids.map((id,i)=>{
+  return ids.map((id,i)=>{
     const w=WORD_BY_ID[id],owned=(cards[id]||0)>0;
     const no=String((wordRoomInfo(id).no)||(i+1)).padStart(3,"0");
     const im=(w&&typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko])?`<img class="wd-dimg${owned?"":" sil"}" src="${WORD_IMG[w.ko]}" alt="">`:`<div class="wd-dimg noimg">🃏</div>`;
     return `<div class="rp-dot wd-dot${i===idx?" cur":""}" data-i="${i}" onclick="wdPagerJump(${i})"><span class="wd-dno">${no}</span>${im}<span class="wd-dk">${esc(w?w.ko:"")}</span><span class="wd-dj">${esc(w?w.ja:"")}</span></div>`;
   }).join("");
-  requestAnimationFrame(()=>syncWdPager(idx));
 }
 function syncWdPager(idx){
-  const p=document.getElementById("wd-pager");if(!p||!p.children.length)return;
-  [...p.children].forEach((d,i)=>d.classList.toggle("cur",i===idx));
+  const p=document.getElementById("wd-pager");if(!p||!p.children.length||idx<0)return;
   const cur=p.children[idx];if(cur)p.scrollLeft=cur.offsetLeft-p.clientWidth/2+cur.offsetWidth/2; // 選択中を中央へ
 }
-function wdPagerJump(i){const sc=document.getElementById("wd-scroll");if(sc)sc.scrollTo({left:i*sc.clientWidth,behavior:"smooth"});}
+function wdPagerJump(i){const ids=sectionIds();if(ids[i]!=null)renderWordDetail(ids[i],_wdBack);}
 /* 単語詳細ページ：その単語の出題履歴の数だけ玉を降らせる（回答が速かった出題ほど大きい玉） */
 function wdRain(wordId){
   try{
@@ -8717,7 +8815,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v5.6 (2026-08-02)";
+const APP_VERSION="v5.7 (2026-08-02)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -8857,18 +8955,20 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
   const st=loadSettings();
   const m=document.getElementById("settings-modal");
   const notifyOn=st.notify&&(typeof Notification!=='undefined'&&Notification.permission==='granted');
+  // マス（.cc-tile）は「今日の5問」の朝の部／夜の部と同じ作り。中身の長さでマスが大きくならないよう
+  // ラベル・状態の文字はどちらも短くしてある（メール指示 2026-08-02）
   const tile=(cls,ico,lab,on,onTxt,offTxt,handler)=>`<div class="cc-tile ${cls} ${on?'on':''}" onclick="${handler}">
     <div class="cc-ico">${ico}</div><div class="cc-txt"><div class="cc-lab">${lab}</div><div class="cc-state">${on?onTxt:offTxt}</div></div></div>`;
   m.innerHTML=`<div class="set-card cc-card">
     <div class="cc-head"><div class="cc-grab"></div><div class="set-h">設定</div><button class="set-close" onclick="closeSettings()" aria-label="閉じる">×</button></div>
     <div class="cc-grid">
-      ${tile("k-tap","👆","進み方",st.tapAdvance,"タップで次へ","自動で次へ","toggleSetting('tapAdvance')")}
+      ${tile("k-tap","👆","進み方",st.tapAdvance,"タップ","自動","toggleSetting('tapAdvance')")}
       ${tile("k-snd","🔊","サウンド",st.sound!==false,"オン","オフ","toggleSetting('sound')")}
-      ${tile("k-slow","⏳","じっくり",st.slowTimer,"制限1.5倍","通常","toggleSetting('slowTimer')")}
-      ${tile("k-notf","🔔","復習通知",notifyOn,"通知オン","要許可","toggleReminder()")}
-      ${tile("k-ball","🃏","カード（メイン）",st.ballsHome!==false,"積もる","オフ","toggleSetting('ballsHome')")}
-      ${tile("k-ball","🃏","カード（出題中）",st.ballsQuiz!==false,"積もる","オフ","toggleSetting('ballsQuiz')")}
-      ${tile("k-big","🔠","文字大",st.bigText,"大きめ","標準","toggleSetting('bigText')")}
+      ${tile("k-slow","⏳","じっくり",st.slowTimer,"1.5倍","通常","toggleSetting('slowTimer')")}
+      ${tile("k-notf","🔔","復習通知",notifyOn,"オン","要許可","toggleReminder()")}
+      ${tile("k-ball","🃏","カード ホーム",st.ballsHome!==false,"積もる","オフ","toggleSetting('ballsHome')")}
+      ${tile("k-ball","🃏","カード 出題中",st.ballsQuiz!==false,"積もる","オフ","toggleSetting('ballsQuiz')")}
+      ${tile("k-big","🔠","文字の大きさ",st.bigText,"大きめ","標準","toggleSetting('bigText')")}
     </div>
     <div class="cc-list">
       <div class="cc-item cc-tone"><span>🎨 ルームの色</span><span class="tone-sw">${ROOM_TONES.map(t=>

@@ -98,20 +98,22 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       recRare: R.filter(r => r.cardRarity === 'SSR').length, recN: R.length,
       domRare: document.querySelectorAll('#s-result .rc-card.rare-SSR').length,
       domCards: document.querySelectorAll('#s-result .rc-card').length,
-      badge: (document.querySelector('#s-result .rc-rare') || {}).textContent || '',
+      badge: (document.querySelector('#s-result .rc-rareb') || {}).textContent || '',
       stored: bestRarity(R[0].wordId),
       storedN: cardRareOf(R[0].wordId).SSR
     };
   });
   check(`回答1件ごとにレア度が記録される (${res.recRare}/${res.recN}件)`, res.recRare === res.recN && res.recN >= 12);
   check(`結果画面のカードにレア度の枠が付く (${res.domRare}/${res.domCards}枚)`, res.domCards >= 12 && res.domRare === res.domCards);
-  check(`結果画面にレア度ラベルが出る (${res.badge})`, res.badge === 'SSR');
+  // レア度は左上の小さな札をやめ、絵の裏に薄く大きく右上寄せで出す（メール指示 2026-08-02）
+  check(`結果画面にレア度が絵の裏に大きく出る (${res.badge})`, res.badge === 'SSR');
   check(`獲得したカードのレア度が保存される (SSR ${res.storedN}枚)`, res.stored === 'SSR' && res.storedN > 0);
 
-  check('単語詳細にレア度の内訳が出る', await page.evaluate(() => {
+  // 単語詳細のカード枚数は、レア度ごとに分けた黄色い座布団の札アイコンで出す（メール指示 2026-08-02）
+  check('単語詳細にレア度ごとの札アイコンが出る', await page.evaluate(() => {
     const id = state.results[0].wordId;
-    const h = wdRareHTML(id);
-    return /wd-rare/.test(h) && /SSR/.test(h);
+    const h = wdCardIconsHTML(id);
+    return /wd-cchip/.test(h) && /wd-cico rn-SSR/.test(h);
   }));
 
   // テストが終わると「プレゼント」が届き、受け取るとガチャコインになる（メール指示 2026-08-02）

@@ -119,7 +119,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   await page.evaluate(() => { document.querySelectorAll('.pbub,.stepnote,.cardget,.lvup,.streak-cel,.fcust').forEach(o => o.remove()); });
   await page.evaluate(() => { document.querySelector('#today-band .tb-card').click(); });
   await page.waitForTimeout(700);
-  const opened = await page.evaluate(() => document.getElementById('s-wdetail').classList.contains('on'));
+  // 単語詳細はホームの真ん中に入る方式になった（メール指示 2026-08-02）
+  const opened = await page.evaluate(() => !!document.getElementById('wd-center') && document.getElementById('s-home').classList.contains('on'));
   check('カードをタップすると単語詳細が開く（重ねても押せる）', opened);
 
   check(`コンソールエラーなし (${errors.length}件)`, errors.length === 0);

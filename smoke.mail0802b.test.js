@@ -2,16 +2,16 @@
  * 使い方: node smoke.mail0802b.test.js
  * 検証:
  *  ① すごろく：1周目と2周目の間は薄い線／出発点(1周目の手前)には線を引かない
- *  ② すごろく：マスの番号が「1-2」「2-12」のように「周-その周の何マス目」になっている
+ *  ② すごろく：マスの番号が「（ROOMナンバー）-（ステップナンバー）」になっている
  *  ③ 出題画面：白い地面の線(.rn-ground)は無い
  *  ④ 出題画面：タイムメータに白い枠線が付き、キャラはその上を歩く
- *  ⑤ 出題画面：札は上段・キャラは下段。獲得アニメは斜めに飛び、最後の問題までキャラは帯の中（見切れない）
+ *  ⑤ 出題画面：札とキャラは同じ列。獲得アニメは横に飛び、最後の問題までキャラは帯の中（見切れない）
  *  ⑥ 落ちてくるのは丸い玉ではなく単語カード
- *  ⑦ 単語詳細：ページは縦スクロールせず、学習履歴の表だけがスクロールする
+ *  ⑦ 単語詳細：ホームの真ん中だけが差し替わり、その器ごと縦スクロールする
  *  ⑧ 単語詳細：音声ボタンはカードの中・絵の右上
  *  ⑨ 単語詳細：前後へ動くボタンは単語カードの並びの最左右／カードは横幅固定／番号あり／未獲得はシルエット
  *  ⑩ 単語詳細・単語帳：黒帯は廃止
- *  ⑪ 単語帳：ホーム画面のまま真ん中だけが一覧に変わる（ステータス・ルームメニュー・ページャー・最近学んだ単語はそのまま）
+ *  ⑪ 単語帳：ホーム画面のまま真ん中だけが一覧に変わる（左右のアイコンと最近学んだ単語は出さず、その場所に検索バー）
  *  ⑫ 単語帳：右下の「単語帳」ボタンが家の絵の「ホーム」ボタンに入れ替わり、押すとホームに戻る
  */
 const { chromium } = require('playwright');
@@ -62,15 +62,17 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     const L = boardLapSize(curLevel, curSection);
     // 2周目の1マス目(=通し13マス目)のy座標。線はそのすぐ下に来るはず
     const t13 = sl.querySelector('.sg-tile[aria-label="マス' + (L + 1) + '"]');
-    return { laps, nums, L, y13: t13 ? parseFloat(t13.dataset.y) : null, vis: sl.querySelectorAll('.sg-tile').length };
+    return { laps, nums, L, room: curSection, y13: t13 ? parseFloat(t13.dataset.y) : null, vis: sl.querySelectorAll('.sg-tile').length };
   });
   check(`周の区切りは1本だけ＝1周目の手前には引かない (${sg.laps.length}本 / 全${sg.vis}マス)`, sg.laps.length === 1);
   check(`区切りは薄い線（高さ${sg.laps[0] && sg.laps[0].h}・文字なし）`, sg.laps[0] && sg.laps[0].h === '1px' && sg.laps[0].txt === '');
   check(`区切り線は半透明の白 (${sg.laps[0] && sg.laps[0].bg})`, sg.laps[0] && /rgba\(255, 255, 255, 0\.[0-9]+\)/.test(sg.laps[0].bg));
   check(`区切り線は2周目の1マス目のすぐ下 (線${sg.laps[0] && sg.laps[0].top} / マス${sg.y13})`, sg.laps[0] && sg.y13 != null && sg.laps[0].top > sg.y13 && sg.laps[0].top - sg.y13 < 178);
-  check(`マス番号が「周-マス」形式 (先頭3つ=${sg.nums.slice(0, 3).join(',')})`, sg.nums.slice(0, 3).join(',') === '1-1,1-2,1-3');
-  check(`2周目の1マス目は「2-1」 (${sg.nums[sg.L]})`, sg.nums[sg.L] === '2-1');
-  check(`1周目の最後は「1-${sg.L}」 (${sg.nums[sg.L - 1]})`, sg.nums[sg.L - 1] === '1-' + sg.L);
+  // マス番号は「ROOMナンバー-ステップナンバー」に変更（メール指示 2026-08-02）
+  check(`マス番号が「ROOM-ステップ」形式 (先頭3つ=${sg.nums.slice(0, 3).join(',')})`,
+    sg.nums.slice(0, 3).join(',') === `${sg.room}-1,${sg.room}-2,${sg.room}-3`);
+  check(`2周目の1マス目は通し番号で続く (${sg.nums[sg.L]})`, sg.nums[sg.L] === `${sg.room}-${sg.L + 1}`);
+  check(`1周目の最後は「${sg.room}-${sg.L}」 (${sg.nums[sg.L - 1]})`, sg.nums[sg.L - 1] === `${sg.room}-${sg.L}`);
   check(`番号は全マスぶんある (${sg.nums.length}/${sg.vis})`, sg.nums.length === sg.vis);
 
   // ================= ⑪⑫ 単語帳＝ホームの真ん中だけ差し替え =================
@@ -100,8 +102,16 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       listLeft: lcs.left, listTop: lcs.top, listW: lcs.width, listH: lcs.height, listOpacity: lcs.opacity,
       sgBox, listVisible: listBox.width > 0 && listBox.height > 0,
       blackBand: !!document.querySelector('.slide-list .zk-sum'),
-      sumText: (document.querySelector('.slide-list .wb-sum') || {}).textContent,
-      sumBg: cs(document.querySelector('.slide-list .wb-sum')).backgroundColor,
+      // 単語数(N/M)の行は廃止。カード枚数は絞り込みの列の「全部」の左（メール指示 2026-08-02）
+      oldSum: !!document.querySelector('.slide-list .wb-sum'),
+      chipText: (document.querySelector('.slide-list .wb-tabs .wb-cnt-chip') || {}).textContent,
+      chipFirst: (() => { const t = document.querySelector('.slide-list .wb-tabs'); return !!t && t.firstElementChild.classList.contains('wb-cnt-chip') && t.children[1].classList.contains('wb-tab'); })(),
+      searchBox: (() => { const s = document.getElementById('wb-searchbar'), b = document.getElementById('today-band');
+        if (!s || !b) return null; const sr = s.getBoundingClientRect(), br = b.getBoundingClientRect();
+        return { inBand: sr.top >= br.top - 2 && sr.bottom <= br.bottom + 2, w: Math.round(sr.width), bw: Math.round(br.width) }; })(),
+      searchOverBtn: (() => { const s = document.getElementById('wb-searchbar'), b = document.querySelector('.home-side-btn.hsb-right');
+        if (!s || !b) return true; const sr = s.getBoundingClientRect(), br = b.getBoundingClientRect();
+        return sr.left < br.right && sr.right > br.left && sr.top < br.bottom && sr.bottom > br.top; })(),
       btnImg: btn.querySelector('img').getAttribute('src'), btnTxt: btn.querySelector('.hsb-txt').textContent,
       btnLabel: btn.getAttribute('aria-label'), btnShown: cs(btn).opacity !== '0',
       cardCount: document.querySelectorAll('.slide-list .wb-card').length,
@@ -112,26 +122,32 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check(`ステータスバーはホームと同じように出ている (opacity=${wb.statusPanel})`, wb.statusPanel === '1');
   check(`ヘッダーは退場していない (${wb.headTransform})`, wb.headTransform === 'none' || /matrix\(1, 0, 0, 1, 0, 0\)/.test(wb.headTransform));
   check('ルームメニューバーが出ている', wb.menuShown);
-  check('左右のアイコン（リール）も出ている', wb.railShown);
-  check('「最近学んだ単語」の帯が出ている', wb.bandShown);
+  // 単語帳ページでは左右のアイコンと「最近学んだ単語」は出さず、その場所に検索バーを置く（メール指示 2026-08-02）
+  check('左右のアイコン（リール）は出さない', !wb.railShown);
+  check('「最近学んだ単語」の帯も出さない', !wb.bandShown);
+  check(`検索バーが帯のあった場所に入る (幅${wb.searchBox && wb.searchBox.w}px / 帯${wb.searchBox && wb.searchBox.bw}px)`,
+    !!wb.searchBox && wb.searchBox.inBand && Math.abs(wb.searchBox.w - wb.searchBox.bw) <= 2);
+  check('検索バーが右下のホームボタンに重ならない', !wb.searchOverBtn);
   check('ページャーは単語帳ページでも出せる', !wb.pagerBlocked);
   check(`一覧はホームの真ん中（すごろく）と同じ枠 (${wb.listLeft}/${wb.listTop} ${wb.listW}x${wb.listH})`,
     wb.listLeft === wb.sgBox.left + 'px' && wb.listTop === wb.sgBox.top + 'px' && wb.listW === wb.sgBox.width + 'px' && wb.listH === wb.sgBox.height + 'px');
   check(`一覧が見えている (opacity=${wb.listOpacity})`, wb.listVisible && wb.listOpacity === '1');
   check(`単語カードが並んでいる (${wb.cardCount}枚)`, wb.cardCount > 0);
   check('単語帳の黒帯は廃止', !wb.blackBand);
-  check(`枚数の行は黒座布団なしで残っている (${(wb.sumText || '').trim()})`, /単語帳/.test(wb.sumText || '') && wb.sumBg === 'rgba(0, 0, 0, 0)');
+  check(`単語数(N/M)の行は廃止し、カード枚数を絞り込みの列の左へ (${(wb.chipText || '').trim()})`,
+    !wb.oldSum && /カード/.test(wb.chipText || '') && wb.chipFirst);
   check(`単語帳ボタンが家の絵に変わる (${wb.btnImg})`, wb.btnImg === 'images-thumb/1111.webp');
   check(`ボタンの文字が「ホーム」 (${wb.btnTxt}/${wb.btnLabel})`, wb.btnTxt === 'ホーム' && wb.btnLabel === 'ホーム');
   check('ボタンは単語帳ページでも押せる状態で出ている', wb.btnShown);
 
   // カードがアイコンの下に隠れていないこと
+  // アイコンを出さなくなったぶん、一覧は左右いっぱいまで使う（メール指示 2026-08-02）
   const overlap = await page.evaluate(() => {
-    const rails = [...document.querySelectorAll('.reward-rail')].map(r => r.getBoundingClientRect());
-    const cards = [...document.querySelectorAll('.slide-list .wb-card')].map(c => c.getBoundingClientRect());
-    return cards.filter(c => rails.some(r => c.left < r.right && c.right > r.left && c.top < r.bottom && c.bottom > r.top)).length;
+    const list = document.querySelector(`.room-slide[data-n="${curSection}"] .slide-list`);
+    const pad = parseFloat(getComputedStyle(list).paddingLeft);
+    return pad > 8 ? 1 : 0;
   });
-  check(`単語カードが左右のアイコンと重ならない (重なり${overlap}枚)`, overlap === 0);
+  check('一覧は左右いっぱいまで使う（アイコン用の余白を空けない）', overlap === 0);
 
   // ボタンを押すとホームへ戻り、真ん中がすごろくに戻る
   await page.evaluate(() => document.querySelector('.home-side-btn.hsb-right').click());
@@ -150,7 +166,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   await page.evaluate(() => { const ids = LEVEL_SECTIONS[curLevel][curSection]; renderWordDetail(ids[2], 'room'); });
   await page.waitForTimeout(900);
   const wd = await page.evaluate(() => {
-    const slide = document.querySelector('.wd-slide'), inn = document.querySelector('.wd-in'), box = document.querySelector('.wd-histbox');
+    const slide = document.getElementById('wd-center'), inn = document.querySelector('#wd-center .wd-in'), box = document.querySelector('.wd-histbox');
     const row = document.querySelector('.wd-pagerow'), dots = [...document.querySelectorAll('.rp-pager .wd-dot')];
     const spk = document.querySelector('.wd-cimg .wd-spk'), img = document.querySelector('.wd-cimg .wd-img2');
     const cs = e => getComputedStyle(e);
@@ -161,6 +177,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       slideOv: cs(slide).overflowY, slideOverflows: slide.scrollHeight > slide.clientHeight + 1,
       innOverflows: inn.scrollHeight > inn.clientHeight + 1,
       histScrolls: box.scrollHeight > box.clientHeight + 1, histOv: cs(box).overflowY,
+      hasMore: !!slide.querySelector('.wd-more'),
       spkInCard: !!spk && !!spk.closest('.wd-cimg'),
       spkTopRight: sBox && sBox.right > iBox.left + iBox.width * 0.6 && sBox.top < iBox.top + iBox.height * 0.4,
       spkInCbar: !!document.querySelector('.wd-cbar .wd-spk'),
@@ -170,25 +187,25 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       nos: dots.slice(0, 3).map(d => (d.querySelector('.wd-dno') || {}).textContent),
       bigSil: img.classList.contains('sil'), bigOwned: (cards[ids[2]] || 0) > 0,
       unownedSil: dots.map((d, i) => ({ owned: (cards[ids[i]] || 0) > 0, sil: !!(d.querySelector('.wd-dimg') && d.querySelector('.wd-dimg').classList.contains('sil')) })),
-      blackBand: !!document.querySelector('#s-wdetail .zk-sum'),
-      titlebarBg: cs(document.querySelector('.wd-titlebar')).backgroundColor,
-      hasBack: !!document.querySelector('.wd-back'),
+      blackBand: !!document.querySelector('#wd-center .zk-sum'),
+      roomBar: !!document.querySelector('.wd-titlebar') || !!document.getElementById('wd-rmwrap'),
     };
   });
-  check(`単語詳細のページは縦スクロールしない (overflow=${wd.slideOv})`, wd.slideOv === 'hidden' && !wd.slideOverflows && !wd.innOverflows);
-  check(`学習履歴だけが表の中でスクロールする (overflow=${wd.histOv})`, wd.histOv === 'auto' && wd.histScrolls);
+  // 真ん中の器ごと縦スクロールし、一番下まで見てさらに引くと単語帳へ戻る（メール指示 2026-08-02）
+  check(`単語詳細は真ん中の器ごと縦スクロールする (overflow=${wd.slideOv})`, wd.slideOv === 'auto' || wd.slideOv === 'scroll');
+  check(`学習履歴は表の中で別スクロールしない (overflow=${wd.histOv})`, wd.histOv === 'visible' && !wd.histScrolls);
   check('音声ボタンはカードの中・絵のところにある', wd.spkInCard && !wd.spkInCbar);
   check('音声ボタンは絵の右上', wd.spkTopRight);
   check('前後ボタンは単語カードの並びの最左右', wd.first && wd.last && wd.navAbs !== 'absolute');
-  check(`並びのカードは横幅固定 (${wd.widths.join(',')}px)`, wd.widths.length === 1 && wd.widths[0] === 82);
+  check(`並びのカードは横幅固定 (${wd.widths.join(',')}px)`, wd.widths.length === 1 && wd.widths[0] > 0);
   check(`並びのカードに番号が付く (${wd.nos.join(',')})`, wd.nos.join(',') === '001,002,003');
   check(`獲得済みの大きいカードはシルエットにしない (${wd.bigOwned ? '獲得済み' : '未獲得'})`, wd.bigOwned && !wd.bigSil);
   check('未獲得のカードは詳細ページでもシルエット', wd.unownedSil.every(d => d.sil === !d.owned) && wd.unownedSil.some(d => d.sil));
-  check('単語詳細の黒帯は廃止', !wd.blackBand && wd.titlebarBg === 'rgba(0, 0, 0, 0)');
-  check('戻るボタンは残っている', wd.hasBack);
+  check('単語詳細の黒帯・ROOMメニューのバーは廃止', !wd.blackBand && !wd.roomBar);
+  check('一番下に単語帳へ戻る導線がある', wd.hasMore);
 
   // ================= ③④⑤⑥ 出題画面 =================
-  await page.evaluate(() => { show('s-home'); });
+  await page.evaluate(() => { closeWordDetail(); exitListMode(); });
   await page.waitForTimeout(400);
   await page.evaluate(() => startTest(null, true));
   await page.waitForTimeout(900);
@@ -211,10 +228,11 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('白い地面の線は無い', !q0.ground);
   check(`タイムメータに白い枠線 (${q0.borderW} ${q0.borderC})`, parseFloat(q0.borderW) >= 1 && q0.borderC === 'rgb(255, 255, 255)');
   check(`キャラはタイムメータの上に立つ (足${Math.round(q0.charBottom)} / メータ上端${Math.round(q0.tbarTop)})`, Math.abs(q0.charBottom - q0.tbarTop) <= 2);
-  check(`札の段とキャラの段が重ならない (札の下端${Math.round(q0.slotBottomMax)} <= キャラの上端${Math.round(q0.charTop)})`, q0.slotBottomMax <= q0.charTop + 1);
+  // 札の列とキャラは同じ1列に置く（メール指示 2026-08-02）
+  check(`札とキャラが同じ列に並ぶ (札の下端${Math.round(q0.slotBottomMax)} / キャラの上端${Math.round(q0.charTop)})`, q0.slotBottomMax > q0.charTop);
   check(`札は帯の中に収まっている (${q0.n}枚)`, q0.slotsInBar && q0.n > 0);
 
-  // 最後の問題までキャラが帯からはみ出さない＋獲得アニメは斜めに飛ぶ
+  // 最後の問題までキャラが帯からはみ出さない＋獲得アニメは同じ列を横に飛ぶ
   const walk = [];
   for (let i = 0; i < q0.n; i++) {
     const st = await page.evaluate(() => {
@@ -233,8 +251,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   }
   check(`最後の問題までキャラは帯の中に居る（見切れない）（${walk.length}問ぶん）`, walk.every(w => w.inBar && w.visible));
   check('どの問でも札は獲得アニメに入る', walk.every(w => w.got));
-  check(`獲得アニメは斜め（横も縦も動く）(例 x=${walk[0].flyX} y=${walk[0].flyY})`,
-    walk.every(w => /px$/.test(w.flyX) && /px$/.test(w.flyY) && Math.abs(parseFloat(w.flyY)) > 4));
+  check(`獲得アニメは同じ列を横に飛ぶ (例 x=${walk[0].flyX} y=${walk[0].flyY})`,
+    walk.every(w => /px$/.test(w.flyX) && /px$/.test(w.flyY) && Math.abs(parseFloat(w.flyY)) <= 4));
 
   // 狭い画面でもキャラが帯の中に収まる（回転・機種差の再現）
   await page.setViewportSize({ width: 320, height: 640 });

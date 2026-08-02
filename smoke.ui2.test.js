@@ -61,7 +61,8 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   check(`帯には枠線がなく、タイムメータの枠線は白 (${bars.pBorder} / ${bars.tBorder} ${bars.tBorderColor})`,
     parseFloat(bars.pBorder) === 0 && parseFloat(bars.tBorder) >= 1 && bars.tBorderColor === 'rgb(255, 255, 255)'); // メール指示 2026-08-02
   check('山吹色の進捗メーターは廃止されている', !bars.pfill);
-  check(`代わりにキャラが歩く帯がある (高さ${bars.ph.toFixed(1)}px)`, bars.char && bars.ph > 30);
+  // 札の列と動物は同じ1列にしたので帯は1段ぶん（メール指示 2026-08-02）
+  check(`代わりにキャラが歩く帯がある (高さ${bars.ph.toFixed(1)}px)`, bars.char && bars.ph >= 28);
   check('白い地面の線は廃止（メール指示 2026-08-02）', !bars.ground);
   // 地面の線の代わりに、キャラはタイムメータの白枠の上に立つ＝帯とメータの間は空けない
   check(`帯と緑メーターの間は空けない (${bars.gap.toFixed(2)})`, near(bars.gap, 0, 0.4));
@@ -105,8 +106,9 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   check('札に韓国語は書かれていない（答えが見えない）', runner.noKo);
   // 12問なら最初から12枚ぜんぶ見えている（メール指示 2026-08-01 19:49）
   check(`12枚ぜんぶが見えている (${runner.visible})`, runner.visible === 12);
-  check(`札は1段下のキャラへ斜めに飛ぶ (x=${runner.flyX} y=${runner.flyY})`,
-    /px$/.test(runner.flyX) && /px$/.test(runner.flyY) && Math.abs(parseFloat(runner.flyY)) > 4);
+  // 札とキャラは同じ列なので、札は横に飛ぶ（メール指示 2026-08-02）
+  check(`札は同じ列のキャラへ横に飛ぶ (x=${runner.flyX} y=${runner.flyY})`,
+    /px$/.test(runner.flyX) && /px$/.test(runner.flyY) && Math.abs(parseFloat(runner.flyX)) > 4 && Math.abs(parseFloat(runner.flyY)) <= 4);
   check(`1問ごとに動物が1コマぶん右へ進む (${runner.tx0} → ${runner.tx1} → ${runner.tx2})`,
         runner.tx1 > runner.tx0 && runner.tx2 > runner.tx1 && Math.abs((runner.tx1 - runner.tx0) - (runner.tx2 - runner.tx1)) <= 1);
   check('カードの位置は動かない', runner.slots0.length === runner.slots2.length &&

@@ -184,16 +184,16 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   await page.evaluate(() => { exitListMode(); renderWordDetail(LEVEL_SECTIONS.beginner[curSection][0], 'room'); });
   await page.waitForTimeout(900);
   const wd = await page.evaluate(() => {
-    const bar = document.querySelector('#s-wdetail .wd-cbar');
-    const cards = bar && bar.querySelector('.wd-cards');
+    const bar = document.querySelector('#wd-center .wd-cbar');
+    const cards = bar && bar.querySelector('.wd-cchip .wd-cico');
     // 音声マークはカード枚数の右どなりから、カードの中・絵の右上へ移した（メール指示 2026-08-02）
-    const cimg = document.querySelector('#s-wdetail .wd-cimg'), spk = cimg && cimg.querySelector('.wd-spk');
+    const cimg = document.querySelector('#wd-center .wd-cimg'), spk = cimg && cimg.querySelector('.wd-spk');
     const dot = document.querySelector('#wd-pager .wd-dot');
-    const th = [...document.querySelectorAll('#s-wdetail .htab th')].map(e => e.textContent);
+    const th = [...document.querySelectorAll('#wd-center .htab th')].map(e => e.textContent);
     return {
-      room: !!document.querySelector('#s-wdetail .wd-room'),
-      back: !!document.querySelector('#s-wdetail .wd-titlebar .wd-back') && !document.querySelector('#s-wdetail .zk-sum'),
-      cardsTxt: cards && cards.textContent.replace(/\s+/g, ''),
+      room: !!document.querySelector('#wd-center .wd-room') || !!document.querySelector('.wd-titlebar'),
+      back: !!document.querySelector('#wd-center .wd-more') && !document.querySelector('#wd-center .zk-sum'),
+      cardsTxt: cards && getComputedStyle(cards).backgroundColor,
       spkTopRight: !!(cimg && spk) && spk.getBoundingClientRect().right > cimg.getBoundingClientRect().left + cimg.getBoundingClientRect().width * 0.6
         && spk.getBoundingClientRect().top < cimg.getBoundingClientRect().top + cimg.getBoundingClientRect().height * 0.4,
       spkSvg: !!(spk && spk.querySelector('svg')),
@@ -203,29 +203,34 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       rateBar: !!document.querySelector('.wd-crate .wd-rg .wd-rf'),
       rateLab: (document.querySelector('.wd-rlab') || {}).textContent,
       dateTh: th[0],
-      stroke: (document.querySelector('#s-wdetail .st-graphpanel polyline') || {}).getAttribute && +document.querySelector('#s-wdetail .st-graphpanel polyline').getAttribute('stroke-width')
+      stroke: (document.querySelector('#wd-center .st-graphpanel polyline') || {}).getAttribute && +document.querySelector('#wd-center .st-graphpanel polyline').getAttribute('stroke-width')
     };
   });
-  check('単語詳細にROOMメニューが出る', wd.room);
-  check('戻るボタンは残り、黒帯は廃止（メール指示 2026-08-02）', wd.back);
-  check(`枚数が「獲得したカード n枚」表記 (${wd.cardsTxt})`, /^獲得したカード\d+枚$/.test(wd.cardsTxt || ''));
+  // 単語詳細は真ん中だけ差し替え方式になり、上の「初級 ROOM xx」のバー・タイトル行は廃止（メール指示 2026-08-02）
+  check('単語詳細のROOMメニュー／タイトルのバーは廃止', !wd.room);
+  check('一番下に単語帳へ戻る導線がある（メール指示 2026-08-02）', wd.back);
+  check(`枚数は黄色い座布団の札アイコン (${wd.cardsTxt})`, wd.cardsTxt === 'rgb(245, 197, 24)');
   check('音声マークはカードの中・絵の右上（メール指示 2026-08-02）', wd.spkTopRight);
   check('単語詳細の音声マークはSVG', wd.spkSvg);
   check('上のページャーは韓国語＋日本語のカード', wd.pagerKoJa);
-  check(`韓国語・日本語が大きい (${wd.koSize}px / ${wd.jaSize}px)`, wd.koSize >= 40 && wd.jaSize >= 22);
+  // 韓国語は少し小さくした（メール指示 2026-08-02）
+  check(`韓国語は少し小さく・日本語はそのまま (${wd.koSize}px / ${wd.jaSize}px)`, wd.koSize >= 30 && wd.koSize < 40 && wd.jaSize >= 20);
   // 2026-08-01のメール指示で、右の列の見出しは「記憶率」→「PWR」表記に変更（バー＋数字で量を見せるのは従来どおり）
   check(`PWRはラベル＋バーで量が分かる (${wd.rateLab})`, wd.rateBar && wd.rateLab === 'PWR');
   check(`学習履歴の日付列に見出しを出さない ("${wd.dateTh}")`, wd.dateTh === '');
   check(`グラフの線が太い (${wd.stroke})`, wd.stroke >= 4);
   const dir = await page.evaluate(() => {
-    const c = document.querySelector('#s-wdetail .htab tbody tr td:nth-child(2)');
-    return c ? c.textContent.replace(/\s+/g, '') : '';
+    const c = document.querySelector('#wd-center .htab tbody tr td:nth-child(2)');
+    if (!c) return '';
+    if (c.textContent.replace(/\s+/g, '') === '書き取り') return '書き取り';
+    return [...c.querySelectorAll('img.dicon')].map(i => i.getAttribute('src')).join(',');
   });
-  // 2026-08-01のメール指示で、方向は言葉ではなく国旗の絵文字（🇰🇷→🇯🇵 / 🇯🇵→🇰🇷）に変更
-  check(`学習履歴の方向が国旗の絵文字 (${dir})`, /^([\u{1F1E6}-\u{1F1FF}]{2}→[\u{1F1E6}-\u{1F1FF}]{2}|書き取り)$/u.test(dir));
+  // 国旗は端末まかせの絵文字フォントではなく、動物アイコン等と同じ絵ファイルで出す（メール指示 2026-08-02）
+  check(`学習履歴の方向が国旗の絵ファイル (${dir})`,
+    dir === '書き取り' || dir === 'emoji/1f1f0-1f1f7.svg,emoji/1f1ef-1f1f5.svg' || dir === 'emoji/1f1ef-1f1f5.svg,emoji/1f1f0-1f1f7.svg');
 
   // ---------- 今日の5問／トレンドの10秒カウントダウン ----------
-  await page.evaluate(() => show('s-home'));
+  await page.evaluate(() => { closeWordDetail(); exitListMode(); });
   await page.waitForTimeout(500);
   const d5 = await page.evaluate(() => { openDaily5(); const e = document.getElementById('d5a-sec'); return { sec: e && e.textContent, bar: !!document.getElementById('d5a-fill') }; });
   check(`今日の5問は開いた時点で10秒カウントダウン (${d5.sec})`, d5.sec === '10' && d5.bar);
