@@ -113,7 +113,13 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('単語帳では左右のアイコンを出さない', wb.railHidden);
   check(`そのぶん一覧を左右いっぱいまで使う (padding=${wb.listPad}px)`, wb.listPad <= 8);
   check('「最近学んだ単語」は出さない', wb.bandHidden);
-  check('その場所に検索バーが入る', wb.searchInBand);
+  // 検索バーは帯のあった場所から、カード枚数・絞り込みの列のすぐ下へ移した（メール指示 2026-08-02 14:55）
+  const searchGap = await page.evaluate(() => {
+    const s = document.getElementById('wb-searchbar').getBoundingClientRect();
+    const t = document.querySelector(`.room-slide[data-n="${curSection}"] .wb-tabs`).getBoundingClientRect();
+    return s.top - t.bottom;
+  });
+  check(`検索バーは絞り込みの列のすぐ下に入る (すき間${searchGap.toFixed(1)}px)`, searchGap >= -1 && searchGap < 14);
   check('検索バーはホームボタンに重ならない', !wb.searchOverHome);
 
   // ================= ④⑤⑥⑦ 単語詳細 =================

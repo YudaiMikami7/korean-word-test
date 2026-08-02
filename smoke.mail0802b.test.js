@@ -125,12 +125,21 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   // 単語帳ページでは左右のアイコンと「最近学んだ単語」は出さず、その場所に検索バーを置く（メール指示 2026-08-02）
   check('左右のアイコン（リール）は出さない', !wb.railShown);
   check('「最近学んだ単語」の帯も出さない', !wb.bandShown);
-  check(`検索バーが帯のあった場所に入る (幅${wb.searchBox && wb.searchBox.w}px / 帯${wb.searchBox && wb.searchBox.bw}px)`,
-    !!wb.searchBox && wb.searchBox.inBand && Math.abs(wb.searchBox.w - wb.searchBox.bw) <= 2);
+  // 検索バーは「最近学んだ単語」の帯のあった場所ではなく、カード枚数・絞り込みの列のすぐ下へ移した（メール指示 2026-08-02 14:55）
+  const barPos = await page.evaluate(() => {
+    const s = document.getElementById('wb-searchbar').getBoundingClientRect();
+    const t = document.querySelector(`.room-slide[data-n="${curSection}"] .wb-tabs`).getBoundingClientRect();
+    return { gap: s.top - t.bottom, h: document.querySelector('#wb-searchbar input').getBoundingClientRect().height };
+  });
+  check(`検索バーが絞り込みの列のすぐ下に入る (すき間${barPos.gap.toFixed(1)}px)`, barPos.gap >= -1 && barPos.gap < 14);
+  check(`検索の入力欄は従来の半分の高さ (${barPos.h.toFixed(1)}px)`, barPos.h > 8 && barPos.h < 34);
   check('検索バーが右下のホームボタンに重ならない', !wb.searchOverBtn);
   check('ページャーは単語帳ページでも出せる', !wb.pagerBlocked);
-  check(`一覧はホームの真ん中（すごろく）と同じ枠 (${wb.listLeft}/${wb.listTop} ${wb.listW}x${wb.listH})`,
-    wb.listLeft === wb.sgBox.left + 'px' && wb.listTop === wb.sgBox.top + 'px' && wb.listW === wb.sgBox.width + 'px' && wb.listH === wb.sgBox.height + 'px');
+  // 一覧の枠は、左右をルームメニューの矢印まで広げ、下は検索バー・ホームボタンの裏まで伸ばした（メール指示 2026-08-02 14:55）
+  check(`一覧はすごろくの枠より左右・下に広い (${wb.listLeft}/${wb.listTop} ${wb.listW}x${wb.listH})`,
+    wb.listTop === wb.sgBox.top + 'px'
+    && parseFloat(wb.listLeft) < wb.sgBox.left && parseFloat(wb.listW) > wb.sgBox.width
+    && parseFloat(wb.listH) > wb.sgBox.height);
   check(`一覧が見えている (opacity=${wb.listOpacity})`, wb.listVisible && wb.listOpacity === '1');
   check(`単語カードが並んでいる (${wb.cardCount}枚)`, wb.cardCount > 0);
   check('単語帳の黒帯は廃止', !wb.blackBand);

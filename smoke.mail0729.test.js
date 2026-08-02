@@ -217,7 +217,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check(`韓国語は少し小さく・日本語はそのまま (${wd.koSize}px / ${wd.jaSize}px)`, wd.koSize >= 30 && wd.koSize < 40 && wd.jaSize >= 20);
   // 2026-08-01のメール指示で、右の列の見出しは「記憶率」→「PWR」表記に変更（バー＋数字で量を見せるのは従来どおり）
   check(`PWRはラベル＋バーで量が分かる (${wd.rateLab})`, wd.rateBar && wd.rateLab === 'PWR');
-  check(`学習履歴の日付列に見出しを出さない ("${wd.dateTh}")`, wd.dateTh === '');
+  // 日付列の見出しは空欄にしていたが、2026-08-02 14:55のメール指示で「学習履歴」の見出しをここに収めた
+  check(`学習履歴の見出しは日付列のラベルに収める ("${wd.dateTh}")`, wd.dateTh === '学習履歴');
   check(`グラフの線が太い (${wd.stroke})`, wd.stroke >= 4);
   const dir = await page.evaluate(() => {
     const c = document.querySelector('#wd-center .htab tbody tr td:nth-child(2)');

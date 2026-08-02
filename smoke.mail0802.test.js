@@ -117,28 +117,28 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   });
   check(`ルーム背景の画像が非表示 (${bg.disp})`, bg.exists && bg.disp === 'none');
 
-  // ================= ④ ルームの色を設定で切りかえる =================
+  // ================= ④ ルームの色を設定のバーで変える（メール指示 2026-08-02 14:59） =================
   const tone = await page.evaluate(() => {
     const base = roomBg(1);
     const out = { base, list: [] };
-    for (let t = 0; t <= 3; t++) { setRoomTone(t); out.list.push({ t, c: roomBg(1), saved: loadSettings().roomTone }); }
+    [0, 20, 50, 80, 100].forEach(t => { setRoomTone(t); out.list.push({ t, c: roomBg(1), saved: loadSettings().roomToneV2 }); });
     closeSettings(); setRoomTone(0); closeSettings();
     return out;
   });
   const lum = h => { const n = parseInt(h.slice(1), 16); return ((n >> 16) & 255) * .299 + ((n >> 8) & 255) * .587 + (n & 255) * .114; };
-  check(`4段階ある (${tone.list.map(x => x.c).join(' ')})`, tone.list.length === 4);
-  check('1つめは今の色のまま', tone.list[0].c === tone.base);
-  check('選ぶほど濃くなる', lum(tone.list[0].c) > lum(tone.list[1].c) && lum(tone.list[1].c) > lum(tone.list[2].c) && lum(tone.list[2].c) > lum(tone.list[3].c));
-  check('4つめは灰色（RGBが同じ値）', (() => { const c = tone.list[3].c; return c.slice(1, 3) === c.slice(3, 5) && c.slice(3, 5) === c.slice(5, 7); })());
-  check('選んだ濃さが設定に保存される', tone.list[3].saved === 3);
+  check('0は今の色のまま', tone.list[0].c === tone.base);
+  check(`動かすほど濃くなる (${tone.list.map(x => x.c).join(' ')})`,
+    tone.list.every((x, i) => i === 0 || lum(x.c) < lum(tone.list[i - 1].c)));
+  check(`100で真っ黒 (${tone.list[4].c})`, tone.list[4].c === '#000000');
+  check('選んだ濃さが設定に保存される', tone.list[3].saved === 80);
   const toneUI = await page.evaluate(() => {
     openSettings();
-    const b = document.querySelectorAll('#settings-modal .tone-b');
-    const on = document.querySelectorAll('#settings-modal .tone-b.on');
-    const r = { n: b.length, on: on.length, labs: [...b].map(x => x.querySelector('em').textContent) };
-    closeSettings(); return r;
+    const r = document.querySelector('#settings-modal #tone-range');
+    const out = { has: !!r, type: r ? r.type : '', min: r ? r.min : '', max: r ? r.max : '', lab: (document.getElementById('tone-lab') || {}).textContent };
+    closeSettings(); return out;
   });
-  check(`設定に4つの見本ボタンがある (${toneUI.labs.join('/')})`, toneUI.n === 4 && toneUI.on === 1);
+  check(`設定に色の濃さのバーがある (${toneUI.min}〜${toneUI.max} / ${toneUI.lab})`,
+    toneUI.has && toneUI.type === 'range' && toneUI.min === '0' && toneUI.max === '100');
 
   // ================= ⑤ アイコンのアニメーション =================
   const anim = await page.evaluate(async () => {
