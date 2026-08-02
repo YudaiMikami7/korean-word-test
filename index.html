@@ -1913,7 +1913,10 @@ body.bigtext .set-d{font-size:13.5px}
 /* ============================================================ すごろく（ROOM中央・縦スクロール） ============================================================
  * 1マス＝1テスト(12問)。丸いマスが蛇行してつながり、上から下へ進む。マスの上には常に単語画像が乗る。
  * 1周＝12マス（ROOM末尾など語数の少ない部屋は語数に比例して短くなる）。1周こなすと次の周のマスが下に伸びる。 */
-.sg-wrap{position:absolute;left:24px;top:104px;width:554px;height:636px;z-index:1;overflow:hidden;
+/* 器の下端は画面のいちばん下(1178px)まで。もとは636px(下端925px)で止めていたが、
+   「最近学んだ単語」の帯を廃止したあとの 925〜1178px が空きっぱなしになるので、
+   そこまでマスを見せる（メール指示 2026-08-02 22:36）。889px = 1178 -(スライド185 + 器104) */
+.sg-wrap{position:absolute;left:24px;top:104px;width:554px;height:889px;z-index:1;overflow:hidden;
   -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 40px,#000 calc(100% - 56px),transparent 100%);
           mask-image:linear-gradient(180deg,transparent 0,#000 40px,#000 calc(100% - 56px),transparent 100%)}
 .sg-bg{display:none;position:absolute;left:0;top:-10px;width:554px;height:507px;object-fit:contain;opacity:.2;pointer-events:none;filter:saturate(.7)} /* ROOMのジオラマ背景は一旦非表示（メール指示 2026-08-02）。display:none を外せば元に戻る */
@@ -8971,7 +8974,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v6.4 (2026-08-02)";
+const APP_VERSION="v6.5 (2026-08-02)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

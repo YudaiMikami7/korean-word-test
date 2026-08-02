@@ -89,7 +89,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     const band = document.getElementById('today-band'); // 帯は廃止済み＝null になる（メール指示 2026-08-02 21:09）
     const menu = document.querySelector(`.room-slide[data-n="${curSection}"] .rmenu-bg`);
     const listBox = list.getBoundingClientRect();
-    const sgBox = { left: 24, top: 104, width: 554, height: 636 }; // .sg-wrap と同じ枠
+    const sgBox = { left: 24, top: 104, width: 554, height: 889 }; // .sg-wrap と同じ枠（下端は画面いちばん下＝メール指示 2026-08-02 22:36）
     const lcs = cs(list);
     return {
       listMode: _listMode,

@@ -65,7 +65,13 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check('2-7 画面の中に収まっている（はみ出していない）', d5.b <= 1178 && gift.y > 0 && d5.r <= 602 && gift.r <= 602);
   check('2-8 単語帳ボタンと重ならない', !hit(d5, right) && !hit(gift, right));
   check('2-9 バージョン表記に掛からない', await (async () => { const v = await box('.hv-ver'); return d5.b <= v.y + 0.5; })());
-  check('2-10 すごろくの盤面と重ならない', await (async () => { const sg = await box('.sg-wrap'); return !hit(d5, sg) && !hit(gift, sg); })());
+  /* 2026-08-02 22:36 の指示ですごろくの器を画面いちばん下まで伸ばしたので、
+     ボタン類は盤の上に浮く形になった（盤より前面に出ていることを見る） */
+  check('2-10 すごろくの盤より前面に浮いている', await page.evaluate(() => {
+    const z = s => +getComputedStyle(document.querySelector(s)).zIndex || 0;
+    const sg = document.querySelector('.room-slide .sg-wrap');
+    return z('.sg-d5') > +getComputedStyle(sg).zIndex && z('.sg-gift') > +getComputedStyle(sg).zIndex;
+  }));
   check('2-11 押すと今日の5問が始まる', await (async () => {
     await page.evaluate(() => document.querySelector('.sg-d5').click());
     await page.waitForTimeout(600);
