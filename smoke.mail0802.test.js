@@ -216,13 +216,13 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     const bar = document.getElementById('hv-pwrfill');
     const cs = getComputedStyle(bar);
     const w = parseFloat(bar.style.width);
-    return { anim: cs.animationName, w, exact: pwrOverallExact(), rate: _pwrRate, step: pwrStepSec(), down: document.getElementById('hv-pwrdown').textContent };
+    return { anim: cs.animationName, w, exact: pwrOverallExact(), rate: _pwrRate, step: pwrStepSec(), down: !!document.getElementById('hv-pwrdown') };
   });
   check(`10秒固定のドレイン演出が無い (${pwr.anim})`, pwr.anim === 'none');
   check(`バーの長さ＝いまの実PWR (${pwr.w}% / 実測${pwr.exact.toFixed(2)}%)`, Math.abs(pwr.w - pwr.exact) < 0.5);
   check(`減るスピードを実測している (${(pwr.rate * 3600).toFixed(3)}%/時)`, pwr.rate > 0);
   check(`0.01%減るまでの秒数が実測から出ている (${pwr.step.toFixed(1)}秒 ≠ 10秒固定)`, pwr.step > 0 && Math.abs(pwr.step - 10) > 0.5);
-  check(`残り時間の表示が出る (${pwr.down})`, /PWRが0\.01%減るまで あと\d+(秒|分|時間)/.test(pwr.down));
+  check('残り時間のカウント表示は廃止された（メール指示 2026-08-02 16:54）', pwr.down === false);
   const pwrMove = await page.evaluate(async () => {
     const bar = document.getElementById('hv-pwrfill');
     const w0 = parseFloat(bar.style.width);

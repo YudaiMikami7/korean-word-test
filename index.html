@@ -177,7 +177,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 #s-quiz{position:relative}
 #s-quiz .qbar,#s-quiz .pbar,#s-quiz .tbar,#s-quiz .qstage{position:relative;z-index:1} /* 出題UIは常に降下レイヤーより前面 */
 .q-rain{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-#home-rain{top:-225px;height:1178px;z-index:0;opacity:.42;transition:opacity .3s ease} /* ホームの玉レイヤー：背景で主張しすぎないよう半透明に。現在ROOMのslide-inner最背面に挿入 */
+#home-rain{top:-185px;height:1178px;z-index:0;opacity:.42;transition:opacity .3s ease} /* ホームの玉レイヤー：背景で主張しすぎないよう半透明に。現在ROOMのslide-inner(top:185px)最背面に挿入＝画面いっぱいに戻す */
 .home-wrap.status #home-rain{opacity:0} /* 単語帳ページではホームのまま出しておく（hiderailは廃止。メール指示 2026-08-02） */
 /* 降ってくるのは丸い玉ではなく単語カード（メール指示 2026-08-02）。
    見た目は「最近学んだ単語」「獲得した単語カード」と同じ白→クリームの座布団で、枠だけ出題ROOMの色。
@@ -251,8 +251,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* ===== ホーム（602×1178基準・サーモンピンク背景・絶対配置） ===== */
 #s-home{background:#E3A38D;flex-direction:row;justify-content:center;align-items:flex-start;overflow:hidden;transition:background-color .5s ease}
 .home-wrap{position:relative;flex:0 0 auto;width:602px;height:1178px;background:#E3A38D;
-  /* 今日の5問／トレンドのフロート位置：スライド(.slide-inner top:225px/height:686px)の下端12pxと同じ高さ
-     ＝1178-(225+686)+12=279px。単語帳への上昇(--lift)・ステータスへの下降(--down×2.2)には従来どおり追従する */
+  /* 今日の5問／トレンドのフロート位置＝下から279px。もとは スライド(.slide-inner)の下端12px上に合わせた値。
+     ルームメニューを上へ詰めてスライドを40px上げた（top:225→185px）あとも、下のボタン類は動かさずここに残す
+     （メール指示 2026-08-02 16:54）。単語帳への上昇(--lift)・ステータスへの下降(--down×2.2)には従来どおり追従する */
   --fbtm:calc(279px - var(--lift,0px) - var(--down,0px) * 2.2);
   transform-origin:top center;color:#FFFFFF;font-weight:800; /* 見本はExtraBold相当 */
   transition:background-color .5s ease;
@@ -282,13 +283,14 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
    ここから右（484px〜）はヘッダーの角丸ボタン2つ（設定／メニュー）の場所になる */
 .hv-code{position:absolute;right:142px;top:39px;font-size:40px;letter-spacing:1px;line-height:1;z-index:2;display:flex;align-items:center;gap:5px} /* 数字上端がLv.数字(top44)と揃う位置：39+(50-40)/2=44 */
 .streak-fire{width:50px;height:50px;object-fit:contain;display:block}
-#hv-pwrdown{position:absolute;left:140px;top:153px;width:320px;text-align:center;font-size:16px;font-weight:700;color:#fff;z-index:2;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.5);transition:opacity .28s ease}
-#hv-nextrev{position:absolute;left:140px;top:176px;width:320px;text-align:center;font-size:13px;font-weight:800;color:rgba(255,255,255,.92);z-index:2;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,.5);transition:opacity .28s ease}
-/* ルーム切替中に出るルーム番号の丸ページャー（復習どき/カウントダウンはフェードで隠す・選択中を中央に） */
-#room-pager{position:absolute;left:0;right:0;top:150px;box-sizing:border-box;z-index:4;display:flex;gap:9px;align-items:center;overflow-x:auto;padding:5px 16px;scrollbar-width:none;opacity:0;pointer-events:none;transition:opacity .28s ease}
+/* 「PWRが0.01%減るまで あと◯秒」のカウント(#hv-pwrdown)は廃止（メール指示 2026-08-02 16:54） */
+#hv-nextrev{position:absolute;left:140px;top:151px;width:320px;text-align:center;font-size:13px;font-weight:800;color:rgba(255,255,255,.92);z-index:2;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,.5);transition:opacity .28s ease}
+/* ルーム切替中に出るルーム番号の丸ページャー（選択中を中央に）。
+   ステータスバーの下ではなく、ルームメニューのすぐ下（メニュー下端289px＋3px）に置く（メール指示 2026-08-02 16:54）。
+   下端(340px)＝左のアイコン列(.reward-rail top:340px)の上端なので、出ていても他の部品には重ならない */
+#room-pager{position:absolute;left:0;right:0;top:292px;box-sizing:border-box;z-index:4;display:flex;gap:9px;align-items:center;overflow-x:auto;padding:5px 16px;scrollbar-width:none;opacity:0;pointer-events:none;transition:opacity .28s ease}
 #room-pager::-webkit-scrollbar{display:none}
 #room-pager.on{opacity:1;pointer-events:auto}
-.home-wrap.pager-on #hv-pwrdown,.home-wrap.pager-on #hv-nextrev{opacity:0;pointer-events:none}
 /* 丸座布団なし・数字に影のデザイン */
 .rp-dot{flex:0 0 auto;min-width:30px;height:38px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:#fff;cursor:pointer;text-shadow:0 2px 4px rgba(0,0,0,.65),0 0 2px rgba(0,0,0,.55);transition:transform .18s ease}
 .rp-dot.cur{transform:scale(1.55);text-shadow:0 3px 7px rgba(0,0,0,.75),0 0 3px rgba(0,0,0,.6)}
@@ -323,7 +325,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
   scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;z-index:0}
 .room-scroll::-webkit-scrollbar{display:none}
 .room-slide{position:relative;flex:0 0 602px;width:602px;height:1178px;scroll-snap-align:start}
-.slide-inner{position:absolute;left:0;top:225px;width:602px;height:686px} /* 帯拡大に伴い30px上へ */
+/* ステータスバー(下端147px)とルームメニューのあいだのすき間を詰めるため、スライドごと40px上へ
+   （225→185px。ルームメニュー上端は213→173px＝ステータスバーの26px下・アイコン丸の15px下。メール指示 2026-08-02 16:54） */
+.slide-inner{position:absolute;left:0;top:185px;width:602px;height:686px}
 /* ROOMパラメータ（ラベル/番号・語数/バー/%の間に余白。ランクD,B=36px・A=98pxで下端揃え） */
 .rmenu-bg{position:absolute;left:40px;top:-12px;width:522px;height:116px;background:rgba(255,255,255,.15);border-radius:999px;cursor:pointer} /* 縦幅=旧174の2/3 */
 .hv-roomlabel{position:absolute;left:83px;top:2px;font-size:21px;letter-spacing:.5px;line-height:1;cursor:pointer}
@@ -351,8 +355,8 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rmenu-clip{position:absolute;inset:0;z-index:2;clip-path:inset(-12px 40px calc(100% - 104px) 40px round 56px)}
 /* ROOMメニュー（カプセル）の外側・左右に置く「隣のページへ」矢印。
    スライドの中ではなくhome-wrap直下に1組だけ置くフロート＝難易度・プリQQ・どのROOMでも同じ位置に出る。
-   top=225(slide-innerの位置)+14(従来のtop)。単語一覧モードのメニュー上昇には--liftで追従する */
-.rm-arrow{position:absolute;top:calc(239px + var(--lift,0px));width:36px;height:76px;z-index:6;border:none;padding:0;background:transparent;
+   top=185(slide-innerの位置)+14(従来のtop)。単語一覧モードのメニュー上昇には--liftで追従する */
+.rm-arrow{position:absolute;top:calc(199px + var(--lift,0px));width:36px;height:76px;z-index:6;border:none;padding:0;background:transparent;
   font-size:0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;
   transition:transform .08s ease,top .35s ease,opacity .25s ease}
 .rm-arrow::before{content:"";display:block;width:0;height:0;border-style:solid} /* 三角だけ。座布団と影は付けない */
@@ -366,8 +370,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 @keyframes rmNudgeL{0%,100%{transform:translateX(0)}50%{transform:translateX(-5px)}}
 @keyframes rmNudgeR{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
 /* スワイプの案内。左右の三角は .rm-arrow と同じ幅(36px)・同じ左右位置(4px)に置いて縦に並ぶよう揃える
-   （メール指示 2026-07-29）。文字だけを黒カプセルに載せ、5秒たてば自然に消える */
-#room-hint{position:absolute;left:4px;right:4px;top:calc(158px + var(--lift,0px));z-index:6;
+   （メール指示 2026-07-29）。文字だけを黒カプセルに載せ、5秒たてば自然に消える。
+   ルームメニューを上へ詰めたぶん、案内はメニューの上ではなく下（ページャーと同じ帯）へ移した（メール指示 2026-08-02 16:54） */
+#room-hint{position:absolute;left:4px;right:4px;top:calc(292px + var(--lift,0px));z-index:6;
   display:flex;align-items:center;justify-content:space-between;
   pointer-events:none;transition:opacity .35s ease,top .35s ease}
 #room-hint .rh-a{flex:0 0 36px;width:36px;display:flex;align-items:center;justify-content:center}
@@ -607,7 +612,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .cal-close{position:absolute;right:2px;top:2px;width:46px;height:46px;background:transparent;border:none;font-size:26px;font-weight:900;color:#888;cursor:pointer;line-height:1;font-family:inherit;display:flex;align-items:center;justify-content:center}
 .cal-close:active{background:rgba(0,0,0,.07)}
 .reward-rail{position:absolute;right:14px;top:340px;display:flex;flex-direction:column;gap:8px;z-index:5;
-  opacity:1;transition:opacity .3s ease} /* ROOMメニュー(下端329px)のすぐ下から縦に並ぶ */
+  opacity:1;transition:opacity .3s ease} /* ROOMメニュー(下端289px)とのあいだはルーム番号ページャーの帯(292〜340px)。位置は従来どおり */
 .reward-rail-left{left:14px;right:auto} /* 設定/マップ/カレンダーは画面左側に */
 .home-wrap.status .reward-rail,.home-wrap.status .home-side-btn,.home-wrap.status .start-button{opacity:0;pointer-events:none}
 /* 単語帳ページでは左右のアイコン（設定・ROOM一覧・カレンダー・スペシャル／毎日ボーナス・ガチャ）は出さない。
@@ -1944,9 +1949,10 @@ body.bigtext .set-d{font-size:13.5px}
 /* 中身は文字を置かず、Googleマップの現在地ボタンと同じくコンパスの針アイコンだけ（黒座布団＋黄色枠は据え置き） */
 /* 現在地／今日の5問／今日のトレンドの3ボタンは、すごろくの器(.sg-wrap＝左右24px内側・はみ出しを切る)ではなく
    スライド直下に置く。こうするとアイコン群(.reward-rail)と同じ左右14pxに揃えられる。
-   bottom:12px は旧「器の中で bottom:66px」と同じ高さ（器は下端が54px下に出ている） */
+   bottom:-28px ＝ 旧12px から、ルームメニューを詰めてスライドを40px上げた（top:225→185px）ぶんを引いた値。
+   これで画面上の高さは今までどおり（下から279px＝今日の5問／トレンドと同じ行）に残る（メール指示 2026-08-02 16:54） */
 /* 丸の大きさ(68px)と横位置(14px)は右のアイコン群(.reward-rail .rr-btn)に揃える */
-.sg-home{position:absolute;right:14px;bottom:12px;z-index:60;border:none;padding:0;width:68px;height:68px;border-radius:50%;
+.sg-home{position:absolute;right:14px;bottom:-28px;z-index:60;border:none;padding:0;width:68px;height:68px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   background:#111;color:#fff;cursor:pointer;font-family:inherit;
   box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 0 4px rgba(255,196,0,.95);
@@ -2239,7 +2245,7 @@ body.bigtext .set-d{font-size:13.5px}
       <div class="hv-lab hv-pwrlabel">PWR</div>
       <div class="gauge hv-pwrg"><div class="gfill" id="hv-pwrfill" style="background:#00FF37"></div></div>
       <div class="hv-lab hv-pwrval" id="hv-pwrval">0%</div>
-      <div id="hv-pwrdown"></div>
+      <!-- 「PWRが0.01%減るまで あと◯秒」のカウントは廃止（メール指示 2026-08-02 16:54） -->
       <div id="hv-nextrev" onclick="startDueReview()"></div>
       <div id="room-pager"></div>
       </div>
@@ -3043,8 +3049,7 @@ function updatePwrFine(){
   // 表示は0.01%きざみ。きざみの幅（何秒で0.01%減るか）を実際の速度から決める
   const v=step?Math.max(0,_pwrBase-0.01*Math.floor(el/step)):Math.max(0,_pwrBase);
   num.textContent=v.toFixed(2)+"%";
-  const dn=document.getElementById("hv-pwrdown");
-  if(dn)dn.textContent=(v>0&&step)?`PWRが0.01%減るまで あと${_pwrLeftLabel(step-(el%step))}`:"";
+  // 「PWRが0.01%減るまで あと◯秒」の表示は廃止（メール指示 2026-08-02 16:54）。残り時間の文言は_pwrLeftLabel()に残してある
   const bar=document.getElementById("hv-pwrfill"); // バーの長さ＝いまの実PWR（本当の速度でじわじわ減る）
   if(bar){
     const zero=!(v>0);bar.classList.toggle("pwr0",zero);
@@ -3125,7 +3130,7 @@ function applyHomeBg(){applyBgAll(roomBg(curSection));}
 let _roomScrollT=null,_listMode=false;
 let _wdId=null; // 単語詳細としてホームの真ん中に出している単語（null＝単語帳の一覧。メール指示 2026-08-02）
 /* 単語一覧モード：ROOMメニューが上へスライドし、下に単語一覧。横スワイプで隣のROOMの一覧へ */
-const LIFT_MAX=180; // ROOMメニューが最上部に達するまでの移動量（slide-innerを30px上げたぶん減らし、一覧モードの位置は従来どおり）
+const LIFT_MAX=140; // ROOMメニューが最上部に達するまでの移動量（slide-innerをさらに40px上げたぶん減らし、一覧モードの位置は従来どおり）
 /* ※単語帳ページはホームのまま中央だけ差し替える形になったので、いまはどこからも呼んでいない
      （メール指示 2026-08-02）。持ち上げる演出に戻したくなったら enterListMode から呼べば復活する */
 function setLift(px){ // ピル上昇量(px)とヘッダー/写真用の進捗(--p)を同時に設定
@@ -8951,7 +8956,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v6.0 (2026-08-02)";
+const APP_VERSION="v6.1 (2026-08-02)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
