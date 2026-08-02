@@ -178,7 +178,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       wbShadow: wb && getComputedStyle(wb).boxShadow !== 'none' };
   });
   check(`単語帳カードが結果カードと同じ意匠 (${cards.wb})`, cards.wb === cards.want && cards.wbShadow);
-  check('今日学んだ単語のカードも同じ意匠', cards.tb === cards.want);
+  // 「最近学んだ単語」の帯は廃止したので、その中のカードの意匠は見ない（メール指示 2026-08-02 21:09）
+  check('最近学んだ単語の帯は廃止済み（カードが無い）', cards.tb === null || cards.tb === undefined);
 
   // ---------- 単語詳細 ----------
   await page.evaluate(() => { exitListMode(); renderWordDetail(LEVEL_SECTIONS.beginner[curSection][0], 'room'); });

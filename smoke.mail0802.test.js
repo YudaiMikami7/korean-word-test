@@ -41,19 +41,14 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   const clearFx = () => page.evaluate(() => document.querySelectorAll('.streak-cel,.cardget,.lvup,.fcust,.pbub,.stepnote,.tapavatar,.rest-ask,#resume-ask').forEach(o => o.remove()));
 
   // ================= ① 最近学んだ単語の座布団 =================
-  const band = await page.evaluate(() => {
-    // カードを流すために履歴を1件作る
+  // 帯そのものが廃止になったため、座布団・見出しの確認は用済み（メール指示 2026-08-02 21:09）
+  check('最近学んだ単語の帯は廃止済み（履歴があっても出ない）', await page.evaluate(() => {
     const w = BEGINNER_WORDS[0];
     _lsSetJSON(LS_HIST, [{ wordId: w.id, testId: 't-x', isCorrect: true, questionType: 'choice', responseTimeSec: 2, answeredAt: new Date().toISOString(), score: 8 }]);
     _histIdxCache = null;
-    buildTodayBand();
-    const b = document.getElementById('today-band'), l = b.querySelector('.tb-label');
-    const cs = getComputedStyle(b), ls = getComputedStyle(l);
-    return { bandBg: cs.backgroundColor, labelBg: ls.backgroundColor, radius: ls.borderRadius, h: l.getBoundingClientRect().height };
-  });
-  check(`カードの裏の白半透明座布団が無い (${band.bandBg})`, band.bandBg === 'rgba(0, 0, 0, 0)');
-  check(`見出しの座布団はカプセル形 (r=${band.radius} / h=${Math.round(band.h)}px)`, parseFloat(band.radius) >= band.h / 2 - 0.5);
-  check(`見出しの座布団は白いまま (${band.labelBg})`, /^rgba\(255, 255, 255/.test(band.labelBg));
+    renderHome();
+    return !document.getElementById('today-band') && document.querySelectorAll('.tb-card').length === 0;
+  }));
 
   // ================= ② 今週のミッションのバリエーション =================
   const ms = await page.evaluate(() => {

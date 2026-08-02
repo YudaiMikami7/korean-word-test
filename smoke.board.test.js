@@ -418,27 +418,23 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     return d5Streak() === 2;
   }));
 
-  // --- 初回ユーザーの帯は「おすすめの単語」 ---
+  // --- ホーム下部の帯（最近学んだ単語／おすすめの単語）は廃止（メール指示 2026-08-02 21:09） ---
   const bandNew = await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); localStorage.setItem('kwt_d5auto_v1', d5Key(Date.now())); return true; })
     .then(() => page.reload()).then(() => page.waitForTimeout(1600)).then(() => page.evaluate(() => {
       document.querySelectorAll('.streak-cel,.cardget,.appconfirm').forEach(o => o.remove());
-      const b = document.getElementById('today-band');
-      return { shown: getComputedStyle(b).display !== 'none', label: b.querySelector('.tb-label').textContent,
-        cards: b.querySelectorAll('.tb-group:first-child .tb-card').length,
-        inRoom: [...b.querySelectorAll('.tb-group:first-child .tb-ko')].every(e => LEVEL_SECTIONS.beginner[1].some(id => WORD_BY_ID[id].ko === e.textContent)) };
+      return { band: !!document.getElementById('today-band'), cards: document.querySelectorAll('.tb-card').length,
+        text: (document.getElementById('s-home').innerText || '') };
     }));
-  check('初回でも帯が出る', bandNew.shown);
-  check(`初回の見出しは「おすすめの単語」 (${bandNew.label})`, bandNew.label === 'おすすめの単語');
-  check(`おすすめが12語並ぶ (${bandNew.cards}語)`, bandNew.cards === 12);
-  check('おすすめは今いるROOMの単語', bandNew.inRoom);
-  check('1問でも学べば「最近学んだ単語」に戻る', await page.evaluate(() => {
+  check('初回ユーザーでも帯は出ない（廃止済み）', !bandNew.band && bandNew.cards === 0);
+  check('「最近学んだ単語」「おすすめの単語」の見出しも出ない',
+    bandNew.text.indexOf('最近学んだ単語') < 0 && bandNew.text.indexOf('おすすめの単語') < 0);
+  check('1問学んでも帯は復活しない', await page.evaluate(() => {
     const w = WORD_BY_ID[LEVEL_SECTIONS.beginner[1][3]];
     const s = {}; s[w.id] = { hasSeen: true, hasEverCorrect: true, memoryScore: 45, stabilityHours: 12, wordDifficulty: 1,
       lastReviewedAt: new Date(Date.now() - 2 * 86400000).toISOString(), reviewCount: 1, correctCount: 1 };
     localStorage.setItem('kwt_stats_v1', JSON.stringify(s));
-    buildTodayBand();
-    const b = document.getElementById('today-band');
-    return b.querySelector('.tb-label').textContent === '最近学んだ単語' && b.querySelector('.tb-group .tb-ko').textContent === w.ko;
+    renderHome();
+    return !document.getElementById('today-band') && document.querySelectorAll('.tb-card').length === 0;
   }));
 
   // --- ホーム復帰で巨大JSONを解析し直さない（アプリ内ブラウザで固まる原因の回帰防止） ---

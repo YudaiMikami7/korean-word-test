@@ -99,38 +99,18 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   }));
   await page.evaluate(() => closeGiftMenu()); await page.waitForTimeout(300);
 
-  /* ---------- 7. 最近学んだ単語：アニメーション廃止・左右スクロール ---------- */
-  // 学習履歴を作って帯を出す
+  /* ---------- 7. 最近学んだ単語の帯は廃止（メール指示 2026-08-02 21:09） ---------- */
+  // 当時の「アニメーション廃止・左右スクロール」の確認は、帯そのものが無くなったため用済み
   await page.evaluate(() => {
     const ids = (LEVEL_SECTIONS[curLevel][curSection] || []).slice(0, 14);
     const st = loadStats(), now = Date.now();
     ids.forEach((id, i) => { st[id] = { hasSeen: 1, hasEverCorrect: 1, memoryScore: 40 + i, lastAnswerAt: new Date(now - 86400000).toISOString(), stabilityHours: 20 }; });
-    saveStats(st); buildTodayBand();
+    saveStats(st); renderHome();
   });
   await page.waitForTimeout(500);
-  check('7-1 「最近学んだ単語」の帯が出ている', await page.evaluate(() => document.getElementById('today-band').style.display !== 'none'));
-  check('7-2 流れるアニメーションが無い（tb-track）',
-    await page.evaluate(() => { const a = getComputedStyle(document.getElementById('tb-track')).animationName; return a === 'none' || a === ''; }));
-  check('7-3 tbflowのキーフレーム定義そのものが無い', await page.evaluate(() => !document.documentElement.innerHTML.includes('@keyframes tbflow')));
-  check('7-4 カードの2重生成（同一グループ2連結）をやめた',
-    await page.evaluate(() => document.querySelectorAll('#tb-track .tb-group').length === 1));
-  check('7-5 同じ単語が重複して並んでいない', await page.evaluate(() => {
-    const ks = [...document.querySelectorAll('#tb-track .tb-ko')].map(e => e.textContent);
-    return ks.length > 0 && new Set(ks).size === ks.length;
-  }));
-  const clipOv = await page.evaluate(() => { const c = getComputedStyle(document.querySelector('.tb-clip')); return { x: c.overflowX, y: c.overflowY, pe: c.pointerEvents }; });
-  check('7-6 帯が左右スクロールできる（overflow-x:auto）', clipOv.x === 'auto');
-  check('7-7 縦にはスクロールしない', clipOv.y === 'hidden');
-  check('7-8 指で触れる（pointer-events:auto）', clipOv.pe === 'auto');
-  check('7-9 中身が帯より広く、実際にスクロールできる',
-    await page.evaluate(() => { const c = document.querySelector('.tb-clip'); return c.scrollWidth > c.clientWidth + 4; }));
-  check('7-10 スクロールすると実際に位置が動く', await page.evaluate(async () => {
-    const c = document.querySelector('.tb-clip'); c.scrollLeft = 120; await new Promise(r => setTimeout(r, 120)); return c.scrollLeft > 60;
-  }));
-  check('7-11 カードをタップすると単語詳細へ行ける（onclickが残っている）',
-    await page.evaluate(() => !!document.querySelector('.tb-card[onclick*="renderWordDetail"]')));
-  check('7-12 帯は単語帳ボタン(left:476px)に掛からない',
-    await (async () => { const b = await box('.today-band'); return b && b.x + b.w <= 476.5; })());
+  check('7-1 学習履歴があっても帯は出ない（廃止済み）',
+    await page.evaluate(() => !document.getElementById('today-band') && document.querySelectorAll('.tb-card,.tb-clip,.tb-track').length === 0));
+  check('7-2 tbflowのキーフレーム定義も無いまま', await page.evaluate(() => !document.documentElement.innerHTML.includes('@keyframes tbflow')));
 
   /* ---------- 4. 設定・メニューは単語帳／単語詳細でも表示 ---------- */
   await page.evaluate(() => enterListMode()); await page.waitForTimeout(700);

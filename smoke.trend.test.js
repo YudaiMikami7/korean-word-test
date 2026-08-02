@@ -68,7 +68,9 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   check(`現在地ボタンが左アイコン群と左右対称の横位置 (右 ${(lay.wrap.r - lay.home.r).toFixed(1)} vs 左 ${(lay.railL.l - lay.wrap.l).toFixed(1)})`,
     near(lay.wrap.r - lay.home.r, lay.railL.l - lay.wrap.l, 2));
   check(`現在地ボタンの丸の大きさがアイコン群と同じ (${lay.home.w.toFixed(1)})`, near(lay.home.w, lay.railL.w, 2));
-  check(`5問ボタンと現在地ボタンの縦位置が揃う (${lay.d5.b.toFixed(1)} vs ${lay.home.b.toFixed(1)})`, near(lay.d5.b, lay.home.b, 2));
+  // 「最近学んだ単語」の帯を廃止し、5問／ミッション／プレゼントだけを下へ下ろした（メール指示 2026-08-02 21:09）。
+  // 現在地ボタンはすごろく盤に付く操作なので元の高さのまま＝5問ボタンより上に居るのが正しい
+  check(`5問ボタンは現在地ボタンより下がった (${lay.d5.b.toFixed(1)} vs ${lay.home.b.toFixed(1)})`, lay.d5.b > lay.home.b + 20);
   check('今週のミッションが中央カプセルの位置に出る', near(lay.tr.cx, lay.slideCx, 3) && near(lay.tr.b, lay.d5.b, 3));
   check('今週のミッションは黄色', lay.trBg === 'rgb(255, 196, 0)');
 

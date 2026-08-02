@@ -33,17 +33,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   await page.waitForTimeout(1500);
 
   // ================= ④ 単語カード内のマージン（最近学んだ単語） =================
-  const tb = await page.evaluate(() => {
-    const c = document.querySelector('#today-band .tb-card');
-    const st = getComputedStyle(c);
-    return { pt: parseFloat(st.paddingTop), pl: parseFloat(st.paddingLeft),
-             koMt: parseFloat(getComputedStyle(c.querySelector('.tb-ko')).marginTop),
-             imgH: parseFloat(getComputedStyle(c.querySelector('.tb-imgw')).height),
-             cardH: c.getBoundingClientRect().height };
-  });
-  check(`最近学んだ単語カードの内側の余白が減った (上下${tb.pt}px / 左右${tb.pl}px)`, tb.pt <= 4 && tb.pl <= 4);
-  check(`同カードの語の上マージンも減った (${tb.koMt}px)`, tb.koMt <= 2);
-  check(`余白が減ったぶん絵が大きい (${Math.round(tb.imgH)}px / カード${Math.round(tb.cardH)}px)`, tb.imgH / tb.cardH >= 0.55);
+  // 帯そのものが廃止になったため、当時のカードの余白の確認は用済み（メール指示 2026-08-02 21:09）
+  check('最近学んだ単語の帯は廃止済み（出ない）',
+    await page.evaluate(() => !document.getElementById('today-band') && document.querySelectorAll('.tb-card').length === 0));
 
   // ================= テストを1本完走して結果画面へ =================
   const normalRoom = await page.evaluate(() => { curLevel = 'beginner'; curSection = 1; return curSection; });

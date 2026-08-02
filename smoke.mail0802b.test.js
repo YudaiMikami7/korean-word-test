@@ -49,7 +49,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     ids.forEach(id => { for (let k = 0; k < 12; k++) hist.push({ wordId: id, testId: 't' + k, isCorrect: true, answerStatus: 'correct', questionType: 'choice', direction: 'kr_to_jp', responseTimeSec: 2, answeredAt: new Date(Date.now() - k * 86400000).toISOString(), score: 8 }); });
     _lsSetJSON(LS_HIST, hist); _histIdxCache = null;
     const b = loadBoard(); b[boardKey(curLevel, curSection)] = { cleared: 14, tiles: {} }; _lsSetJSON(LS_BOARD, b);
-    buildRoomSlides(); buildTodayBand();
+    buildRoomSlides(); // 「最近学んだ単語」の帯は廃止（メール指示 2026-08-02 21:09）
   });
   await page.waitForTimeout(800);
   await clearFx();
@@ -86,7 +86,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     const list = document.querySelector(`.room-slide[data-n="${curSection}"] .slide-list`);
     // 左右のアイコン列は廃止（メール指示 2026-08-02 19:24）。代わりに、その場所に置いたプレゼント・ガチャの丸が単語帳では出ないことを見る
     const rail = document.querySelector('.sg-gift');
-    const band = document.getElementById('today-band');
+    const band = document.getElementById('today-band'); // 帯は廃止済み＝null になる（メール指示 2026-08-02 21:09）
     const menu = document.querySelector(`.room-slide[data-n="${curSection}"] .rmenu-bg`);
     const listBox = list.getBoundingClientRect();
     const sgBox = { left: 24, top: 104, width: 554, height: 636 }; // .sg-wrap と同じ枠
@@ -98,7 +98,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       headTransform: cs(document.querySelector('.home-head')).transform,
       menuShown: !!menu && cs(menu).opacity !== '0',
       railShown: !!document.querySelector('.reward-rail') || !!(rail && cs(rail).opacity !== '0' && rail.getBoundingClientRect().width > 0),
-      bandShown: band.style.display !== 'none' && cs(band).opacity !== '0',
+      bandShown: !!band && band.style.display !== 'none' && cs(band).opacity !== '0',
       pagerBlocked: (() => { showRoomPager(); return !document.getElementById('homewrap').classList.contains('pager-on'); })(),
       listLeft: lcs.left, listTop: lcs.top, listW: lcs.width, listH: lcs.height, listOpacity: lcs.opacity,
       sgBox, listVisible: listBox.width > 0 && listBox.height > 0,
@@ -108,9 +108,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       chipText: (document.querySelector('.slide-list .wb-tabs .wb-cnt-chip') || {}).textContent,
       chipFirst: (() => { const t = document.querySelector('.slide-list .wb-tabs'); return !!t && t.firstElementChild.classList.contains('wb-cnt-chip') && t.children[1].classList.contains('wb-tab'); })(),
       // 検索欄は浮かせず一覧の中に入れた（メール指示 2026-08-02 16:32）
-      searchBox: (() => { const s = document.querySelector('.slide-list .wb-searchrow'), b = document.getElementById('today-band');
-        if (!s || !b) return null; const sr = s.getBoundingClientRect(), br = b.getBoundingClientRect();
-        return { inBand: sr.top >= br.top - 2 && sr.bottom <= br.bottom + 2, w: Math.round(sr.width), bw: Math.round(br.width) }; })(),
+      searchBox: null, // 帯が無くなったので「帯の中か」の比較はしない（メール指示 2026-08-02 21:09）
       searchOverBtn: (() => { const s = document.querySelector('.slide-list .wb-searchrow'), b = document.querySelector('.home-side-btn.hsb-right');
         if (!s || !b) return true; const sr = s.getBoundingClientRect(), br = b.getBoundingClientRect();
         return sr.left < br.right && sr.right > br.left && sr.top < br.bottom && sr.bottom > br.top; })(),
@@ -126,7 +124,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('ルームメニューバーが出ている', wb.menuShown);
   // 単語帳ページでは左右のアイコンと「最近学んだ単語」は出さず、その場所に検索バーを置く（メール指示 2026-08-02）
   check('左右のアイコン（リール）・プレゼントの丸は出さない', !wb.railShown);
-  check('「最近学んだ単語」の帯も出さない', !wb.bandShown);
+  check('「最近学んだ単語」の帯は廃止済み（どこにも出ない）', !wb.bandShown);
   // 検索バーは「最近学んだ単語」の帯のあった場所ではなく、カード枚数・絞り込みの列のすぐ下へ移した（メール指示 2026-08-02 14:55）
   const barPos = await page.evaluate(() => {
     const s = document.querySelector(`.room-slide[data-n="${curSection}"] .wb-searchrow`).getBoundingClientRect();

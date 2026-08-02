@@ -51,7 +51,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     ids.forEach(id => { for (let k = 0; k < 12; k++) hist.push({ wordId: id, testId: 't' + k, isCorrect: true, answerStatus: 'correct', questionType: 'choice', answerType: 'choice', direction: 'kr_to_jp', responseTimeMs: 2000, responseTimeSec: 2, answeredAt: new Date(Date.now() - k * 86400000).toISOString(), score: 8 }); });
     _lsSetJSON(LS_HIST, hist); _histIdxCache = null;
     const b = loadBoard(); b[boardKey(curLevel, curSection)] = { cleared: 14, tiles: {} }; _lsSetJSON(LS_BOARD, b);
-    buildRoomSlides(); buildTodayBand();
+    buildRoomSlides(); // 「最近学んだ単語」の帯は廃止（メール指示 2026-08-02 21:09）
   });
   await page.waitForTimeout(800);
   await clearFx();
@@ -95,16 +95,16 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     const tabs = list.querySelector('.wb-tabs');
     const bar = list.querySelector('.wb-searchrow'), band = document.getElementById('today-band'); // 検索欄は一覧の中へ（メール指示 2026-08-02 16:32）
     const home = document.querySelector('.home-side-btn.hsb-right');
-    const sr = bar.getBoundingClientRect(), br = band.getBoundingClientRect(), hr = home.getBoundingClientRect();
+    const sr = bar.getBoundingClientRect(), br = band ? band.getBoundingClientRect() : null, hr = home.getBoundingClientRect(); // 帯は廃止済み＝null（メール指示 2026-08-02 21:09）
     return {
       oldSum: !!list.querySelector('.wb-sum'),
       chip: tabs.firstElementChild.classList.contains('wb-cnt-chip'),
       chipText: tabs.firstElementChild.textContent.replace(/\s+/g, ''),
       nextIsAll: tabs.children[1].classList.contains('wb-tab') && tabs.children[1].textContent === '全部',
       railHidden: [...document.querySelectorAll('.reward-rail')].every(r => cs(r).opacity === '0'),
-      bandHidden: cs(band).opacity === '0',
+      bandHidden: !band, // 帯そのものが無い
       listPad: parseFloat(cs(list).paddingLeft),
-      searchInBand: sr.top >= br.top - 2 && sr.bottom <= br.bottom + 2 && Math.abs(sr.width - br.width) <= 2,
+      searchInBand: false, // 帯が無いので「帯の中か」は見ない
       searchOverHome: sr.left < hr.right && sr.right > hr.left && sr.top < hr.bottom && sr.bottom > hr.top,
     };
   });
@@ -112,7 +112,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check(`カード枚数は絞り込みの列の「全部」の左 (${wb.chipText})`, wb.chip && /^カード\d+枚$/.test(wb.chipText) && wb.nextIsAll);
   check('単語帳では左右のアイコンを出さない', wb.railHidden);
   check(`そのぶん一覧を左右いっぱいまで使う (padding=${wb.listPad}px)`, wb.listPad <= 8);
-  check('「最近学んだ単語」は出さない', wb.bandHidden);
+  check('「最近学んだ単語」は廃止済み（どこにも出ない）', wb.bandHidden);
   // 検索バーは帯のあった場所から、カード枚数・絞り込みの列のすぐ下へ移した（メール指示 2026-08-02 14:55）
   const searchGap = await page.evaluate(() => {
     const s = document.querySelector(`.room-slide[data-n="${curSection}"] .wb-searchrow`).getBoundingClientRect();

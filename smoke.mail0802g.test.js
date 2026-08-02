@@ -98,8 +98,10 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check(`左右の矢印はルームメニューの高さの中にある (矢印${b.prev.t}〜${b.prev.b} / メニュー${b.menu.t}〜${b.menu.b})`,
         b.prev.t >= b.menu.t && b.prev.b <= b.menu.b);
   check(`すごろくもルームメニューのすぐ下のまま (メニュー下端${b.menu.b} / 盤上端${b.board.t})`, Math.abs(b.board.t - b.menu.b) <= 2);
-  check(`下のボタン類（今日の5問）は動かしていない (${b.d5 ? b.d5.b : 'なし'})`, !b.d5 || b.d5.b > 880);
-  check(`現在地ボタンも今までどおり今日の5問と同じ行 (${b.sghome ? b.sghome.b : 'なし'})`, !b.d5 || !b.sghome || Math.abs(b.sghome.b - b.d5.b) <= 2);
+  // 「最近学んだ単語」の帯を廃止し、今日の5問などはその跡地（下端1132px）まで下ろした（メール指示 2026-08-02 21:09）。
+  // ルームメニューを詰めても、下のボタン類がつられて上がらないことを見る
+  check(`下のボタン類（今日の5問）はルームメニューにつられて上がっていない (${b.d5 ? b.d5.b : 'なし'})`, !b.d5 || b.d5.b > 880);
+  check(`現在地ボタンはすごろく盤に付いたまま＝5問より上 (${b.sghome ? b.sghome.b : 'なし'})`, !b.d5 || !b.sghome || b.sghome.b < b.d5.b);
   // プレゼント・ガチャの丸は左下＝今日の5問の縮まった丸の上へ移した（メール指示 2026-08-02 20:47）
   check(`プレゼント・ガチャの丸は左下にある (左端${b.rail.l} / 上端${b.rail.t})`, b.rail.l === 14 && b.rail.t > 602);
 

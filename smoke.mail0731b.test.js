@@ -73,20 +73,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     renderHome();
   });
   await page.waitForTimeout(900);
-  const band = await page.evaluate(() => {
-    const card = document.querySelector('#today-band .tb-card');
-    const img = card.querySelector('.tb-img');
-    const r = card.getBoundingClientRect(), ir = img.getBoundingClientRect();
-    const lab = document.querySelector('#today-band .tb-label').getBoundingClientRect();
-    return { w: r.width, h: r.height, popsOut: ir.top < r.top - 1 || ir.bottom > r.bottom + 1,
-             imgPos: getComputedStyle(img).position, hasWrap: !!card.querySelector('.tb-imgw'),
-             overlapsLabel: r.top < lab.bottom - 1, // 見出しに重ねる仕様に変更（メール指示 2026-08-01）
-             bg: getComputedStyle(card).backgroundImage };
-  });
-  check(`最近学んだ単語のカードが縦長 (${Math.round(band.w)}×${Math.round(band.h)})`, band.h > band.w);
-  check('絵がカードから飛び出していない', !band.popsOut && band.imgPos === 'static' && band.hasWrap);
-  check('カードが見出し「最近学んだ単語」に重なっている（縦幅マックス）', band.overlapsLabel);
-  check('黄色いグラデーションのままである', band.bg === 'linear-gradient(160deg, rgb(255, 255, 255), rgb(255, 233, 194))');
+  // 「最近学んだ単語」の帯そのものが廃止になったため、カードの意匠の確認は単語帳側だけを見る（メール指示 2026-08-02 21:09）
+  check('最近学んだ単語の帯は廃止済み（出ない）',
+    await page.evaluate(() => !document.getElementById('today-band') && document.querySelectorAll('.tb-card').length === 0));
 
   await page.evaluate(() => { document.querySelectorAll('.pbub,.stepnote,.cardget,.lvup,.streak-cel,.fcust').forEach(o => o.remove()); enterListMode(); });
   await page.waitForTimeout(1200);

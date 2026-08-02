@@ -180,7 +180,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 #home-rain{top:-185px;height:1178px;z-index:0;opacity:.42;transition:opacity .3s ease} /* ホームの玉レイヤー：背景で主張しすぎないよう半透明に。現在ROOMのslide-inner(top:185px)最背面に挿入＝画面いっぱいに戻す */
 .home-wrap.status #home-rain{opacity:0} /* 単語帳ページではホームのまま出しておく（hiderailは廃止。メール指示 2026-08-02） */
 /* 降ってくるのは丸い玉ではなく単語カード（メール指示 2026-08-02）。
-   見た目は「最近学んだ単語」「獲得した単語カード」と同じ白→クリームの座布団で、枠だけ出題ROOMの色。
+   見た目は「獲得した単語カード」と同じ白→クリームの座布団で、枠だけ出題ROOMの色。
    ぶつかり判定は今までどおり円のままなので、カードは円に収まる正方形にしてある（will-changeはJSで落下中のみ付与） */
 .qr-card{position:absolute;left:0;top:0;width:96px;height:96px;border-radius:12px;box-sizing:border-box;
   background:linear-gradient(160deg,#fff,#ffe9c2);border:3px solid rgba(255,255,255,.9);
@@ -251,10 +251,11 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* ===== ホーム（602×1178基準・サーモンピンク背景・絶対配置） ===== */
 #s-home{background:#E3A38D;flex-direction:row;justify-content:center;align-items:flex-start;overflow:hidden;transition:background-color .5s ease}
 .home-wrap{position:relative;flex:0 0 auto;width:602px;height:1178px;background:#E3A38D;
-  /* 今日の5問／トレンドのフロート位置＝下から279px。もとは スライド(.slide-inner)の下端12px上に合わせた値。
-     ルームメニューを上へ詰めてスライドを40px上げた（top:225→185px）あとも、下のボタン類は動かさずここに残す
-     （メール指示 2026-08-02 16:54）。単語帳への上昇(--lift)・ステータスへの下降(--down×2.2)には従来どおり追従する */
-  --fbtm:calc(279px - var(--lift,0px) - var(--down,0px) * 2.2);
+  /* 今日の5問／ミッション／プレゼントのフロート位置＝下から46px。
+     もとは下から279pxで、そのすぐ下（962〜1132px）に「最近学んだ単語」の帯が入っていた。
+     帯を廃止したぶん、ボタン類を下へ下ろして下端を右下の単語帳ボタン（下端1132px）とそろえた
+     （メール指示 2026-08-02 21:09）。単語帳への上昇(--lift)・ステータスへの下降(--down×2.2)には従来どおり追従する */
+  --fbtm:calc(46px - var(--lift,0px) - var(--down,0px) * 2.2);
   transform-origin:top center;color:#FFFFFF;font-weight:800; /* 見本はExtraBold相当 */
   transition:background-color .5s ease;
   font-family:"LINESeedJP","LINESeedKR","Hiragino Kaku Gothic ProN",sans-serif}
@@ -562,26 +563,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 @keyframes avspot{0%,100%{box-shadow:0 0 0 0 rgba(255,196,0,0)}50%{box-shadow:0 0 0 10px rgba(255,196,0,.55)}}
 .sg-here.spot{animation:sgherebob 1.6s ease-in-out infinite,hereSpot 1.1s ease-in-out 4} /* 「あなただけの12問」からスタートへ誘導 */
 @keyframes hereSpot{0%,100%{box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 0 4px rgba(255,196,0,.95)}50%{box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 0 14px rgba(255,196,0,.45)}}
-/* 今日学ぶべき単語の帯：スタートボタン上に半透明白、カードが左→右に流れる */
-.today-band{position:absolute;left:14px;top:962px;width:452px;height:170px;border-radius:14px;overflow:hidden;z-index:1;overflow:visible;pointer-events:none;opacity:1;transition:opacity .3s ease} /* カードの裏に敷いていた白半透明の座布団は廃止（メール指示 2026-08-02） */
-/* カードは絵がはみ出す作りをやめ、結果画面の獲得カード(.rc-card)と同じ「普通の縦長カード」にした（メール指示 2026-07-31）
-   → 見出しはカードに重ねてよいので、カードは帯の高さいっぱい＝縦幅マックスで流す（メール指示 2026-08-01） */
-/* カードが自動で流れるのはやめ、指で左右にスクロールして見る形にした（メール指示 2026-08-02 19:24） */
-.tb-clip{position:absolute;left:0;top:0;width:452px;height:170px;border-radius:14px;display:flex;align-items:flex-end;
-  overflow-x:auto;overflow-y:hidden;pointer-events:auto;touch-action:pan-x;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.tb-clip::-webkit-scrollbar{display:none}
-/* 帯左上の見出しは流れるカードの前面に重ねる。白の座布団は角丸のカプセル形に（メール指示 2026-08-02） */
-.tb-label{position:absolute;left:10px;top:6px;z-index:2;padding:3px 12px;border-radius:999px;background:rgba(255,255,255,.82);font-size:14px;font-weight:900;letter-spacing:1px;color:rgba(0,0,0,.55);pointer-events:none}
-.home-wrap.status .today-band{opacity:0}
-/* 単語帳ページでは「最近学んだ単語」は出さない。その場所には検索バーが入る（メール指示 2026-08-02） */
-.home-wrap.listmode .today-band{opacity:0;pointer-events:none}
-.tb-track{display:flex;margin-bottom:2px}
-.tb-group{display:flex;gap:12px;padding:0 6px;flex:0 0 auto}
-.tb-card{position:relative;flex:0 0 auto;height:166px;aspect-ratio:3/3.5;box-sizing:border-box;background:linear-gradient(160deg,#fff,#ffe9c2);box-shadow:0 3px 8px rgba(0,0,0,.25);border-radius:12px;padding:3px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;pointer-events:auto;cursor:pointer}
-.tb-imgw{position:relative;height:57%;max-width:100%;display:flex;align-items:center;justify-content:center} /* 絵はカードの中に収める（結果カードと同じ） */
-.tb-img{height:100%;width:auto;object-fit:contain;display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,.2))}
-.tb-ko{font-size:19px;font-weight:900;color:#222;line-height:1.15;margin-top:2px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tb-ja{font-size:12px;font-weight:700;color:#7a6a4a;margin-top:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ホーム下部にあった「最近学んだ単語」（おすすめの単語）の帯(.today-band/.tb-*)は廃止した。
+   空いた場所（左14px・上962〜1132px）へ 今日の5問／ミッション／プレゼントの各ボタンを下ろしている
+   （メール指示 2026-08-02 21:09）。単語帳ページの検索バーはこの場所ではなく検索欄の下に出る */
 /* 単語一覧モード：スワイプ連動（--lift/--pはhome-wrapに設定） */
 .home-wrap .slide-inner{transform:translateY(var(--lift,0px));transition:transform .35s ease}
 #calendar-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
@@ -2320,7 +2304,7 @@ body.bigtext .set-d{font-size:13.5px}
       <div id="home-fbtn"></div>
       <div id="pull-hint">↓ さらに引くとホームに戻る</div>
       <div id="wb-search"><input id="wb-q" type="search" placeholder="単語をさがす（韓国語・日本語）" oninput="wbSearch(this.value)"><div id="wb-hits"></div></div>
-      <div class="today-band" id="today-band" style="display:none"><div class="tb-label">最近学んだ単語</div><div class="tb-clip"><div class="tb-track" id="tb-track"></div></div></div><!-- 中身が入るまで非表示（空の白帯チラ見え防止） -->
+      <!-- 「最近学んだ単語」の帯はここにあったが廃止（メール指示 2026-08-02 21:09） -->
       <button class="home-side-btn hsb-left" aria-label="ステータス"><img src="images-thumb/0912.webp" alt=""><span class="hsb-txt">ステータス</span></button><!-- ステータス画面は廃止（CSSでも display:none） -->
       <button class="start-button" onclick="onStartBtn()"><span class="sb-bubble" id="sb-bubble"></span><span class="sb-txt"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span><span class="sb-gear" aria-hidden="true">⚙️</span><span class="sb-back">戻る</span></button>
       <button class="home-side-btn hsb-right" onclick="toggleWordbook()" aria-label="単語帳"><img src="images-thumb/1290.webp" alt=""><span class="hsb-txt">単語帳</span></button><!-- 単語帳ページ中は家の絵の「ホーム」ボタンに入れ替わる（メール指示 2026-08-02） -->
@@ -3212,18 +3196,17 @@ function setLift(px){ // ピル上昇量(px)とヘッダー/写真用の進捗(-
 }
 /* 単語帳ページはホーム画面そのままで、真ん中（すごろくのところ）だけが単語の一覧に変わる。
    ステータスバー・ルームメニュー・ページャーはホームと同じように出したまま（メール指示 2026-08-02）。
-   ただし左右のアイコンと「最近学んだ単語」は出さず、そのぶん一覧を広く取り、
-   帯があった場所には検索バーを置く（メール指示 2026-08-02）。
+   ただし左右のアイコンは出さず、そのぶん一覧を広く取り、検索バーは「単語をさがす」欄のすぐ下に置く。
    ROOMメニューを上へ持ち上げる演出（setLift）とアイコン類を隠す hiderail は使わない。 */
 function enterListMode(){
   if(_listMode)return;
   pushNav("list"); // OSバックで一覧を閉じられるように
   wbResetPanel();const wp=document.getElementById("wb-panel");if(wp)wp.classList.add("on"); // 検索パネル表示
   _listMode=true;buildRoomSlides();
-  document.getElementById("homewrap").classList.add("listmode"); // 左右アイコン・最近学んだ単語を隠す
+  document.getElementById("homewrap").classList.add("listmode"); // 左右アイコン・今日の5問などのフロートを隠す
   attachHomeRain(); // スライド再構築でカードのレイヤーが剥がれるため差し直す
   syncWordbookBtn(); // 右下のボタンを「ホーム」に入れ替える
-  wbPlaceSearchBar(); // 検索バーを「最近学んだ単語」の帯があった場所へ
+  wbPlaceSearchBar(); // 検索バーを「単語をさがす」欄のすぐ下へ
   // 一覧をフェードイン（強制リフローでtransitionを確実に発火）
   const ls=document.querySelectorAll(".slide-list,.wl-mid");
   ls.forEach(e=>e.style.opacity="0");
@@ -4125,7 +4108,7 @@ function scaleHome(){
   el.style.setProperty("--inv",String(1/s)); // スケール補正係数（ステータス内をPWR詳細ページと同じ実寸にする）
   document.documentElement.style.setProperty("--hs",String(s)); // ホーム外（結果画面のメーター等）でも同じ実寸を作るための縮小率
   el.style.marginBottom=`-${Math.round(1178*(1-s))}px`; // transformはレイアウト高を変えないため余白を回収
-  try{wbPlaceSearchBar();}catch(e){} // 単語帳の検索バーも「最近学んだ単語」の位置に追従させる
+  try{wbPlaceSearchBar();}catch(e){} // 単語帳の検索バーも「単語をさがす」欄の位置に追従させる
 }
 window.addEventListener("resize",scaleHome);
 if(window.visualViewport)window.visualViewport.addEventListener("resize",scaleHome); // ツールバー出入りに追従
@@ -4151,7 +4134,6 @@ function renderHome(){
   buildRoomSlides();
   attachHomeRain(); // スライド再構築後に玉レイヤーを差し直し（玉は保持）
   if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();initRoomHint();setTimeout(maybeRestAsk,300);setTimeout(maybeResume,600);setTimeout(()=>{if(!document.getElementById("resume-ask")&&!document.querySelector(".rest-ask"))maybeCoach();},900);setTimeout(maybeAutoDaily5,1500);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋ROOMスワイプのヒント＋（連続が途切れていれば）おやすみチケット＋初回コーチ＋今日の5問の自動スタート＋バックアップ提案
-  buildTodayBand();
   applyHomeBg();
   scaleHome();
   const _fb=document.getElementById("home-fbtn"); // 今日の5問／トレンドはスライドではなくホーム直下のフロート（作り直すと演出が飛ぶので初回だけ）
@@ -4419,52 +4401,9 @@ function flyPresentToRail(){
   setTimeout(()=>{fly.remove();updatePresent();target.classList.remove("suck");void target.offsetWidth;target.classList.add("suck");},1080);
 }
 
-/* まだ1問も解いていない人へ「おすすめの単語」を並べる（学習履歴が無く最近学んだ単語を出せない初回だけ）。
- * いま開いているROOMの先頭から、絵が付いている語を優先して12語 */
-function recommendWords(){
-  const ids=(_onSpecial?PRIQQ.ids:(LEVEL_SECTIONS[curLevel][curSection]||[]))||[];
-  const ws=ids.map(id=>WORD_BY_ID[id]).filter(Boolean);
-  const withImg=ws.filter(w=>typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko]);
-  return (withImg.length>=8?withImg:ws).slice(0,12);
-}
-/* 今日学ぶべき単語の帯：忘却が進みPWR回復効率が高い語（urgent/review）を優先度順に12語流す */
-function buildTodayBand(){
-  const band=document.getElementById("today-band"),track=document.getElementById("tb-track");
-  if(!band||!track)return;
-  const stats=loadStats(),now=Date.now();
-  const all=Object.keys(stats).map(id=>{
-    const w=WORD_BY_ID[id];if(!w)return null;
-    const st=getStat(id,stats);
-    return{w,st,state:wordState(st,now),ps:priorityScore(w,st,now)};
-  }).filter(Boolean);
-  // PWR回復効率が高いurgent/reviewを最優先。12語に満たなければ他の学習済み語を優先度順に補充
-  const pri=all.filter(x=>x.state==="urgent"||x.state==="review").sort((a,b)=>b.ps-a.ps);
-  let picks=pri.slice(0,12);
-  if(picks.length<12){
-    const ids=new Set(picks.map(x=>x.w.id));
-    picks=picks.concat(all.filter(x=>!ids.has(x.w.id)).sort((a,b)=>b.ps-a.ps).slice(0,12-picks.length));
-  }
-  // 初回（学習履歴ゼロ）は帯を空にせず「おすすめの単語」に切り替える。1語でも解けば以降は従来どおり
-  const reco=!picks.length;
-  if(reco)picks=recommendWords().map(w=>({w}));
-  const lab=band.querySelector(".tb-label");
-  if(lab)lab.textContent=reco?"おすすめの単語":"最近学んだ単語";
-  if(!picks.length){band.style.display="none";_tbKey="";return;}
-  band.style.display="block";
-  const key=picks.map(x=>x.w.id).join(",");
-  if(key===_tbKey&&track.childElementCount)return; // 内容が同じなら作り直さない（見ている途中のスクロール位置を保つ）
-  _tbKey=key;
-  // 自動で流れるのをやめ、指で左右にスクロールする形にしたので、
-  // ループ用の水増し・同一グループ2連結はどちらも不要になった（メール指示 2026-08-02 19:24）
-  const list=picks.slice();
-  const cards=list.map(x=>{
-    const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[x.w.ko])?`<span class="tb-imgw"><img class="tb-img" src="${WORD_IMG[x.w.ko]}" loading="lazy" alt=""></span>`:"";
-    return `<div class="tb-card" onclick="renderWordDetail(${x.w.id},'room')">${img}<div class="tb-ko">${esc(x.w.ko)}</div><div class="tb-ja">${esc(x.w.ja)}</div></div>`;
-  }).join("");
-  track.innerHTML=`<div class="tb-group">${cards}</div>`;
-  const clip=band.querySelector(".tb-clip");if(clip)clip.scrollLeft=0;
-}
-let _tbKey="";
+/* ホーム下部の「最近学んだ単語」（初回は「おすすめの単語」）の帯は廃止した（メール指示 2026-08-02 21:09）。
+   帯を作っていた buildTodayBand()／recommendWords() もあわせて撤去。復習すべき語はすごろく・今日の5問の
+   出題側（priorityScore/wordState）が拾うため、学習の中身には影響しない */
 
 /* ============================================================ 韓国語単語タイプ診断（4軸16タイプ） ============================================================ */
 /* 軸カラー設定（変更可能） 上辺=軸1 F/U, 右辺=軸2 M/C, 下辺=軸3 P/S, 左辺=軸4 Q/D */
@@ -9032,7 +8971,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v6.3 (2026-08-02)";
+const APP_VERSION="v6.4 (2026-08-02)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
