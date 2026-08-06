@@ -45,13 +45,13 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     byR: Object.keys(LUCK_RARE).map(r => [r, LUCK_LIST.filter(i => i.r === r).length]),
     first: LUCK_LIST[0].name, last: LUCK_LIST[LUCK_LIST.length - 1].name
   }));
-  check(`1-1 一覧が入っている（No.1〜118 の118件・いま${cat.n}件）`, cat.n === 118);
+  check(`1-1 一覧が入っている（No.1〜120 の120件・いま${cat.n}件）`, cat.n === 120);
   check('1-2 番号・名称の重複が無い', cat.dupN === 0 && cat.dupName === 0);
   check('1-3 レアリティ(C/R/SR/E/L/M)がすべて定義済み ' + JSON.stringify(cat.byR), cat.badR.length === 0);
   check('1-4 8系統（XP/ガチャ/カード/復習/支援/継続/文化/特別）がすべて定義済み ' + JSON.stringify(cat.byG), cat.badG.length === 0);
   check('1-5 効果文・対象・コストの欠けが無い', cat.noEff.length === 0);
-  check(`1-6 先頭「はじめの一歩」／末尾「復刻ボーナス」（いま ${cat.first} / ${cat.last}）`,
-    cat.first === 'はじめの一歩' && cat.last === '復刻ボーナス');
+  check(`1-6 先頭「はじめの一歩」／末尾「学習の軌跡」（いま ${cat.first} / ${cat.last}）`,
+    cat.first === 'はじめの一歩' && cat.last === '学習の軌跡');
   check('1-7 8系統すべてに中身がある', cat.byG.every(x => x[1] > 0));
 
   /* ============ 2. 抽選（完全ランダムにしない） ============ */
@@ -75,23 +75,26 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     }
     return true;
   }));
-  check('2-4 初心者格差の補正：はじめの3日はC・Rだけ', await page.evaluate(() => {
+  check('2-4 初心者格差の補正：はじめの7日間は最高レア（Mythic）を出さない', await page.evaluate(() => {
     const st = luckState(); st.hist = []; st.days = {}; saveLuck(st);
     localStorage.setItem('kwt_launch_v1', JSON.stringify([dayKey(Date.now())]));
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 60; i++) {
       const it = luckById(luckPick(luckDayKey(Date.now() + i * 86400000)).n);
-      if (it.r !== 'C' && it.r !== 'R') return false;
+      if (it.r === 'M') return false;
     }
     return true;
   }));
-  check('2-5 不公平の補正：7日レアが出ていなければSR以上から引く', await page.evaluate(() => {
-    const days = []; for (let i = 0; i < 30; i++) days.push(dayKey(Date.now() - i * 86400000));
+  check('2-5 天井：30日エピック以上が出ていなければ、その日はE以上が確定する', await page.evaluate(() => {
+    const days = []; for (let i = 0; i < 40; i++) days.push(dayKey(Date.now() - i * 86400000));
     localStorage.setItem('kwt_launch_v1', JSON.stringify(days)); // 長く使っている人にする
     const st = luckState();
-    st.hist = LUCK_LIST.filter(i => i.r === 'C').slice(0, 8).map(i => i.n); // 直近8回すべてCOMMON
+    st.hist = []; for (let i = 0; i < 32; i++) st.hist.push({ n: 1, r: i % 2 ? 'C' : 'R', g: 'xp' }); // 32日E以上なし
     st.days = {}; saveLuck(st);
-    const it = luckById(luckPick(luckDayKey()).n);
-    return it && it.r !== 'C' && it.r !== 'R';
+    for (let i = 0; i < 10; i++) {
+      const it = luckById(luckPick(luckDayKey(Date.now() + i * 86400000)).n);
+      if (['C', 'R', 'SR'].indexOf(it.r) >= 0) return false;
+    }
+    return true;
   }));
   check('2-6 対象に合わない効果は引かない（初心者に上級者向けは出ない）', await page.evaluate(() => {
     const p = { lv: 1, tests: 0, days: 1, streak: 0, cards: 0, hour: 12, gap: 0 };
@@ -126,7 +129,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   });
   check('3-1 レアが上がるほど値打ちも上がる', rw.C.xp < rw.SR.xp && rw.SR.xp < rw.L.xp && rw.L.xp <= rw.M.xp);
   check('3-2 どの日も最低10XPは残る（レアが低い日も実用的な価値）', rw.all.every(x => x.xp >= 10));
-  check('3-3 上限がある（1回で240XPを超えない）', rw.all.every(x => x.xp <= 240));
+  check('3-3 上限がある（1回でレアリティ別の上限100XPを超えない）', rw.all.every(x => x.xp <= 100));
   check('3-4 追加ぶん（2段階目）は1段階目より小さい', rw.step2.xp > 0 && rw.step2.xp < rw.SR.xp * 2);
   check('3-5 ガチャ系はガチャ回数・カード系はカード・継続系はおやすみチケットになる',
     rw.gacha.coin > 0 && rw.card.card > 0 && rw.streak.rest > 0);
@@ -161,15 +164,15 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     return !!t && Object.keys(LUCK_CATS).some(g => LUCK_CATS[g].lab === t);
   }));
 
-  /* ============ 5. 学習量で伸びるが上限がある（3段階） ============ */
+  /* ============ 5. 学習量で伸びるが上限がある（25問＝4段階） ============ */
   const st = await page.evaluate(() => {
     const out = [];
-    for (let i = 0; i < 4; i++) { const r = luckStepUp(); out.push(r ? r.step : null); }
+    for (let i = 0; i < 5; i++) { const r = luckStepUp(); out.push(r ? r.step : null); }
     const d = luckState().days[luckDayKey()];
     return { out, step: d.step, xp: loadBonus() };
   });
-  check(`5-1 テストを終えるごとに1段階ずつ伸びる（${JSON.stringify(st.out)}）`, st.out[0] === 2 && st.out[1] === 3);
-  check('5-2 3段階で頭打ち（4本目以降は増えない）', st.out[2] === null && st.out[3] === null && st.step === 3);
+  check(`5-1 テストを終えるごとに1段階ずつ伸びる（${JSON.stringify(st.out)}）`, st.out[0] === 2 && st.out[1] === 3 && st.out[2] === 4);
+  check('5-2 4段階（25問）で頭打ち（それ以降は増えない）', st.out[3] === null && st.out[4] === null && st.step === 4);
 
   /* ============ 6. 制限時間に効く効果（No.66 時間延長 / No.67 ノータイマー） ============ */
   check('6-1 時間延長の日は制限時間が3秒のびる', await page.evaluate(() => {
@@ -279,7 +282,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   })());
 
   /* ============ 回帰 ============ */
-  check('R-1 版数が上がっている（v6.6）', await page.evaluate(() => /^v6\.6/.test(APP_VERSION)));
+  check('R-1 版数が上がっている（v6.7）', await page.evaluate(() => /^v6\.7/.test(APP_VERSION)));
   check('R-2 今日の5問・トレンド・ガチャ・プレゼントの入口は今までどおり', await (async () => {
     await page.evaluate(() => { show('s-home'); renderHome(); });
     await page.waitForTimeout(700);

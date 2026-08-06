@@ -286,7 +286,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
       // 設定はヘッダー右の角丸ボタンへ、プレゼント／ガチャは統合ボタンの吹き出しへ移した（メール指示 2026-08-02 16:32）
       // 左のアイコン列は廃止し、カレンダー／ROOM一覧／スペシャルはハンバーガーメニューへ入れた（メール指示 2026-08-02 19:24）
       railGone: !document.querySelector('.reward-rail') && !document.getElementById('cal-btn'),
-      menuCaps: [...document.querySelectorAll('#menu-modal .hm-cap span')].map(e => e.textContent.trim()),
+      menuCaps: [...document.querySelectorAll('#menu-modal .hm-cap')].map(e => (e.querySelector('span:not(.hm-emo)') || e).textContent.trim()),
       hdSet: !!document.querySelector('.hd-rail #hd-set img') && !document.getElementById('set-btn'),
       labels: [...document.querySelectorAll('#gift-modal .gf-btn .gf-txt')].map(e => e.textContent),
       gone: !document.getElementById('rr-level') && !document.getElementById('rr-pwr') };
@@ -294,7 +294,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check(`ランクは58px・メダル風 (${look.w} / ${look.fs})`, look.w === '58px' && look.fs === '41px' && look.ring);
   check(`マス番号が大きい (${look.numFs})`, look.numFs === '32px'); // 「周-マス」の2つ組みになったぶん一段小さく（メール指示 2026-08-02）
   check('左のアイコン列は廃止された', look.railGone);
-  check(`カレンダー等はメニューの中にある (${look.menuCaps.join('|')})`, look.menuCaps.join('|') === 'カレンダー|ROOM一覧|スペシャルモード');
+  check(`カレンダー等はメニューの中にある (${look.menuCaps.join('|')})`, look.menuCaps.join('|') === 'カレンダー|ROOM一覧|スペシャルモード|ことばの友だち'); // ことばの友だちを追加（メール指示 2026-08-06 の続き）
   check('設定はヘッダー右の角丸ボタンへ移った（左のレールには無い）', look.hdSet);
   // プレゼントとガチャは1つのボタンに統合し、中身は吹き出しの2ボタンになった（メール指示 2026-08-02 16:32）
   check(`統合ボタンの中はプレゼントとガチャの2つ (${look.labels.join('|')})`, look.labels.join('|') === 'プレゼント|ガチャ');

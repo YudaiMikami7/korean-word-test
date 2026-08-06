@@ -2177,6 +2177,7 @@ body.bigtext .set-d{font-size:13.5px}
   cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:900;color:#1a1a1a;-webkit-tap-highlight-color:transparent}
 .hm-cap:active{background:#E3E3E3}
 .hm-cap img{width:30px;height:30px;object-fit:contain;flex:0 0 auto}
+.hm-cap .hm-emo{width:30px;height:30px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:22px}
 /* --- プレゼント／ガチャの吹き出し（「単語帳ボタン」と同じ白い角丸ボタンを2つ横並び。メール指示 2026-08-02） --- */
 .gf-card{width:252px;padding:12px}
 .gf-row{display:flex;gap:10px;justify-content:center}
@@ -2284,11 +2285,76 @@ body.bigtext .set-d{font-size:13.5px}
 .lk-strip .lk-si{flex:0 0 auto;font-size:15px}
 .lk-strip .lk-st{flex:1;min-width:0;font-size:11.5px;font-weight:900;color:#8a5a00;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lk-strip .lk-sd{flex:0 0 auto;font-size:9px;font-weight:900;color:#fff;padding:2px 6px;border-radius:999px}
+/* 5.2 情報階層（第2＝なにをすれば発動するか／第3＝どこまで増やせるか）と 6.1 の「0 / 5」 */
+.lk-h2{font-size:10.5px;font-weight:900;color:#8a5a00;margin-top:9px;letter-spacing:.04em}
+.lk-h3{font-size:10px;font-weight:800;color:#999;margin-top:6px;line-height:1.4}
+.lk-prog{display:flex;align-items:center;gap:6px;margin-top:6px}
+.lk-prog .lk-pb{flex:1;height:7px;background:#EDEDED;border:2px solid #E3E3E3;overflow:hidden}
+.lk-prog .lk-pb i{display:block;height:100%;transition:width .3s ease}
+.lk-prog b{font-size:10.5px;font-weight:900;color:#777}
+.lk-ev{font-size:10px;font-weight:800;color:#5a6a8a;background:#EEF3FB;padding:5px;margin-top:7px;line-height:1.4}
+.lk-msg{font-size:11px;font-weight:800;color:#555;margin-top:7px;line-height:1.45}
+/* 14.3 ボーナス履歴7日分 */
+.lk-hist{margin-top:9px;border-top:2px solid #EDEDED;padding-top:7px;text-align:left}
+.lk-hist .lk-hh{font-size:9.5px;font-weight:900;color:#999;letter-spacing:.06em;margin-bottom:4px}
+.lk-hr{display:flex;align-items:center;gap:5px;padding:2px 0}
+.lk-hr .lk-hd{flex:0 0 auto;font-size:10px;font-weight:900;color:#999;width:32px}
+.lk-hr .lk-hn{flex:1;min-width:0;font-size:10.5px;font-weight:800;color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lk-hr .lk-hs{flex:0 0 auto;font-size:9.5px;font-weight:900;color:#BBB}
+/* 8.1 レアリティ別の開封（フラッシュは使わず、カードのふちが色づく） */
+.lk-pop{animation:lkPop .42s cubic-bezier(.2,1.4,.4,1) both;box-shadow:0 0 0 4px var(--lkfx,#FFF6DC)}
+@keyframes lkPop{0%{transform:scale(.94)}70%{transform:scale(1.02)}100%{transform:scale(1)}}
 /* 結果画面：発動したボーナスと、もらったもの */
 .lk-res{background:rgba(255,255,255,.92);color:#1a1a1a;padding:8px 11px;margin-top:9px;text-align:center}
 .lk-res .lk-rh{font-size:10px;font-weight:900;color:#E0831A;letter-spacing:.08em}
 .lk-res .lk-rn{font-size:14.5px;font-weight:900;margin-top:1px;line-height:1.25}
 .lk-res .lk-rt{font-size:10.5px;font-weight:800;color:#888;margin-top:6px;line-height:1.4}
+/* 8.4 正解した語から小さな光が集まって、ボーナスのアイコンに入る（報酬は学習から生まれた、という因果を見せる） */
+.lk-rfly{position:relative;height:34px;margin:4px 0 2px}
+.lk-rfly .lk-rico{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px;animation:lkRico .5s ease-out .55s both}
+@keyframes lkRico{0%{transform:translate(-50%,-50%) scale(1)}45%{transform:translate(-50%,-50%) scale(1.28)}100%{transform:translate(-50%,-50%) scale(1)}}
+.lk-rfly i{position:absolute;left:50%;top:50%;width:8px;height:8px;border-radius:50%;margin:-4px 0 0 -4px;
+  animation:lkFly .62s ease-in var(--ld,0ms) both}
+@keyframes lkFly{0%{opacity:0;transform:translate(var(--lx),16px) scale(.6)}18%{opacity:1}100%{opacity:0;transform:translate(0,0) scale(.2)}}
+/* ============================================================ ことばの友だち（단어 친구／動物育成） ============================================================ */
+#pet-modal{position:fixed;inset:0;z-index:400;display:none;background:rgba(0,0,0,.34)}
+#pet-modal.on{display:block}
+.pt-card{width:268px}
+.pt-name{font-size:16px;font-weight:900;color:#1a1a1a;margin-top:3px;line-height:1.25}
+.pt-name span{display:block;font-size:10.5px;font-weight:800;color:#999;margin-top:1px}
+.pt-art{position:relative;height:120px;margin:8px 0 0;border:3px solid #E3E3E3;overflow:hidden;cursor:pointer}
+.pt-art.sm{height:54px;border-width:2px;cursor:default}
+.pt-art .pt-body{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%);font-size:52px;line-height:1}
+.pt-art.sm .pt-body{font-size:26px}
+.pt-art .pt-wx{position:absolute;left:6px;top:5px;font-size:17px}
+.pt-art .pt-mood{position:absolute;right:6px;top:5px;font-size:17px}
+.pt-art .pt-wear{position:absolute;left:50%;top:20%;transform:translate(-50%,-50%);font-size:19px}
+.pt-art .pt-sp{position:absolute;right:7px;bottom:24px;font-size:17px}
+.pt-art .pt-act{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.86);font-size:10.5px;font-weight:900;color:#555;padding:3px 5px}
+.pt-art.sm .pt-wx,.pt-art.sm .pt-mood,.pt-art.sm .pt-wear,.pt-art.sm .pt-sp,.pt-art.sm .pt-act{display:none}
+.pt-jump{animation:ptJump .45s cubic-bezier(.2,1.5,.4,1)}
+@keyframes ptJump{0%{transform:translateY(0)}40%{transform:translateY(-7px)}100%{transform:translateY(0)}}
+.pt-line{margin-top:8px;background:#FFF7E0;border:2px solid #FFE39A;padding:6px 8px}
+.pt-line b{display:block;font-size:14px;font-weight:900;color:#8a5a00;line-height:1.3}
+.pt-line span{display:block;font-size:10.5px;font-weight:800;color:#999;margin-top:2px}
+.pt-st{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.pt-st span{font-size:10px;font-weight:900;color:#777;background:#F2F2F2;border:2px solid #E3E3E3;padding:3px 7px}
+.pt-bar{height:8px;background:#EDEDED;border:2px solid #E3E3E3;margin-top:8px;overflow:hidden}
+.pt-bar i{display:block;height:100%;background:#FFC400;transition:width .35s ease}
+.pt-next{font-size:10.5px;font-weight:800;color:#999;margin-top:5px;line-height:1.45}
+.pt-alb{margin-top:10px;border-top:2px solid #EDEDED;padding-top:7px}
+.pt-albh{font-size:9.5px;font-weight:900;color:#999;letter-spacing:.06em;text-align:left}
+.pt-albr{display:flex;gap:5px;overflow-x:auto;padding:5px 0 2px;-webkit-overflow-scrolling:touch}
+.pt-albi{flex:0 0 auto;width:54px}
+.pt-albi em{display:block;font-size:9px;font-weight:900;color:#BBB;font-style:normal;margin-top:2px}
+/* 結果画面：エネルギーを食べて育ったところ */
+.pt-res{background:rgba(255,255,255,.92);color:#1a1a1a;padding:8px 11px;margin-top:9px;text-align:center}
+.pt-res .pt-rh{font-size:10px;font-weight:900;color:#E0831A;letter-spacing:.08em}
+.pt-rrow{display:flex;align-items:center;gap:9px;margin-top:5px;text-align:left}
+.pt-rrow .pt-art{flex:0 0 auto;width:54px;margin:0}
+.pt-rtx{flex:1;min-width:0}
+.pt-rtx b{display:block;font-size:12.5px;font-weight:900;color:#1a1a1a}
+.pt-rtx span{display:block;font-size:10.5px;font-weight:800;color:#888;margin-top:2px;line-height:1.4}
 </style>
 <!-- アクセス解析: Cloudflare Web Analytics（プロキシ経由で自動計測。手動ビーコン不要） -->
 <script src="ga.js?v=2512"></script>
@@ -2387,12 +2453,14 @@ body.bigtext .set-d{font-size:13.5px}
 <div id="special-modal"></div>
 <div id="d5-modal"></div>
 <div id="luck-modal"></div><!-- 今日限定ボーナス（メール指示 2026-08-06） -->
+<div id="pet-modal"></div><!-- ことばの友だち（動物育成。メール指示 2026-08-06 の続き） -->
 <!-- ハンバーガーメニューの吹き出し（カレンダー／ROOM一覧／スペシャルモードのカプセル3つ。メール指示 2026-08-02） -->
 <div id="menu-modal">
   <div class="d5-card hm-card">
     <button class="hm-cap" onclick="closeHomeMenu();openCalendar()"><img src="icons/calendar.webp" alt=""><span>カレンダー</span></button>
     <button class="hm-cap" onclick="closeHomeMenu();openRoomMap()"><img src="icons/map.webp" alt=""><span>ROOM一覧</span></button>
     <button class="hm-cap" onclick="closeHomeMenu();openSpecial()"><img src="images-thumb/0731.webp" alt=""><span>スペシャルモード</span></button>
+    <button class="hm-cap" onclick="closeHomeMenu();openPet()"><span class="hm-emo" aria-hidden="true">🐶</span><span>ことばの友だち</span></button>
   </div>
 </div>
 <!-- プレゼント／ガチャを1つにまとめたボタンの吹き出し（単語帳ボタンと同じ見た目のボタン2つを横並び。メール指示 2026-08-02） -->
@@ -5355,7 +5423,7 @@ window.addEventListener("popstate",()=>{
     const _spg=document.getElementById("spov");
     if(_spg&&_spg.classList.contains("on")){spExitGame();return;}
     // 1) 開いているモーダルを閉じる
-    for(const id of ["luck-modal","present-modal","gacha-modal","calendar-modal","settings-modal","special-modal","history-modal","map-modal","d5-modal","menu-modal","gift-modal"]){
+    for(const id of ["luck-modal","pet-modal","present-modal","gacha-modal","calendar-modal","settings-modal","special-modal","history-modal","map-modal","d5-modal","menu-modal","gift-modal"]){
       const m=document.getElementById(id);
       if(m&&m.classList.contains("on")){m.classList.remove("on");if(id==="d5-modal"){clearInterval(_d5Timer);_d5Timer=null;}return;}
     }
@@ -5800,6 +5868,7 @@ function finishTrend(){
   saveTrend(all);
   _d5={on:false,mode:"",slot:"",key:""};
   updateTrendBtn();_sgFly.trend=true; // ホームへ戻ったらトレンドボタンも左へ引っ込める
+  _petRes=petFeed("trend");           // ことばの友だち：トレンドでも育つ
   if(typeof track==="function")track("trend_complete",{correct:nCorrect});
   d5RenderResult(all[trendDayKey()],true,true);
 }
@@ -5898,6 +5967,7 @@ function closeAutoD5(go){
 function d5AfterAnswer(status,userAnswer){
   const wrap=document.querySelector("#qstage .choices");
   if(wrap)wrap.querySelectorAll(".choice").forEach(b=>{b.disabled=true;if(b.dataset.v===userAnswer)b.classList.add("d5-pick");});
+  if(_d5.mode==="d5")luckNoteProgress(); // 5.4 今日のボーナスは IN_PROGRESS へ（ホームの「0/5」がここで進む）
   sfxD5Ack();
   const ov=document.createElement("div");ov.className="d5-ack";
   ov.innerHTML=`<span>${status==="timeout"?"時間切れ":status==="unknown"?"スキップ":"回答しました"}</span>`;
@@ -5920,6 +5990,7 @@ function finishDaily5(){
   _d5.on=false;_sgFly.d5=true; // ホームへ戻ったらカプセルを左へ吸い込む→トレンドボタン登場
   grantRestTicketPresent(); // 5問を1回終えるたびに、プレゼントへ「おやすみチケット」を1枚入れる（メール指示 2026-08-01）
   _luckRes=luckApply(rec); // 今日限定ボーナスの発動（結果画面に出す。メール指示 2026-08-06）
+  _petRes=petFeed("d5");   // ことばの友だち：韓国語エネルギーを食べて育つ（学習直後に見せる）
   updateDiagnosis(); // タイプ診断だけ更新（ランク／プレゼントは通常テスト専用）
   if(typeof track==="function")track("daily5_complete",{slot:rec.slot,correct:nCorrect});
   d5RenderResult(rec,true);
@@ -5957,8 +6028,10 @@ function resBtns4HTML(third,extra){
     </div>`;
 }
 let _luckRes=null; // 直前に発動した今日限定ボーナス（結果画面で1度だけ出す）
+let _petRes=null;  // 直前のことばの友だちの成長（結果画面で1度だけ出す）
 function d5RenderResult(rec,animate,isTrend){
-  const luckHTML=(!isTrend&&_luckRes)?luckResultHTML(_luckRes):"";_luckRes=null;
+  const luckHTML=(!isTrend&&_luckRes)?luckResultHTML(_luckRes,rec):"";_luckRes=null;
+  const petHTML=_petRes?petResultHTML(_petRes):"";_petRes=null;
   const SYM={correct:["○","o"],incorrect:["×","x"],unknown:["－","u"],timeout:["△","t"]};
   // 1行＝出題（韓国語なら韓国語）＋その下に答え。まちがえたときだけ自分の回答を足す（メール指示 2026-07-31）
   const rows=rec.items.map((it,i)=>{
@@ -5990,6 +6063,7 @@ function d5RenderResult(rec,animate,isTrend){
     </div>
     <div class="d5r-list">${rows}</div>
     ${luckHTML}
+    ${petHTML}
     ${resBtns4HTML(isTrend
       ?{ico:"🔥",lab:"トレンド単語",act:"show('s-home');openTrend()"}
       :{ico:"⏱",lab:"次までの時間",act:"show('s-home');openDaily5()"},
@@ -6044,25 +6118,83 @@ function d5RareBurst(){
 }
 
 /* ============================================================ 今日限定ボーナス（오늘의 행운／今日の幸運） ============================================================
- * 仕様（メール指示 2026-08-06）:
+ * 仕様書（メール指示 2026-08-06 22:32 ＋ その続き 2026-08-06 23:42）:
  *  ・毎日ひとつだけ「今日だけの学習効果」が選ばれる。起動時に公開し、今日の5問を1セット終えると発動して報酬になる。
  *  ・ランダムなのは「学習するかどうか」ではなく「学習にどの楽しさが加わるか」。最低条件は今日の5問だけ。
- *  ・学習量を増やすほど追加効果が伸びるが3段階で頭打ち。レアが低い日にも必ず実用的な価値（XP）を残す。
- *  ・抽選は完全ランダムにしない：直近に出たものを外し（飽き）、レアが続かない偏りを補正し（不公平）、
- *    はじめの数日はやさしいものだけにする（初心者格差）。
- *  ・演出は最大2.5秒（ふつうは1秒以内）。「逃す恐怖」ではなく、明日のテーマ予告で「明日への好奇心」を残す。
- * 効果の対応:
- *  ・XP／ガチャコイン／単語カード／おやすみチケット／XP2倍チャンス という、いまアプリにある値打ちに変換して渡す。
- *  ・制限時間まわり（No.66 時間延長・No.67 ノータイマー）だけは、その日の出題そのものに効く。 */
+ *  ・抽選は2段：まずレアリティを決め（3.1／3.2／3.3の天井）、そのレアリティの中から重みつきで中身を選ぶ（4.2の7係数）。
+ *  ・学習量を増やすほど伸びるが逓減し、25問以降は増えない（11.4）。ボーナス由来XPには1日の上限がある（11.1）。
+ *  ・演出は最大2.5秒。色だけでレアリティを示さず、必ず名前とアイコンを併記する（8.3）。
+ *  ・「逃す恐怖」ではなく、明日のテーマ予告と復刻で「明日への好奇心」を残す（11.5）。
+ * このアプリでの受け皿:
+ *  ・XP／ガチャ／単語カード／おやすみチケット／XP2倍チャンス という、いまアプリにある値打ちに換算して渡す。
+ *  ・制限時間まわり（No.66 時間延長・No.67 ノータイマー）だけは、その日の出題そのものに効く。
+ *  ・サーバー前提の項目（署名つき配布・API・運営ダッシュボード・全体協力）は、端末内の記録で置きかえている。 */
 const LS_LUCK="kwt_luck_v1";
+/* 3.1／3.4／8.1 レアリティ。w=基本出現率(%)／ms=公開演出の長さ／val=基準価値／cap=その日ボーナスから出せるXPの上限／fx=演出の光の色 */
 const LUCK_RARE={
-  C :{lab:"COMMON",col:"#9AA0A6",w:44 ,ms:800 },
-  R :{lab:"RARE"  ,col:"#2F6FE0",w:29 ,ms:900 },
-  SR:{lab:"S RARE",col:"#8A4BE0",w:16 ,ms:1400},
-  E :{lab:"EPIC"  ,col:"#E0831A",w:7.6,ms:1800},
-  L :{lab:"LEGEND",col:"#E0433B",w:2.6,ms:2500},
-  M :{lab:"MYTHIC",col:"#1a1a1a",w:0.8,ms:2500}
+  C :{lab:"COMMON"    ,code:"C" ,col:"#9AA0A6",fx:"#FFF6DC",w:46 ,ms:600 ,val:1.0,cap:60 },
+  R :{lab:"RARE"      ,code:"R" ,col:"#2F6FE0",fx:"#D3E8FF",w:30 ,ms:900 ,val:1.5,cap:60 },
+  SR:{lab:"SUPER RARE",code:"SR",col:"#8A4BE0",fx:"#F3D7FF",w:15 ,ms:1300,val:2.5,cap:60 },
+  E :{lab:"EPIC"      ,code:"E" ,col:"#C0298A",fx:"#FFDDA8",w:6  ,ms:1700,val:4.0,cap:60 },
+  L :{lab:"LEGENDARY" ,code:"L" ,col:"#C99400",fx:"#FFF4C8",w:2.5,ms:2100,val:6.0,cap:80 },
+  M :{lab:"MYTHIC"    ,code:"M" ,col:"#1F2A5A",fx:"#EADFB4",w:0.5,ms:2500,val:10 ,cap:100}
+}; // 8.2 「SSR」は使わない（Super Rare は SR と書く）
+const LUCK_ORDER=["C","R","SR","E","L","M"];
+const LUCK_NEWBIE={C:35,R:38,SR:20,E:6,L:1,M:0}; // 3.2 はじめの7日間は最高レアを出さない
+/* 9. 年間イベントカレンダー（size 1=小 2=中 3=大 5=最大）。10月1〜9日はハングルの日ウィーク */
+const LUCK_CAL={
+  1 :{name:"新年・설날準備"        ,body:"新年挨拶、干支、福袋カード"    ,size:3},
+  2 :{name:"설날・バレンタイン"    ,body:"家族語彙、贈り物、恋愛表現"    ,size:3},
+  3 :{name:"新生活・삼일절"        ,body:"学校、仕事、春、歴史入門"      ,size:2},
+  4 :{name:"桜・韓国旅行"          ,body:"花見、交通、旅行会話"          ,size:2},
+  5 :{name:"GW・子どもの日・両親の日",body:"家族、旅行、感謝表現"        ,size:3},
+  6 :{name:"梅雨・環境の日"        ,body:"天気、衣類、生活語彙"          ,size:1},
+  7 :{name:"夏・초복"              ,body:"夏料理、体調、旅行"            ,size:2},
+  8 :{name:"夏休み・광복절"        ,body:"旅行、歴史、地域カード"        ,size:3},
+  9 :{name:"추석準備"              ,body:"食事、家族、帰省、伝統文化"    ,size:3},
+  10:{name:"ハングルの日"          ,body:"ハングル、固有語、文字史"      ,size:5},
+  11:{name:"ペペロ・受験・紅葉"    ,body:"応援表現、勉強、秋"            ,size:2},
+  12:{name:"クリスマス・年末"      ,body:"冬、贈り物、振り返り"          ,size:3}
 };
+/* 10. 韓国らしいテーマ50種。効果30種×テーマ×条件で毎日の見え方を変える（16.1 マンネリ対策） */
+const LUCK_THEMES=[
+  {c:"旅行",n:"空港チェックインの日"},{c:"旅行",n:"地下鉄乗り換えの日"},{c:"旅行",n:"ソウル駅の日"},
+  {c:"旅行",n:"明洞ショッピングの日"},{c:"旅行",n:"弘大カフェの日"},{c:"旅行",n:"釜山の海の日"},
+  {c:"旅行",n:"済州島の日"},{c:"旅行",n:"ホテル韓国語の日"},{c:"旅行",n:"タクシー韓国語の日"},{c:"旅行",n:"韓国コンビニの日"},
+  {c:"K-POP",n:"カムバックの日"},{c:"K-POP",n:"推しに一言の日"},{c:"K-POP",n:"応援法の日"},
+  {c:"K-POP",n:"音楽番組の日"},{c:"K-POP",n:"ライブ会場の日"},{c:"K-POP",n:"ファンサイン会の日"},
+  {c:"K-POP",n:"アルバム開封の日"},{c:"K-POP",n:"歌詞によく出る動詞の日"},{c:"K-POP",n:"感情表現の日"},{c:"K-POP",n:"メンバー紹介の日"},
+  {c:"料理",n:"キンパの日"},{c:"料理",n:"トッポッキの日"},{c:"料理",n:"サムギョプサルの日"},
+  {c:"料理",n:"ビビンバの日"},{c:"料理",n:"チキンの日"},{c:"料理",n:"ラーメンの日"},
+  {c:"料理",n:"カフェスイーツの日"},{c:"料理",n:"市場の日"},{c:"料理",n:"屋台の日"},{c:"料理",n:"注文韓国語の日"},
+  {c:"ドラマ",n:"告白表現の日"},{c:"ドラマ",n:"驚き表現の日"},{c:"ドラマ",n:"敬語の日"},
+  {c:"ドラマ",n:"家族会話の日"},{c:"ドラマ",n:"職場会話の日"},{c:"ドラマ",n:"病院会話の日"},
+  {c:"ドラマ",n:"学園会話の日"},{c:"ドラマ",n:"サスペンス語彙の日"},{c:"ドラマ",n:"時代劇語彙の日"},{c:"ドラマ",n:"次回予告の日"},
+  {c:"文化",n:"ハングルの日"},{c:"文化",n:"韓服の日"},{c:"文化",n:"韓屋の日"},
+  {c:"文化",n:"民俗遊びの日"},{c:"文化",n:"伝統市場の日"},{c:"文化",n:"チムジルバンの日"},
+  {c:"文化",n:"韓国の年齢表現の日"},{c:"文化",n:"姓と呼称の日"},{c:"文化",n:"敬語文化の日"},{c:"文化",n:"地域方言の日"}
+]; // 著作権上、歌詞・アーティスト写真・公式ロゴは使わず、一般語彙とオリジナル表現だけで表す
+/* 7.2 通知60パターン。この端末アプリにはプッシュ配信の仕組みが無いので、その日の1行メッセージとして使う（7.3の型で選ぶ） */
+const LUCK_MSGS={
+  curious:["今日のボーナスが決まりました。","今日はいつもと少し違う5問です。","今日のカプセルに、新しい効果が入っています。",
+    "今日だけ使える学習効果を確認できます。","今日の韓国語に、小さな幸運が届いています。","今日のカードテーマが公開されました。",
+    "今日はどの韓国語テーマでしょう。","今日の学習ルートが決まりました。","5問の先に、今日限定の報酬があります。","今日のボーナスには、追加条件があります。"],
+  start:["3分の韓国語を始めましょう。","今日の5問を用意しました。","最初の1問から、今日のボーナスが進みます。",
+    "今日は5問でカードのかけらを獲得できます。","今日覚える5語が待っています。","まずは1問、韓国語を思い出しましょう。",
+    "今日の学習は約3分です。","5問クリアで今日の効果が発動します。","今日の復習にちょうどよい時間です。","昨日の単語を、今日もう一度思い出しましょう。"],
+  rare:["今日は少し珍しい光が出ています。","今日のカプセルは青く輝いています。","いつもより強いボーナスが選ばれました。",
+    "今日のボーナスはSR以上です。","特別なカードの気配があります。","今日の抽選結果は、まだ開けていません。",
+    "久しぶりのレアボーナスです。","今日の5問には特別報酬があります。","図鑑が進む可能性の高い日です。","今日だけ、未所持カードが見つかりやすくなっています。"],
+  theme:["今日は韓国カフェで使う5語です。","ソウル旅行に役立つ単語を用意しました。","今日のテーマは韓国料理です。",
+    "韓国ドラマで聞く表現を学びましょう。","K-POPで見かける韓国語が登場します。","コンビニで使える韓国語を5問だけ。",
+    "今日のトレンド語を1つ覚えましょう。","釜山に関するカードが登場しています。","ハングルにまつわる特別ボーナスです。","今日の韓国文化クイズが届きました。"],
+  review:["忘れかけている単語が3語あります。","今思い出すと定着しやすい単語があります。","7日前の単語を覚えているか確認しましょう。",
+    "苦手語を5問にまとめました。","昨日間違えた単語を短く復習できます。","今日の復習は3分以内で完了します。",
+    "記憶が薄れる前に、1回だけ思い出しましょう。","今日のボーナスは復習XPアップです。","苦手カテゴリの正解XPが2倍です。","今日の5問は、あなたの復習履歴から選ばれています。"],
+  streak:["今日も5問で学習記録を残せます。","連続学習7日目まで、あと1日です。","今週はあと1回で週間目標達成です。",
+    "久しぶりの5問を、やさしい内容で用意しました。","前回の続きから再開できます。","ストリークより、今日の1回を大切にしましょう。",
+    "休んだ分は気にせず、5問から再開できます。","今日戻ると復帰ボーナスが発動します。","学習記録をもう一度始める日です。","今週の学習はあと3分で完了です。"]
+}; // 7.1 「失います」「連続記録が消えます」は使わない／Mythicの中身は文面で明かさない
 const LUCK_CATS={xp:{lab:"XP・レベル",ico:"⭐"},gacha:{lab:"ガチャ",ico:"🪙"},card:{lab:"カード収集",ico:"🃏"},
   review:{lab:"復習・記憶",ico:"🧠"},support:{lab:"学習支援",ico:"🤝"},streak:{lab:"継続",ico:"🔥"},
   culture:{lab:"韓国文化",ico:"🇰🇷"},special:{lab:"サプライズ",ico:"🎁"}};
@@ -6185,23 +6317,49 @@ const LUCK_LIST=[
   {n:115,g:"special",name:"全員協力デー"    ,eff:"全体学習数達成で翌日報酬"         ,r:"E" ,t:"全員"    ,c:"高"},
   {n:116,g:"special",name:"みんなの苦手語"  ,eff:"全体誤答率が高い語を学習"         ,r:"SR",t:"全員"    ,c:"高"},
   {n:117,g:"special",name:"新語先行体験"    ,eff:"新カードを正式追加前に試せる"     ,r:"E" ,t:"全員"    ,c:"高"},
-  {n:118,g:"special",name:"復刻ボーナス"    ,eff:"過去イベントカードを再取得"       ,r:"L" ,t:"長期利用",c:"中"}
+  {n:118,g:"special",name:"復刻ボーナス"    ,eff:"過去イベントカードを再取得"       ,r:"L" ,t:"長期利用",c:"中"},
+  {n:119,g:"special",name:"コレクション記念日",eff:"所持カード数に応じ記念枠"       ,r:"SR",t:"長期利用",c:"中"},
+  {n:120,g:"special",name:"学習の軌跡"      ,eff:"1年前の学習語を再出題し記念カード",r:"M" ,t:"1年以上" ,c:"高"}
 ];
 function luckById(n){for(const it of LUCK_LIST)if(it.n===n)return it;return null;}
+function _luckKeyNum(k){const a=String(k).split("-");return (+a[0])*10000+(+a[1])*100+(+a[2]);}
 function luckState(){const o=_lsJSON(LS_LUCK,()=>({}));if(!o.days||typeof o.days!=="object")o.days={};if(!Array.isArray(o.hist))o.hist=[];return o;}
+/* 抽選の履歴。番号だけの旧いかたちも受けつける（4.2の係数はレアリティ・系統も見るのでここで補う） */
+function luckLog(st){
+  return (st.hist||[]).map(h=>{
+    const n=(h&&typeof h==="object")?h.n:h,it=luckById(n);
+    return{n:n,r:(h&&h.r)||(it?it.r:"C"),g:(h&&h.g)||(it?it.g:"special")};
+  });
+}
 function saveLuck(o){
-  const ks=Object.keys(o.days);if(ks.length>40)ks.sort().slice(0,ks.length-40).forEach(k=>delete o.days[k]); // 古い日は間引き
-  if(o.hist.length>40)o.hist.splice(0,o.hist.length-40);
+  const ks=Object.keys(o.days);
+  if(ks.length>40)ks.sort((a,b)=>_luckKeyNum(a)-_luckKeyNum(b)).slice(0,ks.length-40).forEach(k=>delete o.days[k]); // 古い日は間引き
+  if(o.hist.length>400)o.hist.splice(0,o.hist.length-400); // 天井（365日）の判定に使うので長めに残す
   _lsSetJSON(LS_LUCK,o);
 }
-function luckDayKey(ms){return dayKey((ms||Date.now())-D5_AM*3600000);} // 1日の区切りは5:00（今日の5問と同じ）
-/* 抽選に使う、その人の状態 */
+/* 1日の区切りは朝5:00（今日の5問と同じ）。仕様書14.6は午前4時だが、アプリの中に日の境目が2つあると混乱するので既存に合わせている */
+function luckDayKey(ms){return dayKey((ms||Date.now())-D5_AM*3600000);}
+/* 16.3 端末の時刻を戻しても、過ぎた日をもう一度引き直せないようにする（進めるぶんは通常どおり） */
+function luckTodayKey(){
+  const st=luckState(),k=luckDayKey();
+  if(st.maxk&&_luckKeyNum(k)<_luckKeyNum(st.maxk))return st.maxk;
+  if(!st.maxk||_luckKeyNum(k)>_luckKeyNum(st.maxk)){st.maxk=k;saveLuck(st);}
+  return k;
+}
+/* 抽選に使う、その人の状態（4.3の補正はここの値を見る） */
 function luckProfile(){
-  const done=Object.keys(doneCountByDay());
+  const now=Date.now(),dc=doneCountByDay(),done=Object.keys(dc);
   let last=0;done.forEach(k=>{const t=_dayFromKey(k).getTime();if(t>last)last=t;});
   const today=new Date();today.setHours(0,0,0,0);
+  let due=0;
+  try{const s=loadStats();Object.keys(s).forEach(id=>{const t=s[id];if(t&&t.hasSeen&&t.nextReviewAt&&new Date(t.nextReviewAt).getTime()<=now)due++;});}catch(e){}
+  let ok=0,ng=0;
+  try{loadHistory().forEach(r=>{if(!r||!r.answeredAt)return;if(now-new Date(r.answeredAt).getTime()>7*86400000)return;if(r.isCorrect)ok++;else ng++;});}catch(e){}
+  let cards=0,pool=1;
+  try{cards=Object.keys(loadCards()).length;pool=Math.max(1,levelAllWords().length);}catch(e){}
   return{lv:xpInfo().level,tests:totalTests(),days:launchedDays().length,streak:d5Streak(),
-    cards:Object.keys(loadCards()).length,hour:new Date().getHours(),
+    cards:cards,newRate:1-Math.min(1,cards/pool),acc:(ok+ng)?ok/(ok+ng):1,due:due,
+    twice:(dc[dayKey(now)]||0)>=2,hour:new Date().getHours(),
     gap:last?Math.max(0,Math.round((today.getTime()-last)/86400000)):0};
 }
 /* 対象（t）に合う人にだけ配る。合わない日のためだけに用意された効果は引かない（無理のある条件を出さない） */
@@ -6214,6 +6372,7 @@ function luckEligible(it,p){
     case "継続者":    return p.streak>=3;
     case "復帰者":    return p.gap>=2;
     case "長期利用":  return p.days>=14;
+    case "1年以上":   return p.days>=365;
     case "コレクター":return p.cards>=30;
     case "学習量多":  return p.tests>=15;
     case "復習対象":  case "苦手あり": return p.tests>=3;
@@ -6223,38 +6382,114 @@ function luckEligible(it,p){
     default: return true;                // 全員／忙しい人 など
   }
 }
-/* 抽選（その人・その日で固定）。飽き・不公平・初心者格差の3つを補正してから重みつきで引く */
+/* ---- 9. その日のイベント（10月1〜9日はハングルの日ウィーク＝年間最大） ---- */
+function luckEvent(key){
+  const d=_dayFromKey(key||luckDayKey()),m=d.getMonth()+1,ev=LUCK_CAL[m];
+  if(!ev)return null;
+  const hangul=(m===10&&d.getDate()<=9);
+  return{name:hangul?"한글날 ハングルの日ウィーク":ev.name,body:ev.body,size:hangul?5:ev.size,hangul:hangul};
+}
+/* ---- 3.1〜3.3 レアリティ抽選（天井つき） ---- */
+function luckRarityWeights(p){
+  const w={},nb=(p.days<=7); // 3.2 開始後7日間は初心者補正（最高レアを出さない）
+  LUCK_ORDER.forEach(r=>w[r]=nb?LUCK_NEWBIE[r]:LUCK_RARE[r].w);
+  return w;
+}
+function luckDrawRarity(rnd,p,log){
+  const gte=r=>LUCK_ORDER.slice(LUCK_ORDER.indexOf(r));
+  const w=luckRarityWeights(p);
+  const pick=list=>{
+    let t=0;list.forEach(r=>t+=w[r]||0);
+    if(t<=0)return list[0];
+    let x=rnd()*t;
+    for(const r of list){if((x-=(w[r]||0))<0)return r;}
+    return list[list.length-1];
+  };
+  const since=rs=>{let n=0;for(let i=log.length-1;i>=0;i--){if(rs.indexOf(log[i].r)>=0)return n;n++;}return n;};
+  if(log.length>=365&&since(["M"])>=365)return "M";                             // 365日Mなし → 366日目はM確定
+  if(log.length>=120&&since(gte("L"))>=120)return pick(gte("L"));               // 120日L以上なし → L以上確定
+  if(log.length>=30 &&since(gte("E"))>=30 )return pick(gte("E"));               // 30日E以上なし → E以上確定
+  if(log.length>=5  &&log.slice(-5).every(x=>x.r==="C"))return pick(gte("R"));  // 5日連続Cのみ → 翌日はR以上確定
+  if(log.length>=10 &&since(gte("SR"))>=10&&rnd()<0.30)return pick(gte("SR"));  // 10日SR以上なし → 翌日のSR以上率を30%に
+  return pick(LUCK_ORDER);
+}
+/* ---- 4.2 重み係数（どれも仕様書の範囲におさめる） ---- */
+function luckNovelty(it,log){ // 0.1〜1.5 最近出ていないものほど増える
+  for(let i=log.length-1,d=1;i>=0;i--,d++)if(log[i].n===it.n)return Math.max(0.1,Math.min(1.5,d/20));
+  return 1.5;
+}
+function luckLearningNeed(it,p){ // 0.7〜1.8（4.3）／3日以上休止の復帰系だけは別枠で強める
+  let f=1;
+  if(p.due>=10&&it.g==="review")f*=1.6;
+  if(p.acc<0.6&&it.g==="support")f*=1.5;
+  if(p.acc>=0.9&&(it.t==="上級者"||it.t==="中上級"))f*=1.4;
+  if(p.newRate>=0.7&&it.g==="card")f*=1.3;
+  if(p.twice&&(it.n===11||it.n===103))f*=1.3;                       // 1日2セット以上 → 段階成長系
+  if(p.days>=30&&(it.n===56||it.n===57||it.n===120))f*=1.4;         // 30日以上利用 → 長期記憶系
+  f=Math.max(0.7,Math.min(1.8,f));
+  if(p.gap>=3&&(it.g==="streak"||it.t==="復帰者"))f*=3.0;           // 4.3 3日以上休止 → 復帰系×3.0
+  return f;
+}
+function luckLevelFit(it,p){ // 0.5〜1.5
+  if(it.t==="初心者"||it.t==="初中級")return p.lv<6?1.5:0.5;
+  if(it.t==="上級者")return p.lv>=10?1.5:0.6;
+  if(it.t==="中上級")return p.lv>=6?1.3:0.7;
+  return 1.0;
+}
+function luckStreakFit(it,p){ // 0.7〜1.4（4.4 長いほど際限なく強くはせず、記念・象徴的な報酬へ移す）
+  if(p.gap>=2)return(it.g==="streak"||it.t==="復帰者"||it.t==="初心者")?1.4:0.8;
+  const s=p.streak;
+  if(s<=2)return(it.g==="support"||it.t==="初心者")?1.4:0.9;
+  if(s<=6)return(it.g==="card"||it.g==="xp")?1.4:0.9;
+  if(s<=29)return(it.g==="review"||it.g==="card")?1.4:0.9;
+  return(it.g==="culture"||it.g==="special"||it.g==="streak")?1.4:0.7;
+}
+function luckEventFit(it,key){ // 1.0〜5.0（9）
+  const ev=luckEvent(key);
+  if(!ev||it.g!=="culture")return 1;
+  const f={1:1.5,2:2,3:3,4:4,5:4}[ev.size]||1;
+  return Math.min(5,(ev.hangul&&it.n===95)?5:f); // ハングルの日ウィークの「ハングルの日」だけ最大
+}
+function luckFatigue(it,log){ // 0.2〜1.0 同じ系統が続くのを抑える
+  return Math.max(0.2,1-log.slice(-7).filter(x=>x.g===it.g).length*0.2);
+}
+function luckCat3(it,log){ // 3.3 同一カテゴリは3日連続しない
+  return log.length>=2&&log[log.length-1].g===it.g&&log[log.length-2].g===it.g;
+}
+/* 4.1 抽選処理（その人・その日で固定）。レアリティ → 候補の絞りこみ → 重みつき抽選 の順 */
 function luckPick(key){
-  const p=luckProfile(),st=luckState();
+  key=key||luckDayKey();
+  const p=luckProfile(),st=luckState(),log=luckLog(st);
   const rnd=_d5Rng(_d5Hash("kwt-luck|"+getUserId()+"|"+key));
-  const base=LUCK_LIST.filter(it=>luckEligible(it,p));
-  const recent=st.hist.slice(-14);
-  let pool=base.filter(it=>recent.indexOf(it.n)<0);            // 飽き：直近14回に出たものは外す
-  if(!pool.length)pool=base;
-  if(p.days<3){                                                // 初心者格差：はじめの数日はやさしい効果だけ
-    const easy=pool.filter(it=>it.r==="C"||it.r==="R");
-    if(easy.length)pool=easy;
-  }else if(st.hist.length>=7&&!st.hist.slice(-7).some(n=>{const o=luckById(n);return o&&o.r!=="C"&&o.r!=="R";})){
-    const up=pool.filter(it=>it.r!=="C"&&it.r!=="R");           // 不公平：7日レアが出ていなければ、その日はSR以上から
-    if(up.length)pool=up;
-  }
-  const tot=pool.reduce((a,it)=>a+LUCK_RARE[it.r].w,0);
-  let r=rnd()*tot,pick=pool[0];
-  for(const it of pool){if((r-=LUCK_RARE[it.r].w)<0){pick=it;break;}}
-  return{n:pick.n,lucky:3+Math.floor(rnd()*3),golden:Math.floor(rnd()*D5_N)}; // ラッキーナンバー／ゴールデン5問の当たりも同時に決める
+  const rarity=luckDrawRarity(rnd,p,log);
+  const recent=log.slice(-14).map(x=>x.n);                       // 3.3 同一ボーナスは14日以内に再抽選しない
+  const okAll=LUCK_LIST.filter(it=>luckEligible(it,p));
+  const inR=okAll.filter(it=>it.r===rarity);
+  const tries=[
+    inR.filter(it=>recent.indexOf(it.n)<0&&!luckCat3(it,log)),
+    inR.filter(it=>recent.indexOf(it.n)<0),
+    okAll.filter(it=>recent.indexOf(it.n)<0),
+    inR,okAll,LUCK_LIST];
+  const pool=tries.find(a=>a.length)||LUCK_LIST;
+  const cand=pool.map(it=>({it,w:Math.max(0.001,
+    luckNovelty(it,log)*luckLearningNeed(it,p)*luckLevelFit(it,p)*luckStreakFit(it,p)*luckEventFit(it,key)*luckFatigue(it,log))}));
+  const tot=cand.reduce((a,c)=>a+c.w,0);
+  let r=rnd()*tot,pick=cand[0].it;
+  for(const c of cand){if((r-=c.w)<0){pick=c.it;break;}}
+  return{n:pick.n,lucky:3+Math.floor(rnd()*3),golden:Math.floor(rnd()*D5_N),th:Math.floor(rnd()*LUCK_THEMES.length)};
 }
 function luckEnsure(key){
-  key=key||luckDayKey();
+  key=key||luckTodayKey();
   const st=luckState();
   if(!st.days[key]){
-    const p=luckPick(key);
-    st.days[key]={n:p.n,lucky:p.lucky,golden:p.golden,revealed:false,applied:false,step:0};
-    st.hist.push(p.n);
+    const p=luckPick(key),it=luckById(p.n);
+    st.days[key]={n:p.n,lucky:p.lucky,golden:p.golden,th:p.th,revealed:false,applied:false,step:0,prog:0};
+    st.hist.push({n:p.n,r:it?it.r:"C",g:it?it.g:"special"});
     saveLuck(st);
   }
   return st.days[key];
 }
-function luckMark(patch,key){const st=luckState(),k=key||luckDayKey();if(!st.days[k])return null;Object.assign(st.days[k],patch);saveLuck(st);return st.days[k];}
+function luckMark(patch,key){const st=luckState(),k=key||luckTodayKey();if(!st.days[k])return null;Object.assign(st.days[k],patch);saveLuck(st);return st.days[k];}
 function luckTodayItem(){const d=luckEnsure();return luckById(d.n);}
 /* 明日のテーマ予告（系統だけ。中身は明日のお楽しみ） */
 function luckTomorrowCat(){
@@ -6263,8 +6498,42 @@ function luckTomorrowCat(){
     return it?(LUCK_CATS[it.g]||{}).lab||"":"";
   }catch(e){return "";}
 }
-/* ---- 報酬 ---- */
-const LUCK_BASE={C:20,R:30,SR:45,E:60,L:80,M:110};
+/* 10・16.1 その日のテーマ（同じ効果でも見え方が変わるようにする） */
+function luckTheme(d){const t=LUCK_THEMES[((d&&d.th!=null?d.th:0)%LUCK_THEMES.length+LUCK_THEMES.length)%LUCK_THEMES.length];return t?t.n:"";}
+/* 7.2・7.3 その日の1行メッセージ。型は利用状況で選ぶ（Mythicの中身は文面で明かさない） */
+function luckMsg(){
+  try{
+    const p=luckProfile(),d=luckEnsure(),it=luckById(d.n);
+    let kind="curious";
+    if(p.gap>=2||p.days<=2)kind="start";
+    else if(it&&it.r!=="C"&&it.r!=="R")kind="rare";
+    else if(p.due>=5)kind="review";
+    else if(p.streak>=3)kind="streak";
+    else if(p.cards>=30)kind="theme";
+    const a=LUCK_MSGS[kind]||LUCK_MSGS.curious;
+    return a[_d5Hash("kwt-luckmsg|"+getUserId()+"|"+luckTodayKey())%a.length];
+  }catch(e){return "";}
+}
+/* 5.4 状態遷移 LOCKED → IN_PROGRESS → CLAIMED → UPGRADED（日付が変わると EXPIRED） */
+function luckStatus(d){
+  d=d||luckEnsure();
+  if((d.step||0)>=2)return "UPGRADED";
+  if(d.applied)return "CLAIMED";
+  return (d.prog||0)>0?"IN_PROGRESS":"LOCKED";
+}
+/* 6.1・6.2 「0 / 5」の進み具合 */
+function luckProgress(){const d=luckEnsure();return{p:d.applied?D5_N:Math.min(D5_N,d.prog||0),t:D5_N};}
+function luckNoteProgress(){try{const d=luckEnsure();if(!d.applied)luckMark({prog:Math.min(D5_N,(d.prog||0)+1)});}catch(e){}}
+/* 11.5 期限は翌朝5:00。残り時間は見せるが「永久に入手不能」はうたわない（復刻で取り戻せる） */
+function luckExpireMs(){const d=new Date();d.setHours(D5_AM,0,0,0);let t=d.getTime();if(t<=Date.now())t+=86400000;return t;}
+function luckLeftText(){
+  const ms=Math.max(0,luckExpireMs()-Date.now()),h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000);
+  return h>0?("あと"+h+"時間"+m+"分"):("あと"+m+"分");
+}
+/* ---- 報酬（11.1／11.4） ---- */
+const LUCK_BASE={C:12,R:20,SR:32,E:45,L:60,M:90}; // レアリティ別のXP水準
+const LUCK_STEP=[1,0.20,0.15,0.10];               // 5問=100%／追加5問ごとに20%・15%・10%／25問以降は増えない
+const LUCK_MAXSTEP=LUCK_STEP.length;
 /* 条件つきの上乗せ（達成できたときだけ）。効果文に書いてある条件をそのまま見る */
 function luckDynXp(it,ctx){
   const h=new Date().getHours();
@@ -6276,26 +6545,32 @@ function luckDynXp(it,ctx){
     case 105: return ctx.correct===ctx.lucky?40:0;                 // ラッキーナンバー
     case 106: return ctx.goldenOk?60:0;                            // ゴールデン5問
     case 111: return (typeof trendUsed==="function"&&trendUsed())?30:0; // ペアボーナス
+    case 119: try{return Math.min(40,Math.floor(Object.keys(loadCards()).length/5));}catch(e){return 0;} // コレクション記念日
+    case 120: return 50;                                           // 学習の軌跡（1年前の学習語）
     default:  return 0;
   }
 }
-/* step=1 が今日の5問ぶん。2・3段目は追加のテストを終えるたびに半分ずつ伸びる（最大3段階＝上限） */
 function luckReward(it,step,ctx){
-  const b=LUCK_BASE[it.r]||20,o={xp:0,coin:0,card:0,rest:0,boost:0};
-  o.xp=Math.round(b*(step<=1?1:0.5)*(it.mul||1));
-  if(step<=1){
+  const R=LUCK_RARE[it.r]||LUCK_RARE.C,b=LUCK_BASE[it.r]||12;
+  const s=Math.max(1,Math.min(LUCK_MAXSTEP,step||1));
+  const o={xp:0,coin:0,card:0,rest:0,boost:0};
+  o.xp=Math.round(b*(it.mul||1)*LUCK_STEP[s-1]);
+  if(s===1){
     if(it.g==="gacha")o.coin=(it.r==="C"||it.r==="R")?1:2;
     if(it.g==="card")o.card=(it.r==="C")?1:2;
     if(it.g==="culture")o.card=1;
     if(it.g==="streak")o.rest=1;
     if(it.g==="review")o.xp=Math.round(o.xp*1.3);
+    if(it.n===119||it.n===120)o.card+=1;                  // 記念枠のカード
     if(it.r==="L"||it.r==="M"){o.boost=30;o.coin+=1;}
     if(ctx)o.xp+=luckDynXp(it,ctx);
+    o.xp=Math.max(10,o.xp);                               // 設計原則5：レアが低い日にも必ず実用的な価値を残す
   }else{
-    if(step>=3&&(it.g==="gacha"||it.g==="special"))o.coin+=1;
-    if(step>=3&&(it.g==="card"||it.g==="culture"))o.card+=1;
+    if(s>=3&&(it.g==="gacha"||it.g==="special"))o.coin+=1;
+    if(s>=3&&(it.g==="card"||it.g==="culture"))o.card+=1;
+    o.xp=Math.max(3,o.xp);
   }
-  o.xp=Math.max(10,Math.min(240,o.xp)); // レアが低い日も必ず値打ちを残し、上は打ち止めにする
+  o.xp=Math.min(R.cap,o.xp);                              // 11.1 ボーナス由来XPの上限
   return o;
 }
 /* カードは、いま遊んでいるレベルの単語からランダムに配る */
@@ -6312,6 +6587,8 @@ function luckGrant(rw){
   if(rw.boost>0)startXpBoost(rw.boost);
   try{updatePresent();}catch(e){} // ガチャ・XP2倍のバッジだけ更新（ホームの作り直しは結果画面の演出を壊すのでしない）
 }
+/* その日ボーナスから出せるXPの残り（11.1 の上限） */
+function _luckXpLeft(it,d){return Math.max(0,((LUCK_RARE[it.r]||LUCK_RARE.C).cap)-((d.got&&d.got.xp)||0));}
 function luckGotHTML(rw){
   const p=[];
   if(rw.xp>0)p.push("＋"+rw.xp+" XP");
@@ -6330,18 +6607,20 @@ function luckApply(rec){
     const ctx={correct:rec?rec.correct:0,lucky:d.lucky,
       goldenOk:!!(rec&&rec.items&&rec.items[d.golden]&&rec.items[d.golden].ok)};
     const rw=luckReward(it,1,ctx);
+    rw.xp=Math.min(rw.xp,_luckXpLeft(it,d));
     luckGrant(rw);
-    luckMark({applied:true,step:1,got:rw,at:new Date().toISOString()});
-    return{it,rw};
+    luckMark({applied:true,step:1,prog:D5_N,got:rw,at:new Date().toISOString()});
+    return{it,rw,step:1};
   }catch(e){return null;}
 }
-/* 追加のテストを終えるたびに1段階だけ伸びる（3段階で頭打ち） */
+/* 11.4 追加のテストを終えるたびに1段階だけ伸びる。伸び幅は逓減し、25問（4段階）で頭打ち */
 function luckStepUp(){
   try{
     const d=luckEnsure();
-    if(!d.applied||(d.step||1)>=3)return null;
+    if(!d.applied||(d.step||1)>=LUCK_MAXSTEP)return null;
     const it=luckById(d.n);if(!it)return null;
     const step=(d.step||1)+1,rw=luckReward(it,step,null);
+    rw.xp=Math.min(rw.xp,_luckXpLeft(it,d));
     luckGrant(rw);
     luckMark({step,got:{xp:((d.got&&d.got.xp)||0)+rw.xp,coin:((d.got&&d.got.coin)||0)+rw.coin,
       card:((d.got&&d.got.card)||0)+rw.card,rest:((d.got&&d.got.rest)||0)+rw.rest,boost:((d.got&&d.got.boost)||0)+rw.boost}});
@@ -6351,7 +6630,7 @@ function luckStepUp(){
 /* 制限時間に効く効果（No.66 時間延長／No.67 ノータイマー）。ここだけは出題そのものに効く */
 function luckTimeBonus(){
   try{
-    const st=luckState(),d=st.days[luckDayKey()];
+    const st=luckState(),d=st.days[luckTodayKey()];
     if(!d)return 0;
     if(d.n===66)return 3;
     if(d.n===67&&_d5.on&&_d5.mode==="d5")return 600;
@@ -6359,27 +6638,56 @@ function luckTimeBonus(){
   }catch(e){return 0;}
 }
 /* ---- 表示 ---- */
+/* 8.3 「演出を減らす」設定＋端末の「視差効果を減らす」に追従 */
+function luckLessFx(){try{return !!loadSettings().lessFx||_reducedMotion();}catch(e){return false;}}
 function luckFaceHTML(it,sil){
   const c=LUCK_CATS[it.g]||{ico:"🎁"};
   return sil?`<div class="lk-face sil">？</div>`:`<div class="lk-face lk-open">${c.ico}</div>`;
 }
+/* 5.2 情報階層：第1=今日なにが起きるか／第2=なにをすれば発動するか／第3=どこまで増やせるか／第4=詳細条件 */
 function luckBodyHTML(it,d){
   const R=LUCK_RARE[it.r]||LUCK_RARE.C,cat=(LUCK_CATS[it.g]||{}).lab||"";
+  const ev=luckEvent(luckTodayKey()),th=luckTheme(d),msg=luckMsg(),pr=luckProgress();
   return `<div class="lk-ko">오늘의 행운</div>
     ${luckFaceHTML(it)}
-    <div class="lk-badge" style="background:${R.col}">${R.lab}</div>
+    <div class="lk-badge" style="background:${R.col}">${(LUCK_CATS[it.g]||{}).ico||"🎁"} ${R.lab}</div>
     <div class="lk-name">${esc(it.name)}</div>
     <div class="lk-eff">${esc(it.eff)}</div>
-    <div class="lk-tags"><span class="lk-tag">${esc(cat)}</span><span class="lk-tag">対象：${esc(it.t)}</span>${it.n===105?`<span class="lk-tag">ラッキーナンバー ${d.lucky}</span>`:""}</div>`;
+    <div class="lk-h2">今日の5問をクリアすると</div>
+    <div class="lk-got">${luckGotHTML(luckReward(it,1,null))}</div>
+    <div class="lk-h3">追加の5問ごとに、あと3段階までのびます（25問まで）</div>
+    <div class="lk-prog"><span class="lk-pb"><i style="width:${Math.round(pr.p/pr.t*100)}%;background:${R.col}"></i></span><b>${pr.p} / ${pr.t}</b></div>
+    <div class="lk-tags"><span class="lk-tag">${esc(cat)}</span><span class="lk-tag">対象：${esc(it.t)}</span>
+      ${(th&&it.g==="culture")?`<span class="lk-tag">テーマ：${esc(th)}</span>`:""}
+      ${it.n===105?`<span class="lk-tag">ラッキーナンバー ${d.lucky}</span>`:""}
+      <span class="lk-tag">${esc(luckLeftText())}</span></div>
+    ${ev?`<div class="lk-ev">今月のイベント：${esc(ev.name)}（${esc(ev.body)}）</div>`:""}
+    ${msg?`<div class="lk-msg">${esc(msg)}</div>`:""}`;
+}
+/* 14.3 ボーナス履歴7日分 */
+function luckHistoryHTML(){
+  try{
+    const st=luckState(),ks=Object.keys(st.days).sort((a,b)=>_luckKeyNum(b)-_luckKeyNum(a)).slice(0,7);
+    if(ks.length<2)return "";
+    const rows=ks.map(k=>{
+      const d=st.days[k],it=luckById(d.n);if(!it)return "";
+      const R=LUCK_RARE[it.r]||LUCK_RARE.C,a=k.split("-");
+      return `<div class="lk-hr"><span class="lk-hd">${a[1]}/${a[2]}</span>
+        <span class="lk-sd" style="background:${R.col}">${R.code}</span>
+        <span class="lk-hn">${esc(it.name)}</span>
+        <span class="lk-hs">${d.applied?"発動":"—"}</span></div>`;
+    }).join("");
+    return `<div class="lk-hist"><div class="lk-hh">この7日間のボーナス</div>${rows}</div>`;
+  }catch(e){return "";}
 }
 /* 今日の5問の吹き出しの中に出す1行。static=自動スタートの吹き出し用（押せない・カウントダウンを邪魔しない） */
 function luckStripHTML(mode){
   try{
     const d=luckEnsure(),it=luckById(d.n);if(!it)return "";
-    const R=LUCK_RARE[it.r]||LUCK_RARE.C;
+    const R=LUCK_RARE[it.r]||LUCK_RARE.C,pr=luckProgress();
     const inner=`<span class="lk-si">${(LUCK_CATS[it.g]||{}).ico||"🎁"}</span>
-      <span class="lk-st">今日のボーナス：${esc(it.name)}${d.applied?"（発動ずみ）":""}</span>
-      <span class="lk-sd" style="background:${R.col}">${R.lab}</span>`;
+      <span class="lk-st">今日のボーナス：${esc(it.name)}${d.applied?"（発動ずみ）":"　"+pr.p+"/"+pr.t}</span>
+      <span class="lk-sd" style="background:${R.col}">${R.code}</span>`;
     return mode==="static"?`<div class="lk-strip">${inner}</div>`
                           :`<button class="lk-strip" onclick="luckFromD5()">${inner}</button>`;
   }catch(e){return "";}
@@ -6397,15 +6705,16 @@ function openLuck(){
     ${luckBodyHTML(it,d)}
     ${d.applied
       ?`<div class="lk-got">${luckGotHTML(d.got||{})}</div>
-        <div class="lk-wait">${(d.step||1)>=3?"今日はここまで伸びました":"テストをもう1本終えると、もう一段だけ伸びます"}</div>`
+        <div class="lk-wait">${(d.step||1)>=LUCK_MAXSTEP?"今日はここまで伸びました":"テストをもう1本終えると、もう一段だけ伸びます"}</div>`
       :`<div class="lk-wait">今日の5問を1セット終えると発動します</div>`}
     ${nx?`<div class="lk-next">明日は「${esc(nx)}」の予感…</div>`:""}
+    ${luckHistoryHTML()}
   </div>`;
   d5AnchorBubble(null,m.querySelector(".d5-card"));
   m.onclick=e=>{if(e.target===m)closeLuck();};
 }
 function closeLuck(){const m=document.getElementById("luck-modal");if(m)m.classList.remove("on");}
-/* 起動時：今日のボーナスを公開してから、いつもの「今日の5問」へつなぐ */
+/* 起動時：今日のボーナスを公開してから、いつもの「今日の5問」へつなぐ（5.1 強制ポップアップは1日1回だけ） */
 function maybeAutoLuck(){
   try{
     if(document.querySelector(".rest-ask")){setTimeout(maybeAutoLuck,800);return;}
@@ -6424,15 +6733,29 @@ function maybeAutoLuck(){
   }catch(e){try{maybeAutoDaily5();}catch(e2){}}
 }
 function _killLuckReveal(){const ov=document.querySelector(".lkauto");if(!ov)return;if(ov._t){clearTimeout(ov._t);ov._t=null;}ov.remove();}
-/* 公開の演出は最大2.5秒（ふつうは1秒以内）。シルエット → 開封 → 「この効果で今日の5問を始める」 */
+/* 8.1 公開の演出はレアリティごとに0.6〜2.5秒。シルエット → 開封 → 「今日の5問を始める」
+   8.3 「演出を減らす」ときは待たずに中身を出す（画面のフラッシュは使わない） */
 function showLuckReveal(onDone){
   _killLuckReveal();
   const d=luckEnsure(),it=luckById(d.n);
   if(!it){if(onDone)onDone();return;}
-  const ms=(LUCK_RARE[it.r]||LUCK_RARE.C).ms;
+  const R=LUCK_RARE[it.r]||LUCK_RARE.C,less=luckLessFx(),ms=less?0:R.ms;
   const ov=document.createElement("div");ov.className="lkauto";
   const done=()=>{_killLuckReveal();if(onDone)onDone();};
+  const openCard=()=>{
+    if(!document.body.contains(ov))return;
+    ov.innerHTML=`<div class="d5-card${less?"":" lk-pop"}" style="--lkfx:${R.fx}">
+      <button class="d5-close" onclick="closeLuckReveal()" aria-label="閉じる">×</button>
+      ${luckBodyHTML(it,d)}
+      <button class="d5-go" style="margin-top:9px" onclick="closeLuckReveal()">今日の5問を始める</button>
+    </div>`;
+    d5AnchorBubble(null,ov.querySelector(".d5-card"));
+    ov._done=done;
+    if(!less){if(it.r==="C"||it.r==="R")sfxTrendPop();else sfxRare();}
+    ov._t=setTimeout(()=>{if(document.body.contains(ov))done();},12000); // 触らなければそのまま今日の5問へ
+  };
   ov.innerHTML=`<div class="d5-card">
+    <button class="d5-close" onclick="closeLuckReveal()" aria-label="閉じる">×</button>
     <div class="lk-ko">오늘의 행운</div>
     <div class="d5-h" style="margin-top:3px">今日のボーナス</div>
     <div class="lk-face sil">？</div>
@@ -6441,30 +6764,222 @@ function showLuckReveal(onDone){
   document.body.appendChild(ov);
   d5AnchorBubble(null,ov.querySelector(".d5-card"));
   requestAnimationFrame(()=>ov.classList.add("on"));
-  ov._t=setTimeout(()=>{
-    if(!document.body.contains(ov))return;
-    ov.innerHTML=`<div class="d5-card">
-      ${luckBodyHTML(it,d)}
-      <div class="lk-wait">今日の5問を終えると発動します</div>
-      <button class="d5-go" style="margin-top:9px" onclick="closeLuckReveal()">この効果で今日の5問を始める</button>
-    </div>`;
-    d5AnchorBubble(null,ov.querySelector(".d5-card"));
-    ov._done=done;
-    if(it.r==="C"||it.r==="R")sfxTrendPop();else sfxRare();
-    ov._t=setTimeout(()=>{if(document.body.contains(ov))done();},12000); // 触らなければそのまま今日の5問へ
-  },ms);
   ov._done=done;
+  if(less)openCard();else ov._t=setTimeout(openCard,ms);
 }
 function closeLuckReveal(){const ov=document.querySelector(".lkauto");if(!ov)return;const f=ov._done;_killLuckReveal();if(f)f();}
-/* 結果画面に出す「今日のボーナス発動」 */
-function luckResultHTML(res){
+/* 結果画面に出す「今日のボーナス発動」。
+   8.4 報酬は画面の外から飛んでこず、正解した語から小さな光が集まってボーナスのアイコンに入る（報酬は学習から生まれた、という因果を見せる） */
+function luckResultHTML(res,rec){
   if(!res)return "";
   const R=LUCK_RARE[res.it.r]||LUCK_RARE.C,nx=luckTomorrowCat();
+  const ok=Math.max(1,(rec&&rec.items)?rec.items.filter(x=>x.ok).length:D5_N);
+  const spk=luckLessFx()?"":Array.from({length:ok},(_,i)=>
+    `<i style="--lx:${Math.round((i-(ok-1)/2)*46)}px;--ld:${i*90}ms;background:${R.fx}"></i>`).join("");
+  const more=(res.step||1)>=LUCK_MAXSTEP?"今日はここまで伸びました"
+    :"テストをもう1本終えるごとに、あと"+(LUCK_MAXSTEP-(res.step||1))+"段階までのびます";
   return `<div class="lk-res">
     <div class="lk-rh">今日のボーナス発動</div>
-    <div class="lk-rn"><span class="lk-sd" style="background:${R.col};margin-right:5px">${R.lab}</span>${esc(res.it.name)}</div>
+    <div class="lk-rfly"><span class="lk-rico">${(LUCK_CATS[res.it.g]||{}).ico||"🎁"}</span>${spk}</div>
+    <div class="lk-rn"><span class="lk-sd" style="background:${R.col};margin-right:5px">${R.code}</span>${esc(res.it.name)}</div>
     <div class="lk-got">${luckGotHTML(res.rw)}</div>
-    <div class="lk-rt">テストをもう1本終えるごとに、あと2段階まで伸びます${nx?`／明日は「${esc(nx)}」の予感…`:""}</div>
+    <div class="lk-rt">${more}${nx?`／明日は「${esc(nx)}」の予感…`:""}</div>
+  </div>`;
+}
+
+
+/* ============================================================ ことばの友だち（단어 친구／動物育成） ============================================================
+ * 2つめの仕様書（メール指示 2026-08-06 の続き）の Phase1 ぶん:
+ *  ・動物1種／Lv1〜20／4段階進化／今日の出来事20パターン／今日の5問→エサ→成長演出／親密度／吹き出し会話／思い出アルバム（最新30日）
+ *  ・ねらいは「育てたいから勉強する」への逆転。育成画面に長居させず、5秒以内に学習へ戻す（3. 全体UXフロー）。
+ *  ・毎朝のAI画像生成はサーバーが要るため、この端末アプリでは「その日だけの組み合わせ」（出来事×気分×衣装×天気×背景）で
+ *    毎日ちがう1枚を組み立てる。生成した見た目はアルバムに残るので、あとから成長を並べて見られる。
+ *  ・ホームの部品配置は変えず、入口はハンバーガーメニューに1つだけ足している。 */
+const LS_PET="kwt_pet_v1";
+const PET_MAXLV=20;
+const PET_STAGES=[ // 5. 進化（卵→赤ちゃん→子ども→青年。この先の大人・伝説はPhase2以降）
+  {k:"egg" ,lv:1 ,name:"言葉のたまご",ko:"말의 알",ico:"🥚"},
+  {k:"baby",lv:4 ,name:"赤ちゃん"   ,ko:"아기"   ,ico:"🐶"},
+  {k:"kid" ,lv:9 ,name:"子ども"     ,ko:"어린이" ,ico:"🐕"},
+  {k:"teen",lv:15,name:"青年"       ,ko:"청년"   ,ico:"🦮"}
+];
+/* 4. 今日の状態（20パターン）。毎日ひとつだけ選ばれる */
+const PET_ACTS=[
+  {t:"起きたばかり" ,ico:"🌅"},{t:"歯みがき"    ,ico:"🪥"},{t:"朝ごはん"    ,ico:"🍚"},{t:"韓国語の勉強",ico:"📖"},
+  {t:"おそうじ"     ,ico:"🧹"},{t:"おひるね"    ,ico:"💤"},{t:"雨で遊べない",ico:"☔"},{t:"本を読んでいる",ico:"📚"},
+  {t:"ギターの練習" ,ico:"🎸"},{t:"ピアノの練習",ico:"🎹"},{t:"海であそぶ"  ,ico:"🌊"},{t:"花火を見ている",ico:"🎆"},
+  {t:"雪あそび"     ,ico:"⛄"},{t:"サンタの帽子",ico:"🎅"},{t:"おさんぽ"    ,ico:"🐾"},{t:"おやつタイム",ico:"🍪"},
+  {t:"星を見ている" ,ico:"🌟"},{t:"絵をかいている",ico:"🎨"},{t:"友だちと遊ぶ",ico:"🧸"},{t:"お風呂あがり",ico:"🛁"}
+];
+const PET_MOODS=[{t:"元気",ico:"😄"},{t:"眠い",ico:"😴"},{t:"わくわく",ico:"🤩"},{t:"おなかすいた",ico:"🍽"},{t:"勉強したい",ico:"📝"},{t:"すこし寂しい",ico:"🥺"}];
+const PET_WEARS=[{t:"帽子",ico:"🧢"},{t:"メガネ",ico:"👓"},{t:"花",ico:"🌷"},{t:"かばん",ico:"🎒"},{t:"韓服",ico:"👘"},{t:"制服",ico:"🎽"},{t:"パジャマ",ico:"🌙"}];
+const PET_WEATHER=[{t:"晴れ",ico:"☀️",bg:"linear-gradient(180deg,#BFE4FF,#F3FBFF)"},
+  {t:"くもり",ico:"☁️",bg:"linear-gradient(180deg,#DDE3EA,#F7F9FB)"},
+  {t:"雨"  ,ico:"🌧",bg:"linear-gradient(180deg,#C3CEDC,#EEF3F8)"},
+  {t:"雪"  ,ico:"❄️",bg:"linear-gradient(180deg,#DCEAF6,#FFFFFF)"}];
+/* 6. 記念日（クリスマス→サンタ、ハングルの日→ハングル本、バレンタイン→チョコ） */
+function petSpecial(d){
+  const m=d.getMonth()+1,day=d.getDate();
+  if(m===12&&day>=23&&day<=25)return{t:"クリスマス",ico:"🎄"};
+  if(m===10&&day<=9)return{t:"ハングルの日",ico:"📕"};
+  if(m===2&&day===14)return{t:"バレンタイン",ico:"🍫"};
+  if(m===1&&day<=3)return{t:"お正月",ico:"🎍"};
+  return null;
+}
+function petState(){
+  const o=_lsJSON(LS_PET,()=>({}));
+  if(typeof o.xp!=="number")o.xp=0;
+  if(typeof o.friend!=="number")o.friend=0;
+  if(!Array.isArray(o.album))o.album=[];
+  if(!o.name)o.name="멍이（モンイ）";
+  if(!o.taps||typeof o.taps!=="object")o.taps={k:"",n:0};
+  return o;
+}
+function savePet(o){if(o.album.length>30)o.album.splice(0,o.album.length-30);_lsSetJSON(LS_PET,o);} // 思い出アルバムは最新30日
+function petLevel(xp){return Math.max(1,Math.min(PET_MAXLV,1+Math.floor((xp||0)/40)));}
+function petStage(lv){let s=PET_STAGES[0];PET_STAGES.forEach(x=>{if(lv>=x.lv)s=x;});return s;}
+function petNextLvXp(xp){const lv=petLevel(xp);return lv>=PET_MAXLV?0:(lv*40)-(xp||0);}
+/* 7. 韓国語力＝覚えた単語数。話せる語数で会話の段階が変わる */
+function petPower(){
+  try{const s=loadStats();return Object.keys(s).filter(id=>s[id]&&s[id].hasEverCorrect).length;}catch(e){return 0;}
+}
+/* 今日おぼえた単語（今日の5問で正解した語 → なければ直近の正解語） */
+function petTodayWords(){
+  const out=[];
+  try{
+    const r=(typeof d5Rec==="function")?d5Rec():null;
+    if(r&&r.items)r.items.forEach(x=>{if(x.ok&&x.ko)out.push(x.ko);});
+    if(!out.length){
+      const h=loadHistory(),now=Date.now();
+      for(let i=h.length-1;i>=0&&out.length<3;i--){
+        const x=h[i];if(!x||!x.isCorrect||!x.korean)continue;
+        if(now-new Date(x.answeredAt).getTime()>2*86400000)break;
+        if(out.indexOf(x.korean)<0)out.push(x.korean);
+      }
+    }
+  }catch(e){}
+  return out;
+}
+/* 7. 吹き出し。話せる語数がふえるほど、ひとことが長くなる（最初は안녕だけ） */
+function petLine(d){
+  const pw=petPower(),w=petTodayWords();
+  if(pw<20)return{ko:"안녕!",ja:"やあ！"};
+  if(!w.length)return pw<100?{ko:"안녕! 공부하자!",ja:"やあ！ べんきょうしよう！"}
+    :{ko:"오늘도 같이 공부할까?",ja:"きょうも いっしょに べんきょうする？"};
+  const a=w[0],b=w[1]||w[0];
+  if(a==="사랑")return{ko:"사랑! 제일 좋아하는 말이야!",ja:"사랑！ いちばん すきな ことば！"}; // 好物の単語
+  if(pw<100)return{ko:"오늘 "+a+" 배웠어!",ja:"きょう「"+a+"」を おぼえたよ！"};
+  if(pw<500)return{ko:"오늘 "+a+"하고 "+b+" 배웠어! 맛있었어!",ja:"きょうは「"+a+"」と「"+b+"」を たべたよ！ おいしかった！"};
+  return{ko:"오늘 "+a+" 배웠어. 내일도 같이 공부하자!",ja:"きょうは「"+a+"」を おぼえたね。あしたも いっしょに！"};
+}
+/* その日だけの1枚（出来事×気分×衣装×天気×背景）。同じ人・同じ日なら何度開いても同じ */
+function petDaily(){
+  const o=petState(),k=luckDayKey(),d=_dayFromKey(k),m=d.getMonth()+1;
+  if(o.day&&o.day.k===k)return o.day;
+  const rnd=_d5Rng(_d5Hash("kwt-pet|"+getUserId()+"|"+k));
+  const wOK=(m===12||m<=2)?4:3; // 雪は冬だけ
+  const day={k:k,act:Math.floor(rnd()*PET_ACTS.length),mood:Math.floor(rnd()*PET_MOODS.length),
+    wear:Math.floor(rnd()*PET_WEARS.length),wx:Math.floor(rnd()*wOK),fed:0};
+  o.day=day;
+  // 2. 毎日起動で親密度＋2（その日1回だけ）
+  if(o.lastLaunch!==k){o.lastLaunch=k;o.friend=(o.friend||0)+2;}
+  const st=petStage(petLevel(o.xp));
+  o.album.push({k:k,act:day.act,mood:day.mood,wear:day.wear,wx:day.wx,lv:petLevel(o.xp),stage:st.k});
+  savePet(o);
+  return day;
+}
+/* 5. 韓国語エネルギー：今日の5問・復習・トレンド・カード取得で育つ */
+const PET_GAIN={d5:30,test:20,trend:15,tap:0};
+function petFeed(kind){
+  try{
+    petDaily();
+    const o=petState(),g=PET_GAIN[kind]||10;
+    const lv0=petLevel(o.xp),s0=petStage(lv0).k;
+    o.xp=(o.xp||0)+g;o.friend=(o.friend||0)+3; // 学習で親密度＋3
+    if(o.day)o.day.fed=(o.day.fed||0)+1;
+    savePet(o);
+    const lv1=petLevel(o.xp),s1=petStage(lv1).k;
+    return{gain:g,lv0:lv0,lv1:lv1,up:lv1>lv0,evolved:s1!==s0,stage:petStage(lv1)};
+  }catch(e){return null;}
+}
+/* 2. タップでも少しなつく（1日5回まで） */
+function petTap(){
+  const o=petState(),k=luckDayKey();
+  if(o.taps.k!==k)o.taps={k:k,n:0};
+  if(o.taps.n<5){o.taps.n++;o.friend=(o.friend||0)+1;savePet(o);}
+  const el=document.querySelector("#pet-modal .pt-art");
+  if(el&&!luckLessFx()){el.classList.remove("pt-jump");void el.offsetWidth;el.classList.add("pt-jump");}
+  const l=document.getElementById("pt-line");
+  if(l){const p=petLine();l.innerHTML=`<b>${esc(p.ko)}</b><span>${esc(p.ja)}</span>`;}
+  const f=document.getElementById("pt-friend");
+  if(f)f.textContent="親密度 "+petState().friend;
+}
+/* 11. その日だけの1枚（AI画像のかわりに、絵文字と背景の組み合わせで毎日ちがう見た目をつくる） */
+function petArtHTML(day,lv,stageK,small){
+  const a=PET_ACTS[day.act%PET_ACTS.length],mo=PET_MOODS[day.mood%PET_MOODS.length],
+    we=PET_WEARS[day.wear%PET_WEARS.length],wx=PET_WEATHER[day.wx%PET_WEATHER.length];
+  const st=stageK?(PET_STAGES.find(x=>x.k===stageK)||PET_STAGES[0]):petStage(lv||1);
+  const sp=petSpecial(_dayFromKey(day.k));
+  return `<div class="pt-art${small?" sm":""}" style="background:${wx.bg}" onclick="${small?"":"petTap()"}">
+    <span class="pt-wx">${wx.ico}</span>
+    <span class="pt-body">${st.ico}</span>
+    <span class="pt-wear">${we.ico}</span>
+    <span class="pt-mood">${mo.ico}</span>
+    ${sp?`<span class="pt-sp">${sp.ico}</span>`:""}
+    <span class="pt-act">${a.ico} ${esc(a.t)}</span>
+  </div>`;
+}
+function petAlbumHTML(){
+  const o=petState(),a=o.album.slice(-30).reverse();
+  if(a.length<2)return "";
+  return `<div class="pt-alb"><div class="pt-albh">思い出アルバム（最新30日）</div>
+    <div class="pt-albr">${a.map(x=>{
+      const p=x.k.split("-");
+      return `<div class="pt-albi">${petArtHTML({k:x.k,act:x.act,mood:x.mood,wear:x.wear,wx:x.wx},x.lv,x.stage,true)}<em>${p[1]}/${p[2]}</em></div>`;
+    }).join("")}</div></div>`;
+}
+function openPet(){
+  const m=document.getElementById("pet-modal");if(!m)return;
+  if(!m.classList.contains("on"))pushNav("modal");
+  m.classList.add("on");
+  const day=petDaily(),o=petState(),lv=petLevel(o.xp),st=petStage(lv),ln=petLine(),pw=petPower();
+  const mo=PET_MOODS[day.mood%PET_MOODS.length],next=petNextLvXp(o.xp);
+  const nx=PET_STAGES.find(x=>x.lv>lv);
+  m.innerHTML=`<div class="d5-card pt-card">
+    <button class="d5-close" onclick="closePet()" aria-label="閉じる">×</button>
+    <div class="lk-ko">단어 친구</div>
+    <div class="pt-name">${esc(o.name)}<span>Lv.${lv} ／ ${esc(st.name)}（${esc(st.ko)}）</span></div>
+    ${petArtHTML(day,lv,st.k)}
+    <div class="pt-line" id="pt-line"><b>${esc(ln.ko)}</b><span>${esc(ln.ja)}</span></div>
+    <div class="pt-st">
+      <span>${mo.ico} ${esc(mo.t)}</span>
+      <span id="pt-friend">親密度 ${o.friend}</span>
+      <span>韓国語力 ${pw}語</span>
+    </div>
+    <div class="pt-bar"><i style="width:${Math.round(((o.xp%40)/40)*100)}%"></i></div>
+    <div class="pt-next">${lv>=PET_MAXLV?"いまはここまで育ちました"
+      :"次のレベルまで 韓国語エネルギー あと"+next+(nx?("／Lv."+nx.lv+"で「"+nx.name+"」に進化"):"")}</div>
+    <button class="d5-go" style="margin-top:9px" onclick="closePet();openDaily5()">今日の5問でごはんをあげる</button>
+    ${petAlbumHTML()}
+  </div>`;
+  d5AnchorBubble(null,m.querySelector(".pt-card"));
+  m.onclick=e=>{if(e.target===m)closePet();};
+}
+function closePet(){const m=document.getElementById("pet-modal");if(m)m.classList.remove("on");}
+/* 学習後：エネルギーが飛ぶ → 食べる → 成長。結果画面に小さく出す（11. 学習後） */
+function petResultHTML(res){
+  if(!res)return "";
+  const o=petState(),day=o.day||petDaily(),lv=res.lv1,st=res.stage;
+  return `<div class="pt-res">
+    <div class="pt-rh">ことばの友だち</div>
+    <div class="pt-rrow">
+      ${petArtHTML(day,lv,st.k,true)}
+      <div class="pt-rtx">
+        <b>韓国語エネルギー ＋${res.gain}</b>
+        <span>${res.evolved?("✨ "+esc(st.name)+"（"+esc(st.ko)+"）に進化しました！")
+          :res.up?("Lv."+res.lv0+" → Lv."+res.lv1+" に成長しました"):("Lv."+lv+"／次の成長まで あと"+petNextLvXp(o.xp))}</span>
+      </div>
+    </div>
   </div>`;
 }
 
@@ -8882,7 +9397,8 @@ function finishTest(){
   const xpGain=xpDoubled?_xpRaw*2:_xpRaw,xpNow=xpInfo(),xpLvBefore=state.levelBefore||1,xpLeveled=xpNow.level>xpLvBefore;
   const _ri=roomInfoFor(curSection),pwrAfter=_ri.pwr,pwrBefore=(state.roomPwrBefore!=null?state.roomPwrBefore:0),pwrDelta=pwrAfter-pwrBefore; // そのROOMのPWR
   enqueuePresent(rank,pwrDelta); // このテストのプレゼント（レベル/ランク/PWR/レインボー）を1個追加
-  luckStepUp(); // 今日限定ボーナス：発動ずみの日は、テストを1本終えるごとに1段階だけ伸びる（3段階で頭打ち。メール指示 2026-08-06）
+  luckStepUp(); // 今日限定ボーナス：発動ずみの日は、テストを1本終えるごとに1段階だけ伸びる（25問=4段階で頭打ち。メール指示 2026-08-06）
+  petFeed("test"); // ことばの友だち：通常テスト・復習でも韓国語エネルギーが育つ
   // ホーム復帰時のお知らせ：その日初テストなら連続ログインボーナス、それ以外はプレゼント到着
   const _tday=dayKey(Date.now());
   const _firstEver=!localStorage.getItem("kwt_firstdone_v1"); // 初回完走かどうか（フラグの書き込みは達成ボーナス判定の後＝従来どおり）
@@ -9441,7 +9957,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v6.6 (2026-08-06)";
+const APP_VERSION="v6.7 (2026-08-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -9563,7 +10079,7 @@ function _reducedMotion(){return !!(window.matchMedia&&matchMedia("(prefers-redu
     localStorage.setItem(LS_SETTINGS,JSON.stringify(s));
   }catch(e){}
 })();
-function loadSettings(){return Object.assign({tapAdvance:false,sound:true,slowTimer:false,ballsHome:false,ballsQuiz:true,bigText:false,gearMode:false},_lsJSON(LS_SETTINGS,()=>({})));}
+function loadSettings(){return Object.assign({tapAdvance:false,sound:true,slowTimer:false,ballsHome:false,ballsQuiz:true,bigText:false,gearMode:false,lessFx:false},_lsJSON(LS_SETTINGS,()=>({})));} // lessFx=「演出を減らす」（仕様書8.3）
 function saveSettings(o){_lsSetJSON(LS_SETTINGS,o);}
 /* 復習リマインダー: 通知許可を取得して設定を保存（実際の定期送信は配信サーバが必要。ここは許可取得と受け皿まで） */
 function toggleReminder(){
@@ -9595,6 +10111,7 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
       ${tile("k-ball","🃏","カード ホーム",st.ballsHome!==false,"積もる","オフ","toggleSetting('ballsHome')")}
       ${tile("k-ball","🃏","カード 出題中",st.ballsQuiz!==false,"積もる","オフ","toggleSetting('ballsQuiz')")}
       ${tile("k-big","🔠","文字の大きさ",st.bigText,"大きめ","標準","toggleSetting('bigText')")}
+      ${tile("k-fx","✨","演出",st.lessFx,"ひかえめ","通常","toggleSetting('lessFx')")}
     </div>
     <div class="cc-list">
       <div class="cc-item cc-tone"><span>🎨 ルームの色</span><span class="tone-bar">

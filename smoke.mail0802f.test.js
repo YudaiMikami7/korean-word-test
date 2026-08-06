@@ -91,7 +91,7 @@ const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1.5 : tol);
       bubble: !!getComputedStyle(card, '::after').borderTopWidth, // しっぽ付き＝吹き出し
       n: caps.length,
       labels: caps.map(c => c.textContent.trim()),
-      icons: caps.map(c => !!c.querySelector('img')),
+      icons: caps.map(c => !!c.querySelector('img') || !!c.querySelector('.hm-emo')), // ことばの友だちは絵文字アイコン
       vertical: caps.every((c, i) => i === 0 || c.getBoundingClientRect().top >= caps[i - 1].getBoundingClientRect().bottom - 0.5),
       sameX: caps.every(c => Math.abs(c.getBoundingClientRect().left - caps[0].getBoundingClientRect().left) < 1),
       capsule: caps.map(c => parseFloat(getComputedStyle(c).borderTopLeftRadius) >= c.getBoundingClientRect().height / 2 - 1),
@@ -99,10 +99,10 @@ const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1.5 : tol);
     };
   });
   check('メニューボタンで吹き出しが出る', menu.on);
-  check(`吹き出しの中は3つ (${menu.labels.join(' / ')})`, menu.n === 3);
-  check('カレンダー・ROOM一覧・スペシャルモードが選べる',
-    menu.labels.join(',') === 'カレンダー,ROOM一覧,スペシャルモード');
-  check('3つともアイコン＋文字', menu.icons.every(Boolean));
+  check(`吹き出しの中は4つ (${menu.labels.join(' / ')})`, menu.n === 4); // ことばの友だちを追加（メール指示 2026-08-06 の続き）
+  check('カレンダー・ROOM一覧・スペシャルモード・ことばの友だちが選べる',
+    menu.labels.join(',') === 'カレンダー,ROOM一覧,スペシャルモード,🐶ことばの友だち');
+  check('どれもアイコン＋文字', menu.icons.every(Boolean));
   check('カプセルが縦に3つ並ぶ', menu.vertical && menu.sameX && menu.capsule.every(Boolean));
   check('吹き出しはメニューボタンから出ている', menu.nearBtn);
   const menuGo = await page.evaluate(() => {
