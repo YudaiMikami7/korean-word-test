@@ -25,6 +25,25 @@ const FILE = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '
   await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); });
   await page.reload();
   await page.waitForTimeout(2000);
+  // 2026-08-06 の指示で、その日はじめての起動では先に「今日のボーナス」が公開される。
+  // 「この効果で今日の5問を始める」を押したあと、これまでどおり自動スタートの吹き出しに続く
+  const passLuck = async () => {
+    for (let i = 0; i < 60; i++) {
+      const go = await page.evaluate(() => {
+        const b = document.querySelector('.lkauto .d5-go');
+        if (b) { b.click(); return true; }
+        return !document.querySelector('.lkauto');
+      });
+      if (go) break;
+      await page.waitForTimeout(100);
+    }
+    await page.waitForTimeout(400);
+  };
+  check('今日のボーナスの公開をはさんでから自動スタートに進む', await (async () => {
+    const had = await page.evaluate(() => !!document.querySelector('.lkauto'));
+    await passLuck();
+    return had && await page.evaluate(() => !document.querySelector('.lkauto'));
+  })());
   check('その日はじめての起動で自動スタートの吹き出しが出る', await page.evaluate(() => !!document.querySelector('.d5auto')));
   check('制限時間は10秒', await page.evaluate(() => D5_AUTO_SEC === 10));
   check('「あと10秒」と書いてある', await page.evaluate(() => {

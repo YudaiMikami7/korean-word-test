@@ -2255,6 +2255,40 @@ body.bigtext .set-d{font-size:13.5px}
 @keyframes d5word{0%{opacity:0;transform:scale(2.6) rotate(-8deg)}20%{opacity:1;transform:scale(1) rotate(0)}74%{opacity:1;transform:scale(1.03)}100%{opacity:0;transform:scale(1.14)}}
 .d5-spk{position:absolute;left:50%;top:37%;width:10px;height:10px;border-radius:50%;background:#FFE79A;box-shadow:0 0 12px 4px rgba(255,214,90,.9);animation:d5spk 1.3s ease-out forwards}
 @keyframes d5spk{0%{opacity:0;transform:translate(0,0) scale(.3)}12%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.1)}}
+/* ============================================================ 今日限定ボーナス（오늘의 행운／今日の幸運） ============================================================
+ * 見た目は「今日の5問」の吹き出し(.d5-card)をそのまま使い、中身だけ差し替える（メール指示 2026-08-06） */
+#luck-modal{position:fixed;inset:0;z-index:400;display:none;background:rgba(0,0,0,.34)}
+#luck-modal.on{display:block}
+.lkauto{position:fixed;inset:0;z-index:612;background:rgba(0,0,0,.34);opacity:0;transition:opacity .2s ease} /* 今日の5問の自動スタート(610)より上に出す */
+.lkauto.on{opacity:1}
+.lk-ko{font-size:10.5px;font-weight:900;color:#E0831A;letter-spacing:.1em}
+.lk-face{width:74px;height:74px;margin:7px auto 0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;
+  background:radial-gradient(circle at 50% 34%,#FFF7E0,#FFE39A);border:3px solid #FFC400}
+.lk-face.sil{background:#EDEDED;border-color:#DCDCDC;color:#BDBDBD;animation:lkSil .5s ease-in-out infinite alternate} /* 公開前のシルエット */
+@keyframes lkSil{from{transform:scale(.94)}to{transform:scale(1.06)}}
+.lk-open{animation:lkOpen .5s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes lkOpen{0%{opacity:0;transform:scale(.6) rotate(-10deg)}70%{opacity:1;transform:scale(1.08) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+.lk-badge{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:900;color:#fff;letter-spacing:.1em}
+.lk-name{font-size:19px;font-weight:900;line-height:1.25;margin-top:5px;color:#1a1a1a;word-break:break-word}
+.lk-eff{font-size:12.5px;font-weight:800;color:#555;line-height:1.5;margin-top:4px;text-wrap:balance}
+.lk-tags{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.lk-tag{font-size:10px;font-weight:900;color:#777;background:#F2F2F2;border:2px solid #E3E3E3;padding:3px 7px}
+.lk-wait{font-size:12px;font-weight:800;color:#999;margin-top:9px;line-height:1.5}
+.lk-got{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:9px 0 0}
+.lk-gi{font-size:11.5px;font-weight:900;color:#1a1a1a;background:#FFF7E0;border:2px solid #FFE39A;padding:3px 8px}
+.lk-next{font-size:10.5px;font-weight:800;color:#8a7a4a;background:#FFF7E0;padding:6px 5px;margin-top:9px;line-height:1.45}
+/* 「今日の5問」の吹き出しの中に出す1行（タップでもう一度中身を見る） */
+.lk-strip{display:flex;align-items:center;gap:7px;width:100%;margin-bottom:8px;padding:6px 8px;border:2px solid #FFE39A;background:#FFF7E0;
+  cursor:pointer;font-family:inherit;text-align:left;-webkit-tap-highlight-color:transparent}
+.lk-strip:active{background:#FFEFC4}
+.lk-strip .lk-si{flex:0 0 auto;font-size:15px}
+.lk-strip .lk-st{flex:1;min-width:0;font-size:11.5px;font-weight:900;color:#8a5a00;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lk-strip .lk-sd{flex:0 0 auto;font-size:9px;font-weight:900;color:#fff;padding:2px 6px;border-radius:999px}
+/* 結果画面：発動したボーナスと、もらったもの */
+.lk-res{background:rgba(255,255,255,.92);color:#1a1a1a;padding:8px 11px;margin-top:9px;text-align:center}
+.lk-res .lk-rh{font-size:10px;font-weight:900;color:#E0831A;letter-spacing:.08em}
+.lk-res .lk-rn{font-size:14.5px;font-weight:900;margin-top:1px;line-height:1.25}
+.lk-res .lk-rt{font-size:10.5px;font-weight:800;color:#888;margin-top:6px;line-height:1.4}
 </style>
 <!-- アクセス解析: Cloudflare Web Analytics（プロキシ経由で自動計測。手動ビーコン不要） -->
 <script src="ga.js?v=2512"></script>
@@ -2352,6 +2386,7 @@ body.bigtext .set-d{font-size:13.5px}
 <div id="settings-modal"></div>
 <div id="special-modal"></div>
 <div id="d5-modal"></div>
+<div id="luck-modal"></div><!-- 今日限定ボーナス（メール指示 2026-08-06） -->
 <!-- ハンバーガーメニューの吹き出し（カレンダー／ROOM一覧／スペシャルモードのカプセル3つ。メール指示 2026-08-02） -->
 <div id="menu-modal">
   <div class="d5-card hm-card">
@@ -3864,7 +3899,7 @@ function coachNext(){
   if(_coachIdx>=_coachSteps.length-1){closeCoach();return;}
   _coachIdx++;coachPaint();
 }
-function closeCoach(){const el=document.getElementById("coach");if(el)el.remove();_pagerHold=false;try{hideRoomPager();}catch(e){}maybeAutoDaily5();} // ガイドを閉じたら、そのまま今日の5問へ
+function closeCoach(){const el=document.getElementById("coach");if(el)el.remove();_pagerHold=false;try{hideRoomPager();}catch(e){}maybeAutoLuck();} // ガイドを閉じたら、今日のボーナスを公開してそのまま今日の5問へ
 function maybeCoach(){
   if(localStorage.getItem("kwt_coach_v1"))return;
   localStorage.setItem("kwt_coach_v1","1");
@@ -4136,7 +4171,7 @@ function renderHome(){
   updateHomeStats();
   buildRoomSlides();
   attachHomeRain(); // スライド再構築後に玉レイヤーを差し直し（玉は保持）
-  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();initRoomHint();setTimeout(maybeRestAsk,300);setTimeout(maybeResume,600);setTimeout(()=>{if(!document.getElementById("resume-ask")&&!document.querySelector(".rest-ask"))maybeCoach();},900);setTimeout(maybeAutoDaily5,1500);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋ROOMスワイプのヒント＋（連続が途切れていれば）おやすみチケット＋初回コーチ＋今日の5問の自動スタート＋バックアップ提案
+  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();initRoomHint();setTimeout(maybeRestAsk,300);setTimeout(maybeResume,600);setTimeout(()=>{if(!document.getElementById("resume-ask")&&!document.querySelector(".rest-ask"))maybeCoach();},900);setTimeout(maybeAutoLuck,1500);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋ROOMスワイプのヒント＋（連続が途切れていれば）おやすみチケット＋初回コーチ＋今日のボーナスの公開→今日の5問の自動スタート＋バックアップ提案
   applyHomeBg();
   scaleHome();
   const _fb=document.getElementById("home-fbtn"); // 今日の5問／トレンドはスライドではなくホーム直下のフロート（作り直すと演出が飛ぶので初回だけ）
@@ -5320,7 +5355,7 @@ window.addEventListener("popstate",()=>{
     const _spg=document.getElementById("spov");
     if(_spg&&_spg.classList.contains("on")){spExitGame();return;}
     // 1) 開いているモーダルを閉じる
-    for(const id of ["present-modal","gacha-modal","calendar-modal","settings-modal","special-modal","history-modal","map-modal","d5-modal","menu-modal","gift-modal"]){
+    for(const id of ["luck-modal","present-modal","gacha-modal","calendar-modal","settings-modal","special-modal","history-modal","map-modal","d5-modal","menu-modal","gift-modal"]){
       const m=document.getElementById(id);
       if(m&&m.classList.contains("on")){m.classList.remove("on");if(id==="d5-modal"){clearInterval(_d5Timer);_d5Timer=null;}return;}
     }
@@ -5625,6 +5660,7 @@ function d5RenderModal(){
      <button class="d5-go" onclick="startDaily5()">${d5SlotLabel(slot)}をはじめる</button>`;
   document.getElementById("d5-modal").innerHTML=`<div class="d5-card">
     <button class="d5-close" onclick="closeDaily5()" aria-label="閉じる">×</button>
+    ${luckStripHTML()}
     <div class="d5-h">今日の5問テスト</div>
     ${(()=>{const k=d5Streak();return k?`<div class="d5-streak"><img src="images-thumb/0773.webp" alt="" style="width:20px;height:20px;object-fit:contain">連続 <b>${k}</b> 日</div>`:"";})()}
     <div class="d5-slots">${cell("am")}${cell("pm")}</div>
@@ -5820,6 +5856,7 @@ function showAutoD5Splash(){
   const streak=(()=>{const k=d5Streak();return k?`<div class="d5-streak"><img src="images-thumb/0773.webp" alt="" style="width:20px;height:20px;object-fit:contain">連続 <b>${k}</b> 日</div>`:"";})();
   const ov=document.createElement("div");ov.className="d5auto";
   ov.innerHTML=`<div class="d5-card">
+    ${luckStripHTML("static")}
     <div class="d5-h">今日の5問テスト</div>
     ${streak}
     <div class="d5-slots">${cell("am")}${cell("pm")}</div>
@@ -5882,6 +5919,7 @@ function finishDaily5(){
   all[_d5.key]=rec;saveD5(all);
   _d5.on=false;_sgFly.d5=true; // ホームへ戻ったらカプセルを左へ吸い込む→トレンドボタン登場
   grantRestTicketPresent(); // 5問を1回終えるたびに、プレゼントへ「おやすみチケット」を1枚入れる（メール指示 2026-08-01）
+  _luckRes=luckApply(rec); // 今日限定ボーナスの発動（結果画面に出す。メール指示 2026-08-06）
   updateDiagnosis(); // タイプ診断だけ更新（ランク／プレゼントは通常テスト専用）
   if(typeof track==="function")track("daily5_complete",{slot:rec.slot,correct:nCorrect});
   d5RenderResult(rec,true);
@@ -5918,7 +5956,9 @@ function resBtns4HTML(third,extra){
       <button class="rb" onclick="${extra&&extra.homeAct?extra.homeAct:"resultGoHome()"}"><span class="rb-ico">⌂</span><span class="rb-lab">ホーム</span></button>
     </div>`;
 }
+let _luckRes=null; // 直前に発動した今日限定ボーナス（結果画面で1度だけ出す）
 function d5RenderResult(rec,animate,isTrend){
+  const luckHTML=(!isTrend&&_luckRes)?luckResultHTML(_luckRes):"";_luckRes=null;
   const SYM={correct:["○","o"],incorrect:["×","x"],unknown:["－","u"],timeout:["△","t"]};
   // 1行＝出題（韓国語なら韓国語）＋その下に答え。まちがえたときだけ自分の回答を足す（メール指示 2026-07-31）
   const rows=rec.items.map((it,i)=>{
@@ -5949,6 +5989,7 @@ function d5RenderResult(rec,animate,isTrend){
       </div>
     </div>
     <div class="d5r-list">${rows}</div>
+    ${luckHTML}
     ${resBtns4HTML(isTrend
       ?{ico:"🔥",lab:"トレンド単語",act:"show('s-home');openTrend()"}
       :{ico:"⏱",lab:"次までの時間",act:"show('s-home');openDaily5()"},
@@ -6000,6 +6041,431 @@ function d5RareBurst(){
   document.body.appendChild(ov);
   sfxRare();
   setTimeout(()=>ov.remove(),1900);
+}
+
+/* ============================================================ 今日限定ボーナス（오늘의 행운／今日の幸運） ============================================================
+ * 仕様（メール指示 2026-08-06）:
+ *  ・毎日ひとつだけ「今日だけの学習効果」が選ばれる。起動時に公開し、今日の5問を1セット終えると発動して報酬になる。
+ *  ・ランダムなのは「学習するかどうか」ではなく「学習にどの楽しさが加わるか」。最低条件は今日の5問だけ。
+ *  ・学習量を増やすほど追加効果が伸びるが3段階で頭打ち。レアが低い日にも必ず実用的な価値（XP）を残す。
+ *  ・抽選は完全ランダムにしない：直近に出たものを外し（飽き）、レアが続かない偏りを補正し（不公平）、
+ *    はじめの数日はやさしいものだけにする（初心者格差）。
+ *  ・演出は最大2.5秒（ふつうは1秒以内）。「逃す恐怖」ではなく、明日のテーマ予告で「明日への好奇心」を残す。
+ * 効果の対応:
+ *  ・XP／ガチャコイン／単語カード／おやすみチケット／XP2倍チャンス という、いまアプリにある値打ちに変換して渡す。
+ *  ・制限時間まわり（No.66 時間延長・No.67 ノータイマー）だけは、その日の出題そのものに効く。 */
+const LS_LUCK="kwt_luck_v1";
+const LUCK_RARE={
+  C :{lab:"COMMON",col:"#9AA0A6",w:44 ,ms:800 },
+  R :{lab:"RARE"  ,col:"#2F6FE0",w:29 ,ms:900 },
+  SR:{lab:"S RARE",col:"#8A4BE0",w:16 ,ms:1400},
+  E :{lab:"EPIC"  ,col:"#E0831A",w:7.6,ms:1800},
+  L :{lab:"LEGEND",col:"#E0433B",w:2.6,ms:2500},
+  M :{lab:"MYTHIC",col:"#1a1a1a",w:0.8,ms:2500}
+};
+const LUCK_CATS={xp:{lab:"XP・レベル",ico:"⭐"},gacha:{lab:"ガチャ",ico:"🪙"},card:{lab:"カード収集",ico:"🃏"},
+  review:{lab:"復習・記憶",ico:"🧠"},support:{lab:"学習支援",ico:"🤝"},streak:{lab:"継続",ico:"🔥"},
+  culture:{lab:"韓国文化",ico:"🇰🇷"},special:{lab:"サプライズ",ico:"🎁"}};
+/* g=系統／r=レアリティ／t=対象／c=コスト／mul=XPのふくらませ方（効果文の倍率に合わせる） */
+const LUCK_LIST=[
+  {n:1  ,g:"xp"     ,name:"はじめの一歩"    ,eff:"今日の5問XP＋10%"                ,r:"C" ,t:"全員"    ,c:"低",mul:1.1},
+  {n:2  ,g:"xp"     ,name:"学習エンジン"    ,eff:"全学習XP＋15%、最大30XP"          ,r:"C" ,t:"全員"    ,c:"低",mul:1.15},
+  {n:3  ,g:"xp"     ,name:"集中タイム"      ,eff:"最初の1セットXP＋25%"             ,r:"R" ,t:"全員"    ,c:"低",mul:1.25},
+  {n:4  ,g:"xp"     ,name:"XPダブル"        ,eff:"最初の5問XP×2"                   ,r:"SR",t:"全員"    ,c:"低",mul:2},
+  {n:5  ,g:"xp"     ,name:"XPフィーバー"    ,eff:"10分間XP×1.5"                    ,r:"SR",t:"中上級"  ,c:"中",mul:1.5},
+  {n:6  ,g:"xp"     ,name:"完璧主義"        ,eff:"全問正解時＋30XP"                 ,r:"R" ,t:"全員"    ,c:"低"},
+  {n:7  ,g:"xp"     ,name:"再挑戦ボーナス"  ,eff:"誤答再挑戦のXP＋100%"             ,r:"C" ,t:"初心者"  ,c:"低",mul:1.4},
+  {n:8  ,g:"xp"     ,name:"朝活韓国語"      ,eff:"12時までの完了で＋20XP"           ,r:"R" ,t:"朝利用者",c:"低"},
+  {n:9  ,g:"xp"     ,name:"夜の集中"        ,eff:"18時以降の完了で＋20XP"           ,r:"R" ,t:"夜利用者",c:"低"},
+  {n:10 ,g:"xp"     ,name:"レベル接近"      ,eff:"次レベルまでの必要XPを当日5%軽減" ,r:"E" ,t:"中上級"  ,c:"中",mul:1.3},
+  {n:11 ,g:"xp"     ,name:"成長スパート"    ,eff:"当日の獲得XPが段階的に＋5%、最大25%",r:"SR",t:"学習量多",c:"中",mul:1.25},
+  {n:12 ,g:"xp"     ,name:"週末ブースト"    ,eff:"土日限定XP＋20%"                  ,r:"R" ,t:"全員"    ,c:"低",mul:1.2},
+  {n:13 ,g:"xp"     ,name:"ハングルパワー"  ,eff:"ハングル問題XP×1.5"               ,r:"R" ,t:"初心者"  ,c:"低",mul:1.5},
+  {n:14 ,g:"xp"     ,name:"語彙マスター"    ,eff:"単語問題XP×1.4"                   ,r:"R" ,t:"全員"    ,c:"低",mul:1.4},
+  {n:15 ,g:"xp"     ,name:"書き取り名人"    ,eff:"書き取り正解XP×2"                 ,r:"SR",t:"中上級"  ,c:"低",mul:1.8},
+  {n:16 ,g:"gacha"  ,name:"ガチャのかけら"  ,eff:"完了でガチャゲージ＋1"            ,r:"C" ,t:"全員"    ,c:"低"},
+  {n:17 ,g:"gacha"  ,name:"もう1プッシュ"   ,eff:"ガチャゲージ＋2"                  ,r:"R" ,t:"全員"    ,c:"低"},
+  {n:18 ,g:"gacha"  ,name:"今日の無料ガチャ",eff:"5問完了で無料1回"                 ,r:"SR",t:"全員"    ,c:"低"},
+  {n:19 ,g:"gacha"  ,name:"ラッキーチケット",eff:"ガチャ券1枚"                      ,r:"SR",t:"全員"    ,c:"低"},
+  {n:20 ,g:"gacha"  ,name:"10連のかけら"    ,eff:"10連用かけら2個"                  ,r:"R" ,t:"全員"    ,c:"低"},
+  {n:21 ,g:"gacha"  ,name:"レア率アップ小"  ,eff:"当日初回ガチャのR以上＋3pt"       ,r:"R" ,t:"全員"    ,c:"中"},
+  {n:22 ,g:"gacha"  ,name:"レア率アップ中"  ,eff:"初回ガチャのSR以上＋2pt"          ,r:"SR",t:"全員"    ,c:"中"},
+  {n:23 ,g:"gacha"  ,name:"ピックアップ運"  ,eff:"当日テーマカード出現率×2"         ,r:"E" ,t:"全員"    ,c:"中"},
+  {n:24 ,g:"gacha"  ,name:"最低保証強化"    ,eff:"初回ガチャをR以上確定"            ,r:"E" ,t:"全員"    ,c:"中"},
+  {n:25 ,g:"gacha"  ,name:"虹色の予感"      ,eff:"初回ガチャで最高レア率＋1pt"      ,r:"L" ,t:"全員"    ,c:"中"},
+  {n:26 ,g:"gacha"  ,name:"リトライコイン"  ,eff:"ガチャ結果を1度だけ引き直せる"    ,r:"M" ,t:"全員"    ,c:"高"},
+  {n:27 ,g:"gacha"  ,name:"選べる2択"       ,eff:"2つのガチャ結果から1つ選択"       ,r:"L" ,t:"全員"    ,c:"高"},
+  {n:28 ,g:"gacha"  ,name:"学習連動ガチャ"  ,eff:"追加5問ごとに排出候補＋1、最大3"  ,r:"SR",t:"学習量多",c:"高"},
+  {n:29 ,g:"gacha"  ,name:"復習ガチャ"      ,eff:"復習完了で専用ガチャ解放"         ,r:"R" ,t:"復習対象",c:"中"},
+  {n:30 ,g:"gacha"  ,name:"コンプリート運"  ,eff:"未所持カード率を＋15pt"           ,r:"L" ,t:"コレクター",c:"高"},
+  {n:31 ,g:"card"   ,name:"カードのかけら"  ,eff:"ランダムカードかけら1個"          ,r:"C" ,t:"全員"    ,c:"低"},
+  {n:32 ,g:"card"   ,name:"かけら増量"      ,eff:"獲得かけら＋1"                    ,r:"R" ,t:"全員"    ,c:"低"},
+  {n:33 ,g:"card"   ,name:"新カード優先"    ,eff:"未所持カード抽選率＋10pt"         ,r:"SR",t:"全員"    ,c:"中"},
+  {n:34 ,g:"card"   ,name:"初級カードの日"  ,eff:"初級カード獲得量×2"               ,r:"R" ,t:"初心者"  ,c:"低"},
+  {n:35 ,g:"card"   ,name:"上級カードの日"  ,eff:"上級カード獲得量×2"               ,r:"R" ,t:"上級者"  ,c:"低"},
+  {n:36 ,g:"card"   ,name:"テーマカード"    ,eff:"料理・旅行など指定テーマ出現率×3" ,r:"R" ,t:"全員"    ,c:"中"},
+  {n:37 ,g:"card"   ,name:"キラ加工券"      ,eff:"所持カード1枚をキラ化"            ,r:"E" ,t:"コレクター",c:"中"},
+  {n:38 ,g:"card"   ,name:"カード経験値＋50%",eff:"使用・学習カードの成長量増加"    ,r:"R" ,t:"全員"    ,c:"低"},
+  {n:39 ,g:"card"   ,name:"お気に入り育成"  ,eff:"お気に入りカードXP×2"             ,r:"SR",t:"全員"    ,c:"中"},
+  {n:40 ,g:"card"   ,name:"図鑑ボーナス"    ,eff:"新規登録時に図鑑XP＋50%"          ,r:"SR",t:"全員"    ,c:"中"},
+  {n:41 ,g:"card"   ,name:"欠番サーチ"      ,eff:"近い番号の未所持カードを優先"     ,r:"E" ,t:"コレクター",c:"高"},
+  {n:42 ,g:"card"   ,name:"カード交換券"    ,eff:"重複3枚を別カードに変換"          ,r:"L" ,t:"長期利用",c:"高"},
+  {n:43 ,g:"card"   ,name:"レアカード試着"  ,eff:"未所持カードを当日だけ使用可能"   ,r:"SR",t:"全員"    ,c:"中"},
+  {n:44 ,g:"card"   ,name:"シークレットカード",eff:"日替わり限定カード抽選"         ,r:"M" ,t:"全員"    ,c:"高"},
+  {n:45 ,g:"card"   ,name:"思い出アルバム"  ,eff:"今日覚えた5語を1枚の記念カード化" ,r:"L" ,t:"全員"    ,c:"高"},
+  {n:46 ,g:"review" ,name:"復習XPアップ"    ,eff:"復習XP＋30%"                      ,r:"C" ,t:"復習対象",c:"低"},
+  {n:47 ,g:"review" ,name:"苦手克服"        ,eff:"苦手語正解時XP×2"                 ,r:"R" ,t:"苦手あり",c:"中"},
+  {n:48 ,g:"review" ,name:"記憶レスキュー"  ,eff:"忘れかけ単語を5語提示"            ,r:"C" ,t:"全員"    ,c:"中"},
+  {n:49 ,g:"review" ,name:"復習ショートカット",eff:"今日必要な復習を3問に圧縮"      ,r:"R" ,t:"忙しい人",c:"高"},
+  {n:50 ,g:"review" ,name:"記憶定着日"      ,eff:"適正復習語のカードXP×2"           ,r:"R" ,t:"全員"    ,c:"中"},
+  {n:51 ,g:"review" ,name:"弱点発見"        ,eff:"最も正答率の低いカテゴリを表示"   ,r:"C" ,t:"全員"    ,c:"中"},
+  {n:52 ,g:"review" ,name:"苦手テーマ特訓"  ,eff:"弱点カテゴリから5問"              ,r:"R" ,t:"中上級"  ,c:"中"},
+  {n:53 ,g:"review" ,name:"発音復習"        ,eff:"誤答語の音声再生を自動提示"       ,r:"C" ,t:"全員"    ,c:"低"},
+  {n:54 ,g:"review" ,name:"書き取り復習"    ,eff:"誤答1語だけ書き取りに再出題"      ,r:"R" ,t:"全員"    ,c:"中"},
+  {n:55 ,g:"review" ,name:"24時間リコール"  ,eff:"昨日覚えた語を優先出題"           ,r:"R" ,t:"2日目以降",c:"中"},
+  {n:56 ,g:"review" ,name:"1週間リコール"   ,eff:"7日前の語を優先出題"              ,r:"SR",t:"長期利用",c:"中"},
+  {n:57 ,g:"review" ,name:"30日記憶テスト"  ,eff:"30日前の語を3問提示"              ,r:"SR",t:"長期利用",c:"中"},
+  {n:58 ,g:"review" ,name:"完全習得判定"    ,eff:"連続正解語の習得判定を実施"       ,r:"E" ,t:"上級者"  ,c:"高"},
+  {n:59 ,g:"review" ,name:"復習猶予"        ,eff:"今日の復習期限を翌日まで延長"     ,r:"SR",t:"忙しい人",c:"中"},
+  {n:60 ,g:"review" ,name:"記憶の宝箱"      ,eff:"復習5問完了でカード箱"            ,r:"E" ,t:"復習対象",c:"中"},
+  {n:61 ,g:"support",name:"ヒント無料"      ,eff:"当日最初のヒント消費なし"         ,r:"C" ,t:"初心者"  ,c:"低"},
+  {n:62 ,g:"support",name:"ヒント3回"       ,eff:"無料ヒント3回"                    ,r:"R" ,t:"初心者"  ,c:"低"},
+  {n:63 ,g:"support",name:"1文字ヒント"     ,eff:"書き取りで語頭1文字表示"          ,r:"C" ,t:"全員"    ,c:"低"},
+  {n:64 ,g:"support",name:"2択レスキュー"   ,eff:"1問だけ選択肢を2択にする"         ,r:"R" ,t:"初心者"  ,c:"中"},
+  {n:65 ,g:"support",name:"ミスガード"      ,eff:"最初の誤答を成績計算から除外"     ,r:"SR",t:"初心者"  ,c:"中"},
+  {n:66 ,g:"support",name:"時間延長"        ,eff:"制限時間＋3秒"                    ,r:"C" ,t:"初心者"  ,c:"低"},
+  {n:67 ,g:"support",name:"ノータイマー"    ,eff:"今日の5問のみ時間制限なし"        ,r:"R" ,t:"初心者"  ,c:"中"},
+  {n:68 ,g:"support",name:"音声ゆっくり"    ,eff:"0.75倍音声を利用可能"             ,r:"C" ,t:"初心者"  ,c:"低"},
+  {n:69 ,g:"support",name:"発音比較"        ,eff:"標準音声を2回連続再生"            ,r:"R" ,t:"全員"    ,c:"低"},
+  {n:70 ,g:"support",name:"日本語非表示"    ,eff:"韓国語のみモードでXP＋30%"        ,r:"SR",t:"上級者"  ,c:"中",mul:1.3},
+  {n:71 ,g:"support",name:"選択肢シャッフル",eff:"類似語中心の高品質問題＋XP増加"   ,r:"SR",t:"上級者"  ,c:"高",mul:1.2},
+  {n:72 ,g:"support",name:"自信度チェック"  ,eff:"回答後に自信度を記録し復習最適化" ,r:"R" ,t:"全員"    ,c:"高"},
+  {n:73 ,g:"support",name:"例文追加"        ,eff:"今日の5語すべてに短い例文"        ,r:"R" ,t:"全員"    ,c:"中"},
+  {n:74 ,g:"support",name:"ミニ解説"        ,eff:"誤答語に文法・語源解説"           ,r:"SR",t:"全員"    ,c:"高"},
+  {n:75 ,g:"support",name:"個人ベスト挑戦"  ,eff:"自分の平均速度を基準にXP追加"     ,r:"R" ,t:"中上級"  ,c:"中"},
+  {n:76 ,g:"streak" ,name:"ストリークの火種",eff:"5問完了で通常ストリーク更新"      ,r:"C" ,t:"全員"    ,c:"低"},
+  {n:77 ,g:"streak" ,name:"連続学習XP"      ,eff:"連続日数に応じ＋1〜15XP"          ,r:"C" ,t:"継続者"  ,c:"低"},
+  {n:78 ,g:"streak" ,name:"3日チャレンジ"   ,eff:"3日中2日達成でガチャ券"           ,r:"R" ,t:"全員"    ,c:"中"},
+  {n:79 ,g:"streak" ,name:"7日スタンプ"     ,eff:"1日1スタンプ、7個でカード"        ,r:"R" ,t:"全員"    ,c:"中"},
+  {n:80 ,g:"streak" ,name:"ストリークシールド",eff:"1日分の保護アイテム"            ,r:"E" ,t:"継続者"  ,c:"中"},
+  {n:81 ,g:"streak" ,name:"おかえりボーナス",eff:"2〜6日休止後の初回XP＋50%"        ,r:"R" ,t:"復帰者"  ,c:"中",mul:1.5},
+  {n:82 ,g:"streak" ,name:"リスタートギフト",eff:"7日以上休止後に復習セット"        ,r:"SR",t:"復帰者"  ,c:"中"},
+  {n:83 ,g:"streak" ,name:"自己ベスト接近"  ,eff:"最長記録まで残り日数を表示"       ,r:"C" ,t:"継続者"  ,c:"低"},
+  {n:84 ,g:"streak" ,name:"節目カード"      ,eff:"10・30・100日節目カード"          ,r:"E" ,t:"継続者"  ,c:"中"},
+  {n:85 ,g:"streak" ,name:"ゆるストリーク"  ,eff:"週5日達成で週間継続判定"          ,r:"R" ,t:"忙しい人",c:"中"},
+  {n:86 ,g:"culture",name:"ソウル旅行"      ,eff:"旅行語彙5問＋ソウルカード"        ,r:"R" ,t:"全員"    ,c:"中"},
+  {n:87 ,g:"culture",name:"釜山旅行"        ,eff:"方言・旅行語彙＋釜山カード"       ,r:"SR",t:"中上級"  ,c:"高"},
+  {n:88 ,g:"culture",name:"韓国カフェ"      ,eff:"カフェ語彙のカード率×2"           ,r:"R" ,t:"全員"    ,c:"中"},
+  {n:89 ,g:"culture",name:"韓国料理"        ,eff:"料理語彙＋料理カード"             ,r:"R" ,t:"全員"    ,c:"中"},
+  {n:90 ,g:"culture",name:"K-POPカムバック" ,eff:"音楽・応援語彙＋限定背景"         ,r:"E" ,t:"全員"    ,c:"高"},
+  {n:91 ,g:"culture",name:"韓国ドラマの日"  ,eff:"感情・会話表現を優先"             ,r:"R" ,t:"全員"    ,c:"中"},
+  {n:92 ,g:"culture",name:"推しに一言"      ,eff:"ファンレター表現を1つ解放"        ,r:"SR",t:"全員"    ,c:"高"},
+  {n:93 ,g:"culture",name:"コンビニ韓国語"  ,eff:"買い物語彙＋商品カード"           ,r:"R" ,t:"初中級"  ,c:"中"},
+  {n:94 ,g:"culture",name:"屋台めぐり"      ,eff:"食べ物語彙を3問クリアでかけら"    ,r:"SR",t:"全員"    ,c:"中"},
+  {n:95 ,g:"culture",name:"ハングルの日"    ,eff:"文字・語源・固有語報酬×2"         ,r:"L" ,t:"全員"    ,c:"高"},
+  {n:96 ,g:"culture",name:"韓国の季節"      ,eff:"季節語彙カードの出現率×3"         ,r:"R" ,t:"全員"    ,c:"中"},
+  {n:97 ,g:"culture",name:"今日の流行語"    ,eff:"当日のトレンド語を1語解説"        ,r:"SR",t:"中上級"  ,c:"高"},
+  {n:98 ,g:"culture",name:"韓国ニュース入門",eff:"やさしいニュース語彙3問"          ,r:"E" ,t:"中上級"  ,c:"高"},
+  {n:99 ,g:"culture",name:"文化クイズ"      ,eff:"学習後に文化問題1問、正解でかけら",r:"R" ,t:"全員"    ,c:"高"},
+  {n:100,g:"culture",name:"韓国一周"        ,eff:"地域カードをランダム解放"         ,r:"L" ,t:"全員"    ,c:"高"},
+  {n:101,g:"special",name:"ボーナス選択"    ,eff:"XP・カード・復習から1つ選ぶ"      ,r:"E" ,t:"全員"    ,c:"中"},
+  {n:102,g:"special",name:"今日だけ3択"     ,eff:"3つのボーナスから1つ選択"         ,r:"L" ,t:"全員"    ,c:"高"},
+  {n:103,g:"special",name:"ボーナス進化"    ,eff:"学習5問ごとに1段階強化、最大3段階",r:"E" ,t:"学習量多",c:"高"},
+  {n:104,g:"special",name:"サプライズ箱"    ,eff:"完了後まで中身を一部非公開"       ,r:"SR",t:"全員"    ,c:"中"},
+  {n:105,g:"special",name:"ラッキーナンバー",eff:"今日の正解数が指定数で追加報酬"   ,r:"R" ,t:"全員"    ,c:"中"},
+  {n:106,g:"special",name:"ゴールデン5問"   ,eff:"5問中ランダム1問が報酬3倍"        ,r:"SR",t:"全員"    ,c:"中"},
+  {n:107,g:"special",name:"完璧な一日"      ,eff:"今日の5問＋復習完了で豪華箱"      ,r:"E" ,t:"中上級"  ,c:"中"},
+  {n:108,g:"special",name:"学習ルート分岐"  ,eff:"やさしい・標準・挑戦から選択"     ,r:"SR",t:"全員"    ,c:"高"},
+  {n:109,g:"special",name:"ミステリーカード",eff:"シルエットからカードを予想"       ,r:"E" ,t:"全員"    ,c:"高"},
+  {n:110,g:"special",name:"神話の一日"      ,eff:"限定Mythicカード抽選＋全学習効果" ,r:"M" ,t:"全員"    ,c:"高"},
+  {n:111,g:"special",name:"ペアボーナス"    ,eff:"今日の5問とトレンド両方で報酬増加",r:"SR",t:"全員"    ,c:"中"},
+  {n:112,g:"special",name:"雨の日ボーナス"  ,eff:"季節の演出として出現"             ,r:"R" ,t:"全員"    ,c:"中"},
+  {n:113,g:"special",name:"誕生月ギフト"    ,eff:"任意の月に設定できる記念ボーナス" ,r:"E" ,t:"全員"    ,c:"中"},
+  {n:114,g:"special",name:"開発者からの贈り物",eff:"メンテナンス・記念日配布"       ,r:"L" ,t:"全員"    ,c:"低"},
+  {n:115,g:"special",name:"全員協力デー"    ,eff:"全体学習数達成で翌日報酬"         ,r:"E" ,t:"全員"    ,c:"高"},
+  {n:116,g:"special",name:"みんなの苦手語"  ,eff:"全体誤答率が高い語を学習"         ,r:"SR",t:"全員"    ,c:"高"},
+  {n:117,g:"special",name:"新語先行体験"    ,eff:"新カードを正式追加前に試せる"     ,r:"E" ,t:"全員"    ,c:"高"},
+  {n:118,g:"special",name:"復刻ボーナス"    ,eff:"過去イベントカードを再取得"       ,r:"L" ,t:"長期利用",c:"中"}
+];
+function luckById(n){for(const it of LUCK_LIST)if(it.n===n)return it;return null;}
+function luckState(){const o=_lsJSON(LS_LUCK,()=>({}));if(!o.days||typeof o.days!=="object")o.days={};if(!Array.isArray(o.hist))o.hist=[];return o;}
+function saveLuck(o){
+  const ks=Object.keys(o.days);if(ks.length>40)ks.sort().slice(0,ks.length-40).forEach(k=>delete o.days[k]); // 古い日は間引き
+  if(o.hist.length>40)o.hist.splice(0,o.hist.length-40);
+  _lsSetJSON(LS_LUCK,o);
+}
+function luckDayKey(ms){return dayKey((ms||Date.now())-D5_AM*3600000);} // 1日の区切りは5:00（今日の5問と同じ）
+/* 抽選に使う、その人の状態 */
+function luckProfile(){
+  const done=Object.keys(doneCountByDay());
+  let last=0;done.forEach(k=>{const t=_dayFromKey(k).getTime();if(t>last)last=t;});
+  const today=new Date();today.setHours(0,0,0,0);
+  return{lv:xpInfo().level,tests:totalTests(),days:launchedDays().length,streak:d5Streak(),
+    cards:Object.keys(loadCards()).length,hour:new Date().getHours(),
+    gap:last?Math.max(0,Math.round((today.getTime()-last)/86400000)):0};
+}
+/* 対象（t）に合う人にだけ配る。合わない日のためだけに用意された効果は引かない（無理のある条件を出さない） */
+function luckEligible(it,p){
+  switch(it.t){
+    case "初心者":    return p.lv<5||p.tests<10;
+    case "初中級":    return p.lv<12;
+    case "中上級":    return p.lv>=4||p.tests>=8;
+    case "上級者":    return p.lv>=8||p.tests>=25;
+    case "継続者":    return p.streak>=3;
+    case "復帰者":    return p.gap>=2;
+    case "長期利用":  return p.days>=14;
+    case "コレクター":return p.cards>=30;
+    case "学習量多":  return p.tests>=15;
+    case "復習対象":  case "苦手あり": return p.tests>=3;
+    case "2日目以降": return p.days>=2;
+    case "朝利用者":  return p.hour<11;  // その日のうちに達成できない時間帯には出さない
+    case "夜利用者":  return p.hour>=16;
+    default: return true;                // 全員／忙しい人 など
+  }
+}
+/* 抽選（その人・その日で固定）。飽き・不公平・初心者格差の3つを補正してから重みつきで引く */
+function luckPick(key){
+  const p=luckProfile(),st=luckState();
+  const rnd=_d5Rng(_d5Hash("kwt-luck|"+getUserId()+"|"+key));
+  const base=LUCK_LIST.filter(it=>luckEligible(it,p));
+  const recent=st.hist.slice(-14);
+  let pool=base.filter(it=>recent.indexOf(it.n)<0);            // 飽き：直近14回に出たものは外す
+  if(!pool.length)pool=base;
+  if(p.days<3){                                                // 初心者格差：はじめの数日はやさしい効果だけ
+    const easy=pool.filter(it=>it.r==="C"||it.r==="R");
+    if(easy.length)pool=easy;
+  }else if(st.hist.length>=7&&!st.hist.slice(-7).some(n=>{const o=luckById(n);return o&&o.r!=="C"&&o.r!=="R";})){
+    const up=pool.filter(it=>it.r!=="C"&&it.r!=="R");           // 不公平：7日レアが出ていなければ、その日はSR以上から
+    if(up.length)pool=up;
+  }
+  const tot=pool.reduce((a,it)=>a+LUCK_RARE[it.r].w,0);
+  let r=rnd()*tot,pick=pool[0];
+  for(const it of pool){if((r-=LUCK_RARE[it.r].w)<0){pick=it;break;}}
+  return{n:pick.n,lucky:3+Math.floor(rnd()*3),golden:Math.floor(rnd()*D5_N)}; // ラッキーナンバー／ゴールデン5問の当たりも同時に決める
+}
+function luckEnsure(key){
+  key=key||luckDayKey();
+  const st=luckState();
+  if(!st.days[key]){
+    const p=luckPick(key);
+    st.days[key]={n:p.n,lucky:p.lucky,golden:p.golden,revealed:false,applied:false,step:0};
+    st.hist.push(p.n);
+    saveLuck(st);
+  }
+  return st.days[key];
+}
+function luckMark(patch,key){const st=luckState(),k=key||luckDayKey();if(!st.days[k])return null;Object.assign(st.days[k],patch);saveLuck(st);return st.days[k];}
+function luckTodayItem(){const d=luckEnsure();return luckById(d.n);}
+/* 明日のテーマ予告（系統だけ。中身は明日のお楽しみ） */
+function luckTomorrowCat(){
+  try{
+    const p=luckPick(luckDayKey(Date.now()+86400000)),it=luckById(p.n);
+    return it?(LUCK_CATS[it.g]||{}).lab||"":"";
+  }catch(e){return "";}
+}
+/* ---- 報酬 ---- */
+const LUCK_BASE={C:20,R:30,SR:45,E:60,L:80,M:110};
+/* 条件つきの上乗せ（達成できたときだけ）。効果文に書いてある条件をそのまま見る */
+function luckDynXp(it,ctx){
+  const h=new Date().getHours();
+  switch(it.n){
+    case 6:   return ctx.correct>=D5_N?30:0;                       // 完璧主義
+    case 8:   return h<12?20:0;                                    // 朝活韓国語
+    case 9:   return h>=18?20:0;                                   // 夜の集中
+    case 77:  return Math.max(1,Math.min(15,d5Streak()));          // 連続学習XP
+    case 105: return ctx.correct===ctx.lucky?40:0;                 // ラッキーナンバー
+    case 106: return ctx.goldenOk?60:0;                            // ゴールデン5問
+    case 111: return (typeof trendUsed==="function"&&trendUsed())?30:0; // ペアボーナス
+    default:  return 0;
+  }
+}
+/* step=1 が今日の5問ぶん。2・3段目は追加のテストを終えるたびに半分ずつ伸びる（最大3段階＝上限） */
+function luckReward(it,step,ctx){
+  const b=LUCK_BASE[it.r]||20,o={xp:0,coin:0,card:0,rest:0,boost:0};
+  o.xp=Math.round(b*(step<=1?1:0.5)*(it.mul||1));
+  if(step<=1){
+    if(it.g==="gacha")o.coin=(it.r==="C"||it.r==="R")?1:2;
+    if(it.g==="card")o.card=(it.r==="C")?1:2;
+    if(it.g==="culture")o.card=1;
+    if(it.g==="streak")o.rest=1;
+    if(it.g==="review")o.xp=Math.round(o.xp*1.3);
+    if(it.r==="L"||it.r==="M"){o.boost=30;o.coin+=1;}
+    if(ctx)o.xp+=luckDynXp(it,ctx);
+  }else{
+    if(step>=3&&(it.g==="gacha"||it.g==="special"))o.coin+=1;
+    if(step>=3&&(it.g==="card"||it.g==="culture"))o.card+=1;
+  }
+  o.xp=Math.max(10,Math.min(240,o.xp)); // レアが低い日も必ず値打ちを残し、上は打ち止めにする
+  return o;
+}
+/* カードは、いま遊んでいるレベルの単語からランダムに配る */
+function luckGrantCards(n){
+  const pool=levelAllWords().filter(w=>w&&w.id!=null);
+  if(!pool.length)return;
+  for(let i=0;i<n;i++)addCards(pool[Math.floor(Math.random()*pool.length)].id,1);
+}
+function luckGrant(rw){
+  if(rw.xp>0)addBonus(rw.xp);
+  for(let i=0;i<rw.coin;i++)addGachaSpin(0,"");
+  if(rw.card>0)luckGrantCards(rw.card);
+  if(rw.rest>0)addRestTicket(rw.rest);
+  if(rw.boost>0)startXpBoost(rw.boost);
+  try{updatePresent();}catch(e){} // ガチャ・XP2倍のバッジだけ更新（ホームの作り直しは結果画面の演出を壊すのでしない）
+}
+function luckGotHTML(rw){
+  const p=[];
+  if(rw.xp>0)p.push("＋"+rw.xp+" XP");
+  if(rw.coin>0)p.push("🪙 ガチャ "+rw.coin+"回");
+  if(rw.card>0)p.push("🃏 単語カード "+rw.card+"枚");
+  if(rw.rest>0)p.push("💤 おやすみチケット "+rw.rest+"枚");
+  if(rw.boost>0)p.push("✕2 XP2倍 "+rw.boost+"分");
+  return p.map(t=>`<span class="lk-gi">${t}</span>`).join("");
+}
+/* 今日の5問を終えた瞬間に発動（1日1回だけ） */
+function luckApply(rec){
+  try{
+    const d=luckEnsure();
+    if(d.applied)return null;
+    const it=luckById(d.n);if(!it)return null;
+    const ctx={correct:rec?rec.correct:0,lucky:d.lucky,
+      goldenOk:!!(rec&&rec.items&&rec.items[d.golden]&&rec.items[d.golden].ok)};
+    const rw=luckReward(it,1,ctx);
+    luckGrant(rw);
+    luckMark({applied:true,step:1,got:rw,at:new Date().toISOString()});
+    return{it,rw};
+  }catch(e){return null;}
+}
+/* 追加のテストを終えるたびに1段階だけ伸びる（3段階で頭打ち） */
+function luckStepUp(){
+  try{
+    const d=luckEnsure();
+    if(!d.applied||(d.step||1)>=3)return null;
+    const it=luckById(d.n);if(!it)return null;
+    const step=(d.step||1)+1,rw=luckReward(it,step,null);
+    luckGrant(rw);
+    luckMark({step,got:{xp:((d.got&&d.got.xp)||0)+rw.xp,coin:((d.got&&d.got.coin)||0)+rw.coin,
+      card:((d.got&&d.got.card)||0)+rw.card,rest:((d.got&&d.got.rest)||0)+rw.rest,boost:((d.got&&d.got.boost)||0)+rw.boost}});
+    return{it,rw,step};
+  }catch(e){return null;}
+}
+/* 制限時間に効く効果（No.66 時間延長／No.67 ノータイマー）。ここだけは出題そのものに効く */
+function luckTimeBonus(){
+  try{
+    const st=luckState(),d=st.days[luckDayKey()];
+    if(!d)return 0;
+    if(d.n===66)return 3;
+    if(d.n===67&&_d5.on&&_d5.mode==="d5")return 600;
+    return 0;
+  }catch(e){return 0;}
+}
+/* ---- 表示 ---- */
+function luckFaceHTML(it,sil){
+  const c=LUCK_CATS[it.g]||{ico:"🎁"};
+  return sil?`<div class="lk-face sil">？</div>`:`<div class="lk-face lk-open">${c.ico}</div>`;
+}
+function luckBodyHTML(it,d){
+  const R=LUCK_RARE[it.r]||LUCK_RARE.C,cat=(LUCK_CATS[it.g]||{}).lab||"";
+  return `<div class="lk-ko">오늘의 행운</div>
+    ${luckFaceHTML(it)}
+    <div class="lk-badge" style="background:${R.col}">${R.lab}</div>
+    <div class="lk-name">${esc(it.name)}</div>
+    <div class="lk-eff">${esc(it.eff)}</div>
+    <div class="lk-tags"><span class="lk-tag">${esc(cat)}</span><span class="lk-tag">対象：${esc(it.t)}</span>${it.n===105?`<span class="lk-tag">ラッキーナンバー ${d.lucky}</span>`:""}</div>`;
+}
+/* 今日の5問の吹き出しの中に出す1行。static=自動スタートの吹き出し用（押せない・カウントダウンを邪魔しない） */
+function luckStripHTML(mode){
+  try{
+    const d=luckEnsure(),it=luckById(d.n);if(!it)return "";
+    const R=LUCK_RARE[it.r]||LUCK_RARE.C;
+    const inner=`<span class="lk-si">${(LUCK_CATS[it.g]||{}).ico||"🎁"}</span>
+      <span class="lk-st">今日のボーナス：${esc(it.name)}${d.applied?"（発動ずみ）":""}</span>
+      <span class="lk-sd" style="background:${R.col}">${R.lab}</span>`;
+    return mode==="static"?`<div class="lk-strip">${inner}</div>`
+                          :`<button class="lk-strip" onclick="luckFromD5()">${inner}</button>`;
+  }catch(e){return "";}
+}
+/* 今日の5問の吹き出しから開くときは、自動スタートのカウントダウンを止めてから開く */
+function luckFromD5(){try{d5StopCountdown();}catch(e){}openLuck();}
+function openLuck(){
+  const m=document.getElementById("luck-modal");if(!m)return;
+  if(!m.classList.contains("on"))pushNav("modal");
+  m.classList.add("on");
+  const d=luckEnsure(),it=luckById(d.n);
+  const nx=luckTomorrowCat();
+  m.innerHTML=`<div class="d5-card">
+    <button class="d5-close" onclick="closeLuck()" aria-label="閉じる">×</button>
+    ${luckBodyHTML(it,d)}
+    ${d.applied
+      ?`<div class="lk-got">${luckGotHTML(d.got||{})}</div>
+        <div class="lk-wait">${(d.step||1)>=3?"今日はここまで伸びました":"テストをもう1本終えると、もう一段だけ伸びます"}</div>`
+      :`<div class="lk-wait">今日の5問を1セット終えると発動します</div>`}
+    ${nx?`<div class="lk-next">明日は「${esc(nx)}」の予感…</div>`:""}
+  </div>`;
+  d5AnchorBubble(null,m.querySelector(".d5-card"));
+  m.onclick=e=>{if(e.target===m)closeLuck();};
+}
+function closeLuck(){const m=document.getElementById("luck-modal");if(m)m.classList.remove("on");}
+/* 起動時：今日のボーナスを公開してから、いつもの「今日の5問」へつなぐ */
+function maybeAutoLuck(){
+  try{
+    if(document.querySelector(".rest-ask")){setTimeout(maybeAutoLuck,800);return;}
+    if(document.getElementById("coach")||document.getElementById("resume-ask"))return;
+    if(_d5.on||_gearActive){maybeAutoDaily5();return;}
+    const home=document.getElementById("s-home");
+    if(!home||!home.classList.contains("on"))return;
+    const d=luckEnsure();
+    // その枠の自動スタートが済んでいる日は、今日の公開も済んだものとして割り込まない
+    if(d.revealed||localStorage.getItem(LS_D5AUTO)===d5Key(Date.now())){
+      if(!d.revealed)luckMark({revealed:true});
+      maybeAutoDaily5();return;
+    }
+    luckMark({revealed:true});
+    showLuckReveal(()=>maybeAutoDaily5());
+  }catch(e){try{maybeAutoDaily5();}catch(e2){}}
+}
+function _killLuckReveal(){const ov=document.querySelector(".lkauto");if(!ov)return;if(ov._t){clearTimeout(ov._t);ov._t=null;}ov.remove();}
+/* 公開の演出は最大2.5秒（ふつうは1秒以内）。シルエット → 開封 → 「この効果で今日の5問を始める」 */
+function showLuckReveal(onDone){
+  _killLuckReveal();
+  const d=luckEnsure(),it=luckById(d.n);
+  if(!it){if(onDone)onDone();return;}
+  const ms=(LUCK_RARE[it.r]||LUCK_RARE.C).ms;
+  const ov=document.createElement("div");ov.className="lkauto";
+  const done=()=>{_killLuckReveal();if(onDone)onDone();};
+  ov.innerHTML=`<div class="d5-card">
+    <div class="lk-ko">오늘의 행운</div>
+    <div class="d5-h" style="margin-top:3px">今日のボーナス</div>
+    <div class="lk-face sil">？</div>
+    <div class="lk-wait">今日だけの学習効果を選んでいます…</div>
+  </div>`;
+  document.body.appendChild(ov);
+  d5AnchorBubble(null,ov.querySelector(".d5-card"));
+  requestAnimationFrame(()=>ov.classList.add("on"));
+  ov._t=setTimeout(()=>{
+    if(!document.body.contains(ov))return;
+    ov.innerHTML=`<div class="d5-card">
+      ${luckBodyHTML(it,d)}
+      <div class="lk-wait">今日の5問を終えると発動します</div>
+      <button class="d5-go" style="margin-top:9px" onclick="closeLuckReveal()">この効果で今日の5問を始める</button>
+    </div>`;
+    d5AnchorBubble(null,ov.querySelector(".d5-card"));
+    ov._done=done;
+    if(it.r==="C"||it.r==="R")sfxTrendPop();else sfxRare();
+    ov._t=setTimeout(()=>{if(document.body.contains(ov))done();},12000); // 触らなければそのまま今日の5問へ
+  },ms);
+  ov._done=done;
+}
+function closeLuckReveal(){const ov=document.querySelector(".lkauto");if(!ov)return;const f=ov._done;_killLuckReveal();if(f)f();}
+/* 結果画面に出す「今日のボーナス発動」 */
+function luckResultHTML(res){
+  if(!res)return "";
+  const R=LUCK_RARE[res.it.r]||LUCK_RARE.C,nx=luckTomorrowCat();
+  return `<div class="lk-res">
+    <div class="lk-rh">今日のボーナス発動</div>
+    <div class="lk-rn"><span class="lk-sd" style="background:${R.col};margin-right:5px">${R.lab}</span>${esc(res.it.name)}</div>
+    <div class="lk-got">${luckGotHTML(res.rw)}</div>
+    <div class="lk-rt">テストをもう1本終えるごとに、あと2段階まで伸びます${nx?`／明日は「${esc(nx)}」の予感…`:""}</div>
+  </div>`;
 }
 
 /* ============================================================ すごろく（1マス=1テスト・12マスで1周） ============================================================
@@ -7500,7 +7966,7 @@ function runnerStep(ok,rarity){
   ch.classList.add(ok?"step":"trip");
 }
 
-function curLimit(){const base=state.questions[state.idx].type==="w"?20:10;return Math.round(base*(loadSettings().slowTimer?1.5:1));} // じっくりモードは1.5倍
+function curLimit(){const base=state.questions[state.idx].type==="w"?20:10;return Math.round((base+luckTimeBonus())*(loadSettings().slowTimer?1.5:1));} // じっくりモードは1.5倍／今日のボーナスの時間延長ぶんを足す
 
 function _tick(){
   const limit=curLimit(),fill=document.getElementById("tfill"),tt=document.getElementById("time");
@@ -8416,6 +8882,7 @@ function finishTest(){
   const xpGain=xpDoubled?_xpRaw*2:_xpRaw,xpNow=xpInfo(),xpLvBefore=state.levelBefore||1,xpLeveled=xpNow.level>xpLvBefore;
   const _ri=roomInfoFor(curSection),pwrAfter=_ri.pwr,pwrBefore=(state.roomPwrBefore!=null?state.roomPwrBefore:0),pwrDelta=pwrAfter-pwrBefore; // そのROOMのPWR
   enqueuePresent(rank,pwrDelta); // このテストのプレゼント（レベル/ランク/PWR/レインボー）を1個追加
+  luckStepUp(); // 今日限定ボーナス：発動ずみの日は、テストを1本終えるごとに1段階だけ伸びる（3段階で頭打ち。メール指示 2026-08-06）
   // ホーム復帰時のお知らせ：その日初テストなら連続ログインボーナス、それ以外はプレゼント到着
   const _tday=dayKey(Date.now());
   const _firstEver=!localStorage.getItem("kwt_firstdone_v1"); // 初回完走かどうか（フラグの書き込みは達成ボーナス判定の後＝従来どおり）
@@ -8974,7 +9441,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v6.5 (2026-08-02)";
+const APP_VERSION="v6.6 (2026-08-06)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
