@@ -2355,6 +2355,115 @@ body.bigtext .set-d{font-size:13.5px}
 .pt-rtx{flex:1;min-width:0}
 .pt-rtx b{display:block;font-size:12.5px;font-weight:900;color:#1a1a1a}
 .pt-rtx span{display:block;font-size:10.5px;font-weight:800;color:#888;margin-top:2px;line-height:1.4}
+/* ---- Phase2（メール指示 2026-08-06 23:54）：図鑑・ガチャ・きせかえ・イベント・進化演出 ---- */
+.pt-art .pt-img{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .3s ease;z-index:2}
+.pt-art .pt-img.on{opacity:1}
+.pt-art .pt-img.on ~ .pt-body{opacity:0}
+.pt-art .pt-cos{position:absolute;left:50%;top:70%;transform:translate(-50%,-50%);font-size:17px}
+.pt-art .pt-acc{position:absolute;left:19%;top:60%;transform:translate(-50%,-50%);font-size:15px}
+.pt-art .pt-fur{position:absolute;right:9px;bottom:22px;font-size:16px}
+.pt-art .pt-fx{position:absolute;left:9px;bottom:22px;font-size:16px;animation:ptFx 2.4s ease-in-out infinite}
+@keyframes ptFx{0%,100%{transform:translateY(0);opacity:.85}50%{transform:translateY(-5px);opacity:1}}
+.pt-art.sm .pt-cos,.pt-art.sm .pt-acc,.pt-art.sm .pt-fur,.pt-art.sm .pt-fx{display:none}
+.pt-aura::after{content:"";position:absolute;left:50%;top:54%;width:88px;height:88px;transform:translate(-50%,-50%);
+  border-radius:50%;background:radial-gradient(circle,rgba(255,214,102,.55),rgba(255,214,102,0) 70%);pointer-events:none}
+.pt-art.sm.pt-aura::after{width:42px;height:42px}
+.pt-back{margin-top:8px;background:#EAF6FF;border:2px solid #B9DDF7;padding:6px 8px;font-size:11.5px;font-weight:900;color:#1B5E8A;line-height:1.4}
+.pt-back em{display:block;font-size:10px;font-weight:800;color:#5B8FB0;font-style:normal;margin-top:2px}
+.pt-bondnew{margin-top:8px;background:#FFF1F5;border:2px solid #FBC6D8;padding:6px 8px;font-size:11.5px;font-weight:900;color:#A03060;line-height:1.4}
+.pt-bondnew em{display:block;font-size:10px;font-weight:800;color:#C07E99;font-style:normal;margin-top:2px}
+.pt-worry{width:100%;margin-top:6px;border:2px solid #FFD9A0;background:#FFF6E8;color:#A6600A;font-size:11.5px;font-weight:900;padding:8px;cursor:pointer;font-family:inherit}
+.pt-worry:active{background:#FFEFD6}
+.pt-tabs{display:flex;gap:5px;margin-top:8px}
+.pt-tabs button{flex:1;border:2px solid #E3E3E3;background:#FAFAFA;font-family:inherit;font-size:9.5px;font-weight:900;color:#666;padding:6px 2px;cursor:pointer;line-height:1.25}
+.pt-tabs button b{display:block;font-size:16px;font-weight:400;margin-bottom:2px}
+.pt-tabs button:active{background:#F0F0F0}
+.pt-ate{margin-top:9px;border-top:2px solid #EDEDED;padding-top:7px}
+.pt-atr{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.pt-atr span{font-size:11px;font-weight:900;color:#4A7A2E;background:#F0F8E8;border:2px solid #D6EBC2;padding:2px 6px}
+.pt-subh{font-size:15px;font-weight:900;color:#1a1a1a;margin-top:2px}
+.pt-back2{position:absolute;left:2px;top:2px;width:38px;height:38px;border:none;background:transparent;color:#999;font-size:22px;font-weight:900;cursor:pointer;line-height:1;font-family:inherit}
+.pt-back2:active{background:rgba(0,0,0,.08)}
+.pt-note{font-size:10px;font-weight:800;color:#999;line-height:1.5;margin-top:7px;text-align:left}
+.pt-zoon{font-size:10.5px;font-weight:900;color:#999;margin-top:4px}
+.pt-zoo{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:7px}
+.pt-zi{position:relative;border:2px solid #E3E3E3;background:#FAFAFA;font-family:inherit;padding:6px 2px;cursor:pointer;line-height:1.2}
+.pt-zi.no{background:#F2F2F2;cursor:default;opacity:.7}
+.pt-zi.now{border-color:#FFC400;background:#FFFBEC}
+.pt-zi .pt-zico{display:block;font-size:24px}
+.pt-zi b{display:block;font-size:9.5px;font-weight:900;color:#444;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pt-zi em{display:block;font-size:8.5px;font-weight:800;color:#AAA;font-style:normal;margin-top:1px}
+.pt-znow{position:absolute;left:2px;top:2px;font-size:7.5px;font-weight:900;font-style:normal;background:#FFC400;color:#2b1a00;padding:1px 3px}
+.pt-seedbig{font-size:13px;font-weight:900;color:#4A7A2E;margin-top:5px}
+.pt-seedbig b{font-size:19px}
+.pt-seedbig em{display:block;font-size:9.5px;font-weight:800;color:#AAA;font-style:normal;margin-top:2px}
+.pt-ball{height:96px;display:flex;align-items:center;justify-content:center;font-size:46px;margin-top:7px;background:#F7F7F7;border:2px solid #E3E3E3}
+.pt-ball.spin{animation:ptSpin .6s ease-in-out}
+@keyframes ptSpin{0%{transform:rotate(0) scale(1)}30%{transform:rotate(-16deg) scale(1.08)}60%{transform:rotate(16deg) scale(.95)}100%{transform:rotate(0) scale(1)}}
+.pt-ball.open{background:#FFFBEC;border-color:#FFE39A}
+.pt-ball.open .pt-bico{animation:ptPop .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes ptPop{0%{transform:scale(.2);opacity:0}100%{transform:scale(1);opacity:1}}
+.pt-got{margin-top:8px;background:#FFF7E0;border:2px solid #FFE39A;padding:7px 8px}
+.pt-got i{display:inline-block;font-style:normal;font-size:9.5px;font-weight:900;color:#fff;padding:1px 6px}
+.pt-got b{display:block;font-size:13.5px;font-weight:900;color:#8a5a00;margin-top:3px}
+.pt-got span{display:block;font-size:10px;font-weight:800;color:#B08C4A;margin-top:2px;line-height:1.45}
+.pt-go2{width:100%;margin-top:6px;border:2px solid #E3E3E3;background:#FAFAFA;color:#666;font-size:11.5px;font-weight:900;padding:9px;cursor:pointer;font-family:inherit}
+.pt-go2:active{background:#F0F0F0}
+.pt-wrow{margin-top:8px;text-align:left}
+.pt-wlist{display:flex;gap:5px;overflow-x:auto;padding:4px 0 2px;-webkit-overflow-scrolling:touch}
+.pt-wi{flex:0 0 auto;width:52px;border:2px solid #E3E3E3;background:#FAFAFA;font-family:inherit;padding:5px 2px;cursor:pointer;line-height:1.2}
+.pt-wi.on{border-color:#FFC400;background:#FFFBEC}
+.pt-wi span{display:block;font-size:19px}
+.pt-wi em{display:block;font-size:8px;font-weight:900;color:#999;font-style:normal;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pt-wnone{font-size:10px;font-weight:800;color:#BBB;align-self:center}
+.pt-evnow{margin-top:6px;background:#FFF7E0;border:2px solid #FFE39A;padding:8px}
+.pt-evnow span{font-size:26px;display:block}
+.pt-evnow b{display:block;font-size:13.5px;font-weight:900;color:#8a5a00;margin-top:2px}
+.pt-evnow em{display:block;font-size:10px;font-weight:800;color:#B08C4A;font-style:normal;margin-top:1px}
+.pt-evlist{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:5px}
+.pt-evi{border:2px solid #E3E3E3;background:#FAFAFA;padding:5px 2px;line-height:1.2}
+.pt-evi.got{border-color:#BFE3A8;background:#F3FAEE}
+.pt-evi span{display:block;font-size:19px}
+.pt-evi b{display:block;font-size:9px;font-weight:900;color:#555;margin-top:1px}
+.pt-evi em{display:block;font-size:8px;font-weight:800;color:#AAA;font-style:normal}
+.pt-evcal{display:flex;gap:3px;overflow-x:auto;padding:4px 0 2px}
+.pt-evcal span{flex:0 0 auto;width:38px;font-size:17px;border:2px solid #E3E3E3;background:#FAFAFA;padding:3px 0}
+.pt-evcal span.on{border-color:#FFC400;background:#FFFBEC}
+.pt-evcal span i{display:block;font-size:8px;font-weight:900;color:#AAA;font-style:normal}
+.pt-bondl{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:5px}
+.pt-bi{border:2px solid #E3E3E3;background:#FAFAFA;padding:5px 1px;line-height:1.25}
+.pt-bi.got{border-color:#FBC6D8;background:#FFF1F5}
+.pt-bi b{display:block;font-size:11px;font-weight:900;color:#555}
+.pt-bi em{display:block;font-size:8px;font-weight:800;color:#AAA;font-style:normal;margin-top:1px}
+/* 学習後のひとつながりの演出：①エサが飛ぶ ②食べる ③経験値がのびる ④レベルアップ */
+.pt-rart{position:relative;flex:0 0 auto;width:54px}
+.pt-rart .pt-art{width:54px;margin:0}
+.pt-food{position:absolute;right:-46px;top:12px;font-size:17px;animation:ptFly 1s cubic-bezier(.4,0,.5,1) .15s both}
+@keyframes ptFly{0%{transform:translate(0,-14px) scale(.6);opacity:0}25%{opacity:1}
+  75%{transform:translate(-46px,4px) scale(1.1);opacity:1}100%{transform:translate(-46px,6px) scale(.2);opacity:0}}
+.pt-rbar{height:6px;background:#EDEDED;border:2px solid #E3E3E3;margin-top:4px;overflow:hidden}
+.pt-rbar i{display:block;height:100%;background:#FFC400;transform-origin:left;animation:ptGrow .7s ease 1.05s both}
+@keyframes ptGrow{0%{transform:scaleX(0)}100%{transform:scaleX(1)}}
+.pt-greet{display:block;font-size:11px;font-weight:900;color:#8a5a00;margin-top:3px}
+.pt-greet em{display:block;font-size:9.5px;font-weight:800;color:#B08C4A;font-style:normal}
+.pt-lvup{margin-top:5px;font-size:13px;font-weight:900;color:#E0831A;letter-spacing:.1em;animation:ptPop .5s cubic-bezier(.2,1.6,.4,1) 1.7s both}
+.pt-res.less .pt-food,.pt-res.less .pt-rbar i,.pt-res.less .pt-lvup{animation:none}
+.pt-res.less .pt-food{display:none}
+/* 進化：全画面 */
+#petevo-modal{position:fixed;inset:0;z-index:460;display:none;background:rgba(20,14,0,.72)}
+#petevo-modal.on{display:flex;align-items:center;justify-content:center}
+.pv-in{width:268px;background:#fff;border:3px solid #FFC400;padding:16px 14px;text-align:center}
+.pv-h{font-size:12px;font-weight:900;color:#E0831A;letter-spacing:.12em}
+.pv-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px}
+.pv-old{font-size:34px;opacity:.45}
+.pv-arrow{font-size:13px;color:#CCC;font-weight:900}
+.pv-new{font-size:52px;animation:pvNew 1.1s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes pvNew{0%{transform:scale(.3);filter:brightness(3);opacity:0}55%{filter:brightness(2.4)}100%{transform:scale(1);filter:none;opacity:1}}
+.pv-in.less .pv-new{animation:none}
+.pv-name{font-size:15px;font-weight:900;color:#1a1a1a;margin-top:9px}
+.pv-name em{display:block;font-size:10.5px;font-weight:800;color:#999;font-style:normal;margin-top:2px}
+.pv-msg{font-size:10.5px;font-weight:800;color:#AAA;margin-top:6px;line-height:1.5}
+.pv-in .d5-go{margin-top:11px}
 </style>
 <!-- アクセス解析: Cloudflare Web Analytics（プロキシ経由で自動計測。手動ビーコン不要） -->
 <script src="ga.js?v=2512"></script>
@@ -2454,6 +2563,7 @@ body.bigtext .set-d{font-size:13.5px}
 <div id="d5-modal"></div>
 <div id="luck-modal"></div><!-- 今日限定ボーナス（メール指示 2026-08-06） -->
 <div id="pet-modal"></div><!-- ことばの友だち（動物育成。メール指示 2026-08-06 の続き） -->
+<div id="petevo-modal"></div><!-- 進化の全画面演出（メール指示 2026-08-06 23:54 のPhase2） -->
 <!-- ハンバーガーメニューの吹き出し（カレンダー／ROOM一覧／スペシャルモードのカプセル3つ。メール指示 2026-08-02） -->
 <div id="menu-modal">
   <div class="d5-card hm-card">
@@ -4256,6 +4366,7 @@ function renderHome(){
   startRailFlip(); // リール7ボタンのアイコン⇄ラベル入替（ランダム）
   if(!_homeNotice)_homeNotice=loadPendingNotice(); // 結果画面のまま閉じていた場合はここで拾う（メール指示 2026-08-01）
   if(_homeNotice){clearPendingNotice();showHomeNotice(_homeNotice);_homeNotice=null;}
+  else if(typeof petEvoPending==="function"&&petEvoPending())setTimeout(petEvoShow,420); // 進化はホームに戻ってから全画面で（次の起動まで残る）
 }
 /* 「復習どき」タップ：期限が来ている単語だけで復習テストを開始（優先度順に12語） */
 function startDueReview(){
@@ -6796,12 +6907,91 @@ function luckResultHTML(res,rec){
  *    毎日ちがう1枚を組み立てる。生成した見た目はアルバムに残るので、あとから成長を並べて見られる。
  *  ・ホームの部品配置は変えず、入口はハンバーガーメニューに1つだけ足している。 */
 const LS_PET="kwt_pet_v1";
-const PET_MAXLV=20;
-const PET_STAGES=[ // 5. 進化（卵→赤ちゃん→子ども→青年。この先の大人・伝説はPhase2以降）
-  {k:"egg" ,lv:1 ,name:"言葉のたまご",ko:"말의 알",ico:"🥚"},
-  {k:"baby",lv:4 ,name:"赤ちゃん"   ,ko:"아기"   ,ico:"🐶"},
-  {k:"kid" ,lv:9 ,name:"子ども"     ,ko:"어린이" ,ico:"🐕"},
-  {k:"teen",lv:15,name:"青年"       ,ko:"청년"   ,ico:"🦮"}
+const PET_MAXLV=40;
+const PET_STAGES=[ // 5. 進化（卵→赤ちゃん→子ども→青年→大人→伝説。Phase2で大人・伝説を開放）
+  {k:"egg"  ,lv:1 ,name:"言葉のたまご",ko:"말의 알",ico:"🥚"},
+  {k:"baby" ,lv:4 ,name:"赤ちゃん"   ,ko:"아기"   ,ico:"🐶"},
+  {k:"kid"  ,lv:9 ,name:"子ども"     ,ko:"어린이" ,ico:"🐕"},
+  {k:"teen" ,lv:15,name:"青年"       ,ko:"청년"   ,ico:"🦮"},
+  {k:"adult",lv:24,name:"大人"       ,ko:"어른"   ,ico:"🐕‍🦺"},
+  {k:"myth" ,lv:33,name:"伝説"       ,ko:"전설"   ,ico:"🐺"}
+];
+/* Phase2 ①：友だちの種類（ガチャで増える／図鑑に並ぶ）。ico は進化6段階ぶん。like=好物の単語 */
+const PET_SPECIES=[
+  {k:"mong"   ,name:"멍이（モンイ）"     ,ja:"いぬ"    ,rare:"N"  ,like:"사랑"    ,ico:["🥚","🐶","🐕","🦮","🐕‍🦺","🐺"]},
+  {k:"yaong"  ,name:"야옹이（ヤオンイ）" ,ja:"ねこ"    ,rare:"N"  ,like:"생선"    ,ico:["🥚","🐱","🐈","🐈‍⬛","😼","🦁"]},
+  {k:"kkomi"  ,name:"꼬미（コミ）"       ,ja:"うさぎ"  ,rare:"N"  ,like:"당근"    ,ico:["🥚","🐰","🐇","🐇","🐇","🐇"]},
+  {k:"ppyong" ,name:"뾰옹（ピョオン）"   ,ja:"ひよこ"  ,rare:"N"  ,like:"하늘"    ,ico:["🥚","🐤","🐥","🐔","🦆","🦅"]},
+  {k:"gomdol" ,name:"곰돌（コムドル）"   ,ja:"くま"    ,rare:"R"  ,like:"꿀"      ,ico:["🥚","🐻","🐻","🐻‍❄️","🐻‍❄️","🐻‍❄️"]},
+  {k:"dungsil",name:"둥실（トゥンシル）" ,ja:"パンダ"  ,rare:"R"  ,like:"대나무"  ,ico:["🥚","🐼","🐼","🐼","🐼","🐼"]},
+  {k:"yeoubi" ,name:"여우비（ヨウビ）"   ,ja:"きつね"  ,rare:"R"  ,like:"비"      ,ico:["🥚","🦊","🦊","🦊","🦊","🦊"]},
+  {k:"byeol"  ,name:"별이（ピョリ）"     ,ja:"ほしのこ",rare:"SR" ,like:"별"      ,ico:["🥚","⭐","🌟","✨","💫","🌠"]},
+  {k:"yongi"  ,name:"용이（ヨンイ）"     ,ja:"りゅう"  ,rare:"SR" ,like:"바람"    ,ico:["🥚","🐲","🐉","🐉","🐉","🐉"]},
+  {k:"dokkae" ,name:"도깨비（トッケビ）" ,ja:"トッケビ",rare:"SSR",like:"방망이"  ,ico:["🥚","👺","👺","👹","👹","👹"]}
+];
+/* Phase2 ②：装備できるもの。slot=つける場所／ev=その月だけのイベント限定（1〜12月） */
+const PET_SLOTS=[{k:"hat",t:"ぼうし"},{k:"acc",t:"アクセサリー"},{k:"cos",t:"衣装"},{k:"bg",t:"背景"},{k:"fur",t:"家具"},{k:"fx",t:"エフェクト"}];
+const PET_ITEMS=[
+  {k:"hat_cap"   ,slot:"hat",t:"やきゅうぼう"   ,ko:"야구모자" ,ico:"🧢",rare:"N"},
+  {k:"hat_grad"  ,slot:"hat",t:"がくしぼう"     ,ko:"학사모"   ,ico:"🎓",rare:"R"},
+  {k:"hat_top"   ,slot:"hat",t:"シルクハット"   ,ko:"실크햇"   ,ico:"🎩",rare:"R"},
+  {k:"hat_sakura",slot:"hat",t:"さくらかんむり" ,ko:"벚꽃 화관",ico:"🌸",rare:"R"  ,ev:4},
+  {k:"hat_santa" ,slot:"hat",t:"サンタぼう"     ,ko:"산타모자" ,ico:"🎅",rare:"R"  ,ev:12},
+  {k:"hat_crown" ,slot:"hat",t:"おうかん"       ,ko:"왕관"     ,ico:"👑",rare:"SSR"},
+  {k:"acc_glass" ,slot:"acc",t:"メガネ"         ,ko:"안경"     ,ico:"👓",rare:"N"},
+  {k:"acc_bag"   ,slot:"acc",t:"かばん"         ,ko:"가방"     ,ico:"🎒",rare:"N"},
+  {k:"acc_scarf" ,slot:"acc",t:"マフラー"       ,ko:"목도리"   ,ico:"🧣",rare:"N"  ,ev:1},
+  {k:"acc_ribbon",slot:"acc",t:"リボン"         ,ko:"리본"     ,ico:"🎀",rare:"R"},
+  {k:"acc_medal" ,slot:"acc",t:"メダル"         ,ko:"메달"     ,ico:"🏅",rare:"SR"},
+  {k:"cos_school",slot:"cos",t:"せいふく"       ,ko:"교복"     ,ico:"🎽",rare:"N"},
+  {k:"cos_pajama",slot:"cos",t:"パジャマ"       ,ko:"잠옷"     ,ico:"🌙",rare:"N"},
+  {k:"cos_summer",slot:"cos",t:"なつふく"       ,ko:"여름옷"   ,ico:"🩳",rare:"N"  ,ev:8},
+  {k:"cos_winter",slot:"cos",t:"ふゆふく"       ,ko:"겨울옷"   ,ico:"🧤",rare:"N"  ,ev:12},
+  {k:"cos_rain"  ,slot:"cos",t:"レインコート"   ,ko:"우비"     ,ico:"🧥",rare:"R"  ,ev:7},
+  {k:"cos_hallo" ,slot:"cos",t:"ハロウィン"     ,ko:"핼러윈"   ,ico:"🎃",rare:"SR" ,ev:10},
+  {k:"cos_hanbok",slot:"cos",t:"韓服（ハンボク）",ko:"한복"    ,ico:"👘",rare:"SR" ,ev:1},
+  {k:"bg_school" ,slot:"bg" ,t:"がっこう"       ,ko:"학교"     ,ico:"🏫",rare:"N"  ,bg:"linear-gradient(180deg,#D9E9FF,#F5FAFF)"},
+  {k:"bg_sea"    ,slot:"bg" ,t:"うみ"           ,ko:"바다"     ,ico:"🌊",rare:"N"  ,bg:"linear-gradient(180deg,#A8E0F5,#EAF9FF)"},
+  {k:"bg_night"  ,slot:"bg" ,t:"よぞら"         ,ko:"밤하늘"   ,ico:"🌌",rare:"R"  ,bg:"linear-gradient(180deg,#3A4A7A,#8E9CC8)"},
+  {k:"bg_sakura" ,slot:"bg" ,t:"さくら"         ,ko:"벚꽃길"   ,ico:"🌸",rare:"R"  ,bg:"linear-gradient(180deg,#FBD9E6,#FFF4F8)",ev:4},
+  {k:"bg_snow"   ,slot:"bg" ,t:"ゆき"           ,ko:"눈"       ,ico:"❄️",rare:"R"  ,bg:"linear-gradient(180deg,#DCEAF6,#FFFFFF)",ev:12},
+  {k:"bg_hanok"  ,slot:"bg" ,t:"韓屋（ハノク）" ,ko:"한옥"     ,ico:"🏯",rare:"SR" ,bg:"linear-gradient(180deg,#F6E2C3,#FFF8EC)"},
+  {k:"fur_bed"   ,slot:"fur",t:"ベッド"         ,ko:"침대"     ,ico:"🛏",rare:"N"},
+  {k:"fur_plant" ,slot:"fur",t:"うえき"         ,ko:"화분"     ,ico:"🪴",rare:"N"},
+  {k:"fur_shelf" ,slot:"fur",t:"ほんだな"       ,ko:"책장"     ,ico:"📚",rare:"R"},
+  {k:"fur_house" ,slot:"fur",t:"おうち"         ,ko:"집"       ,ico:"🏠",rare:"SR"},
+  {k:"fx_bubble" ,slot:"fx" ,t:"しゃぼん"       ,ko:"비눗방울" ,ico:"🫧",rare:"N"},
+  {k:"fx_spark"  ,slot:"fx" ,t:"きらきら"       ,ko:"반짝반짝" ,ico:"✨",rare:"R"},
+  {k:"fx_rain"   ,slot:"fx" ,t:"にじ"           ,ko:"무지개"   ,ico:"🌈",rare:"SR"}
+];
+const PET_ITEM_BY_K={};PET_ITEMS.forEach(x=>PET_ITEM_BY_K[x.k]=x);
+const PET_SP_BY_K={};PET_SPECIES.forEach(x=>PET_SP_BY_K[x.k]=x);
+/* Phase2 ③：ガチャ。レアリティの重み・値段・天井（10回に1回は必ず新しい友だち） */
+const PET_RARE={N:{w:60,c:"#9AA4B2"},R:{w:25,c:"#2E7BE0"},SR:{w:12,c:"#8B3FD0"},SSR:{w:3,c:"#D08A00"}};
+const PET_GACHA_COST=10,PET_PITY=10;
+/* 単語の実：学習でたまる。ガチャの元手（韓国語エネルギーとは別の通貨） */
+const PET_SEED={d5:3,test:2,trend:2};
+/* Phase2 ④：年間イベント（その月だけ限定のものが出る／もらえる） */
+const PET_EVENTS=[
+  {m:1 ,t:"お正月（설날）"       ,ico:"🎍",ko:"설날"},
+  {m:2 ,t:"バレンタイン"         ,ico:"🍫",ko:"발렌타인"},
+  {m:3 ,t:"新学期"               ,ico:"🎒",ko:"새 학기"},
+  {m:4 ,t:"さくらの季節"         ,ico:"🌸",ko:"벚꽃"},
+  {m:5 ,t:"家族の月"             ,ico:"🌷",ko:"가정의 달"},
+  {m:6 ,t:"つゆのはじまり"       ,ico:"☔",ko:"장마"},
+  {m:7 ,t:"あまやどり"           ,ico:"🧥",ko:"비 오는 날"},
+  {m:8 ,t:"うみの日"             ,ico:"🌊",ko:"바다"},
+  {m:9 ,t:"チュソク（秋夕）"     ,ico:"🌕",ko:"추석"},
+  {m:10,t:"ハングルの日＆ハロウィン",ico:"📕",ko:"한글날"},
+  {m:11,t:"あきの読書"           ,ico:"📚",ko:"독서의 계절"},
+  {m:12,t:"クリスマス"           ,ico:"🎄",ko:"크리스마스"}
+];
+/* Phase2 ⑤：長くいっしょにいた記念（30/100/365/1000日） */
+const PET_BONDS=[
+  {d:30  ,t:"30日きねん"  ,ko:"30일",item:"acc_ribbon",seeds:20},
+  {d:100 ,t:"100日きねん" ,ko:"100일",item:"hat_grad" ,seeds:50},
+  {d:365 ,t:"1年きねん"   ,ko:"1년"  ,item:"acc_medal",seeds:120},
+  {d:1000,t:"1000日きねん",ko:"1000일",item:"hat_crown",seeds:300}
 ];
 /* 4. 今日の状態（20パターン）。毎日ひとつだけ選ばれる */
 const PET_ACTS=[
@@ -6833,9 +7023,28 @@ function petState(){
   if(!Array.isArray(o.album))o.album=[];
   if(!o.name)o.name="멍이（モンイ）";
   if(!o.taps||typeof o.taps!=="object")o.taps={k:"",n:0};
+  /* --- Phase2ぶん。Phase1の記録（xp/friend）はそのまま最初の子（멍이）のものとして引き継ぐ --- */
+  if(!o.sp||!PET_SP_BY_K[o.sp])o.sp=PET_SPECIES[0].k;
+  if(!o.zoo||typeof o.zoo!=="object")o.zoo={};
+  if(!o.zoo[o.sp])o.zoo[o.sp]={xp:o.xp,friend:o.friend,got:o.album.length?o.album[0].k:luckDayKey()};
+  if(!o.items||typeof o.items!=="object")o.items={};
+  if(!o.eq||typeof o.eq!=="object")o.eq={};
+  if(typeof o.seeds!=="number")o.seeds=0;
+  if(!Array.isArray(o.ate))o.ate=[];
+  if(typeof o.days!=="number")o.days=o.album.length;
+  if(!Array.isArray(o.bond))o.bond=[];
+  if(typeof o.pity!=="number")o.pity=0;
+  if(!o.img||typeof o.img!=="object")o.img={};   // 12. AI画像の生成状態（ok/ng）のおぼえ書き
   return o;
 }
-function savePet(o){if(o.album.length>30)o.album.splice(0,o.album.length-30);_lsSetJSON(LS_PET,o);} // 思い出アルバムは最新30日
+function savePet(o){
+  if(o.album.length>30)o.album.splice(0,o.album.length-30); // 思い出アルバムは最新30日
+  if(o.ate&&o.ate.length>50)o.ate.splice(0,o.ate.length-50); // 食べた単語は最新50語
+  if(o.zoo&&o.sp)o.zoo[o.sp]=Object.assign(o.zoo[o.sp]||{},{xp:o.xp,friend:o.friend}); // いまの子の育ちを図鑑へ写す
+  _lsSetJSON(LS_PET,o);
+}
+function petSp(o){return PET_SP_BY_K[(o||petState()).sp]||PET_SPECIES[0];}
+function petHave(o){o=o||petState();return Object.keys(o.zoo||{}).filter(k=>PET_SP_BY_K[k]);}
 function petLevel(xp){return Math.max(1,Math.min(PET_MAXLV,1+Math.floor((xp||0)/40)));}
 function petStage(lv){let s=PET_STAGES[0];PET_STAGES.forEach(x=>{if(lv>=x.lv)s=x;});return s;}
 function petNextLvXp(xp){const lv=petLevel(xp);return lv>=PET_MAXLV?0:(lv*40)-(xp||0);}
@@ -6860,17 +7069,42 @@ function petTodayWords(){
   }catch(e){}
   return out;
 }
+/* 8. 忘れかけの単語を心配する。復習どきの語を優先度順に拾う（記憶エンジンの nextReviewAt をそのまま使う） */
+function petWorry(){
+  const out=[];
+  try{
+    const s=loadStats(),now=Date.now();
+    Object.keys(s).forEach(id=>{
+      const st=s[id];
+      if(st&&st.hasSeen&&st.nextReviewAt&&new Date(st.nextReviewAt).getTime()<=now&&WORD_BY_ID[id])
+        out.push({id:id,ko:WORD_BY_ID[id].ko,ja:WORD_BY_ID[id].ja,ps:priorityScore(WORD_BY_ID[id],st,now)});
+    });
+    out.sort((a,b)=>b.ps-a.ps);
+  }catch(e){}
+  return out;
+}
 /* 7. 吹き出し。話せる語数がふえるほど、ひとことが長くなる（最初は안녕だけ） */
 function petLine(d){
-  const pw=petPower(),w=petTodayWords();
+  const pw=petPower(),w=petTodayWords(),o=petState(),sp=petSp(o);
   if(pw<20)return{ko:"안녕!",ja:"やあ！"};
+  // 8. 忘れかけの単語があると心配する（学習へ戻す合図）
+  const wo=petWorry();
+  if(wo.length>=3)return{ko:wo[0].ko+"… 잊어버릴 것 같아.",ja:"「"+wo[0].ko+"」を わすれそう…！ いっしょに 思いだそう？",worry:wo.length};
   if(!w.length)return pw<100?{ko:"안녕! 공부하자!",ja:"やあ！ べんきょうしよう！"}
     :{ko:"오늘도 같이 공부할까?",ja:"きょうも いっしょに べんきょうする？"};
   const a=w[0],b=w[1]||w[0];
-  if(a==="사랑")return{ko:"사랑! 제일 좋아하는 말이야!",ja:"사랑！ いちばん すきな ことば！"}; // 好物の単語
+  if(a===sp.like)return{ko:sp.like+"! 제일 좋아하는 말이야!",ja:sp.like+"！ いちばん すきな ことば！"}; // 好物の単語
   if(pw<100)return{ko:"오늘 "+a+" 배웠어!",ja:"きょう「"+a+"」を おぼえたよ！"};
   if(pw<500)return{ko:"오늘 "+a+"하고 "+b+" 배웠어! 맛있었어!",ja:"きょうは「"+a+"」と「"+b+"」を たべたよ！ おいしかった！"};
   return{ko:"오늘 "+a+" 배웠어. 내일도 같이 공부하자!",ja:"きょうは「"+a+"」を おぼえたね。あしたも いっしょに！"};
+}
+/* 7. レベルが上がったときの韓国語のあいさつ（語彙がふえるほど長い） */
+function petLevelGreet(lv){
+  const pw=petPower();
+  if(pw<50) return{ko:"고마워!",ja:"ありがとう！"};
+  if(pw<200)return{ko:"레벨 "+lv+"! 고마워!",ja:"レベル"+lv+"！ ありがとう！"};
+  if(pw<600)return{ko:"레벨 "+lv+"이 됐어! 같이 커 줘서 고마워!",ja:"レベル"+lv+"に なったよ！ いっしょに いてくれて ありがとう！"};
+  return{ko:"레벨 "+lv+"! 네 덕분에 한국어가 늘었어. 내일도 부탁해!",ja:"レベル"+lv+"！ あなたのおかげで 韓国語が うまくなったよ。あしたも よろしく！"};
 }
 /* その日だけの1枚（出来事×気分×衣装×天気×背景）。同じ人・同じ日なら何度開いても同じ */
 function petDaily(){
@@ -6882,12 +7116,40 @@ function petDaily(){
     wear:Math.floor(rnd()*PET_WEARS.length),wx:Math.floor(rnd()*wOK),fed:0};
   o.day=day;
   // 2. 毎日起動で親密度＋2（その日1回だけ）
-  if(o.lastLaunch!==k){o.lastLaunch=k;o.friend=(o.friend||0)+2;}
+  if(o.lastLaunch!==k){
+    // 13. 何日かあいても叱らない。「おかえり」で迎えて、実を少し渡す（離脱からの復帰をとがめない）
+    if(o.lastLaunch){
+      const gap=Math.round((_dayFromKey(k)-_dayFromKey(o.lastLaunch))/86400000);
+      if(gap>=3){o.back={k:k,gap:gap};o.seeds=(o.seeds||0)+Math.min(30,gap*2);}
+    }
+    o.lastLaunch=k;o.friend=(o.friend||0)+2;o.days=(o.days||0)+1;
+  }
   const st=petStage(petLevel(o.xp));
-  o.album.push({k:k,act:day.act,mood:day.mood,wear:day.wear,wx:day.wx,lv:petLevel(o.xp),stage:st.k});
+  o.album.push({k:k,act:day.act,mood:day.mood,wear:day.wear,wx:day.wx,lv:petLevel(o.xp),stage:st.k,sp:o.sp,eq:Object.assign({},o.eq)});
+  petBondCheck(o);   // 30/100/365/1000日の記念
+  petEventGrant(o);  // その月のイベント衣装
   savePet(o);
   return day;
 }
+/* 13. 長くいっしょにいた記念。日数を越えた回だけ、限定の持ち物と実をわたす */
+function petBondCheck(o){
+  PET_BONDS.forEach(b=>{
+    if((o.days||0)>=b.d&&o.bond.indexOf(b.d)<0){
+      o.bond.push(b.d);o.seeds=(o.seeds||0)+b.seeds;
+      if(b.item)o.items[b.item]=(o.items[b.item]||0)+1;
+      o.bondNew=b.d;
+    }
+  });
+}
+/* 10. イベント：その月に1回だけ、限定の衣装がひとつ届く */
+function petEventGrant(o){
+  const m=_dayFromKey(luckDayKey()).getMonth()+1,ym=String(_dayFromKey(luckDayKey()).getFullYear())+"-"+m;
+  if(o.evGot===ym)return;
+  const pool=PET_ITEMS.filter(x=>x.ev===m&&!o.items[x.k]);
+  if(!pool.length){o.evGot=ym;return;}
+  o.items[pool[0].k]=1;o.evGot=ym;o.evNew=pool[0].k;
+}
+function petEventNow(){const m=_dayFromKey(luckDayKey()).getMonth()+1;return PET_EVENTS.find(e=>e.m===m)||PET_EVENTS[0];}
 /* 5. 韓国語エネルギー：今日の5問・復習・トレンド・カード取得で育つ */
 const PET_GAIN={d5:30,test:20,trend:15,tap:0};
 function petFeed(kind){
@@ -6896,10 +7158,15 @@ function petFeed(kind){
     const o=petState(),g=PET_GAIN[kind]||10;
     const lv0=petLevel(o.xp),s0=petStage(lv0).k;
     o.xp=(o.xp||0)+g;o.friend=(o.friend||0)+3; // 学習で親密度＋3
+    o.seeds=(o.seeds||0)+(PET_SEED[kind]||1);  // 9. 単語の実（ガチャの元手）もたまる
+    // 7. 覚えた単語を「食べる」＝食べた単語として残る（育成画面でしゃべる材料になる）
+    petTodayWords().forEach(w=>{if(o.ate.indexOf(w)<0)o.ate.push(w);});
     if(o.day)o.day.fed=(o.day.fed||0)+1;
-    savePet(o);
     const lv1=petLevel(o.xp),s1=petStage(lv1).k;
-    return{gain:g,lv0:lv0,lv1:lv1,up:lv1>lv0,evolved:s1!==s0,stage:petStage(lv1)};
+    if(s1!==s0)o.evoPend={sp:o.sp,stage:s1,lv:lv1}; // 進化画面はホームに戻ったあとで出す
+    savePet(o);
+    return{gain:g,seed:PET_SEED[kind]||1,lv0:lv0,lv1:lv1,up:lv1>lv0,evolved:s1!==s0,
+      stage:petStage(lv1),greet:lv1>lv0?petLevelGreet(lv1):null};
   }catch(e){return null;}
 }
 /* 2. タップでも少しなつく（1日5回まで） */
@@ -6915,17 +7182,43 @@ function petTap(){
   if(f)f.textContent="親密度 "+petState().friend;
 }
 /* 11. その日だけの1枚（AI画像のかわりに、絵文字と背景の組み合わせで毎日ちがう見た目をつくる） */
-function petArtHTML(day,lv,stageK,small){
+/* 12. AI画像のさしかえ口。pet/{種類}/{進化段階}.webp があればそれを、無ければ絵文字のまま出す。
+ *  ・生成タイミング＝新しい子をむかえた時／進化した時（＝見た目が変わる時だけ）。ふだんは作らない。
+ *  ・キャッシュ＝一度読めた組み合わせは kwt_pet_v1 の img に "ok" として控え、次からは最初から画像で描く。
+ *  ・再生成＝画像が読めなかった組み合わせは "ng" として控え、毎回のリクエストをやめる（tools/gen_pet_prompts.js で作り直す）。
+ *  ・生成待ち＝まだ "ok" でない間は、絵文字の上にうっすら光を流して「したく中」だと分かるようにする。 */
+function petImgKey(spK,stageK){return spK+"/"+stageK;}
+function petImgSrc(spK,stageK){return "pet/"+spK+"/"+stageK+".webp";}
+function petImgMark(spK,stageK,ok){
+  try{const o=petState(),k=petImgKey(spK,stageK);if(o.img[k]===(ok?"ok":"ng"))return;o.img[k]=ok?"ok":"ng";savePet(o);}catch(e){}
+}
+function petArtHTML(day,lv,stageK,small,opt){
+  opt=opt||{};
+  const o=petState();
+  const spK=opt.sp||o.sp,species=PET_SP_BY_K[spK]||PET_SPECIES[0],eq=opt.eq||o.eq||{};
   const a=PET_ACTS[day.act%PET_ACTS.length],mo=PET_MOODS[day.mood%PET_MOODS.length],
     we=PET_WEARS[day.wear%PET_WEARS.length],wx=PET_WEATHER[day.wx%PET_WEATHER.length];
   const st=stageK?(PET_STAGES.find(x=>x.k===stageK)||PET_STAGES[0]):petStage(lv||1);
-  const sp=petSpecial(_dayFromKey(day.k));
-  return `<div class="pt-art${small?" sm":""}" style="background:${wx.bg}" onclick="${small?"":"petTap()"}">
+  const si=PET_STAGES.indexOf(st),body=species.ico[si]||st.ico;
+  const sday=petSpecial(_dayFromKey(day.k));
+  const bgIt=eq.bg?PET_ITEM_BY_K[eq.bg]:null,hat=eq.hat?PET_ITEM_BY_K[eq.hat]:null,
+        acc=eq.acc?PET_ITEM_BY_K[eq.acc]:null,cos=eq.cos?PET_ITEM_BY_K[eq.cos]:null,
+        fur=eq.fur?PET_ITEM_BY_K[eq.fur]:null,fx=eq.fx?PET_ITEM_BY_K[eq.fx]:null;
+  const imgK=petImgKey(spK,st.k),imgSt=(o.img||{})[imgK];
+  const img=imgSt==="ng"?"":`<img class="pt-img" src="${petImgSrc(spK,st.k)}" alt=""
+      onload="this.classList.add('on');petImgMark('${spK}','${st.k}',1)"
+      onerror="this.remove();petImgMark('${spK}','${st.k}',0)">`;
+  return `<div class="pt-art${small?" sm":""}${si>=4?" pt-aura":""}" style="background:${bgIt&&bgIt.bg?bgIt.bg:wx.bg}" onclick="${small?"":"petTap()"}">
     <span class="pt-wx">${wx.ico}</span>
-    <span class="pt-body">${st.ico}</span>
-    <span class="pt-wear">${we.ico}</span>
+    ${img}
+    <span class="pt-body">${body}</span>
+    <span class="pt-wear">${hat?hat.ico:we.ico}</span>
+    ${cos?`<span class="pt-cos">${cos.ico}</span>`:""}
+    ${acc?`<span class="pt-acc">${acc.ico}</span>`:""}
+    ${fur?`<span class="pt-fur">${fur.ico}</span>`:""}
+    ${fx?`<span class="pt-fx">${fx.ico}</span>`:""}
     <span class="pt-mood">${mo.ico}</span>
-    ${sp?`<span class="pt-sp">${sp.ico}</span>`:""}
+    ${sday?`<span class="pt-sp">${sday.ico}</span>`:""}
     <span class="pt-act">${a.ico} ${esc(a.t)}</span>
   </div>`;
 }
@@ -6935,7 +7228,7 @@ function petAlbumHTML(){
   return `<div class="pt-alb"><div class="pt-albh">思い出アルバム（最新30日）</div>
     <div class="pt-albr">${a.map(x=>{
       const p=x.k.split("-");
-      return `<div class="pt-albi">${petArtHTML({k:x.k,act:x.act,mood:x.mood,wear:x.wear,wx:x.wx},x.lv,x.stage,true)}<em>${p[1]}/${p[2]}</em></div>`;
+      return `<div class="pt-albi">${petArtHTML({k:x.k,act:x.act,mood:x.mood,wear:x.wear,wx:x.wx},x.lv,x.stage,true,{sp:x.sp,eq:x.eq})}<em>${p[1]}/${p[2]}</em></div>`;
     }).join("")}</div></div>`;
 }
 function openPet(){
@@ -6944,43 +7237,238 @@ function openPet(){
   m.classList.add("on");
   const day=petDaily(),o=petState(),lv=petLevel(o.xp),st=petStage(lv),ln=petLine(),pw=petPower();
   const mo=PET_MOODS[day.mood%PET_MOODS.length],next=petNextLvXp(o.xp);
-  const nx=PET_STAGES.find(x=>x.lv>lv);
+  const nx=PET_STAGES.find(x=>x.lv>lv),ev=petEventNow();
+  const back=o.back&&o.back.k===day.k?o.back:null,bond=o.bondNew?PET_BONDS.find(b=>b.d===o.bondNew):null;
+  if(back||bond||o.evNew){const s=petState();delete s.back;delete s.bondNew;delete s.evNew;savePet(s);} // 迎えの言葉は1回だけ
   m.innerHTML=`<div class="d5-card pt-card">
     <button class="d5-close" onclick="closePet()" aria-label="閉じる">×</button>
     <div class="lk-ko">단어 친구</div>
-    <div class="pt-name">${esc(o.name)}<span>Lv.${lv} ／ ${esc(st.name)}（${esc(st.ko)}）</span></div>
+    <div class="pt-name">${esc(o.name)}<span>Lv.${lv} ／ ${esc(st.name)}（${esc(st.ko)}）／ いっしょに ${o.days}日</span></div>
     ${petArtHTML(day,lv,st.k)}
+    ${back?`<div class="pt-back">おかえり！ ${back.gap}日ぶりだね。まってたよ 🫧<em>단어의 열매 ＋${Math.min(30,back.gap*2)}</em></div>`:""}
+    ${bond?`<div class="pt-bondnew">🎉 ${esc(bond.t)}（${esc(bond.ko)}）ありがとう！<em>記念に「${esc((PET_ITEM_BY_K[bond.item]||{}).t||"")}」と 単語の実${bond.seeds}</em></div>`:""}
     <div class="pt-line" id="pt-line"><b>${esc(ln.ko)}</b><span>${esc(ln.ja)}</span></div>
+    ${ln.worry?`<button class="pt-worry" onclick="closePet();startDueReview()">わすれかけの${ln.worry}語を いっしょに 思いだす</button>`:""}
     <div class="pt-st">
       <span>${mo.ico} ${esc(mo.t)}</span>
       <span id="pt-friend">親密度 ${o.friend}</span>
       <span>韓国語力 ${pw}語</span>
+      <span id="pt-seed">🌰 単語の実 ${o.seeds}</span>
     </div>
     <div class="pt-bar"><i style="width:${Math.round(((o.xp%40)/40)*100)}%"></i></div>
     <div class="pt-next">${lv>=PET_MAXLV?"いまはここまで育ちました"
       :"次のレベルまで 韓国語エネルギー あと"+next+(nx?("／Lv."+nx.lv+"で「"+nx.name+"」に進化"):"")}</div>
+    ${petAteHTML(o)}
     <button class="d5-go" style="margin-top:9px" onclick="closePet();openDaily5()">今日の5問でごはんをあげる</button>
+    <div class="pt-tabs">
+      <button onclick="openPetZoo()"><b>📖</b>図鑑</button>
+      <button onclick="openPetGacha()"><b>🎁</b>ガチャ</button>
+      <button onclick="openPetWear()"><b>👕</b>きせかえ</button>
+      <button onclick="openPetEvent()"><b>${ev.ico}</b>イベント</button>
+    </div>
     ${petAlbumHTML()}
   </div>`;
   d5AnchorBubble(null,m.querySelector(".pt-card"));
   m.onclick=e=>{if(e.target===m)closePet();};
 }
+/* 7. 食べた単語＝この子の語彙。ここに並ぶほど「韓国語を食べて育った」ことが目に見える */
+function petAteHTML(o){
+  const a=(o.ate||[]).slice(-12).reverse();
+  if(!a.length)return "";
+  return `<div class="pt-ate"><div class="pt-albh">たべたことば（${(o.ate||[]).length}／最新12）</div>
+    <div class="pt-atr">${a.map(w=>`<span>${esc(w)}</span>`).join("")}</div></div>`;
+}
 function closePet(){const m=document.getElementById("pet-modal");if(m)m.classList.remove("on");}
 /* 学習後：エネルギーが飛ぶ → 食べる → 成長。結果画面に小さく出す（11. 学習後） */
 function petResultHTML(res){
   if(!res)return "";
-  const o=petState(),day=o.day||petDaily(),lv=res.lv1,st=res.stage;
-  return `<div class="pt-res">
+  const o=petState(),day=o.day||petDaily(),lv=res.lv1,st=res.stage,less=luckLessFx();
+  const pct=Math.round(((o.xp%40)/40)*100);
+  return `<div class="pt-res${less?" less":""}">
     <div class="pt-rh">ことばの友だち</div>
     <div class="pt-rrow">
-      ${petArtHTML(day,lv,st.k,true)}
+      <div class="pt-rart">
+        ${petArtHTML(day,lv,st.k,true)}
+        <span class="pt-food">🌰</span><!-- ①エサが飛ぶ → ②食べる（口もとで消える） -->
+      </div>
       <div class="pt-rtx">
-        <b>韓国語エネルギー ＋${res.gain}</b>
+        <b>韓国語エネルギー ＋${res.gain}<i>🌰＋${res.seed||0}</i></b>
+        <div class="pt-rbar"><i style="width:${pct}%"></i></div><!-- ③経験値がのびる -->
         <span>${res.evolved?("✨ "+esc(st.name)+"（"+esc(st.ko)+"）に進化しました！")
           :res.up?("Lv."+res.lv0+" → Lv."+res.lv1+" に成長しました"):("Lv."+lv+"／次の成長まで あと"+petNextLvXp(o.xp))}</span>
+        ${res.greet?`<span class="pt-greet">${esc(res.greet.ko)}<em>${esc(res.greet.ja)}</em></span>`:""}
       </div>
     </div>
+    ${res.up?`<div class="pt-lvup">LEVEL UP!</div>`:""}<!-- ④レベルアップ -->
   </div>`;
+}
+/* ⑤進化：ホームに戻ったあとに全画面で1度だけ見せる（学習の流れを止めないため結果画面では出さない） */
+function petEvoPending(){const o=petState();return o.evoPend||null;}
+function petEvoShow(){
+  const p=petEvoPending();if(!p)return false;
+  const o=petState();delete o.evoPend;savePet(o);
+  const m=document.getElementById("petevo-modal");if(!m)return false;
+  const sp=PET_SP_BY_K[p.sp]||PET_SPECIES[0],st=PET_STAGES.find(x=>x.k===p.stage)||PET_STAGES[0];
+  const si=PET_STAGES.indexOf(st),prev=PET_STAGES[Math.max(0,si-1)],pi=PET_STAGES.indexOf(prev);
+  m.classList.add("on");pushNav("modal");
+  m.innerHTML=`<div class="pv-in${luckLessFx()?" less":""}">
+    <div class="pv-h">진화！ 進化</div>
+    <div class="pv-row">
+      <span class="pv-old">${sp.ico[pi]||prev.ico}</span>
+      <span class="pv-arrow">▶</span>
+      <span class="pv-new">${sp.ico[si]||st.ico}</span>
+    </div>
+    <div class="pv-name">${esc(sp.name)}<em>${esc(st.name)}（${esc(st.ko)}）／ Lv.${p.lv}</em></div>
+    <div class="pv-msg">たくさん韓国語を食べて、すがたが変わりました。</div>
+    <button class="d5-go" onclick="closePetEvo()">見にいく</button>
+  </div>`;
+  m.onclick=e=>{if(e.target===m)closePetEvo();};
+  return true;
+}
+function closePetEvo(){const m=document.getElementById("petevo-modal");if(m){m.classList.remove("on");m.innerHTML="";}openPet();}
+
+/* ------------------------------------------------------------ 図鑑（どの子がいるか・だれと過ごすか） */
+function petSubHead(title,ko){
+  return `<button class="d5-close" onclick="closePet()" aria-label="閉じる">×</button>
+    <button class="pt-back2" onclick="openPet()" aria-label="友だちにもどる">‹</button>
+    <div class="lk-ko">${esc(ko)}</div><div class="pt-subh">${esc(title)}</div>`;
+}
+function openPetZoo(){
+  const m=document.getElementById("pet-modal");if(!m)return;
+  const o=petState();
+  m.innerHTML=`<div class="d5-card pt-card">${petSubHead("図鑑","도감")}
+    <div class="pt-zoon">${petHave(o).length} / ${PET_SPECIES.length} 種</div>
+    <div class="pt-zoo">${PET_SPECIES.map(s=>{
+      const z=o.zoo[s.k],have=!!z,lv=have?petLevel(z.xp):0,now=o.sp===s.k;
+      return `<button class="pt-zi${have?"":" no"}${now?" now":""}" ${have?`onclick="petSwitch('${s.k}')"`:"disabled"}>
+        <span class="pt-zico">${have?(s.ico[PET_STAGES.indexOf(petStage(lv))]||s.ico[1]):"？"}</span>
+        <b>${have?esc(s.name):"？？？"}</b>
+        <em>${have?("Lv."+lv+"／親密度"+(z.friend||0)):esc(s.ja)+"・"+s.rare}</em>
+        ${now?`<i class="pt-znow">いっしょ</i>`:""}
+      </button>`;}).join("")}</div>
+    <div class="pt-note">まだ会っていない子は、ガチャで来てくれます。タップするとその子と過ごせます（それまでの育ちはそのまま残ります）。</div>
+    <button class="d5-go" style="margin-top:9px" onclick="openPetGacha()">ガチャへ</button>
+  </div>`;
+  d5AnchorBubble(null,m.querySelector(".pt-card"));
+}
+/* いっしょに過ごす子を変える。育ちは子ごとに別々に残る */
+function petSwitch(k){
+  const o=petState();if(!o.zoo[k]||o.sp===k){openPetZoo();return;}
+  o.zoo[o.sp]=Object.assign(o.zoo[o.sp]||{},{xp:o.xp,friend:o.friend});
+  o.sp=k;o.xp=o.zoo[k].xp||0;o.friend=o.zoo[k].friend||0;
+  o.name=(PET_SP_BY_K[k]||PET_SPECIES[0]).name;
+  savePet(o);openPet();
+}
+
+/* ------------------------------------------------------------ ガチャ（単語の実で回す。学習だけでも遊べる） */
+function petRarePick(rnd){
+  const ks=Object.keys(PET_RARE);let tot=0;ks.forEach(k=>tot+=PET_RARE[k].w);
+  let r=rnd()*tot;
+  for(let i=0;i<ks.length;i++){r-=PET_RARE[ks[i]].w;if(r<=0)return ks[i];}
+  return "N";
+}
+function petGachaPool(rare,o,animalOnly){
+  const mo=_dayFromKey(luckDayKey()).getMonth()+1;
+  const sps=PET_SPECIES.filter(s=>s.rare===rare&&!o.zoo[s.k]).map(s=>({type:"sp",k:s.k,t:s.name,ico:s.ico[1],rare:rare}));
+  if(animalOnly)return sps;
+  const its=PET_ITEMS.filter(i=>i.rare===rare&&(!i.ev||i.ev===mo)).map(i=>({type:"item",k:i.k,t:i.t,ico:i.ico,rare:rare}));
+  return sps.concat(its);
+}
+const PET_DUP_SEED={N:3,R:6,SR:12,SSR:30};
+function petRoll(){
+  const o=petState();
+  if((o.seeds||0)<PET_GACHA_COST)return null;
+  o.seeds-=PET_GACHA_COST;o.pity=(o.pity||0)+1;
+  const rnd=_d5Rng(_d5Hash("kwt-petgacha|"+getUserId()+"|"+o.pity+"|"+(o.days||0)+"|"+(o.seeds||0)));
+  const pity=o.pity>=PET_PITY&&PET_SPECIES.some(s=>!o.zoo[s.k]); // 天井：10回目は必ず新しい友だち
+  let hit=null;
+  for(let i=0;i<24&&!hit;i++){
+    const rare=pity?(PET_SPECIES.filter(s=>!o.zoo[s.k])[0]||{}).rare||"N":petRarePick(rnd);
+    const pool=petGachaPool(rare,o,pity);
+    if(pool.length)hit=pool[Math.floor(rnd()*pool.length)];
+  }
+  if(!hit){ // 出るものが無い＝全部そろっている。実にして返す
+    const back=PET_DUP_SEED.R;o.seeds+=back;savePet(o);
+    return{type:"dup",t:"もう みんな そろっています",ico:"🌰",rare:"R",back:back};
+  }
+  if(hit.type==="sp"){
+    o.zoo[hit.k]={xp:0,friend:0,got:luckDayKey()};o.pity=0;
+  }else{
+    if(o.items[hit.k]){const back=PET_DUP_SEED[hit.rare]||3;o.seeds+=back;savePet(o);return Object.assign({},hit,{type:"dup",back:back});}
+    o.items[hit.k]=1;
+  }
+  savePet(o);
+  return hit;
+}
+function openPetGacha(res){
+  const m=document.getElementById("pet-modal");if(!m)return;
+  const o=petState(),can=(o.seeds||0)>=PET_GACHA_COST,rest=PET_SPECIES.filter(s=>!o.zoo[s.k]).length;
+  m.innerHTML=`<div class="d5-card pt-card">${petSubHead("友だちガチャ","친구 뽑기")}
+    <div class="pt-seedbig">🌰 単語の実 <b id="pt-seedn">${o.seeds}</b><em>1回 ${PET_GACHA_COST}／今日の5問・テスト・トレンドでたまります</em></div>
+    <div class="pt-ball${res?" open":""}" id="pt-ball">${res?`<span class="pt-bico" style="color:${(PET_RARE[res.rare]||{}).c||"#999"}">${res.ico}</span>`:"🥚"}</div>
+    ${res?`<div class="pt-got"><i style="background:${(PET_RARE[res.rare]||{}).c||"#999"}">${res.rare}</i>
+      <b>${esc(res.t)}</b>
+      <span>${res.type==="sp"?"新しい友だちが来ました！ 図鑑からいっしょに過ごせます"
+        :res.type==="dup"?("もう持っていたので 単語の実 ＋"+res.back+" にかわりました")
+        :"持ちものに入りました（きせかえで つけられます）"}</span></div>`:
+      `<div class="pt-note">動物・衣装・帽子・アクセサリー・背景・家具・エフェクトが出ます。あと${rest}種の友だちに会えます。${PET_PITY}回まわすと かならず新しい友だちが来ます（いま${o.pity||0}回）。</div>`}
+    <button class="d5-go" style="margin-top:9px" ${can?"":"disabled"} onclick="petDoRoll()">${can?"ガチャを回す（🌰"+PET_GACHA_COST+"）":"単語の実がたりません"}</button>
+    ${can?"":`<button class="pt-go2" onclick="closePet();openDaily5()">今日の5問で実をあつめる</button>`}
+    <button class="pt-go2" onclick="openPetZoo()">図鑑を見る</button>
+  </div>`;
+  d5AnchorBubble(null,m.querySelector(".pt-card"));
+}
+function petDoRoll(){
+  const b=document.getElementById("pt-ball");
+  if(b&&!luckLessFx()){b.classList.add("spin");}
+  const r=petRoll();
+  setTimeout(()=>openPetGacha(r),luckLessFx()?0:620);
+}
+
+/* ------------------------------------------------------------ きせかえ（つける場所ごとに、持っているものから選ぶ） */
+function openPetWear(){
+  const m=document.getElementById("pet-modal");if(!m)return;
+  const o=petState(),day=petDaily(),lv=petLevel(o.xp),st=petStage(lv);
+  m.innerHTML=`<div class="d5-card pt-card">${petSubHead("きせかえ","꾸미기")}
+    <div id="pt-wearart">${petArtHTML(day,lv,st.k)}</div>
+    ${PET_SLOTS.map(s=>{
+      const own=PET_ITEMS.filter(i=>i.slot===s.k&&o.items[i.k]);
+      return `<div class="pt-wrow"><div class="pt-albh">${esc(s.t)}</div>
+        <div class="pt-wlist">
+          <button class="pt-wi${o.eq[s.k]?"":" on"}" onclick="petEquip('${s.k}','')"><span>—</span><em>なし</em></button>
+          ${own.length?own.map(i=>`<button class="pt-wi${o.eq[s.k]===i.k?" on":""}" onclick="petEquip('${s.k}','${i.k}')"><span>${i.ico}</span><em>${esc(i.t)}</em></button>`).join("")
+            :`<span class="pt-wnone">ガチャでふえます</span>`}
+        </div></div>`;}).join("")}
+    <button class="d5-go" style="margin-top:9px" onclick="openPetGacha()">ガチャで あたらしい服をさがす</button>
+  </div>`;
+  d5AnchorBubble(null,m.querySelector(".pt-card"));
+}
+function petEquip(slot,k){
+  const o=petState();
+  if(k&&!o.items[k])return;
+  if(k)o.eq[slot]=k;else delete o.eq[slot];
+  savePet(o);openPetWear();
+}
+
+/* ------------------------------------------------------------ イベント（その月だけのもの・年間カレンダー） */
+function openPetEvent(){
+  const m=document.getElementById("pet-modal");if(!m)return;
+  const o=petState(),ev=petEventNow(),mo=ev.m;
+  const lim=PET_ITEMS.filter(i=>i.ev===mo);
+  m.innerHTML=`<div class="d5-card pt-card">${petSubHead("イベント","이벤트")}
+    <div class="pt-evnow"><span>${ev.ico}</span><b>${esc(ev.t)}</b><em>${esc(ev.ko)}</em></div>
+    <div class="pt-albh" style="margin-top:8px">今月だけの もの</div>
+    <div class="pt-evlist">${lim.length?lim.map(i=>`<div class="pt-evi${o.items[i.k]?" got":""}"><span>${i.ico}</span><b>${esc(i.t)}</b><em>${o.items[i.k]?"入手ずみ":"ガチャで出ます"}</em></div>`).join("")
+      :`<div class="pt-note">今月の限定品はおやすみです。ふだんの服はガチャで出ます。</div>`}</div>
+    <div class="pt-albh" style="margin-top:9px">1年のイベント</div>
+    <div class="pt-evcal">${PET_EVENTS.map(e=>`<span class="${e.m===mo?"on":""}">${e.ico}<i>${e.m}月</i></span>`).join("")}</div>
+    <div class="pt-albh" style="margin-top:9px">いっしょに いた日の記念</div>
+    <div class="pt-bondl">${PET_BONDS.map(b=>{
+      const got=o.bond.indexOf(b.d)>=0;
+      return `<div class="pt-bi${got?" got":""}"><b>${b.d}日</b><em>${got?"うけとりました":"あと"+Math.max(0,b.d-(o.days||0))+"日"}</em></div>`;}).join("")}</div>
+    <button class="d5-go" style="margin-top:9px" onclick="closePet();openDaily5()">今日の5問へ</button>
+  </div>`;
+  d5AnchorBubble(null,m.querySelector(".pt-card"));
 }
 
 /* ============================================================ すごろく（1マス=1テスト・12マスで1周） ============================================================
@@ -9957,7 +10445,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v6.7 (2026-08-07)";
+const APP_VERSION="v6.8 (2026-08-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

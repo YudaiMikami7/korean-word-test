@@ -282,7 +282,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   })());
 
   /* ============ 回帰 ============ */
-  check('R-1 版数が上がっている（v6.7）', await page.evaluate(() => /^v6\.7/.test(APP_VERSION)));
+  check('R-1 版数が上がっている（v6.7以降）', await page.evaluate(() => /^v6\.[7-9]/.test(APP_VERSION)));
   check('R-2 今日の5問・トレンド・ガチャ・プレゼントの入口は今までどおり', await (async () => {
     await page.evaluate(() => { show('s-home'); renderHome(); });
     await page.waitForTimeout(700);

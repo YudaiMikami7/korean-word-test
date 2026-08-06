@@ -270,7 +270,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   });
   check(`11-1 今日の出来事が20パターン（いま${pet.acts}）`, pet.acts === 20);
   check(`11-2 気分6種・衣装7種（いま${pet.moods}／${pet.wears}）`, pet.moods === 6 && pet.wears === 7);
-  check(`11-3 Lv1〜20・4段階進化（いま${pet.maxlv}／${pet.stages}段階）`, pet.maxlv === 20 && pet.stages === 4);
+  // Phase2（2026-08-06 23:54 の指示）で大人・伝説を開放したので Lv1〜40・6段階になった
+  check(`11-3 Lv1〜40・6段階進化（いま${pet.maxlv}／${pet.stages}段階）`, pet.maxlv === 40 && pet.stages === 6);
   check('11-4 その日だけの1枚（出来事×気分×衣装×天気）が組み立てられる',
     /pt-body/.test(pet.art) && /pt-act/.test(pet.art) && /pt-wx/.test(pet.art) && /pt-wear/.test(pet.art));
   check('11-5 毎日起動で親密度がつく', pet.friend >= 2);
@@ -339,7 +340,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check('12-2 5問の途中でも進み具合が記録されている（5/5）', await page.evaluate(() => luckProgress().p === 5));
 
   /* ============ 回帰 ============ */
-  check('R-1 版数が上がっている（v6.7）', await page.evaluate(() => /^v6\.7/.test(APP_VERSION)));
+  check('R-1 版数が上がっている（v6.7以降）', await page.evaluate(() => /^v6\.[7-9]/.test(APP_VERSION)));
   check('R-2 ホームのレイアウトは変わっていない（今日の5問の丸の位置）', await (async () => {
     await page.evaluate(() => { show('s-home'); renderHome(); });
     await page.waitForTimeout(700);
