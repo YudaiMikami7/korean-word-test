@@ -205,7 +205,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
       if (seen && nm) {
         clearInterval(iv);
         res({ on: true, first: sil, ms: Date.now() - seen, name: nm.textContent, eff: (ov.querySelector('.lk-eff') || {}).textContent,
-              badge: (ov.querySelector('.lk-badge') || {}).textContent, go: (ov.querySelector('.d5-go') || {}).textContent });
+              badge: (ov.querySelector('.lk-badge') || {}).textContent, go: (ov.querySelector('.lk-go') || {}).textContent,
+              own: !!ov.querySelector('.lk-card') && !ov.querySelector('.d5-card') });
       }
       if (Date.now() - t0 > 8000) { clearInterval(iv); res({ on: !!seen, first: sil, ms: -1 }); }
     }, 30);
@@ -215,14 +216,17 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check(`7-3 演出は最大2.5秒までに中身が出る（${revd.ms}ms）`, revd.ms >= 0 && revd.ms <= 2600);
   check(`7-4 名前・効果・レアリティが出る（${revd.name} / ${revd.badge}）`, !!revd.name && !!revd.eff && !!revd.badge);
   check(`7-5 「この効果で今日の5問を始める」ボタン（${revd.go}）`, /今日の5問を始める/.test(revd.go || ''));
+  // 2026-08-07 の指示：ボーナスのUIは今日の5問の白い吹き出し(.d5-card)を使わず、専用カード(.lk-card)で出す
+  check('7-5b 公開は今日の5問とは別の専用カードで出る', revd.own === true);
   check('7-6 押すと公開が閉じて、いつもの今日の5問へ進む', await (async () => {
-    await page.evaluate(() => document.querySelector('.lkauto .d5-go').click());
+    await page.evaluate(() => document.querySelector('.lkauto .lk-go').click());
     await page.waitForTimeout(900);
     return await page.evaluate(() => !document.querySelector('.lkauto') && !!document.querySelector('.d5auto'));
   })());
-  check('7-7 今日の5問の吹き出しにも今日のボーナスの1行が出る', await page.evaluate(() => {
-    const s = document.querySelector('.d5auto .lk-strip');
-    return !!s && /今日のボーナス/.test(s.textContent);
+  // 2026-08-07 の指示：ボーナスのUIは今日の5問とは別立て。5問の吹き出しの中にボーナスの1行は出さない
+  check('7-7 今日の5問の吹き出しにボーナスは混ざらない', await page.evaluate(() => {
+    const a = document.querySelector('.d5auto .d5-card');
+    return !!a && !a.querySelector('.lk-strip') && !/今日のボーナス/.test(a.textContent);
   }));
   check('7-8 公開は1日1回だけ（同じ日に開き直しても出ない）', await (async () => {
     await page.evaluate(() => { closeAutoD5(false); });
@@ -230,20 +234,25 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     await page.waitForTimeout(2200);
     return await page.evaluate(() => !document.querySelector('.lkauto'));
   })());
-  check('7-9 今日の5問の吹き出しから、今日のボーナスをもう一度見られる', await (async () => {
-    await page.evaluate(() => { _killAutoD5(); document.querySelectorAll('.d5auto').forEach(o => o.remove()); openDaily5(); });
-    await page.waitForTimeout(500);
-    const has = await page.evaluate(() => !!document.querySelector('#d5-modal .lk-strip'));
-    await page.evaluate(() => document.querySelector('#d5-modal .lk-strip').click());
+  // 2026-08-07 の指示：入口も別立て。メニューの「今日のボーナス」から、専用カードでもう一度見られる
+  check('7-9 メニューの「今日のボーナス」から、専用カードでもう一度見られる', await (async () => {
+    await page.evaluate(() => { _killAutoD5(); document.querySelectorAll('.d5auto').forEach(o => o.remove()); openHomeMenu(); });
+    await page.waitForTimeout(400);
+    const btn = await page.evaluate(() => {
+      const b = [...document.querySelectorAll('#menu-modal .hm-cap')].find(x => /今日のボーナス/.test(x.textContent));
+      if (b) b.click();
+      return !!b;
+    });
     await page.waitForTimeout(400);
     const on = await page.evaluate(() => {
       const m = document.getElementById('luck-modal');
-      return m.classList.contains('on') && !!m.querySelector('.lk-name') && /今日の5問を1セット終えると発動/.test(m.textContent);
+      return m.classList.contains('on') && !!m.querySelector('.lk-card') && !m.querySelector('.d5-card')
+        && !!m.querySelector('.lk-name') && /今日の5問を1セット終えると発動/.test(m.textContent);
     });
     const cd = await page.evaluate(() => _d5CdTimer === null); // 見ている間に勝手にテストが始まらない
-    await page.evaluate(() => { closeLuck(); closeDaily5(); });
+    await page.evaluate(() => { closeLuck(); });
     await page.waitForTimeout(300);
-    return has && on && cd;
+    return btn && on && cd;
   })());
   check('7-10 明日のテーマ予告が吹き出しに出る', await (async () => {
     await page.evaluate(() => openLuck());
@@ -271,10 +280,18 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
       return !!r && /今日のボーナス発動/.test(r.textContent) && !!r.querySelector('.lk-gi');
     });
   })());
-  check('8-2 発動ずみになり、吹き出しの1行も「発動ずみ」に変わる', await page.evaluate(() => {
-    const d = luckState().days[luckDayKey()];
-    return d && d.applied === true && /発動ずみ/.test(luckStripHTML());
-  }));
+  check('8-2 発動ずみになり、ボーナスのカードにもらったものが出る', await (async () => {
+    const applied = await page.evaluate(() => { const d = luckState().days[luckDayKey()]; return !!d && d.applied === true; });
+    await page.evaluate(() => openLuck());
+    await page.waitForTimeout(300);
+    const t = await page.evaluate(() => {
+      const m = document.getElementById('luck-modal');
+      return { gi: !!m.querySelector('.lk-got .lk-gi'), txt: m.textContent };
+    });
+    await page.evaluate(() => closeLuck());
+    await page.waitForTimeout(200);
+    return applied && t.gi && /もう一段だけ伸びます|今日はここまで伸びました/.test(t.txt);
+  })());
   check('8-3 結果をもう一度開いても二重には出ない', await (async () => {
     await page.evaluate(() => { show('s-home'); d5ShowSaved(); });
     await page.waitForTimeout(600);

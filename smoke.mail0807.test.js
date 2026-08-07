@@ -376,7 +376,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
 
   /* ============ 回帰 ============ */
   await fresh({ kwt_d5auto_v1: 'x' });
-  check('R-1 版数が上がっている（v6.8）', await page.evaluate(() => /^v6\.8/.test(APP_VERSION)));
+  check('R-1 版数が上がっている（v6.8以降）', await page.evaluate(() => /^v6\.[89]/.test(APP_VERSION)));
   check('R-2 ホームのレイアウトは変わっていない（今日の5問の丸の位置）', await (async () => {
     await page.evaluate(() => { show('s-home'); renderHome(); });
     await page.waitForTimeout(700);

@@ -99,9 +99,10 @@ const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1.5 : tol);
     };
   });
   check('メニューボタンで吹き出しが出る', menu.on);
-  check(`吹き出しの中は4つ (${menu.labels.join(' / ')})`, menu.n === 4); // ことばの友だちを追加（メール指示 2026-08-06 の続き）
-  check('カレンダー・ROOM一覧・スペシャルモード・ことばの友だちが選べる',
-    menu.labels.join(',') === 'カレンダー,ROOM一覧,スペシャルモード,🐶ことばの友だち');
+  // ことばの友だちを追加（メール指示 2026-08-06 の続き）／今日のボーナスを追加（メール指示 2026-08-07：今日の5問と別立てにした）
+  check(`吹き出しの中は5つ (${menu.labels.join(' / ')})`, menu.n === 5);
+  check('カレンダー・ROOM一覧・スペシャルモード・ことばの友だち・今日のボーナスが選べる',
+    menu.labels.join(',') === 'カレンダー,ROOM一覧,スペシャルモード,🐶ことばの友だち,🍀今日のボーナス');
   check('どれもアイコン＋文字', menu.icons.every(Boolean));
   check('カプセルが縦に3つ並ぶ', menu.vertical && menu.sameX && menu.capsule.every(Boolean));
   check('吹き出しはメニューボタンから出ている', menu.nearBtn);

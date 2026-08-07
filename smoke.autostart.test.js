@@ -30,7 +30,7 @@ const FILE = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '
   const passLuck = async () => {
     for (let i = 0; i < 60; i++) {
       const go = await page.evaluate(() => {
-        const b = document.querySelector('.lkauto .d5-go');
+        const b = document.querySelector('.lkauto .lk-go');   // ボーナス専用カードのボタン（2026-08-07 に今日の5問と別立てにした）
         if (b) { b.click(); return true; }
         return !document.querySelector('.lkauto');
       });

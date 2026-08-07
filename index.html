@@ -2257,12 +2257,26 @@ body.bigtext .set-d{font-size:13.5px}
 .d5-spk{position:absolute;left:50%;top:37%;width:10px;height:10px;border-radius:50%;background:#FFE79A;box-shadow:0 0 12px 4px rgba(255,214,90,.9);animation:d5spk 1.3s ease-out forwards}
 @keyframes d5spk{0%{opacity:0;transform:translate(0,0) scale(.3)}12%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.1)}}
 /* ============================================================ 今日限定ボーナス（오늘의 행운／今日の幸運） ============================================================
- * 見た目は「今日の5問」の吹き出し(.d5-card)をそのまま使い、中身だけ差し替える（メール指示 2026-08-06） */
-#luck-modal{position:fixed;inset:0;z-index:400;display:none;background:rgba(0,0,0,.34)}
-#luck-modal.on{display:block}
-.lkauto{position:fixed;inset:0;z-index:612;background:rgba(0,0,0,.34);opacity:0;transition:opacity .2s ease} /* 今日の5問の自動スタート(610)より上に出す */
+ * UIは「今日の5問」とは別立てにする（メール指示 2026-08-07）。
+ * 白い吹き出し(.d5-card)は使わず、画面のまん中に置く紺地＋金ぶちの専用カード(.lk-card)。しっぽも出さない＝どのボタンからも生えない。
+ * 入口も「今日の5問」の吹き出しの中の1行をやめ、ハンバーガーメニューの「今日のボーナス」に独立させた。 */
+#luck-modal{position:fixed;inset:0;z-index:400;display:none;background:rgba(0,0,0,.5)}
+#luck-modal.on{display:flex;align-items:center;justify-content:center}
+.lkauto{position:fixed;inset:0;z-index:612;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);
+  opacity:0;transition:opacity .2s ease} /* 今日の5問の自動スタート(610)より上に出す */
 .lkauto.on{opacity:1}
-.lk-ko{font-size:10.5px;font-weight:900;color:#E0831A;letter-spacing:.1em}
+/* --- ボーナス専用カード（今日の5問の白い吹き出しとは地色・ふち・角丸・置き場所すべてを変える） --- */
+.lk-card{position:relative;width:290px;max-width:90vw;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  background:linear-gradient(180deg,#222E63,#151E45);color:#fff;border:3px solid #FFC400;border-radius:6px;
+  padding:15px 15px 14px;text-align:center;box-shadow:0 16px 40px rgba(0,0,0,.55)}
+.lk-close{position:absolute;right:2px;top:2px;width:38px;height:38px;border:none;background:transparent;color:#9AA6D4;font-size:20px;font-weight:900;
+  cursor:pointer;line-height:1;font-family:inherit;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.lk-close:active{background:rgba(255,255,255,.14)}
+.lk-go{width:100%;margin-top:11px;border:none;background:#FFC400;color:#2b1a00;font-size:15px;font-weight:900;padding:12px;
+  cursor:pointer;font-family:inherit;border-radius:999px}
+.lk-go:active{background:#F0B800}
+.lk-h{font-size:16px;font-weight:900;letter-spacing:.04em;color:#fff;margin-top:3px}
+.lk-card .lk-ko{color:#FFC400} /* 単語友だちの白いカードでも使う文字なので、色はカードの中だけで上書きする */
 .lk-face{width:74px;height:74px;margin:7px auto 0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;
   background:radial-gradient(circle at 50% 34%,#FFF7E0,#FFE39A);border:3px solid #FFC400}
 .lk-face.sil{background:#EDEDED;border-color:#DCDCDC;color:#BDBDBD;animation:lkSil .5s ease-in-out infinite alternate} /* 公開前のシルエット */
@@ -2270,37 +2284,32 @@ body.bigtext .set-d{font-size:13.5px}
 .lk-open{animation:lkOpen .5s cubic-bezier(.2,1.5,.4,1) both}
 @keyframes lkOpen{0%{opacity:0;transform:scale(.6) rotate(-10deg)}70%{opacity:1;transform:scale(1.08) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
 .lk-badge{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:900;color:#fff;letter-spacing:.1em}
-.lk-name{font-size:19px;font-weight:900;line-height:1.25;margin-top:5px;color:#1a1a1a;word-break:break-word}
-.lk-eff{font-size:12.5px;font-weight:800;color:#555;line-height:1.5;margin-top:4px;text-wrap:balance}
+.lk-name{font-size:19px;font-weight:900;line-height:1.25;margin-top:5px;color:#fff;word-break:break-word}
+.lk-eff{font-size:12.5px;font-weight:800;color:#C9D2F0;line-height:1.5;margin-top:4px;text-wrap:balance}
 .lk-tags{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:8px}
-.lk-tag{font-size:10px;font-weight:900;color:#777;background:#F2F2F2;border:2px solid #E3E3E3;padding:3px 7px}
-.lk-wait{font-size:12px;font-weight:800;color:#999;margin-top:9px;line-height:1.5}
+.lk-tag{font-size:10px;font-weight:900;color:#C9D2F0;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.16);padding:3px 7px}
+.lk-wait{font-size:12px;font-weight:800;color:#9AA6D4;margin-top:9px;line-height:1.5}
 .lk-got{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:9px 0 0}
 .lk-gi{font-size:11.5px;font-weight:900;color:#1a1a1a;background:#FFF7E0;border:2px solid #FFE39A;padding:3px 8px}
-.lk-next{font-size:10.5px;font-weight:800;color:#8a7a4a;background:#FFF7E0;padding:6px 5px;margin-top:9px;line-height:1.45}
-/* 「今日の5問」の吹き出しの中に出す1行（タップでもう一度中身を見る） */
-.lk-strip{display:flex;align-items:center;gap:7px;width:100%;margin-bottom:8px;padding:6px 8px;border:2px solid #FFE39A;background:#FFF7E0;
-  cursor:pointer;font-family:inherit;text-align:left;-webkit-tap-highlight-color:transparent}
-.lk-strip:active{background:#FFEFC4}
-.lk-strip .lk-si{flex:0 0 auto;font-size:15px}
-.lk-strip .lk-st{flex:1;min-width:0;font-size:11.5px;font-weight:900;color:#8a5a00;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lk-strip .lk-sd{flex:0 0 auto;font-size:9px;font-weight:900;color:#fff;padding:2px 6px;border-radius:999px}
+.lk-next{font-size:10.5px;font-weight:800;color:#FFE9A8;background:rgba(255,196,0,.13);padding:6px 5px;margin-top:9px;line-height:1.45}
+/* レアリティのコード（C／R／SR…）の丸バッジ。カードの履歴と結果画面の両方で使う */
+.lk-sd{display:inline-block;flex:0 0 auto;font-size:9px;font-weight:900;color:#fff;padding:2px 6px;border-radius:999px}
 /* 5.2 情報階層（第2＝なにをすれば発動するか／第3＝どこまで増やせるか）と 6.1 の「0 / 5」 */
-.lk-h2{font-size:10.5px;font-weight:900;color:#8a5a00;margin-top:9px;letter-spacing:.04em}
-.lk-h3{font-size:10px;font-weight:800;color:#999;margin-top:6px;line-height:1.4}
+.lk-h2{font-size:10.5px;font-weight:900;color:#FFD873;margin-top:9px;letter-spacing:.04em}
+.lk-h3{font-size:10px;font-weight:800;color:#9AA6D4;margin-top:6px;line-height:1.4}
 .lk-prog{display:flex;align-items:center;gap:6px;margin-top:6px}
-.lk-prog .lk-pb{flex:1;height:7px;background:#EDEDED;border:2px solid #E3E3E3;overflow:hidden}
+.lk-prog .lk-pb{flex:1;height:7px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.2);overflow:hidden}
 .lk-prog .lk-pb i{display:block;height:100%;transition:width .3s ease}
-.lk-prog b{font-size:10.5px;font-weight:900;color:#777}
-.lk-ev{font-size:10px;font-weight:800;color:#5a6a8a;background:#EEF3FB;padding:5px;margin-top:7px;line-height:1.4}
-.lk-msg{font-size:11px;font-weight:800;color:#555;margin-top:7px;line-height:1.45}
+.lk-prog b{font-size:10.5px;font-weight:900;color:#C9D2F0}
+.lk-ev{font-size:10px;font-weight:800;color:#C9D2F0;background:rgba(255,255,255,.07);padding:5px;margin-top:7px;line-height:1.4}
+.lk-msg{font-size:11px;font-weight:800;color:#C9D2F0;margin-top:7px;line-height:1.45}
 /* 14.3 ボーナス履歴7日分 */
-.lk-hist{margin-top:9px;border-top:2px solid #EDEDED;padding-top:7px;text-align:left}
-.lk-hist .lk-hh{font-size:9.5px;font-weight:900;color:#999;letter-spacing:.06em;margin-bottom:4px}
+.lk-hist{margin-top:9px;border-top:2px solid rgba(255,255,255,.16);padding-top:7px;text-align:left}
+.lk-hist .lk-hh{font-size:9.5px;font-weight:900;color:#8E9AC8;letter-spacing:.06em;margin-bottom:4px}
 .lk-hr{display:flex;align-items:center;gap:5px;padding:2px 0}
-.lk-hr .lk-hd{flex:0 0 auto;font-size:10px;font-weight:900;color:#999;width:32px}
-.lk-hr .lk-hn{flex:1;min-width:0;font-size:10.5px;font-weight:800;color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lk-hr .lk-hs{flex:0 0 auto;font-size:9.5px;font-weight:900;color:#BBB}
+.lk-hr .lk-hd{flex:0 0 auto;font-size:10px;font-weight:900;color:#8E9AC8;width:32px}
+.lk-hr .lk-hn{flex:1;min-width:0;font-size:10.5px;font-weight:800;color:#C9D2F0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lk-hr .lk-hs{flex:0 0 auto;font-size:9.5px;font-weight:900;color:#6E7BAE}
 /* 8.1 レアリティ別の開封（フラッシュは使わず、カードのふちが色づく） */
 .lk-pop{animation:lkPop .42s cubic-bezier(.2,1.4,.4,1) both;box-shadow:0 0 0 4px var(--lkfx,#FFF6DC)}
 @keyframes lkPop{0%{transform:scale(.94)}70%{transform:scale(1.02)}100%{transform:scale(1)}}
@@ -2571,6 +2580,8 @@ body.bigtext .set-d{font-size:13.5px}
     <button class="hm-cap" onclick="closeHomeMenu();openRoomMap()"><img src="icons/map.webp" alt=""><span>ROOM一覧</span></button>
     <button class="hm-cap" onclick="closeHomeMenu();openSpecial()"><img src="images-thumb/0731.webp" alt=""><span>スペシャルモード</span></button>
     <button class="hm-cap" onclick="closeHomeMenu();openPet()"><span class="hm-emo" aria-hidden="true">🐶</span><span>ことばの友だち</span></button>
+    <!-- 今日のボーナスは「今日の5問」の吹き出しから切り離し、ここを入口にした（メール指示 2026-08-07） -->
+    <button class="hm-cap" onclick="closeHomeMenu();openLuck()"><span class="hm-emo" aria-hidden="true">🍀</span><span>今日のボーナス</span></button>
   </div>
 </div>
 <!-- プレゼント／ガチャを1つにまとめたボタンの吹き出し（単語帳ボタンと同じ見た目のボタン2つを横並び。メール指示 2026-08-02） -->
@@ -5839,7 +5850,6 @@ function d5RenderModal(){
      <button class="d5-go" onclick="startDaily5()">${d5SlotLabel(slot)}をはじめる</button>`;
   document.getElementById("d5-modal").innerHTML=`<div class="d5-card">
     <button class="d5-close" onclick="closeDaily5()" aria-label="閉じる">×</button>
-    ${luckStripHTML()}
     <div class="d5-h">今日の5問テスト</div>
     ${(()=>{const k=d5Streak();return k?`<div class="d5-streak"><img src="images-thumb/0773.webp" alt="" style="width:20px;height:20px;object-fit:contain">連続 <b>${k}</b> 日</div>`:"";})()}
     <div class="d5-slots">${cell("am")}${cell("pm")}</div>
@@ -6036,7 +6046,6 @@ function showAutoD5Splash(){
   const streak=(()=>{const k=d5Streak();return k?`<div class="d5-streak"><img src="images-thumb/0773.webp" alt="" style="width:20px;height:20px;object-fit:contain">連続 <b>${k}</b> 日</div>`:"";})();
   const ov=document.createElement("div");ov.className="d5auto";
   ov.innerHTML=`<div class="d5-card">
-    ${luckStripHTML("static")}
     <div class="d5-h">今日の5問テスト</div>
     ${streak}
     <div class="d5-slots">${cell("am")}${cell("pm")}</div>
@@ -6760,6 +6769,7 @@ function luckBodyHTML(it,d){
   const R=LUCK_RARE[it.r]||LUCK_RARE.C,cat=(LUCK_CATS[it.g]||{}).lab||"";
   const ev=luckEvent(luckTodayKey()),th=luckTheme(d),msg=luckMsg(),pr=luckProgress();
   return `<div class="lk-ko">오늘의 행운</div>
+    <div class="lk-h">今日のボーナス</div>
     ${luckFaceHTML(it)}
     <div class="lk-badge" style="background:${R.col}">${(LUCK_CATS[it.g]||{}).ico||"🎁"} ${R.lab}</div>
     <div class="lk-name">${esc(it.name)}</div>
@@ -6791,28 +6801,16 @@ function luckHistoryHTML(){
     return `<div class="lk-hist"><div class="lk-hh">この7日間のボーナス</div>${rows}</div>`;
   }catch(e){return "";}
 }
-/* 今日の5問の吹き出しの中に出す1行。static=自動スタートの吹き出し用（押せない・カウントダウンを邪魔しない） */
-function luckStripHTML(mode){
-  try{
-    const d=luckEnsure(),it=luckById(d.n);if(!it)return "";
-    const R=LUCK_RARE[it.r]||LUCK_RARE.C,pr=luckProgress();
-    const inner=`<span class="lk-si">${(LUCK_CATS[it.g]||{}).ico||"🎁"}</span>
-      <span class="lk-st">今日のボーナス：${esc(it.name)}${d.applied?"（発動ずみ）":"　"+pr.p+"/"+pr.t}</span>
-      <span class="lk-sd" style="background:${R.col}">${R.code}</span>`;
-    return mode==="static"?`<div class="lk-strip">${inner}</div>`
-                          :`<button class="lk-strip" onclick="luckFromD5()">${inner}</button>`;
-  }catch(e){return "";}
-}
-/* 今日の5問の吹き出しから開くときは、自動スタートのカウントダウンを止めてから開く */
-function luckFromD5(){try{d5StopCountdown();}catch(e){}openLuck();}
+/* ハンバーガーメニューから開く。今日の5問の自動スタートが動いていたら止めてから開く（見ている間に始めない） */
 function openLuck(){
   const m=document.getElementById("luck-modal");if(!m)return;
+  try{d5StopCountdown();}catch(e){}
   if(!m.classList.contains("on"))pushNav("modal");
   m.classList.add("on");
   const d=luckEnsure(),it=luckById(d.n);
   const nx=luckTomorrowCat();
-  m.innerHTML=`<div class="d5-card">
-    <button class="d5-close" onclick="closeLuck()" aria-label="閉じる">×</button>
+  m.innerHTML=`<div class="lk-card">
+    <button class="lk-close" onclick="closeLuck()" aria-label="閉じる">×</button>
     ${luckBodyHTML(it,d)}
     ${d.applied
       ?`<div class="lk-got">${luckGotHTML(d.got||{})}</div>
@@ -6821,7 +6819,6 @@ function openLuck(){
     ${nx?`<div class="lk-next">明日は「${esc(nx)}」の予感…</div>`:""}
     ${luckHistoryHTML()}
   </div>`;
-  d5AnchorBubble(null,m.querySelector(".d5-card"));
   m.onclick=e=>{if(e.target===m)closeLuck();};
 }
 function closeLuck(){const m=document.getElementById("luck-modal");if(m)m.classList.remove("on");}
@@ -6855,25 +6852,23 @@ function showLuckReveal(onDone){
   const done=()=>{_killLuckReveal();if(onDone)onDone();};
   const openCard=()=>{
     if(!document.body.contains(ov))return;
-    ov.innerHTML=`<div class="d5-card${less?"":" lk-pop"}" style="--lkfx:${R.fx}">
-      <button class="d5-close" onclick="closeLuckReveal()" aria-label="閉じる">×</button>
+    ov.innerHTML=`<div class="lk-card${less?"":" lk-pop"}" style="--lkfx:${R.fx}">
+      <button class="lk-close" onclick="closeLuckReveal()" aria-label="閉じる">×</button>
       ${luckBodyHTML(it,d)}
-      <button class="d5-go" style="margin-top:9px" onclick="closeLuckReveal()">今日の5問を始める</button>
+      <button class="lk-go" onclick="closeLuckReveal()">この効果で今日の5問を始める</button>
     </div>`;
-    d5AnchorBubble(null,ov.querySelector(".d5-card"));
     ov._done=done;
     if(!less){if(it.r==="C"||it.r==="R")sfxTrendPop();else sfxRare();}
     ov._t=setTimeout(()=>{if(document.body.contains(ov))done();},12000); // 触らなければそのまま今日の5問へ
   };
-  ov.innerHTML=`<div class="d5-card">
-    <button class="d5-close" onclick="closeLuckReveal()" aria-label="閉じる">×</button>
+  ov.innerHTML=`<div class="lk-card">
+    <button class="lk-close" onclick="closeLuckReveal()" aria-label="閉じる">×</button>
     <div class="lk-ko">오늘의 행운</div>
-    <div class="d5-h" style="margin-top:3px">今日のボーナス</div>
+    <div class="lk-h">今日のボーナス</div>
     <div class="lk-face sil">？</div>
     <div class="lk-wait">今日だけの学習効果を選んでいます…</div>
   </div>`;
   document.body.appendChild(ov);
-  d5AnchorBubble(null,ov.querySelector(".d5-card"));
   requestAnimationFrame(()=>ov.classList.add("on"));
   ov._done=done;
   if(less)openCard();else ov._t=setTimeout(openCard,ms);
@@ -10445,7 +10440,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v6.8 (2026-08-07)";
+const APP_VERSION="v6.9 (2026-08-07)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
