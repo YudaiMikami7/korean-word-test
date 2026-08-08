@@ -44,14 +44,14 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
 
   /* ---------- 1. 左のアイコン3つは廃止 ---------- */
   check('1-1 左のアイコン列(.reward-rail-left)がHTMLから無い', await page.evaluate(() => !document.querySelector('.reward-rail-left')));
-  check('1-2 ROOM一覧アイコン(#map-btn)が無い', await page.evaluate(() => !document.getElementById('map-btn')));
+  check('1-2 WORLD一覧アイコン(#map-btn)が無い', await page.evaluate(() => !document.getElementById('map-btn')));
   check('1-3 カレンダーアイコン(#cal-btn)が無い', await page.evaluate(() => !document.getElementById('cal-btn')));
   check('1-4 スペシャルアイコン(#sp-btn)が無い', await page.evaluate(() => !document.getElementById('sp-btn')));
   check('1-5 .reward-rail自体がホームに残っていない', await page.evaluate(() => !document.querySelector('.reward-rail')));
   // 消した機能はハンバーガーメニューの中に残っている
   const menuCaps = await page.evaluate(() => [...document.querySelectorAll('#menu-modal .hm-cap span')].map(s => s.textContent.trim()));
   check('1-6 メニューにカレンダーがある', menuCaps.includes('カレンダー'));
-  check('1-7 メニューにROOM一覧がある', menuCaps.includes('ROOM一覧'));
+  check('1-7 メニューにWORLD一覧がある', menuCaps.includes('WORLD一覧'));
   check('1-8 メニューにスペシャルモードがある', menuCaps.includes('スペシャルモード'));
   check('1-9 使い方ガイドが消したアイコンを指していない',
     await page.evaluate(() => !COACH_STEPS.some(s => (s.sel || '').indexOf('reward-rail') >= 0)));

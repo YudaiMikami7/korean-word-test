@@ -31,7 +31,7 @@ const FILE = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '
   await page.waitForTimeout(1600);
   check('初回は使い方ガイドが出る', await page.evaluate(() => !!document.getElementById('coach')));
   check('ポップアップではなく実画面の切り抜き＋説明', await page.evaluate(() => !!document.getElementById('cm-hole') && !!document.getElementById('cm-tip') && !document.querySelector('.coach-in')));
-  check('1つ目はROOMの説明', await page.evaluate(() => /ROOM/.test(document.getElementById('cm-h').textContent + document.getElementById('cm-sub').textContent)));
+  check('1つ目はWORLDの説明', await page.evaluate(() => /WORLD/.test(document.getElementById('cm-h').textContent + document.getElementById('cm-sub').textContent)));
   check('切り抜きが実際の部品の上にある', await page.evaluate(() => {
     const h = document.getElementById('cm-hole').getBoundingClientRect(), t = document.querySelector('#room-pager').getBoundingClientRect();
     return h.width > 4 && h.height > 4 && Math.abs((h.left + h.width / 2) - (t.left + t.width / 2)) < 24;

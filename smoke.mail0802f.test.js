@@ -7,7 +7,7 @@
  *  ・ホーム画面：左上アイコンの左マージンを詰め、ステータスバーを少し短くし、
  *    空いた右のスペースに角丸ボタンを縦に2つ（上=設定／下=ハンバーガーメニュー）。
  *    アイコンは今の左アイコン群と同じ。左側にあった設定ボタンは廃止。
- *    メニューを押すと吹き出しが出て、カレンダー／ROOM一覧／スペシャルモードを
+ *    メニューを押すと吹き出しが出て、カレンダー／WORLD一覧／スペシャルモードを
  *    アイコン＋文字のカプセル3つ（縦並び）で選べる。
  *  ・プレゼントボタンとガチャボタンを1つに統合し、押すとプレゼント画面／ガチャ画面へ行く
  *    ボタンが2つ横並びで出る（「単語帳ボタン」のようなデザイン）。統合ボタンは今日の5問のすぐ上。
@@ -101,13 +101,13 @@ const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1.5 : tol);
   check('メニューボタンで吹き出しが出る', menu.on);
   // ことばの友だちを追加（メール指示 2026-08-06 の続き）／今日のボーナスは廃止（メール指示 2026-08-08）
   check(`吹き出しの中は4つ (${menu.labels.join(' / ')})`, menu.n === 4);
-  check('カレンダー・ROOM一覧・スペシャルモード・ことばの友だちが選べる',
-    menu.labels.join(',') === 'カレンダー,ROOM一覧,スペシャルモード,🐶ことばの友だち');
+  check('カレンダー・WORLD一覧・スペシャルモード・ことばの友だちが選べる',
+    menu.labels.join(',') === 'カレンダー,WORLD一覧,スペシャルモード,🐶ことばの友だち');
   check('どれもアイコン＋文字', menu.icons.every(Boolean));
   check('カプセルが縦に3つ並ぶ', menu.vertical && menu.sameX && menu.capsule.every(Boolean));
   check('吹き出しはメニューボタンから出ている', menu.nearBtn);
   const menuGo = await page.evaluate(() => {
-    document.querySelectorAll('#menu-modal .hm-cap')[1].click(); // ROOM一覧
+    document.querySelectorAll('#menu-modal .hm-cap')[1].click(); // WORLD一覧
     return { menuOff: !document.getElementById('menu-modal').classList.contains('on'), map: document.getElementById('map-modal').classList.contains('on') };
   });
   check('カプセルを押すと吹き出しが閉じてその画面へ行く', menuGo.menuOff && menuGo.map);

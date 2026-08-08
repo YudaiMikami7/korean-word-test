@@ -87,17 +87,20 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     await page.waitForTimeout(400);
     const on = await page.evaluate(() => {
       const m = document.getElementById('pet-modal');
-      return m.classList.contains('on') && !!m.querySelector('.pt-art') && !!m.querySelector('.pt-line') && /단어 친구/.test(m.textContent);
+      // 「단어 친구」の見出しは育成画面の簡素化で廃止（メール指示 2026-08-08 22:26）
+      return m.classList.contains('on') && !!m.querySelector('.pt-art') && !!m.querySelector('.pt-line') && !!m.querySelector('.pt-name');
     });
     await page.evaluate(() => closePet());
     return has && on;
   })());
-  check('11-13 育成画面から1タップで今日の5問へ戻れる（5秒以内に学習へ）', await (async () => {
+  // 育成画面の主ボタンは「ごはんをあげる」に変わり、押すと育てるメニューでその場で食べさせられる
+  // （ごはんが無ければ集めかたを出す。メール指示 2026-08-08 22:26）
+  check('11-13 育成画面から1タップでごはんをあげられる', await (async () => {
     await page.evaluate(() => openPet());
     await page.waitForTimeout(300);
     const t = await page.evaluate(() => (document.querySelector('#pet-modal .d5-go') || {}).textContent || '');
     await page.evaluate(() => closePet());
-    return /今日の5問/.test(t);
+    return /ごはんをあげる/.test(t);
   })());
 
   /* ============ 12. 通しで遊ぶ（ことばの友だちの成長） ============ */

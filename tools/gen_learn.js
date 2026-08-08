@@ -1,6 +1,6 @@
 /* learn/ 配下の静的単語帳ページ + sitemap.xml を生成する
    実行: node tools/gen_learn.js （リポジトリルートで）
-   データ源: words-beginner.js / words-middle.js / index.html内のWORDS（中級ROOM01） */
+   データ源: words-beginner.js / words-middle.js / index.html内のWORDS（中級WORLD01） */
 const fs = require("fs");
 const path = require("path");
 const ROOT = path.join(__dirname, "..");
@@ -15,7 +15,7 @@ function loadArray(file, constName) {
 }
 const BEGINNER = loadArray("words-beginner.js", "BEGINNER_WORDS");
 const MIDDLE = loadArray("words-middle.js", "MIDDLE_WORDS");
-const LEGACY = loadArray("index.html", "WORDS"); // 中級ROOM01の100語
+const LEGACY = loadArray("index.html", "WORDS"); // 中級WORLD01の100語
 
 /* ---------- ハングル→カナ（発音の目安） ---------- */
 const INI = ["k","kk","n","t","tt","r","m","p","pp","s","ss","","ch","jj","ch2","k","t","p","h"];
@@ -85,7 +85,7 @@ for (let s = 2; s <= 27; s++) {
 }
 const nn = n => String(n).padStart(2, "0");
 // Cloudflare Pagesは .html を除去したURLへ308リダイレクトするため、リンク/canonicalは拡張子なしで統一
-rooms.forEach(r => { r.file = `${r.lv}-${nn(r.n)}.html`; r.slug = `${r.lv}-${nn(r.n)}`; r.title = `${r.level}ROOM${nn(r.n)}`; });
+rooms.forEach(r => { r.file = `${r.lv}-${nn(r.n)}.html`; r.slug = `${r.lv}-${nn(r.n)}`; r.title = `${r.level}WORLD${nn(r.n)}`; });
 
 function stats(words) {
   const suru = words.filter(w => w.ko.endsWith("하다")).length;
@@ -165,7 +165,7 @@ ${footerNav}
 </html>`;
 }
 
-/* ---------- 各ROOMページ ---------- */
+/* ---------- 各WORLDページ ---------- */
 const outDir = path.join(ROOT, "learn");
 fs.mkdirSync(outDir, { recursive: true });
 
@@ -223,29 +223,29 @@ const idxBody = `
 <header class="site"><a href="../">k-tango</a><span>›</span><span>単語帳一覧</span></header>
 <div class="card">
   <h1>韓国語単語帳一覧<br><small style="font-size:15px;color:#6b5f58;font-weight:400">TOPIK初級・中級 全${totalWords}語をカナ読み付きで無料公開</small></h1>
-  <p class="lead">k-tangoに収録されている韓国語単語 全${totalWords}語（初級${begTotal}語・中級${midTotal}語）を、ROOMごとの一覧ページで公開しています。すべてのページにカタカナの読みガイドと日本語訳付き。ブックマークして単語帳としてご利用ください。</p>
-  <p>収録語彙はTOPIK（韓国語能力試験）の公開語彙リストをもとにしています。初級はTOPIK I（1〜2級）、中級はTOPIK II（3〜4級）レベルに対応し、各ROOMは約100語ずつに区切られています。一覧で予習したあと、<a href="../">無料の単語テストアプリ</a>で四択・書き取りテストに挑戦すると効率よく定着します。</p>
-  <h2>初級（TOPIK I）全${begTotal}語 — ROOM01〜17</h2>
-  <p>あいさつ・数字・食べ物・家族など、韓国語学習の土台になる基礎語彙です。初めて韓国語を学ぶ方はROOM01から順に進めるのがおすすめです。</p>
+  <p class="lead">k-tangoに収録されている韓国語単語 全${totalWords}語（初級${begTotal}語・中級${midTotal}語）を、WORLDごとの一覧ページで公開しています。すべてのページにカタカナの読みガイドと日本語訳付き。ブックマークして単語帳としてご利用ください。</p>
+  <p>収録語彙はTOPIK（韓国語能力試験）の公開語彙リストをもとにしています。初級はTOPIK I（1〜2級）、中級はTOPIK II（3〜4級）レベルに対応し、各WORLDは約100語ずつに区切られています。一覧で予習したあと、<a href="../">無料の単語テストアプリ</a>で四択・書き取りテストに挑戦すると効率よく定着します。</p>
+  <h2>初級（TOPIK I）全${begTotal}語 — WORLD01〜17</h2>
+  <p>あいさつ・数字・食べ物・家族など、韓国語学習の土台になる基礎語彙です。初めて韓国語を学ぶ方はWORLD01から順に進めるのがおすすめです。</p>
   <ul class="roomlist">
 ${rooms.filter(r => r.lv === "beginner").map(roomLi).join("\n")}
   </ul>
-  <h2>中級（TOPIK II）全${midTotal}語 — ROOM01〜27</h2>
+  <h2>中級（TOPIK II）全${midTotal}語 — WORLD01〜27</h2>
   <p>ニュース・ビジネス・抽象的な話題にも対応できる中級語彙です。漢字語の割合が増えるため、日本語の音読みとの対応を意識すると覚えやすくなります。</p>
   <ul class="roomlist">
 ${rooms.filter(r => r.lv === "middle").map(roomLi).join("\n")}
   </ul>
   <h2>この単語帳の使い方</h2>
   <ol>
-    <li><strong>一覧で予習</strong>：学びたいROOMのページを開き、単語と読みガイドをひととおり確認します。</li>
-    <li><strong>アプリでテスト</strong>：<a href="../">k-tangoアプリ</a>で同じROOMを選び、12問テストに挑戦します。</li>
+    <li><strong>一覧で予習</strong>：学びたいWORLDのページを開き、単語と読みガイドをひととおり確認します。</li>
+    <li><strong>アプリでテスト</strong>：<a href="../">k-tangoアプリ</a>で同じWORLDを選び、12問テストに挑戦します。</li>
     <li><strong>忘却曲線で復習</strong>：アプリが記憶の定着度を推定し、忘れかけた単語の復習タイミングを自動で提案します。</li>
   </ol>
   <p><a class="cta" href="../">▶ 無料で単語テストを始める</a></p>
 </div>`;
 fs.writeFileSync(path.join(outDir, "index.html"), pageHTML({
   title: `韓国語単語帳一覧｜TOPIK初級・中級 全${totalWords}語（カナ読み付き・無料）| k-tango`,
-  desc: `TOPIK初級${begTotal}語・中級${midTotal}語の韓国語単語を、カナ読みガイドと日本語訳付きで全ページ無料公開。ROOMごとの一覧で予習し、無料アプリk-tangoの四択・書き取りテストで定着させる韓国語学習サイトです。`,
+  desc: `TOPIK初級${begTotal}語・中級${midTotal}語の韓国語単語を、カナ読みガイドと日本語訳付きで全ページ無料公開。WORLDごとの一覧で予習し、無料アプリk-tangoの四択・書き取りテストで定着させる韓国語学習サイトです。`,
   url: SITE + "/learn/",
   body: idxBody,
   breadcrumbs: [["k-tango", "/"], ["単語帳一覧", "/learn/"]]

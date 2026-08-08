@@ -226,11 +226,12 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
     document.querySelector('.sg-mission').click();
     await new Promise(r => setTimeout(r, 400));
     const c = document.querySelector('#d5-modal .u5-card');
-    const k = c ? [...c.querySelectorAll('.u5-kick')].map(e => e.textContent).join('/') : '';
+    // 見出しの小さな英字は廃止（メール指示 2026-08-08 22:26）。日本語の見出しで確かめる
+    const k = c ? [...c.querySelectorAll('.u5-ti')].map(e => e.textContent).join('/') : '';
     document.getElementById('d5-modal').classList.remove('on');
     return k;
   });
-  check(`統合ポップアップ（ミッション＋今日の5問）が開く (${uni})`, uni === 'MISSION/TODAY');
+  check(`統合ポップアップ（ミッション＋今日の5問）が開く (${uni})`, uni === '今週のミッション/今日の5問');
 
   check('コンソールエラー無し', errors.length === 0);
   if (errors.length) console.log(errors);

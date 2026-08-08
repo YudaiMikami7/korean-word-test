@@ -136,7 +136,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* 出題の入場アニメ（書き取り等の問題文）：メニュー切り替えのように右からスッと出す（毎問リビルドで再生） */
 @keyframes qEnter{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
 #s-quiz .qstage .qmain{animation:qEnter .30s cubic-bezier(.33,1,.68,1) both}
-/* 4択の問題文：ルームメニューの3面ローテーション（左下0%100%を軸に回転して入替）と同じく、左下を軸に回転しながら立ち上がる入場アニメ。選択肢(.qbottom)はアニメなしで即表示 */
+/* 4択の問題文：WORLDメニューの3面ローテーション（左下0%100%を軸に回転して入替）と同じく、左下を軸に回転しながら立ち上がる入場アニメ。選択肢(.qbottom)はアニメなしで即表示 */
 @keyframes qRoomEnter{from{opacity:0;transform:rotate(60deg) scale(.32)}to{opacity:1;transform:rotate(0) scale(1)}}
 #s-quiz .qstage:has(.qbottom){overflow:hidden} /* 回転スイープが横にはみ出して一瞬スクロールバーが出ないようクリップ(静止時はtransform無しで影響なし) */
 #s-quiz .qstage .qmain:has(+ .qbottom){transform-origin:0% 100%;animation:qRoomEnter .5s cubic-bezier(.34,1.4,.5,1) both}
@@ -177,10 +177,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 #s-quiz{position:relative}
 #s-quiz .qbar,#s-quiz .pbar,#s-quiz .tbar,#s-quiz .qstage{position:relative;z-index:1} /* 出題UIは常に降下レイヤーより前面 */
 .q-rain{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-#home-rain{top:-185px;height:1178px;z-index:0;opacity:.42;transition:opacity .3s ease} /* ホームの玉レイヤー：背景で主張しすぎないよう半透明に。現在ROOMのslide-inner(top:185px)最背面に挿入＝画面いっぱいに戻す */
+#home-rain{top:-185px;height:1178px;z-index:0;opacity:.42;transition:opacity .3s ease} /* ホームの玉レイヤー：背景で主張しすぎないよう半透明に。現在WORLDのslide-inner(top:185px)最背面に挿入＝画面いっぱいに戻す */
 .home-wrap.status #home-rain{opacity:0} /* 単語帳ページではホームのまま出しておく（hiderailは廃止。メール指示 2026-08-02） */
 /* 降ってくるのは丸い玉ではなく単語カード（メール指示 2026-08-02）。
-   見た目は「獲得した単語カード」と同じ白→クリームの座布団で、枠だけ出題ROOMの色。
+   見た目は「獲得した単語カード」と同じ白→クリームの座布団で、枠だけ出題WORLDの色。
    ぶつかり判定は今までどおり円のままなので、カードは円に収まる正方形にしてある（will-changeはJSで落下中のみ付与） */
 .qr-card{position:absolute;left:0;top:0;width:96px;height:96px;border-radius:12px;box-sizing:border-box;
   background:linear-gradient(160deg,#fff,#ffe9c2);border:3px solid rgba(255,255,255,.9);
@@ -286,8 +286,8 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .streak-fire{width:50px;height:50px;object-fit:contain;display:block}
 /* 「PWRが0.01%減るまで あと◯秒」のカウント(#hv-pwrdown)は廃止（メール指示 2026-08-02 16:54） */
 #hv-nextrev{position:absolute;left:140px;top:151px;width:380px;text-align:center;font-size:13px;font-weight:800;color:rgba(255,255,255,.92);z-index:2;cursor:pointer;text-shadow:0 1px 3px rgba(0,0,0,.5);transition:opacity .28s ease}
-/* ルーム切替中に出るルーム番号の丸ページャー（選択中を中央に）。
-   ステータスバーの下ではなく、ルームメニューのすぐ下（メニュー下端289px＋3px）に置く（メール指示 2026-08-02 16:54）。
+/* WORLD切替中に出るWORLD番号の丸ページャー（選択中を中央に）。
+   ステータスバーの下ではなく、WORLDメニューのすぐ下（メニュー下端289px＋3px）に置く（メール指示 2026-08-02 16:54）。
    下端(340px)より下には部品を置いていないので、出ていても他の部品には重ならない
    （プレゼント・ガチャの丸は左下へ移した。メール指示 2026-08-02 20:47） */
 #room-pager{position:absolute;left:0;right:0;top:292px;box-sizing:border-box;z-index:4;display:flex;gap:9px;align-items:center;overflow-x:auto;padding:5px 16px;scrollbar-width:none;opacity:0;pointer-events:none;transition:opacity .28s ease}
@@ -313,7 +313,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .hv-pwrg{left:237px;top:120px;width:138px;height:19px}
 .hv-pwrval{left:379px;top:120px;width:125px;text-align:right}
 /* ヘッダー右のボタン2つ（上=設定／下=メニュー）。横長の角丸ではなく「正方形の角丸」にした（メール指示 2026-08-02 19:24）。
-   56px角×2＋すき間5px＝117px（上端44px→下端161px）で、ルームメニューの上端(173px)には掛からない。
+   56px角×2＋すき間5px＝117px（上端44px→下端161px）で、WORLDメニューの上端(173px)には掛からない。
    単語帳ページ・単語詳細ページでも出したままにする（同メール）。消すのはステータス表示中だけ */
 .hd-rail{position:absolute;right:14px;top:44px;width:56px;display:flex;flex-direction:column;gap:5px;z-index:5;transition:opacity .3s ease}
 .home-wrap.status .hd-rail{opacity:0;pointer-events:none}
@@ -324,17 +324,17 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* ハンバーガー：左のアイコン群と同じ濃さ(#333)の3本線 */
 .hd-bars{display:flex;flex-direction:column;gap:5px}
 .hd-bars i{display:block;width:30px;height:4px;border-radius:2px;background:#333}
-/* ROOM選択：ROOM情報＋ジオラマを丸ごと左右スワイプ（番号やパラメータも一緒にスクロール）。
+/* WORLD選択：WORLD情報＋ジオラマを丸ごと左右スワイプ（番号やパラメータも一緒にスクロール）。
    コンテナは全幅＝画像は画面の端で見切れる */
-/* スライドは全画面高＋ROOM色の背景：スワイプで「色の区切れ目」が指と一緒に移動する */
+/* スライドは全画面高＋WORLD色の背景：スワイプで「色の区切れ目」が指と一緒に移動する */
 .room-scroll{transform:translateY(calc(var(--down,0px)*2.2));transition:transform .4s ease;position:absolute;left:0;top:0;width:602px;height:1178px;display:flex;overflow-x:auto;overflow-y:hidden;
   scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;z-index:0}
 .room-scroll::-webkit-scrollbar{display:none}
 .room-slide{position:relative;flex:0 0 602px;width:602px;height:1178px;scroll-snap-align:start}
-/* ステータスバー(下端147px)とルームメニューのあいだのすき間を詰めるため、スライドごと40px上へ
-   （225→185px。ルームメニュー上端は213→173px＝ステータスバーの26px下・アイコン丸の15px下。メール指示 2026-08-02 16:54） */
+/* ステータスバー(下端147px)とWORLDメニューのあいだのすき間を詰めるため、スライドごと40px上へ
+   （225→185px。WORLDメニュー上端は213→173px＝ステータスバーの26px下・アイコン丸の15px下。メール指示 2026-08-02 16:54） */
 .slide-inner{position:absolute;left:0;top:185px;width:602px;height:686px}
-/* ROOMパラメータ（ラベル/番号・語数/バー/%の間に余白。ランクD,B=36px・A=98pxで下端揃え） */
+/* WORLDパラメータ（ラベル/番号・語数/バー/%の間に余白。ランクD,B=36px・A=98pxで下端揃え） */
 .rmenu-bg{position:absolute;left:40px;top:-12px;width:522px;height:116px;background:rgba(255,255,255,.15);border-radius:999px;cursor:pointer} /* 縦幅=旧174の2/3 */
 .hv-roomlabel{position:absolute;left:83px;top:2px;font-size:21px;letter-spacing:.5px;line-height:1;cursor:pointer}
 .hv-roomno{position:absolute;left:72px;top:28px;font-size:72px;line-height:1;cursor:pointer}
@@ -344,23 +344,23 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .hv-roompwr .unit{font-size:19px;margin-left:4px}
 .hv-wordsg{left:238px;top:37px;width:89px;height:10px;padding:2px}
 .hv-roomg{left:238px;top:88px;width:89px;height:10px;padding:2px}
-/* ルームメニューの2本のバーは伸びる動きを付けない（アニメ廃止。ステータス欄のバーは従来どおり） */
+/* WORLDメニューの2本のバーは伸びる動きを付けない（アニメ廃止。ステータス欄のバーは従来どおり） */
 .hv-wordsg .gfill,.hv-roomg .gfill{transition:none}
-/* ランクの下端(146)を下段バー(132+14=146)・ROOM番号の字面下端と一致させる */
-/* ※.rank-s（1つ前・2つ前のランク）はルームメニューから廃止し、その場所に周回表示(.hv-lap)を置いた（メール指示 2026-07-31）。
+/* ランクの下端(146)を下段バー(132+14=146)・WORLD番号の字面下端と一致させる */
+/* ※.rank-s（1つ前・2つ前のランク）はWORLDメニューから廃止し、その場所に周回表示(.hv-lap)を置いた（メール指示 2026-07-31）。
      スタイルは他の場所（過去履歴など）と同じ書式のまま残してある */
 .rank-s{position:absolute;left:363px;top:72px;width:30px;height:30px;border-radius:50%;background:#555;
   display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;z-index:1}
 .rank-s1{left:389px}
 .rank-b{position:absolute;left:442px;top:15px;width:78px;height:78px;border-radius:50%;background:#555;
   display:flex;align-items:center;justify-content:center;font-size:62px;line-height:1;z-index:2}
-/* ルームメニューのランクを結果と同じメダル風（金リング＋光沢）に。※登場ポップはルームメニューのアニメ廃止で削除 */
+/* WORLDメニューのランクを結果と同じメダル風（金リング＋光沢）に。※登場ポップはWORLDメニューのアニメ廃止で削除 */
 .rank-b,.rank-s{box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 4px rgba(255,196,0,.9),0 3px 8px rgba(0,0,0,.3)}
 .rank-b::after,.rank-s::after{content:"";position:absolute;inset:3px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%);pointer-events:none}
-/* ルームメニュー領域のクリップ：3面ローテのアニメが座布団の外にはみ出て描画されないように（座標は不変） */
+/* WORLDメニュー領域のクリップ：3面ローテのアニメが座布団の外にはみ出て描画されないように（座標は不変） */
 .rmenu-clip{position:absolute;inset:0;z-index:2;clip-path:inset(-12px 40px calc(100% - 104px) 40px round 56px)}
-/* ROOMメニュー（カプセル）の外側・左右に置く「隣のページへ」矢印。
-   スライドの中ではなくhome-wrap直下に1組だけ置くフロート＝難易度・プリQQ・どのROOMでも同じ位置に出る。
+/* WORLDメニュー（カプセル）の外側・左右に置く「隣のページへ」矢印。
+   スライドの中ではなくhome-wrap直下に1組だけ置くフロート＝難易度・プリQQ・どのWORLDでも同じ位置に出る。
    top=185(slide-innerの位置)+14(従来のtop)。単語一覧モードのメニュー上昇には--liftで追従する */
 .rm-arrow{position:absolute;top:calc(199px + var(--lift,0px));width:36px;height:76px;z-index:6;border:none;padding:0;background:transparent;
   font-size:0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;
@@ -369,7 +369,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rm-prev::before{border-width:14px 17px 14px 0;border-color:transparent rgba(255,255,255,.95) transparent transparent}
 .rm-next::before{border-width:14px 0 14px 17px;border-color:transparent transparent transparent rgba(255,255,255,.95)}
 .rm-arrow:active{transform:scale(.84)}
-/* まだ1度もROOMを切りかえていない間だけ、矢印を左右に揺らして「ここは横に動く」と伝える
+/* まだ1度もWORLDを切りかえていない間だけ、矢印を左右に揺らして「ここは横に動く」と伝える
    （動かすのは中の三角＝::beforeだけ。ボタン自体は動かさないのでタップ位置がぶれない） */
 .home-wrap.roomhint-on .rm-prev::before,.home-wrap.roomhint-on #room-hint .rh-l::before{animation:rmNudgeL 1.7s ease-in-out infinite}
 .home-wrap.roomhint-on .rm-next::before,.home-wrap.roomhint-on #room-hint .rh-r::before{animation:rmNudgeR 1.7s ease-in-out infinite}
@@ -377,7 +377,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 @keyframes rmNudgeR{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
 /* スワイプの案内。左右の三角は .rm-arrow と同じ幅(36px)・同じ左右位置(4px)に置いて縦に並ぶよう揃える
    （メール指示 2026-07-29）。文字だけを黒カプセルに載せ、5秒たてば自然に消える。
-   ルームメニューを上へ詰めたぶん、案内はメニューの上ではなく下（ページャーと同じ帯）へ移した（メール指示 2026-08-02 16:54） */
+   WORLDメニューを上へ詰めたぶん、案内はメニューの上ではなく下（ページャーと同じ帯）へ移した（メール指示 2026-08-02 16:54） */
 #room-hint{position:absolute;left:4px;right:4px;top:calc(292px + var(--lift,0px));z-index:6;
   display:flex;align-items:center;justify-content:space-between;
   pointer-events:none;transition:opacity .35s ease,top .35s ease}
@@ -395,19 +395,19 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* プリQQは背景が淡いので三角を濃いピンクに（他スライドは白のまま） */
 .home-wrap.pq-active .rm-prev::before{border-right-color:#c04ea0}
 .home-wrap.pq-active .rm-next::before{border-left-color:#c04ea0}
-/* 単語帳ページでもROOMメニューの左右矢印は出したまま（メール指示 2026-08-02） */
+/* 単語帳ページでもWORLDメニューの左右矢印は出したまま（メール指示 2026-08-02） */
 .home-wrap.status .rm-arrow{opacity:0;pointer-events:none}
-/* ルームメニューの3面ローテーション：語数/％/ランク(face0) ⇄ おすすめ単語 ⇄ PWRグラフ。
-   ※メール指示（2026-07-29）でルームメニューのアニメーションは完全に廃止。回転の transition を外し、
+/* WORLDメニューの3面ローテーション：語数/％/ランク(face0) ⇄ おすすめ単語 ⇄ PWRグラフ。
+   ※メール指示（2026-07-29）でWORLDメニューのアニメーションは完全に廃止。回転の transition を外し、
      ローテーション自体も止めている（JS: ROOM_RECO_ROTATE）。この2面は常に非表示のまま */
 .rmenu-reco,.rmenu-pwr{position:absolute;left:220px;top:-10px;width:328px;height:120px;display:flex;flex-direction:column;justify-content:center;padding:0 12px;box-sizing:border-box;transform-origin:0% 100%;transform:rotate(60deg) scale(.32);opacity:0;pointer-events:none;z-index:3}
-/* PWRメータ面は右端をさらに内側へ寄せてルームメニューからはみ出さないように */
+/* PWRメータ面は右端をさらに内側へ寄せてWORLDメニューからはみ出さないように */
 .rmenu-pwr{width:292px;padding-right:26px}
 /* おすすめ単語面：左に画像・右にテキスト（横並び・左端寄せ） */
 .rmenu-reco{flex-direction:row;align-items:center;justify-content:flex-start;gap:12px}
 .rr-img{width:86px;height:86px;object-fit:contain;flex:0 0 auto}
 .rr-txt{display:flex;flex-direction:column;min-width:0}
-/* ROOM番号と右側領域のマージンを半分に（通常ルームのみ。プリQQは従来位置のまま） */
+/* WORLD番号と右側領域のマージンを半分に（通常WORLDのみ。プリQQは従来位置のまま） */
 .room-slide:not(.pq-slide) .hv-learned,.room-slide:not(.pq-slide) .hv-roompwr{left:206px}
 .room-slide:not(.pq-slide) .hv-wordsg,.room-slide:not(.pq-slide) .hv-roomg{left:200px}
 .room-slide:not(.pq-slide) .rank-b{left:390px} /* 直近のランクだけを大きく出す */
@@ -433,11 +433,11 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rmpwr-top .rp-lab{font-size:14px;font-weight:900;color:#fff}
 .rmpwr-top b{font-size:40px;font-weight:900;color:#fff;line-height:1}
 .rmpwr-bars{display:flex;align-items:flex-end;gap:5px;height:56px;margin-top:6px;overflow:hidden}
-.rmpwr-bar{flex:1 1 0;min-width:5px;background:rgba(255,255,255,.9);border-radius:3px 3px 0 0;transform-origin:bottom center} /* 伸びるアニメはルームメニューのアニメ廃止で削除 */
+.rmpwr-bar{flex:1 1 0;min-width:5px;background:rgba(255,255,255,.9);border-radius:3px 3px 0 0;transform-origin:bottom center} /* 伸びるアニメはWORLDメニューのアニメ廃止で削除 */
 /* プリQQは背景が淡いので文字/バーをピンクに */
 .pq-slide .rr-ko,.pq-slide .rr-ja,.pq-slide .rmpwr-top .rp-lab,.pq-slide .rmpwr-top b{color:#c04ea0}
 .pq-slide .rmpwr-bar{background:rgba(200,67,154,.85)}
-/* ROOM01の左にある難易度切替スライド */
+/* WORLD01の左にある難易度切替スライド */
 .lv-pick{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;gap:26px;width:380px}
 .lvbtn{height:112px;border:none;border-radius:56px;background:rgba(0,0,0,.8);color:#fff;font-size:44px;font-weight:800;cursor:pointer;font-family:inherit}
 .lvbtn:active{background:rgba(0,0,0,.65)}
@@ -603,10 +603,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .cal-close{position:absolute;right:2px;top:2px;width:46px;height:46px;background:transparent;border:none;font-size:26px;font-weight:900;color:#888;cursor:pointer;line-height:1;font-family:inherit;display:flex;align-items:center;justify-content:center}
 .cal-close:active{background:rgba(0,0,0,.07)}
 .reward-rail{position:absolute;right:14px;top:340px;display:flex;flex-direction:column;gap:8px;z-index:5;
-  opacity:1;transition:opacity .3s ease} /* ROOMメニュー(下端289px)とのあいだはルーム番号ページャーの帯(292〜340px)。位置は従来どおり */
+  opacity:1;transition:opacity .3s ease} /* WORLDメニュー(下端289px)とのあいだはWORLD番号ページャーの帯(292〜340px)。位置は従来どおり */
 .reward-rail-left{left:14px;right:auto} /* 設定/マップ/カレンダーは画面左側に */
 .home-wrap.status .reward-rail,.home-wrap.status .home-side-btn,.home-wrap.status .start-button{opacity:0;pointer-events:none}
-/* 単語帳ページでは左右のアイコン（設定・ROOM一覧・カレンダー・スペシャル／毎日ボーナス・ガチャ）は出さない。
+/* 単語帳ページでは左右のアイコン（設定・WORLD一覧・カレンダー・スペシャル／毎日ボーナス・ガチャ）は出さない。
    そのぶん一覧を左右いっぱいまで広げる（メール指示 2026-08-02）。右下のホームボタンだけは残す */
 .home-wrap.listmode .reward-rail{opacity:0;pointer-events:none}
 .home-side-btn{opacity:1;transition:transform .4s ease,opacity .3s ease}
@@ -780,7 +780,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .home-wrap.dragging .slide-inner,.home-wrap.dragging .home-head,.home-wrap.dragging .slide-img,.home-wrap.dragging .room-ph,.home-wrap.dragging .room-scroll,.home-wrap.dragging .start-button{transition:none}
 /* 単語帳の一覧は、ホームの真ん中（すごろく＝.sg-wrap）とまったく同じ場所に置く。
    ホームの他の部品はそのまま出ているので、変わるのは中央だけになる（メール指示 2026-08-02）。
-   左右の余白はルームメニューの左右矢印（.rm-prev/.rm-next＝left/right:4px）と同じ位置まで詰め、
+   左右の余白はWORLDメニューの左右矢印（.rm-prev/.rm-next＝left/right:4px）と同じ位置まで詰め、
    縦は右下のホームボタンの下端まで伸ばして、検索バー・ホームボタンの裏にもカードが来るようにした（メール指示 2026-08-02） */
 .slide-list{position:absolute;left:4px;top:104px;width:594px;height:1028px;overflow-y:auto;background:transparent;scrollbar-width:none;
   z-index:1;opacity:1;transition:opacity .35s ease} /* 入場はJSでフェードイン */
@@ -797,7 +797,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .wb-card{min-width:0;max-width:100%}
 /* 単語帳のカードは結果画面の「獲得した単語カード」(.rc-card)と同じ見た目に揃える（メール指示 2026-07-29）
    絵がカードから飛び出す作りはやめ、縦長カードの中に収める（メール指示 2026-07-31） */
-.wb-card{position:relative;aspect-ratio:3/3.5;box-sizing:border-box;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;color:#1a1a1a;box-shadow:0 3px 8px rgba(0,0,0,.25);animation:wbin .5s ease backwards} /* content-visibilityはpaint封じ込めで演出が切れるため不使用（軽量化は現在ROOM±1のみ描画で担保） */
+.wb-card{position:relative;aspect-ratio:3/3.5;box-sizing:border-box;background:linear-gradient(160deg,#fff,#ffe9c2);border-radius:12px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;color:#1a1a1a;box-shadow:0 3px 8px rgba(0,0,0,.25);animation:wbin .5s ease backwards} /* content-visibilityはpaint封じ込めで演出が切れるため不使用（軽量化は現在WORLD±1のみ描画で担保） */
 @keyframes wbin{from{opacity:0;transform:translateY(18px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
 .wb-imgw{position:relative;height:46%;max-width:100%;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
 .wb-img{height:100%;width:auto;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18));animation:wbbob 3.2s ease-in-out infinite}
@@ -860,7 +860,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .wbh-ko{font-size:20px}
 .wbh-ja{font-size:13px;color:#666;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wbh-room{font-size:11px;color:#999;flex:0 0 auto}
-/* 前後の単語へ移す三角ボタン。ルームメニューの左右矢印（.rm-arrow）とまったく同じ白三角にし、
+/* 前後の単語へ移す三角ボタン。WORLDメニューの左右矢印（.rm-arrow）とまったく同じ白三角にし、
    横位置もそれと同じ（＝器の左右の端＝602px基準で left/right 4px）に置く（メール指示 2026-08-02） */
 .wd-nav{flex:0 0 36px;width:36px;height:76px;border:none;padding:0;background:transparent;cursor:pointer;font-family:inherit;font-size:0;
   display:flex;align-items:center;justify-content:center}
@@ -871,8 +871,6 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* 文字サイズ 大 モード */
 body.bigtext .choice{font-size:25px}
 body.bigtext .qword{font-size:1.15em}
-body.bigtext .rtab{font-size:15px}
-body.bigtext .rtab td.ko{font-size:18px}
 body.bigtext .tb-ko{font-size:22px}
 body.bigtext .wb-ko{font-size:28px}
 body.bigtext .set-t{font-size:17px}
@@ -902,7 +900,7 @@ body.bigtext .set-d{font-size:13.5px}
    カードが裏を通るので、うっすら暗くぼかした座布団を敷く */
 .wb-fixhead{position:sticky;top:0;z-index:3;padding:0 0 7px;border-radius:0 0 12px 12px;
   background:rgba(0,0,0,.34);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:opacity .28s ease}
-/* この帯はルーム番号のページャー(292〜340px)とちょうど同じ場所にあるので、
+/* この帯はWORLD番号のページャー(292〜340px)とちょうど同じ場所にあるので、
    左右スクロールでページャーが出ているあいだは引っ込める（メール指示 2026-08-02 19:24） */
 .home-wrap.pager-on .wb-fixhead{opacity:0;pointer-events:none}
 .wb-tabs{display:flex;align-items:center;gap:6px;padding:10px 2px 0}
@@ -1046,9 +1044,9 @@ body.bigtext .set-d{font-size:13.5px}
 .cc-item{background:#F6F6F6;padding:11px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;font-weight:900;color:#1a1a1a;cursor:pointer}
 .cc-item .cc-arw{color:#aaa;font-weight:900}
 .cc-item.cc-note{cursor:default;font-size:11px;font-weight:800;color:#777;line-height:1.5}
-/* ルームの色（4段階の見本ボタン。メール指示 2026-08-02） */
+/* WORLDの色（4段階の見本ボタン。メール指示 2026-08-02） */
 .cc-item.cc-tone{cursor:default}
-/* ルームの色の濃さは段階選びではなくバーで自由に決める（0＝いまの色〜100＝真っ黒。メール指示 2026-08-02） */
+/* WORLDの色の濃さは段階選びではなくバーで自由に決める（0＝いまの色〜100＝真っ黒。メール指示 2026-08-02） */
 .tone-bar{display:flex;align-items:center;gap:8px;flex:1 1 auto;min-width:0;margin-left:8px}
 .tone-bar i{display:block;flex:0 0 auto;width:26px;height:20px;box-shadow:0 0 0 2px rgba(0,0,0,.12) inset}
 .tone-bar input[type=range]{flex:1 1 auto;min-width:0;height:20px;accent-color:#FFC400;cursor:pointer}
@@ -1145,7 +1143,7 @@ body.bigtext .set-d{font-size:13.5px}
 .ax2desc b{color:#fff;font-size:13px;font-weight:900}
 .t16link{margin-top:auto;text-align:right;font-size:17px;font-weight:800;cursor:pointer;letter-spacing:1px}
 .t16link b{font-size:19px}
-/* ステータス内のROOM表記・PWRメーターはPWR詳細ページと同じ見た目サイズ（--invで逆スケール補正） */
+/* ステータス内のWORLD表記・PWRメーターはPWR詳細ページと同じ見た目サイズ（--invで逆スケール補正） */
 .st-top .cs-head{font-size:calc(20px*var(--inv,1));margin:2px 0 calc(8px*var(--inv,1))}
 .st-top .pwrline{gap:calc(12px*var(--inv,1))}
 .st-top .pwr-lab,.st-top .pwr-val{font-size:calc(22px*var(--inv,1))}
@@ -1263,8 +1261,7 @@ body.bigtext .set-d{font-size:13.5px}
 .rp-g{width:120px;height:15px;background:#333;border-radius:999px;padding:3px;box-sizing:border-box}
 .rp-g div{height:100%;border-radius:999px}
 .pwr-delta{font-size:18px;font-weight:900}
-.res-right{display:flex;flex-direction:column;align-items:flex-start;gap:4px} /* 「過去の結果」画面で使用 */
-.res-counts{display:flex;flex-direction:row;align-items:baseline;gap:8px;font-size:14px;font-weight:900;line-height:1.15} /* 点数の右に 正解数 / 不正解数 */
+/* ※.res-right / .res-counts は「過去の結果」専用UIの廃止にあわせて削除（メール指示 2026-08-08 22:26） */
 .res-cnt{flex:0 0 auto;text-align:left;font-size:16px;font-weight:900;line-height:1.15} /* 上の段の 中＝正解数 / 右＝不正解数（左寄せ。メール指示 2026-08-02） */
 /* 右側は上＝点数と正誤／下＝メーター2本 */
 .res-side{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:5px}
@@ -1293,14 +1290,7 @@ body.bigtext .set-d{font-size:13.5px}
 .btn.dark{background:rgba(0,0,0,.8);color:#fff}
 .btn.dark:active{background:rgba(0,0,0,.65)}
 .res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;margin:10px 0;border:none;border-radius:0;-webkit-overflow-scrolling:touch} /* カードグリッドの上下とも境界線は無し（カード上の黒線を撤去）。左右幅は固定＝横スクロールさせない */
-/* 出題表はコンパクト表示（ボタン群がスクロールなしで見えるよう縦を圧縮） */
-.rtab{width:100%;border-collapse:collapse;font-size:13px;background:rgba(0,0,0,.65)}
-.rtab th,.rtab td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
-.rtab th{position:sticky;top:0;background:rgba(0,0,0,.8);color:#fff;font-size:11px;font-weight:800;z-index:1;white-space:nowrap}
-.rtab td:nth-child(3){font-size:13px;font-weight:700}
-.rtab td.no{color:var(--mute);text-align:right;width:30px}
-.rtab td.ko{font-weight:700;font-size:15px}
-.rtab .r-ok{color:var(--green)}.rtab .r-ng{color:var(--blue)}.rtab .r-un{color:var(--mute)}.rtab .r-to{color:var(--gold)}
+/* ※出題表(.rtab)は「過去の結果」専用UIの廃止にあわせて削除（メール指示 2026-08-08 22:26） */
 .hint-badge{display:inline-block;margin-left:6px;padding:1px 6px;border:1px solid var(--line);color:var(--gold);font-size:10px;font-weight:700;vertical-align:middle}
 .res-btns{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:7px;background:rgba(255,255,255,.55);border-radius:14px;padding:7px}
 /* アイコン＋下にラベルの縦並びボタン（応援する / シェアする / もう一度 / ホーム） */
@@ -1383,11 +1373,11 @@ body.bigtext .set-d{font-size:13.5px}
   display:flex;flex-direction:column;min-height:0}
 .wd-in{flex:1 1 auto;min-height:0;display:flex;flex-direction:column} /* 中身の入れ物も高さを引き継ぐ（そうしないと学習履歴が縮まず下にはみ出す） */
 /* 単語カードの並びと、その最左右の移動ボタンを1行にまとめる（メール指示 2026-08-02）。
-   余白なし＝ボタンの位置がルームメニューの左右矢印とぴったり同じになる */
+   余白なし＝ボタンの位置がWORLDメニューの左右矢印とぴったり同じになる */
 .wd-pagerow{display:flex;align-items:center;gap:2px;padding:0}
 .wd-top{display:flex;justify-content:center;align-items:baseline;gap:22px;font-size:19px;font-weight:900;margin:2px 0 4px}
 /* 単語詳細はホームの真ん中（単語帳と同じ器）に入る。器ごと縦にスクロールする（メール指示 2026-08-02）。
-   左右の余白は単語帳と同じくゼロ＝ルームメニューの左右矢印を含む横幅と同じ（メール指示 2026-08-02） */
+   左右の余白は単語帳と同じくゼロ＝WORLDメニューの左右矢印を含む横幅と同じ（メール指示 2026-08-02） */
 .wd-center{padding:0 0 10px;box-sizing:border-box}
 .wd-center .wd-in{display:block}
 /* 一番下の「さらに下へ引くと単語帳へもどる」の表示は廃止（メール指示 2026-08-02）。
@@ -1448,8 +1438,8 @@ body.bigtext .set-d{font-size:13.5px}
 .wd-rval i{font-style:normal;font-size:12px;margin-left:1px}
 .wd-rval{color:#fff}
 .wd-rval.ms-stable{color:#37E08A}.wd-rval.ms-review{color:#FFD84D}.wd-rval.ms-urgent{color:#FF7B72}
-/* 単語詳細の最上部にあった「初級 ROOM xx」のルームメニューとタイトルの行は廃止（メール指示 2026-08-02）。
-   単語詳細はホームの真ん中に入るので、上のルームメニューはホームのものがそのまま見えている */
+/* 単語詳細の最上部にあった「初級 WORLD xx」のWORLDメニューとタイトルの行は廃止（メール指示 2026-08-02）。
+   単語詳細はホームの真ん中に入るので、上のWORLDメニューはホームのものがそのまま見えている */
 /* 単語詳細は器（真ん中）ごと縦にスクロールする。学習履歴は最後まで流し込み、
    その先まで引くと単語帳へ戻る（メール指示 2026-08-02） */
 .wd-center .tdetail-sec{margin:10px 0 0}
@@ -1479,7 +1469,7 @@ body.bigtext .set-d{font-size:13.5px}
 .wdetail-head .ko{font-size:26px;font-weight:800}
 .wdetail-head .ja{color:#FFFFFF;font-size:26px;font-weight:800;margin-top:2px}
 
-/* ============================================================ 特別ルーム「プリQQ」専用テーマ（#s-priqq配下だけ・通常ルームに影響なし。フォントは変更しない） ============================================================ */
+/* ============================================================ 特別WORLD「プリQQ」専用テーマ（#s-priqq配下だけ・通常WORLDに影響なし。フォントは変更しない） ============================================================ */
 #s-priqq{background:linear-gradient(180deg,#ffe3f1 0%,#ffeaf5 30%,#eef4ff 70%,#f3ecff 100%);color:#6a3d63;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 calc(24px + env(safe-area-inset-bottom))}
 #s-priqq *{box-sizing:border-box}
 @keyframes pqRainbow{0%{background-position:0% 50%}100%{background-position:200% 50%}}
@@ -1538,12 +1528,12 @@ body.bigtext .set-d{font-size:13.5px}
 /* トースト */
 .pq-toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);z-index:500;background:#fff;color:#ff5fa0;font-size:14px;font-weight:900;
   padding:12px 22px;border-radius:999px;box-shadow:0 6px 16px rgba(255,120,170,.4);border:2px solid #ffd0ea;animation:pqPop .3s ease}
-/* ROOM一覧マップの特別エントリ */
+/* WORLD一覧マップの特別エントリ */
 .rm-special{grid-column:1/-1;border:none;border-radius:18px;padding:12px;cursor:pointer;font-family:inherit;font-weight:900;font-size:15px;color:#fff;
   background:linear-gradient(90deg,#ff9ecb,#ff77aa,#c9a8ff,#9ecbff,#ff9ecb);background-size:250% 100%;animation:pqRainbow 9s linear infinite;
   box-shadow:0 4px 0 #e85f92;display:flex;align-items:center;justify-content:center;gap:8px}
 
-/* カルーセル内の特別ルームスライド（通常ROOMのレイアウトを流用しつつプリティー化。位置クラスはそのまま） */
+/* カルーセル内の特別WORLDスライド（通常WORLDのレイアウトを流用しつつプリティー化。位置クラスはそのまま） */
 .pq-slide .rmenu-bg{background:rgba(255,255,255,.55);box-shadow:inset 0 0 0 3px #ffb3d9,0 6px 14px rgba(255,120,170,.25)}
 .pq-slide .hv-roomlabel{color:#ff5fa0;text-shadow:0 2px 0 #fff}
 .pq-slide .hv-roomno{color:#ff5fa0 !important;font-size:40px;top:44px;text-shadow:0 2px 0 #fff,0 3px 8px rgba(255,120,170,.3)}
@@ -1552,7 +1542,7 @@ body.bigtext .set-d{font-size:13.5px}
 .pq-slide .hv-wordsg .gfill{background:linear-gradient(90deg,#ff9ecb,#c9a8ff)!important}
 .pq-slide .hv-roomg .gfill{background:linear-gradient(90deg,#ff77aa,#9ecbff)!important}
 .pq-slide .pq-badge{position:absolute;left:363px;top:70px;z-index:2;background:#fff;color:#c04ea0;font-size:12px;font-weight:900;letter-spacing:1px;padding:6px 12px;border-radius:12px;transform:rotate(8deg);box-shadow:0 3px 0 #ffd0ea;border:2px dashed #ffa8d6}
-/* 特別ルームのメイン画像部分（ジオラマの代わりのプリティー・ミニビジュアル） */
+/* 特別WORLDのメイン画像部分（ジオラマの代わりのプリティー・ミニビジュアル） */
 .pq-main{position:absolute;left:24px;top:120px;width:554px;height:507px;border-radius:34px;overflow:hidden;z-index:1;
   background:linear-gradient(115deg,#ffd6ec,#d9e6ff,#e7d6ff,#ffe0f0,#d6f0ff,#ffd6ec);background-size:200% 200%;animation:pqRainbow 14s linear infinite alternate;
   box-shadow:inset 0 0 0 4px #fff,0 8px 22px rgba(255,120,170,.25)}
@@ -1571,7 +1561,7 @@ body.bigtext .set-d{font-size:13.5px}
 #s-result.pq .res-score span{color:#8a6f83}
 #s-result.pq .res-cheer{color:#b23a86;text-shadow:none}
 #s-result.pq .res-btns .btn.line,#s-result.pq .res-btns .btn.wt,#s-result.pq .res-btns .btn.sec,#s-result.pq .res-btns .btn.ter{background:#3a2b36;color:#fff;border-color:#3a2b36}
-/* 特別ルーム選択中のスタートボタン（グローバルボタンをプリティーに） */
+/* 特別WORLD選択中のスタートボタン（グローバルボタンをプリティーに） */
 .home-wrap.pq-active .start-button{border:none!important;color:#fff!important;
   background:linear-gradient(90deg,#ff9ecb,#ff77aa,#c9a8ff,#9ecbff,#ff9ecb)!important;background-size:250% 100%!important;animation:pqRainbow 9s linear infinite;
   box-shadow:0 8px 0 #e85f92,0 16px 26px rgba(232,95,146,.4)!important;border-radius:62px}
@@ -1623,7 +1613,7 @@ body.bigtext .set-d{font-size:13.5px}
 .gres-dots i.ok{background:#FFC400;box-shadow:0 0 10px 2px rgba(255,196,0,.7)}
 .gres-cheer{font-size:14px;font-weight:800;color:rgba(255,255,255,.95);text-shadow:0 2px 5px rgba(0,0,0,.45);margin-bottom:22px}
 .gres .sp-res-wrap{margin:0 0 18px} /* 歯車モードの結果でも単語一覧の余白をそろえる */
-.gres .sp-res-w{background:rgba(0,0,0,.34)} /* 背景がROOMの色（明るいことがある）なので札は暗めにして白文字を読ませる */
+.gres .sp-res-w{background:rgba(0,0,0,.34)} /* 背景がWORLDの色（明るいことがある）なので札は暗めにして白文字を読ませる */
 /* ============================================================ スペシャルモード（ミニゲーム集） ============================================================ */
 #special-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.42)}
 #special-modal.on{display:flex}
@@ -1775,8 +1765,8 @@ body.bigtext .set-d{font-size:13.5px}
 .sp-memo-count{font-size:32px;font-weight:900;color:#FFC400;min-height:38px}
 
 /* ============================================================ スペシャル問題：シューティング（テストの中に1問だけ混ざるミニゲーム） ============================================================
- * 青ROOM: 下＝日本語の大砲3つ／上＝韓国語の風船3つ（組み合わせを当てる）
- * 赤ROOM: 上＝韓国語の風船1つ（出題）／下＝日本語の大砲4つ（4択）。正解の大砲で撃つ。
+ * 青WORLD: 下＝日本語の大砲3つ／上＝韓国語の風船3つ（組み合わせを当てる）
+ * 赤WORLD: 上＝韓国語の風船1つ（出題）／下＝日本語の大砲4つ（4択）。正解の大砲で撃つ。
  * 大砲は左右スワイプ（ダイヤル）で傾き、タップ（連打）で発射。5発当てると割れ、割れた位置から玉が落ちてくる。
  * 背景はスペシャル感のある夜景（星空＋月＋シルエットの木）。 */
 .shg{position:relative;flex:1;min-height:0;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
@@ -1863,7 +1853,7 @@ body.bigtext .set-d{font-size:13.5px}
 .shg-clear.on{animation:shgClear .5s cubic-bezier(.34,1.5,.5,1) forwards}
 @keyframes shgClear{to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 
-/* ============================================================ スペシャル問題：パズル穴うめ（緑ROOM） ============================================================
+/* ============================================================ スペシャル問題：パズル穴うめ（緑WORLD） ============================================================
  * 日本語の意味に対する韓国語を、1文字だけ抜いたジグソーパズルとして出す。
  * 抜けた場所と同じ形のピースが4つ並び、正しいピースを選んではめる。全12問がこの形式。 */
 .pz{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;
@@ -1910,20 +1900,20 @@ body.bigtext .set-d{font-size:13.5px}
 .pz-p.wrong{background:#2F8BFF}    /* ×=青 */
 .pz-p.gone{opacity:.25}
 
-/* ============================================================ すごろく（ROOM中央・縦スクロール） ============================================================
+/* ============================================================ すごろく（WORLD中央・縦スクロール） ============================================================
  * 1マス＝1テスト(12問)。丸いマスが蛇行してつながり、上から下へ進む。マスの上には常に単語画像が乗る。
- * 1周＝12マス（ROOM末尾など語数の少ない部屋は語数に比例して短くなる）。1周こなすと次の周のマスが下に伸びる。 */
+ * 1周＝12マス（WORLD末尾など語数の少ない部屋は語数に比例して短くなる）。1周こなすと次の周のマスが下に伸びる。 */
 /* 器の下端は画面のいちばん下(1178px)まで。もとは636px(下端925px)で止めていたが、
    「最近学んだ単語」の帯を廃止したあとの 925〜1178px が空きっぱなしになるので、
    そこまでマスを見せる（メール指示 2026-08-02 22:36）。889px = 1178 -(スライド185 + 器104) */
 .sg-wrap{position:absolute;left:24px;top:104px;width:554px;height:889px;z-index:1;overflow:hidden;
   -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 40px,#000 calc(100% - 56px),transparent 100%);
           mask-image:linear-gradient(180deg,transparent 0,#000 40px,#000 calc(100% - 56px),transparent 100%)}
-.sg-bg{display:none;position:absolute;left:0;top:-10px;width:554px;height:507px;object-fit:contain;opacity:.2;pointer-events:none;filter:saturate(.7)} /* ROOMのジオラマ背景は一旦非表示（メール指示 2026-08-02）。display:none を外せば元に戻る */
+.sg-bg{display:none;position:absolute;left:0;top:-10px;width:554px;height:507px;object-fit:contain;opacity:.2;pointer-events:none;filter:saturate(.7)} /* WORLDのジオラマ背景は一旦非表示（メール指示 2026-08-02）。display:none を外せば元に戻る */
 .sg-scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .sg-scroll::-webkit-scrollbar{display:none}
 .sg-track{position:relative;width:554px}
-.sg-tile{transform-origin:50% 50%} /* will-changeは付けない: ROOM数×マス数ぶんGPUレイヤーが作られてページが落ちるため */
+.sg-tile{transform-origin:50% 50%} /* will-changeは付けない: WORLD数×マス数ぶんGPUレイヤーが作られてページが落ちるため */
 .sg-road{position:absolute;left:0;top:0;pointer-events:none}
 .sg-deco{position:absolute;z-index:0;pointer-events:none;user-select:none;object-fit:contain;filter:drop-shadow(0 5px 5px rgba(0,0,0,.24))}
 .sg-tile{position:absolute;z-index:1;width:96px;height:96px;margin:-48px 0 0 -48px;border:none;background:transparent;padding:0;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
@@ -1959,7 +1949,7 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-here span:nth-child(3){animation-delay:.3s}
 .sg-here span:nth-child(4){animation-delay:.45s}
 .sg-here::after{content:"";position:absolute;left:50%;bottom:-10px;margin-left:-10px;border:10px solid transparent;border-top-color:#111;border-bottom:0}
-/* スペシャル問題が出ているROOMのスタート：白座布団＋色枠（青＝風船マッチ／赤＝4択シューティング／緑＝パズル穴うめ） */
+/* スペシャル問題が出ているWORLDのスタート：白座布団＋色枠（青＝風船マッチ／赤＝4択シューティング／緑＝パズル穴うめ） */
 .sg-here.sp{background:#fff;color:#1868FF;box-shadow:0 6px 16px rgba(0,0,0,.35),0 0 0 4px #1868FF}
 .sg-here.sp::after{border-top-color:#fff}
 .sg-here.sp-red{color:#E4002B;box-shadow:0 6px 16px rgba(0,0,0,.35),0 0 0 4px #E4002B}
@@ -1994,7 +1984,7 @@ body.bigtext .set-d{font-size:13.5px}
 /* 中身は文字を置かず、Googleマップの現在地ボタンと同じくコンパスの針アイコンだけ（黒座布団＋黄色枠は据え置き） */
 /* 現在地／今日の5問／今週のミッションの3ボタンは、すごろくの器(.sg-wrap＝左右24px内側・はみ出しを切る)ではなく
    スライド直下に置く。こうするとアイコン群(.reward-rail)と同じ左右14pxに揃えられる。
-   bottom:-28px ＝ 旧12px から、ルームメニューを詰めてスライドを40px上げた（top:225→185px）ぶんを引いた値。
+   bottom:-28px ＝ 旧12px から、WORLDメニューを詰めてスライドを40px上げた（top:225→185px）ぶんを引いた値。
    これで画面上の高さは今までどおり（下から279px＝今日の5問と同じ行）に残る（メール指示 2026-08-02 16:54） */
 /* 丸の大きさ(68px)と横位置(14px)は右のアイコン群(.reward-rail .rr-btn)に揃える */
 .sg-home{position:absolute;right:14px;bottom:-28px;z-index:60;border:none;padding:0;width:68px;height:68px;border-radius:50%;
@@ -2006,7 +1996,7 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-home.on{opacity:1;pointer-events:auto;transform:none}
 .sg-home.on:active{transform:scale(.9)}
 /* 今日の5問（すごろく下・中央のカプセル）。現在地ボタンと同じ高さに置く。
-   ROOMを切り替えても動かないよう、スライドの中ではなく home-wrap 直下のフロート1組にしてある */
+   WORLDを切り替えても動かないよう、スライドの中ではなく home-wrap 直下のフロート1組にしてある */
 .sg-d5{position:absolute;left:50%;bottom:var(--fbtm);z-index:60;border:none;padding:11px 26px 13px;border-radius:999px;
   background:#fff;color:#111;font-size:26px;font-weight:900;letter-spacing:.08em;white-space:nowrap;cursor:pointer;font-family:inherit;
   box-shadow:0 8px 18px rgba(0,0,0,.55);transform:translateX(-50%);transition:transform .16s ease,opacity .2s ease}
@@ -2071,88 +2061,107 @@ body.bigtext .set-d{font-size:13.5px}
   font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;line-height:1;padding:0 5px;box-sizing:border-box}
 .sg-mission.ms-clear .ms-b{background:#00924A}
 /* --- 統合ポップアップ（上＝今週のミッション／下＝今日の5問。メール指示 2026-08-08） ---
-   ことばを減らし、ダーク地＋リング・チップ・バーの図だけで進み具合が分かるようにした */
-.d5-card.u5-card{width:322px;background:#12141B;color:#fff;border-radius:24px;padding:15px 13px 13px;text-align:left;
-  box-shadow:0 18px 44px rgba(0,0,0,.62)}
-.d5-card.u5-card::after{border-top-color:#12141B}
-.d5-card.u5-card.flip::after{border-bottom-color:#12141B}
-.d5-card.u5-card.edge-l::after{border-top-color:#12141B;border-right-color:#12141B;border-left-color:transparent}
-.d5-card.u5-card.edge-r::after{border-top-color:#12141B;border-left-color:#12141B;border-right-color:transparent}
-.u5-card .d5-close{color:#6D7383}
-.u5-card .d5-close:active{background:rgba(255,255,255,.12)}
+   ダーク地と小さな英字（MISSION/TODAY）はやめ、白地＋リング・チップ・バーの図で進み具合を見せる
+   （メール指示 2026-08-08 22:26） */
+.d5-card.u5-card{width:322px;background:#fff;color:#1A1C22;border-radius:24px;padding:15px 13px 13px;text-align:left;
+  box-shadow:0 16px 40px rgba(0,0,0,.28)}
+.u5-card .d5-close{color:#B0B5BE}
+.u5-card .d5-close:active{background:rgba(0,0,0,.07)}
 .u5-hd{display:flex;align-items:center;gap:8px;padding:0 1px 9px}
 /* 閉じるボタン(×)が置かれる1つめの見出しだけ、右にその場所を空ける */
 .d5-card.u5-card .d5-close+.u5-sec .u5-hd,.d5-card.u5-card .d5-close+.u5-hd{padding-right:32px}
-.u5-kick{font-size:9px;font-weight:900;letter-spacing:.26em;color:#FFC400;flex:0 0 auto}
-.u5-ti{font-size:15px;font-weight:900;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 見出しの左に色の帯を1本引くだけ（英字のラベルは置かない） */
+.u5-ti{font-size:15px;font-weight:900;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  padding-left:9px;border-left:4px solid #FFC400;line-height:1.25}
 /* 達成数はドーナツ（円グラフ）で見せる */
 .u5-ring{flex:0 0 auto;position:relative;width:42px;height:42px;border-radius:50%;text-align:center;
-  background:conic-gradient(#FFC400 calc(var(--p,0) * 1%),rgba(255,255,255,.13) 0)}
-.u5-ring::before{content:"";position:absolute;inset:4px;border-radius:50%;background:#12141B}
+  background:conic-gradient(#FFC400 calc(var(--p,0) * 1%),#EDEFF3 0)}
+.u5-ring::before{content:"";position:absolute;inset:4px;border-radius:50%;background:#fff}
 .u5-ring b{position:relative;font-size:16px;font-weight:900;line-height:42px}
-.u5-ring i{position:relative;font-style:normal;font-size:9.5px;font-weight:900;color:#8B91A1}
-.u5-ring.full{background:conic-gradient(#37D67A 100%,#37D67A 0)}
-.u5-ring.full b{color:#37D67A}
-.u5-streak{flex:0 0 auto;font-size:10.5px;font-weight:900;color:#FFB24D;background:rgba(255,178,77,.15);border-radius:999px;padding:4px 10px}
+.u5-ring i{position:relative;font-style:normal;font-size:9.5px;font-weight:900;color:#8A8F98}
+.u5-ring.full{background:conic-gradient(#1FAD62 100%,#1FAD62 0)}
+.u5-ring.full b{color:#1FAD62}
+.u5-streak{flex:0 0 auto;font-size:10.5px;font-weight:900;color:#C24A00;background:#FFF3D6;border-radius:999px;padding:4px 10px}
 .u5-streak b{font-size:14px;margin:0 1px}
-.u5-div{height:1px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.2),rgba(255,255,255,0));margin:13px 0 12px}
+.u5-div{height:1px;background:#ECEEF2;margin:13px 0 12px}
 /* ミッション1行＝アイコン・見出し・バー。数字は右に小さく */
 .ms-list{display:flex;flex-direction:column;gap:5px}
 .ms-row{display:flex;align-items:center;gap:9px;width:100%;box-sizing:border-box;text-align:left;border:none;border-radius:13px;
-  background:rgba(255,255,255,.055);padding:8px 10px;font-family:inherit;cursor:default;-webkit-tap-highlight-color:transparent}
-.ms-row.tapable{cursor:pointer;background:rgba(255,196,0,.12)}
-.ms-row.tapable:active{background:rgba(255,196,0,.22)}
-.ms-row.done{background:rgba(55,214,122,.1)}
-.ms-ico{flex:0 0 27px;width:27px;height:27px;border-radius:9px;background:rgba(255,255,255,.1);
+  background:#F4F5F8;padding:8px 10px;font-family:inherit;cursor:default;-webkit-tap-highlight-color:transparent}
+.ms-row.tapable{cursor:pointer;background:#FFF6DC}
+.ms-row.tapable:active{background:#FFEDB8}
+.ms-row.done{background:#EAF8F0}
+.ms-ico{flex:0 0 27px;width:27px;height:27px;border-radius:9px;background:#E4E7ED;
   display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1}
-.ms-row.done .ms-ico{background:#37D67A;color:#0B2F1B;font-size:15px}
+.ms-row.done .ms-ico{background:#1FAD62;color:#fff;font-size:15px}
 .ms-body{flex:1;min-width:0}
-.ms-t{display:block;font-size:12px;font-weight:900;color:#fff;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ms-row.done .ms-t{color:#8B91A1}
-.ms-bar{display:block;height:4px;background:rgba(255,255,255,.12);margin-top:6px;border-radius:999px;overflow:hidden}
+.ms-t{display:block;font-size:12px;font-weight:900;color:#1A1C22;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ms-row.done .ms-t{color:#7C838E}
+.ms-bar{display:block;height:4px;background:#E1E4EA;margin-top:6px;border-radius:999px;overflow:hidden}
 .ms-bar i{display:block;height:100%;background:linear-gradient(90deg,#FFC400,#FF8A00);border-radius:999px;transition:width .4s ease}
-.ms-row.done .ms-bar i{background:#37D67A}
-.ms-n{flex:0 0 auto;font-size:13.5px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;line-height:1}
-.ms-n em{font-style:normal;font-size:9.5px;font-weight:900;color:#8B91A1}
-.ms-all{font-size:11.5px;font-weight:900;color:#37D67A;margin-top:9px;text-align:center}
+.ms-row.done .ms-bar i{background:#1FAD62}
+.ms-n{flex:0 0 auto;font-size:13.5px;font-weight:900;color:#1A1C22;font-variant-numeric:tabular-nums;line-height:1}
+.ms-n em{font-style:normal;font-size:9.5px;font-weight:900;color:#8A8F98}
+.ms-all{font-size:11.5px;font-weight:900;color:#1FAD62;margin-top:9px;text-align:center}
 /* 今日の5問：朝／夜の2チップ＋大きなボタン */
 .u5-card .d5-slots{display:flex;gap:7px;margin:0 0 10px}
-.u5-card .d5-slot{flex:1;padding:8px 4px;text-align:center;background:rgba(255,255,255,.055);border:none;border-radius:13px}
-.u5-card .d5-slot.now{background:rgba(255,196,0,.14);box-shadow:0 0 0 1.5px rgba(255,196,0,.6) inset}
-.u5-card .d5-slot .d5-sl{font-size:10.5px;font-weight:900;color:#8B91A1;line-height:1.4}
-.u5-card .d5-slot .d5-sv{font-size:14px;font-weight:900;margin-top:2px;color:#fff}
-.u5-card .d5-slot .d5-sv.ok{color:#FFC400}
-.u5-card .d5-slot .d5-sv.no{color:#5D6373}
+.u5-card .d5-slot{flex:1;padding:8px 4px;text-align:center;background:#F4F5F8;border:none;border-radius:13px}
+.u5-card .d5-slot.now{background:#FFF6DC;box-shadow:0 0 0 1.5px #FFC400 inset}
+.u5-card .d5-slot .d5-sl{font-size:10.5px;font-weight:900;color:#8A8F98;line-height:1.4}
+.u5-card .d5-slot .d5-sv{font-size:14px;font-weight:900;margin-top:2px;color:#1A1C22}
+.u5-card .d5-slot .d5-sv.ok{color:#C24A00}
+.u5-card .d5-slot .d5-sv.no{color:#B0B5BE}
 .u5-card .d5-go{background:#FFC400;color:#191100;border-radius:14px;padding:14px;letter-spacing:.02em}
 .u5-card .d5-go:active{background:#F0B800}
-.u5-card .d5-ghost{border:none;background:rgba(255,255,255,.08);color:#C9CED9;border-radius:12px}
-.u5-card .d5-ghost:active{background:rgba(255,255,255,.16)}
-.u5-card .d5-wait{background:rgba(255,255,255,.055);border-radius:13px;padding:10px;text-align:center}
-.u5-card .d5-wait .d5-wt{color:#8B91A1}
-.u5-card .d5-wait .d5-wv{color:#fff}
-.u5-card .d5-again{background:rgba(255,138,0,.14);color:#FFB24D;border-radius:11px;text-align:center;padding:7px 6px}
-.u5-card .d5a-note{background:rgba(255,255,255,.055);color:#C9CED9;border-radius:11px}
-.u5-card .d5a-note b{color:#FFC400}
-.u5-card .d5a-cd{color:#8B91A1;text-align:center}
-.u5-card .d5a-cd b{color:#fff}
-.u5-card .d5a-bar{background:rgba(255,255,255,.12);border-radius:999px}
+.u5-card .d5-ghost{border:none;background:#F0F1F5;color:#4A505A;border-radius:12px}
+.u5-card .d5-ghost:active{background:#E3E5EB}
+.u5-card .d5-wait{background:#F4F5F8;border-radius:13px;padding:10px;text-align:center}
+.u5-card .d5-wait .d5-wt{color:#8A8F98}
+.u5-card .d5-wait .d5-wv{color:#1A1C22}
+.u5-card .d5-again{background:#FFF3D6;color:#C24A00;border-radius:11px;text-align:center;padding:7px 6px}
+.u5-card .d5a-note{background:#F4F5F8;color:#4A505A;border-radius:11px}
+.u5-card .d5a-note b{color:#C24A00}
+.u5-card .d5a-cd{color:#8A8F98;text-align:center}
+.u5-card .d5a-cd b{color:#1A1C22}
+.u5-card .d5a-bar{background:#E1E4EA;border-radius:999px}
 .u5-card .d5a-bar div{background:#FFC400}
-/* --- 育成ゲームのメニュー（左下の丸から出す吹き出し。キャラクターとごはんボタンだけ） --- */
+/* --- 育てるメニュー（左下の丸から出す吹き出し）。デザイン刷新：白地・キャラを主役に、
+       状態は3つの丸ゲージだけで見せる（メール指示 2026-08-08 22:26） --- */
 #petmenu-modal{position:fixed;inset:0;z-index:400;display:none;background:rgba(0,0,0,.34)}
 #petmenu-modal.on{display:block}
-.pm-card{width:272px}
-.pm-lv{flex:0 0 auto;font-size:10.5px;font-weight:900;color:#8B91A1}
-.pm-lv b{font-size:15px;color:#fff;margin-left:2px}
-.pm-card .pt-art{border:none;border-radius:14px;margin:0}
-.pm-bar{height:5px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin:9px 0 8px}
+.pm-card{width:276px}
+.pm-card .pt-art{border:none;border-radius:16px;margin:0}
+.pm-lv{flex:0 0 auto;font-size:10.5px;font-weight:900;color:#8A8F98}
+.pm-lv b{font-size:15px;color:#1A1C22;margin-left:2px}
+/* つぎのレベルまでの伸び具合 */
+.pm-bar{height:6px;background:#E1E4EA;border-radius:999px;overflow:hidden;margin:9px 0 9px}
 .pm-bar i{display:block;height:100%;background:linear-gradient(90deg,#FFC400,#FF8A00);border-radius:999px;transition:width .4s ease}
-.pm-st{display:flex;gap:6px;margin-bottom:9px}
-.pm-st span{flex:1;text-align:center;background:rgba(255,255,255,.055);border-radius:11px;padding:6px 2px;
-  font-size:9.5px;font-weight:900;color:#8B91A1;line-height:1.3}
-.pm-st b{display:block;font-size:14px;color:#fff}
-.pm-msg{font-size:11.5px;font-weight:900;color:#37D67A;background:rgba(55,214,122,.12);border-radius:11px;
+/* ごはん・親密度・韓国語力を、同じ大きさの丸ゲージ3つで並べる */
+.pm-st{display:flex;gap:7px;margin-bottom:9px}
+.pm-ring{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.pm-ring span{position:relative;width:54px;height:54px;border-radius:50%;
+  background:conic-gradient(var(--c,#FFC400) calc(var(--p,0) * 1%),#EDEFF3 0);
+  display:flex;align-items:center;justify-content:center}
+.pm-ring span::before{content:"";position:absolute;inset:4px;border-radius:50%;background:#fff}
+.pm-ring b{position:relative;font-size:15px;font-weight:900;color:#1A1C22;line-height:1}
+.pm-ring em{font-style:normal;font-size:9.5px;font-weight:900;color:#8A8F98;letter-spacing:.02em}
+.pm-msg{font-size:11.5px;font-weight:900;color:#0E7A45;background:#EAF8F0;border-radius:11px;
   padding:7px 6px;margin-bottom:8px;text-align:center;line-height:1.4}
 .pm-card .d5-ghost{margin-top:7px}
+/* --- ごはんが足りないとき：集めかたを1枚で見せる（メール指示 2026-08-08 22:26） --- */
+.pm-need{font-size:11.5px;font-weight:900;color:#C24A00;background:#FFF3D6;border-radius:11px;
+  padding:8px 6px;margin-bottom:9px;text-align:center;line-height:1.45}
+.pm-need b{font-size:14px;margin:0 2px}
+.pm-way{display:flex;flex-direction:column;gap:5px;margin-bottom:9px}
+.pm-way button{display:flex;align-items:center;gap:9px;width:100%;box-sizing:border-box;text-align:left;border:none;border-radius:13px;
+  background:#F4F5F8;padding:8px 10px;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pm-way button:active{background:#E3E5EB}
+.pm-way .pw-ico{flex:0 0 27px;width:27px;height:27px;border-radius:9px;background:#E4E7ED;
+  display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1}
+.pm-way .pw-b{flex:1;min-width:0}
+.pm-way .pw-t{display:block;font-size:12px;font-weight:900;color:#1A1C22;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pm-way .pw-s{display:block;font-size:9.5px;font-weight:900;color:#8A8F98;margin-top:2px;line-height:1.3}
+.pm-way .pw-n{flex:0 0 auto;font-size:13px;font-weight:900;color:#C24A00;line-height:1}
 /* --- 消化直後の演出 --- */
 /* 中央のカプセルが横に伸びながら縮み、左のアイコンへ吸い込まれるように収まる（--flyx＝中央から今の位置までの距離） */
 @keyframes sgFlyLeft{
@@ -2194,7 +2203,7 @@ body.bigtext .set-d{font-size:13.5px}
 .lap-btns button{border:none;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit}
 .lap-btns .lb-next{background:#FFC400;color:#2b1a00}
 .lap-btns .lb-stay{background:transparent;border:2px solid rgba(255,255,255,.45);color:#fff}
-/* ROOMごとのすごろく進捗チップは廃止し、ルームメニューの .hv-lap へ移した（メール指示 2026-07-31） */
+/* WORLDごとのすごろく進捗チップは廃止し、WORLDメニューの .hv-lap へ移した（メール指示 2026-07-31） */
 /* 今日の5問の連続記録 */
 .d5-streak{display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:900;color:#C24A00;margin-top:3px}
 .d5-streak b{font-size:17px}
@@ -2311,10 +2320,7 @@ body.bigtext .set-d{font-size:13.5px}
 .pt-line{margin-top:8px;background:#FFF7E0;border:2px solid #FFE39A;padding:6px 8px}
 .pt-line b{display:block;font-size:14px;font-weight:900;color:#8a5a00;line-height:1.3}
 .pt-line span{display:block;font-size:10.5px;font-weight:800;color:#999;margin-top:2px}
-.pt-st{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:8px}
-.pt-st span{font-size:10px;font-weight:900;color:#777;background:#F2F2F2;border:2px solid #E3E3E3;padding:3px 7px}
-.pt-bar{height:8px;background:#EDEDED;border:2px solid #E3E3E3;margin-top:8px;overflow:hidden}
-.pt-bar i{display:block;height:100%;background:#FFC400;transition:width .35s ease}
+/* ※.pt-st / .pt-bar は育成画面の簡素化で廃止し、育てるメニューと同じ .pm-st / .pm-bar に統一した（メール指示 2026-08-08 22:26） */
 .pt-next{font-size:10.5px;font-weight:800;color:#999;margin-top:5px;line-height:1.45}
 .pt-alb{margin-top:10px;border-top:2px solid #EDEDED;padding-top:7px}
 .pt-albh{font-size:9.5px;font-weight:900;color:#999;letter-spacing:.06em;text-align:left}
@@ -2466,7 +2472,7 @@ body.bigtext .set-d{font-size:13.5px}
         <button class="hd-btn" id="hd-set" onclick="openSettings()" aria-label="設定"><img src="icons/settings.webp" alt="設定" onerror="this.replaceWith(document.createTextNode('⚙'))"></button>
         <button class="hd-btn" id="hd-menu" onclick="openHomeMenu()" aria-label="メニュー"><span class="hd-bars" aria-hidden="true"><i></i><i></i><i></i></span></button>
       </div>
-      <!-- 左のアイコン3つ（ROOM一覧／カレンダー／スペシャル）は、ハンバーガーメニューに入れたので廃止（メール指示 2026-08-02 19:24）。
+      <!-- 左のアイコン3つ（WORLD一覧／カレンダー／スペシャル）は、ハンバーガーメニューに入れたので廃止（メール指示 2026-08-02 19:24）。
            プレゼント・ガチャの丸アイコン(.sg-gift)は左下＝今日の5問の縮まった丸の上へ（メール指示 2026-08-02 20:47） -->
       <div class="status-panel"></div>
       <div class="hv-lab hv-xplabel">XP</div>
@@ -2483,8 +2489,8 @@ body.bigtext .set-d{font-size:13.5px}
       <!-- 隣のページへ：スライドごとに置かず、home-wrap直下のフロート1組で全ページ共通 -->
       <button class="rm-arrow rm-prev" id="rm-prev" onclick="stepRoom(-1)" aria-label="前のページへ">‹</button>
       <button class="rm-arrow rm-next" id="rm-next" onclick="stepRoom(1)" aria-label="次のページへ">›</button>
-      <!-- ROOMが横に並んでいることは触ってみないと分からないので、1度も切りかえていない間だけヒントを出す -->
-      <div id="room-hint" style="display:none"><span class="rh-a rh-l"></span><span class="rh-t">スワイプでROOMを切りかえ</span><span class="rh-a rh-r"></span></div>
+      <!-- WORLDが横に並んでいることは触ってみないと分からないので、1度も切りかえていない間だけヒントを出す -->
+      <div id="room-hint" style="display:none"><span class="rh-a rh-l"></span><span class="rh-t">スワイプでWORLDを切りかえ</span><span class="rh-a rh-r"></span></div>
       <button class="wb-back" id="wb-back" onclick="exitListMode()" aria-label="ホームに戻る">‹</button>
       <!-- 今日の5問／今週のミッション／育成ゲーム：スライドごとに置かず、home-wrap直下のフロート1組で全ページ共通 -->
       <div id="home-fbtn"></div>
@@ -2526,7 +2532,7 @@ body.bigtext .set-d{font-size:13.5px}
   <div class="screen" id="s-curve"></div>
   <!-- TYPE DETAIL -->
   <div class="screen" id="s-type"></div>
-  <!-- SPECIAL ROOM: プリQQ -->
+  <!-- SPECIAL WORLD: プリQQ -->
   <div class="screen" id="s-priqq"></div>
 </div>
 <div id="present-modal"></div>
@@ -2538,11 +2544,11 @@ body.bigtext .set-d{font-size:13.5px}
 <div id="pet-modal"></div><!-- ことばの友だち（動物育成。メール指示 2026-08-06 の続き） -->
 <div id="petmenu-modal"></div><!-- 育成ゲームのメニュー（メール指示 2026-08-08） -->
 <div id="petevo-modal"></div><!-- 進化の全画面演出（メール指示 2026-08-06 23:54 のPhase2） -->
-<!-- ハンバーガーメニューの吹き出し（カレンダー／ROOM一覧／スペシャルモードのカプセル3つ。メール指示 2026-08-02） -->
+<!-- ハンバーガーメニューの吹き出し（カレンダー／WORLD一覧／スペシャルモードのカプセル3つ。メール指示 2026-08-02） -->
 <div id="menu-modal">
   <div class="d5-card hm-card">
     <button class="hm-cap" onclick="closeHomeMenu();openCalendar()"><img src="icons/calendar.webp" alt=""><span>カレンダー</span></button>
-    <button class="hm-cap" onclick="closeHomeMenu();openRoomMap()"><img src="icons/map.webp" alt=""><span>ROOM一覧</span></button>
+    <button class="hm-cap" onclick="closeHomeMenu();openRoomMap()"><img src="icons/map.webp" alt=""><span>WORLD一覧</span></button>
     <button class="hm-cap" onclick="closeHomeMenu();openSpecial()"><img src="images-thumb/0731.webp" alt=""><span>スペシャルモード</span></button>
     <button class="hm-cap" onclick="closeHomeMenu();openPet()"><span class="hm-emo" aria-hidden="true">🐶</span><span>ことばの友だち</span></button>
   </div>
@@ -2559,7 +2565,7 @@ body.bigtext .set-d{font-size:13.5px}
 <div id="history-modal"></div>
 <div id="map-modal"></div>
 <div id="rotate-hint">📱 縦向きでのご利用がおすすめです</div>
-<!-- パズル穴うめ（緑ROOM）のピース形。左が凹・右が凸で、横に並べるとかみ合う。穴もピースも同じ形を使う -->
+<!-- パズル穴うめ（緑WORLD）のピース形。左が凹・右が凸で、横に並べるとかみ合う。穴もピースも同じ形を使う -->
 <svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs>
   <clipPath id="pzclip" clipPathUnits="objectBoundingBox">
     <path d="M0.12,0.03 H0.86 V0.36 C1.02,0.36 1.02,0.64 0.86,0.64 V0.97 H0.12 V0.64 C0.28,0.64 0.28,0.36 0.12,0.36 Z"/>
@@ -2715,7 +2721,7 @@ const LEVEL_SECTIONS={
   beginner:(()=>{const m={};BEGINNER_WORDS.forEach(w=>{(m[w.sec]=m[w.sec]||[]).push(w.id);});return m;})()
 };
 const LEVEL_INFO={beginner:{label:"初級",count:17},middle:{label:"中級",count:27}};
-let curLevel="beginner",curSection=1; // 初期表示は初級ROOM01（前回ROOMがあれば復元で上書き）
+let curLevel="beginner",curSection=1; // 初期表示は初級WORLD01（前回WORLDがあれば復元で上書き）
 const secId=n=>curLevel+"-"+String(n).padStart(2,"0");
 function sectionIds(){return LEVEL_SECTIONS[curLevel][curSection]||LEVEL_SECTIONS.middle[1];}
 function sectionPoolWords(){return sectionIds().map(id=>WORD_BY_ID[id]);}
@@ -2953,7 +2959,7 @@ function pruneHistory(){
 let _secOfWord=null;
 function secOfWord(){if(_secOfWord)return _secOfWord;const m={};["beginner","middle"].forEach(lv=>{const L=LEVEL_SECTIONS[lv]||{};Object.keys(L).forEach(n=>{(L[n]||[]).forEach(id=>{m[id]=lv+"-"+n;});});});_secOfWord=m;return m;}
 function roomsPlayed(){const m=secOfWord(),set=new Set();loadHistory().forEach(r=>{const k=m[r.wordId];if(k)set.add(k);});return set.size;}
-/* 達成ボーナス（毎日起動/特別日→daily、回数/ROOM種類→level）。各1回 */
+/* 達成ボーナス（毎日起動/特別日→daily、回数/WORLD種類→level）。各1回 */
 function checkAchievements(){
   migrateRankPresents(); // 受け取っていない「テストのごほうび」はガチャ1回へ引っ越す（メール指示 2026-08-01）
   const st=_presentState();st.achv=st.achv||{};let changed=false;
@@ -2966,7 +2972,7 @@ function checkAchievements(){
   if(tt>=3)add("tests3","3回プレイ達成",100,"daily");
   if(tt>=5)add("tests5","5回プレイ達成",200,"daily");
   if(tt>=10)add("tests10","10回プレイ達成",300,"daily");
-  if(roomsPlayed()>=3)add("rooms3","3種類のROOM達成",150,"daily");
+  if(roomsPlayed()>=3)add("rooms3","3種類のWORLD達成",150,"daily");
   if(changed)_savePresent(st);
   updatePresent();
 }
@@ -3089,7 +3095,7 @@ function claimAllPresents(){
   sfxClaim();addBonus(sum);if(tk)addRestTicket(tk);
   coins.forEach(r=>addGachaSpin(r.total,r.rank||""));
   rects.forEach((r,i)=>setTimeout(()=>flyClaimToBox(r,cat),i*90)); // 少しずつずらしてアーチで箱へ
-  updatePresent();updateHomeStats(); // XP等だけ更新（ROOMスライドは再構築しない）
+  updatePresent();updateHomeStats(); // XP等だけ更新（WORLDスライドは再構築しない）
   openPresent(cat); // 空になったカードに切替（モーダルは開いたまま）
 }
 function claimPresentItem(btn){
@@ -3109,7 +3115,7 @@ function claimPresentItem(btn){
   btn.classList.add("claimed");
   btn.querySelector(".amt").textContent="受け取り済み";
   updatePresent();
-  updateHomeStats(); // XP表示だけ更新（ROOMスライド再構築なし・モーダルは開いたまま）
+  updateHomeStats(); // XP表示だけ更新（WORLDスライド再構築なし・モーダルは開いたまま）
   const title=document.querySelector("#present-modal .pm-title");
   const n=presentsAvailable(_presCat);
   if(title)title.textContent=PRES_LABEL[_presCat]+(n>0?`が ${n} 個`:" 完了！");
@@ -3325,9 +3331,9 @@ function roomInfo(){
     pwr:learned.length?Math.round(pw/learned.length):0,
     recent:(rec.recentRanks||[]).slice(-2),best:rec.bestRank};
 }
-/* ROOMごとの背景色（淡色パレットを循環） */
+/* WORLDごとの背景色（淡色パレットを循環） */
 const ROOM_BGS=["#E3A38D","#8FB6DC","#9CC79A","#C7A6D9","#DCC98F","#DC9AAE","#8FCFC4","#B0AFD9"];
-/* ルームの色の濃さは設定のバーで自由に決められる（メール指示 2026-08-02）。
+/* WORLDの色の濃さは設定のバーで自由に決められる（メール指示 2026-08-02）。
    0＝いまの色、100＝真っ黒。あいだは1きざみで好きなところに置ける。
    ※以前の4段階（0〜3）の設定は、いちばん近い濃さに読みかえる（濃い灰色→48%） */
 const _ROOM_TONE_LEGACY=[0,14,30,48];
@@ -3351,7 +3357,7 @@ function roomBg(n){
   const key=base+"|"+t;
   return _roomBgCache[key]||(_roomBgCache[key]=_shadeHex(base,1-t/100,false)); // 100で真っ黒
 }
-/* 設定のバーでルームの色の濃さを変える。スライドは色を持って作り直されるので組み直してから背景も合わせる。
+/* 設定のバーでWORLDの色の濃さを変える。スライドは色を持って作り直されるので組み直してから背景も合わせる。
    バーを動かしている最中に呼ばれるので、設定画面そのものは作り直さない（つまみが飛んでしまうため） */
 function setRoomTone(t){
   const v=Math.max(0,Math.min(100,parseInt(t,10)||0));
@@ -3360,7 +3366,7 @@ function setRoomTone(t){
   const sw=document.getElementById("tone-sw");if(sw)sw.style.background=roomBg(curSection);
   const lb=document.getElementById("tone-lab");if(lb)lb.textContent=roomToneLabel(v);
 }
-/* 上下端（ステータスバー/ホームバー領域）・全画面の背景をROOM色に統一 */
+/* 上下端（ステータスバー/ホームバー領域）・全画面の背景をWORLD色に統一 */
 function applyBgAll(bg){
   const sc=document.getElementById("s-home"),app=document.querySelector(".app"),wrap=document.getElementById("homewrap");
   if(sc)sc.style.background=bg;
@@ -3371,11 +3377,11 @@ function applyBgAll(bg){
 }
 function applyHomeBg(){applyBgAll(roomBg(curSection));}
 
-/* ROOM選択：番号・パラメータ・ジオラマを1スライドにまとめ、丸ごと左右スワイプ */
+/* WORLD選択：番号・パラメータ・ジオラマを1スライドにまとめ、丸ごと左右スワイプ */
 let _roomScrollT=null,_listMode=false;
 let _wdId=null; // 単語詳細としてホームの真ん中に出している単語（null＝単語帳の一覧。メール指示 2026-08-02）
-/* 単語一覧モード：ROOMメニューが上へスライドし、下に単語一覧。横スワイプで隣のROOMの一覧へ */
-const LIFT_MAX=140; // ROOMメニューが最上部に達するまでの移動量（slide-innerをさらに40px上げたぶん減らし、一覧モードの位置は従来どおり）
+/* 単語一覧モード：WORLDメニューが上へスライドし、下に単語一覧。横スワイプで隣のWORLDの一覧へ */
+const LIFT_MAX=140; // WORLDメニューが最上部に達するまでの移動量（slide-innerをさらに40px上げたぶん減らし、一覧モードの位置は従来どおり）
 /* ※単語帳ページはホームのまま中央だけ差し替える形になったので、いまはどこからも呼んでいない
      （メール指示 2026-08-02）。持ち上げる演出に戻したくなったら enterListMode から呼べば復活する */
 function setLift(px){ // ピル上昇量(px)とヘッダー/写真用の進捗(--p)を同時に設定
@@ -3384,9 +3390,9 @@ function setLift(px){ // ピル上昇量(px)とヘッダー/写真用の進捗(-
   w.style.setProperty("--p",String(Math.min(1,Math.max(0,px/-LIFT_MAX))));
 }
 /* 単語帳ページはホーム画面そのままで、真ん中（すごろくのところ）だけが単語の一覧に変わる。
-   ステータスバー・ルームメニュー・ページャーはホームと同じように出したまま（メール指示 2026-08-02）。
+   ステータスバー・WORLDメニュー・ページャーはホームと同じように出したまま（メール指示 2026-08-02）。
    ただし左右のアイコンは出さず、そのぶん一覧を広く取り、検索バーは「単語をさがす」欄のすぐ下に置く。
-   ROOMメニューを上へ持ち上げる演出（setLift）とアイコン類を隠す hiderail は使わない。 */
+   WORLDメニューを上へ持ち上げる演出（setLift）とアイコン類を隠す hiderail は使わない。 */
 function enterListMode(){
   if(_listMode)return;
   pushNav("list"); // OSバックで一覧を閉じられるように
@@ -3438,12 +3444,12 @@ function showPullHint(px,near,ready,pos){
   h.textContent=_pullVal>=90?ready:near;
 }
 function hidePullHint(){_pullVal=0;const h=document.getElementById("pull-hint");if(h)h.style.opacity="0";}
-function roomMenuTap(n){ // メニュー/ROOM番号タップ=ROOM一覧ポップアップ（単語帳へは飛ばさない。特別ルームは専用詳細へ）
+function roomMenuTap(n){ // メニュー/WORLD番号タップ=WORLD一覧ポップアップ（単語帳へは飛ばさない。特別WORLDは専用詳細へ）
   if(_listMode){exitListMode();return;}
   if(n==="pq"){openPriQQ();return;}
   openRoomMap();
 }
-/* 一覧モード: ROOMメニュー下・単語表上の帯（左40%=PWRメータボタン / 右60%=テスト履歴3件） */
+/* 一覧モード: WORLDメニュー下・単語表上の帯（左40%=PWRメータボタン / 右60%=テスト履歴3件） */
 function roomMidHTML(n){
   const ids=new Set(LEVEL_SECTIONS[curLevel][n]||[]),byTest={};
   loadHistory().forEach(r=>{if(r.testId&&ids.has(r.wordId))(byTest[r.testId]=byTest[r.testId]||[]).push(r);});
@@ -3462,7 +3468,7 @@ function roomMidHTML(n){
   </div>`;
 }
 
-/* ROOMメニューのランク円タップ：そのROOMの過去履歴一覧（whローデザイン・白透明モーダル） */
+/* WORLDメニューのランク円タップ：そのWORLDの過去履歴一覧（whローデザイン・白透明モーダル） */
 function openRoomHistory(n){if(!document.getElementById("history-modal").classList.contains("on"))pushNav("modal");
   const ids=new Set(LEVEL_SECTIONS[curLevel][n]||[]),byTest={};
   loadHistory().forEach(r=>{if(r.testId&&ids.has(r.wordId))(byTest[r.testId]=byTest[r.testId]||[]).push(r);});
@@ -3477,12 +3483,12 @@ function openRoomHistory(n){if(!document.getElementById("history-modal").classLi
       <span class="wh-oc" style="color:#FF3B3B"><span class="m">○</span><span class="n">${t.ok}</span></span><span class="wh-oc" style="color:#2F6FE0"><span class="m">×</span><span class="n">${t.n-t.ok}</span></span></div>`;
   }).join(""):'<div class="wh-empty">まだテスト履歴がありません</div>';
   const m=document.getElementById("history-modal");
-  m.innerHTML=`<div class="hist-card"><button class="hist-close" onclick="closeRoomHistory()">×</button><div class="hist-h">ROOM ${String(n).padStart(2,"0")}　テスト履歴</div>${rows}</div>`;
+  m.innerHTML=`<div class="hist-card"><button class="hist-close" onclick="closeRoomHistory()">×</button><div class="hist-h">WORLD ${String(n).padStart(2,"0")}　テスト履歴</div>${rows}</div>`;
   m.classList.add("on");
   m.onclick=e=>{if(e.target===m)closeRoomHistory();};
 }
 function closeRoomHistory(){const m=document.getElementById("history-modal");if(m)m.classList.remove("on");}
-/* ROOM一覧マップ：全ROOMの進捗を俯瞰し、タップでそのROOMへジャンプ */
+/* WORLD一覧マップ：全WORLDの進捗を俯瞰し、タップでそのWORLDへジャンプ */
 function openRoomMap(){
   if(!document.getElementById("map-modal").classList.contains("on"))pushNav("modal");
   const N=LEVEL_INFO[curLevel].count,secs=loadSections();
@@ -3498,12 +3504,12 @@ function openRoomMap(){
   }).join("");
   const m=document.getElementById("map-modal");
   m.innerHTML=`<div class="hist-card"><button class="hist-close" onclick="closeRoomMap()" aria-label="閉じる">×</button>
-    <div class="hist-h">ROOM一覧</div>
+    <div class="hist-h">WORLD一覧</div>
     <div class="rm-lv">
       <button class="rm-lvbtn ${curLevel==="beginner"?"on":""}" onclick="mapSwitchLevel('beginner')">初級</button>
       <button class="rm-lvbtn ${curLevel==="middle"?"on":""}" onclick="mapSwitchLevel('middle')">中級</button>
     </div>
-    <div class="rm-grid">${PQ_ON?`<button class="rm-special" onclick="closeRoomMap();openPriQQ()">✨ SPECIAL ルーム プリQQ ✨</button>`:""}${cells}</div></div>`;
+    <div class="rm-grid">${PQ_ON?`<button class="rm-special" onclick="closeRoomMap();openPriQQ()">✨ SPECIAL WORLD プリQQ ✨</button>`:""}${cells}</div></div>`;
   m.classList.add("on");
   m.onclick=e=>{if(e.target===m)closeRoomMap();};
 }
@@ -3515,11 +3521,11 @@ function jumpRoom(n){
   document.getElementById("homewrap").classList.remove("pq-active");_onSpecial=false;
   attachHomeRain();fillNearbyBoards(); // スクロールイベント経由ではないので近傍のすごろくを自分で実描画する
 }
-/* 特別ルーム「プリQQ」は一旦非表示（メール指示 2026-08-02）。PQ_ON を true に戻せばスライド・ページャー・ROOM一覧の入口がまとめて復活する。
-   PQ_OFF＝スライド並びのオフセット（0=難易度スライドの右がすぐROOM01 / 1=あいだにプリQQが入る） */
+/* 特別WORLD「プリQQ」は一旦非表示（メール指示 2026-08-02）。PQ_ON を true に戻せばスライド・ページャー・WORLD一覧の入口がまとめて復活する。
+   PQ_OFF＝スライド並びのオフセット（0=難易度スライドの右がすぐWORLD01 / 1=あいだにプリQQが入る） */
 const PQ_ON=false, PQ_OFF=PQ_ON?1:0;
-let _onSpecial=false; // 特別ルーム プリQQ のスライドが選択中か
-function onStartBtn(){ // 特別ルーム選択中はプリQQ／それ以外は現在のすごろくのマス
+let _onSpecial=false; // 特別WORLD プリQQ のスライドが選択中か
+function onStartBtn(){ // 特別WORLD選択中はプリQQ／それ以外は現在のすごろくのマス
   if(_counting){cancelHomeCountdown();return;} // カウントダウン中は「戻る」化：ポップアップなしで即キャンセル
   if(!_onSpecial)_boardTile={level:curLevel,sec:curSection,gidx:boardState(curLevel,curSection).cleared+1};
   homeCountdown(()=>{_cdSkip=true;_onSpecial?startPriQQ():startTest();}); // ホームのまま3・2・1→終わってからクイズへ遷移
@@ -3553,12 +3559,12 @@ function _homeCleanupCd(){
 }
 function cancelHomeCountdown(){if(!_counting)return;_homeCleanupCd();stopSpeak();} // ポップアップなしで即ホームへ
 
-/* ルーム番号の丸ページャー：左右にルームを並べ、選択中を中央に。切替中だけ表示し復習どき/カウントダウンは一時的にフェードで隠す */
+/* WORLD番号の丸ページャー：左右にWORLDを並べ、選択中を中央に。切替中だけ表示し復習どき/カウントダウンは一時的にフェードで隠す */
 let _pagerT=null;
 function buildRoomPager(){
   const p=document.getElementById("room-pager");if(!p)return;
   const count=LEVEL_INFO[curLevel].count;
-  let h=PQ_ON?`<div class="rp-dot pq" data-sec="pq" onclick="pagerJump('pq')" aria-label="ルーム プリQQ">★</div>`:"";
+  let h=PQ_ON?`<div class="rp-dot pq" data-sec="pq" onclick="pagerJump('pq')" aria-label="WORLD プリQQ">★</div>`:"";
   for(let n=1;n<=count;n++)h+=`<div class="rp-dot" data-sec="${n}" onclick="pagerJump(${n})">${String(n).padStart(2,"0")}</div>`;
   p.innerHTML=h;
 }
@@ -3566,8 +3572,8 @@ function syncRoomPager(){
   const p=document.getElementById("room-pager");if(!p||!p.children.length)return;
   const el=document.getElementById("hv-rooms");
   const max=LEVEL_INFO[curLevel].count+PQ_OFF;
-  const frac=el?Math.min(Math.max(el.scrollLeft/602,0),max):(_onSpecial?1:curSection+PQ_OFF); // 連続値（0=難易度,（あれば）1=特別,…=ROOM）
-  const dotPos=Math.max(0,frac-1); // ドット連続位置（先頭のドット＝プリQQ or ROOM1）。左右スワイプ中も滑らかに追従
+  const frac=el?Math.min(Math.max(el.scrollLeft/602,0),max):(_onSpecial?1:curSection+PQ_OFF); // 連続値（0=難易度,（あれば）1=特別,…=WORLD）
+  const dotPos=Math.max(0,frac-1); // ドット連続位置（先頭のドット＝プリQQ or WORLD1）。左右スワイプ中も滑らかに追従
   const near=Math.round(dotPos); // 最寄りドットをハイライト
   [...p.children].forEach((d,i)=>d.classList.toggle("cur",i===near));
   // 隣り合うドットのoffsetLeftを線形補間して連続的に中央寄せ（〇がスクロールに連動）
@@ -3577,7 +3583,7 @@ function syncRoomPager(){
   const c=center(a)+(center(b)-center(a))*(dotPos-lo);
   p.scrollLeft=c-p.clientWidth/2;
 }
-/* ROOMは左右スワイプで切りかわる、と分かるまでのヒント（1度でも切りかえたら二度と出さない） */
+/* WORLDは左右スワイプで切りかわる、と分かるまでのヒント（1度でも切りかえたら二度と出さない） */
 const LS_ROOMHINT="kwt_roomhint_v1";
 const ROOMHINT_MS=5000; // 出しっぱなしにせず5秒で自然に引っ込める（メール指示 2026-07-29）
 let _roomHintIdx=null,_roomHintT=null; // ヒントを出した時点のスライド位置（起動時のプログラム的スクロールで消えないよう、ここから動いたら消す）
@@ -3591,7 +3597,7 @@ function initRoomHint(){
   // 5秒で引っ込むだけ＝まだ操作を覚えていないので「二度と出さない」印は付けない
   clearTimeout(_roomHintT);_roomHintT=setTimeout(()=>dismissRoomHint(false),ROOMHINT_MS);
 }
-/* 実際に隣のROOMへ動いたときだけ消す（起動直後の位置合わせスクロールでは消さない） */
+/* 実際に隣のWORLDへ動いたときだけ消す（起動直後の位置合わせスクロールでは消さない） */
 function maybeDismissRoomHint(idx){
   if(_roomHintIdx===null)return;
   if(idx!==_roomHintIdx)dismissRoomHint();
@@ -3604,7 +3610,7 @@ function dismissRoomHint(persist){
   const hw=document.getElementById("homewrap");if(hw)hw.classList.remove("roomhint-on");
   setTimeout(()=>{h.style.display="none";},400);
 }
-let _pagerHold=false; // つかいかたガイドでルームメニューバーを指している間は、時間で引っ込めない（メール指示 2026-08-02）
+let _pagerHold=false; // つかいかたガイドでWORLDメニューバーを指している間は、時間で引っ込めない（メール指示 2026-08-02）
 function showRoomPager(){
   // 単語帳ページもホームと同じ見た目なので、ページャーはそこでも出す（メール指示 2026-08-02）
   const p=document.getElementById("room-pager");if(!p)return;
@@ -3621,14 +3627,14 @@ function hideRoomPager(){
 }
 function pagerJump(sec){
   const el=document.getElementById("hv-rooms");if(!el)return;
-  const idx=sec==="pq"?1:(Number(sec)+PQ_OFF); // idx0=難易度 /（PQ_ON時のみ）idx1=特別 / 以降=ROOM
+  const idx=sec==="pq"?1:(Number(sec)+PQ_OFF); // idx0=難易度 /（PQ_ON時のみ）idx1=特別 / 以降=WORLD
   el.scrollTo({left:idx*602,behavior:"smooth"});
   showRoomPager();
 }
-/* フロートの三角ボタン／すごろく上の横スワイプ：いま見ているスライドの1つ隣へ（難易度・プリQQ・各ROOMを通しで移動） */
+/* フロートの三角ボタン／すごろく上の横スワイプ：いま見ているスライドの1つ隣へ（難易度・プリQQ・各WORLDを通しで移動） */
 function stepRoom(d){
   const el=document.getElementById("hv-rooms");if(!el)return;
-  const max=LEVEL_INFO[curLevel].count+PQ_OFF; // idx0=難易度 /（PQ_ON時のみ）idx1=特別 / 以降=ROOM
+  const max=LEVEL_INFO[curLevel].count+PQ_OFF; // idx0=難易度 /（PQ_ON時のみ）idx1=特別 / 以降=WORLD
   const idx=Math.min(Math.max(Math.round(el.scrollLeft/602)+d,0),max);
   el.scrollTo({left:idx*602,behavior:"smooth"});
   showRoomPager();
@@ -3642,7 +3648,7 @@ function syncRoomArrows(){
   nx.classList.toggle("off",idx>=max);
 }
 
-/* ルームメニューの3面ローテーション：語数/％/ランク(0) → おすすめ単語(1) → PWRグラフ(2) → … を回転入替 */
+/* WORLDメニューの3面ローテーション：語数/％/ランク(0) → おすすめ単語(1) → PWRグラフ(2) → … を回転入替 */
 let _recoTimer=null,_recoFace=0,_recoIdx=0;
 function pickRecoWord(n){
   const ids=(n==="pq")?PRIQQ.ids:(LEVEL_SECTIONS[curLevel][n]||[]);
@@ -3654,8 +3660,8 @@ function pickRecoWord(n){
   const id=pool[_recoIdx%pool.length];_recoIdx++;
   return WORD_BY_ID[id]||null;
 }
-/* そのROOMの直近テスト得点(0-100)を古い順に返す（PWRグラフ用）。
- * 3秒ごとの面回転から呼ばれるため、履歴全走査を毎回やらずROOM単位でキャッシュする（saveAnswerで無効化） */
+/* そのWORLDの直近テスト得点(0-100)を古い順に返す（PWRグラフ用）。
+ * 3秒ごとの面回転から呼ばれるため、履歴全走査を毎回やらずWORLD単位でキャッシュする（saveAnswerで無効化） */
 let _roomSeriesCache={};
 function roomScoreSeries(n){
   const ck=curLevel+"|"+n;if(_roomSeriesCache[ck])return _roomSeriesCache[ck];
@@ -3670,14 +3676,14 @@ function _curSlideInner(){
   return _onSpecial?el.querySelector(".pq-slide .slide-inner"):el.querySelector(`.room-slide[data-n="${curSection}"] .slide-inner`);
 }
 function _clearReco(){document.querySelectorAll(".slide-inner.face-word,.slide-inner.face-pwr").forEach(x=>x.classList.remove("face-word","face-pwr"));_recoFace=0;}
-function _roomTint(n){return (n==="pq")?"#ffe3f1":roomBg(n);} // パネル背景＝そのROOMの色
+function _roomTint(n){return (n==="pq")?"#ffe3f1":roomBg(n);} // パネル背景＝そのWORLDの色
 function roomRecoTick(){
-  if(!document.getElementById("s-home").classList.contains("on")||_listMode||_statusMode){_clearReco();return;} // ホームのルーム表示中のみ
+  if(!document.getElementById("s-home").classList.contains("on")||_listMode||_statusMode){_clearReco();return;} // ホームのWORLD表示中のみ
   const si=_curSlideInner();if(!si)return;
   const key=_onSpecial?"pq":curSection;
   _recoFace=(_recoFace+1)%3; // 0=stats/1=word/2=pwr
   si.classList.remove("face-word","face-pwr");
-  // 各面は個別背景なし（透明）。ルームメニュー全体の白透明座布団(.rmenu-bg)がそのまま見える
+  // 各面は個別背景なし（透明）。WORLDメニュー全体の白透明座布団(.rmenu-bg)がそのまま見える
   if(_recoFace===1){
     const w=pickRecoWord(key);if(!w){_recoFace=0;return;}
     const rr=si.querySelector(".rmenu-reco");if(!rr)return;
@@ -3693,7 +3699,7 @@ function roomRecoTick(){
     si.classList.add("face-pwr");
   } // face 0 は何も付けず語数/％/ランクへ戻る
 }
-/* メール指示（2026-07-29）：ホームの動きが多いため、ルームメニューのアニメーションは完全に廃止。
+/* メール指示（2026-07-29）：ホームの動きが多いため、WORLDメニューのアニメーションは完全に廃止。
    3面ローテーションを止め、語数/％/ランクの面だけを静止表示する。
    ※各面を作る処理（roomRecoTick／pickRecoWord／roomScoreSeries）はそのまま残してあるので、
      ROOM_RECO_ROTATE を true に戻せば従来どおり3秒ごとの入替が復活する */
@@ -3771,9 +3777,9 @@ function startAvatarFlip(){if(!AVATAR_FLIP)return;if(_avatarTimer)return;_avatar
   c.classList.toggle("show-job",mode==="job");
 },2600);}
 
-/* ============================================================ 特別ルーム「プリQQ」（専用テーマ画面。単語データは後で差し替え） ============================================================ */
+/* ============================================================ 特別WORLD「プリQQ」（専用テーマ画面。単語データは後で差し替え） ============================================================ */
 const PRIQQ={
-  name:"ROOM プリQQ",
+  name:"WORLD プリQQ",
   label:"SPECIAL",
   desc:"放課後のプリクラみたいに、キラキラかわいく単語を集めよ♡ かわいくなりたい気持ちで青春の語彙をGET！",
   image:"",            // メイン画像。権利上OKな画像ファイルのパスを入れると差し替わる（未設定なら自作のジャケット風ビジュアル）
@@ -3836,7 +3842,7 @@ function renderPriQQ(){
       </div>
     </div>`;
 }
-function openPriQQ(){renderPriQQ();show("s-priqq");applyBgAll("#ffe3f1");} // 専用テーマ背景（通常ルーム色は使わない）
+function openPriQQ(){renderPriQQ();show("s-priqq");applyBgAll("#ffe3f1");} // 専用テーマ背景（通常WORLD色は使わない）
 function pqToast(msg){const t=document.createElement("div");t.className="pq-toast";t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2200);}
 function startPriQQ(){ // PRIQQ.idsで既存の出題ロジックにより出題
   if(PRIQQ.ids&&PRIQQ.ids.length){_pqQuiz=true;startTest(PRIQQ.ids);return;}
@@ -3864,9 +3870,9 @@ function wbCardHTML(id,i,st,cards,now){
   </div>`;
 }
 let _wbFilter="all";
-let _wbQ=""; // 「単語をさがす」欄はROOMスライドごとに描かれるので、入力中の言葉はここで持ち回る
+let _wbQ=""; // 「単語をさがす」欄はWORLDスライドごとに描かれるので、入力中の言葉はここで持ち回る
 function wbSetFilter(f){_wbFilter=f;buildRoomSlides();attachHomeRain();fillNearbyRoomLists();}
-/* 遅延単語帳: 未描画(data-lazy)の該当ROOMだけ実描画する。全ROOM×100カード同時生成を避ける */
+/* 遅延単語帳: 未描画(data-lazy)の該当WORLDだけ実描画する。全WORLD×100カード同時生成を避ける */
 function fillRoomList(n){
   const ph=document.querySelector(`.room-slide[data-n="${n}"] .slide-list[data-lazy]`);
   if(!ph)return;
@@ -3908,7 +3914,7 @@ function wbSearch(q){
   box.innerHTML=hits.length?hits.map(w=>{
     const key=m[w.id],rn=key?key.split("-")[1]:"";
     const lv=key?(key.indexOf("beginner")===0?"初級":"中級"):"";
-    return `<div class="wbh-row" onclick="wbPickHit(${w.id})"><span class="wbh-ko">${esc(w.ko)}</span><span class="wbh-ja">${esc(w.ja)}</span><span class="wbh-room">${lv}${rn?" ROOM "+rn:""}</span></div>`;
+    return `<div class="wbh-row" onclick="wbPickHit(${w.id})"><span class="wbh-ko">${esc(w.ko)}</span><span class="wbh-ja">${esc(w.ja)}</span><span class="wbh-room">${lv}${rn?" WORLD "+rn:""}</span></div>`;
   }).join(""):'<div class="wbh-row" style="cursor:default;color:#888">見つかりませんでした</div>';
 }
 function wbPickHit(id){const q=document.getElementById("wb-q");if(q)q.value="";const b=document.getElementById("wb-hits");if(b)b.innerHTML="";renderWordDetail(id,'room');} // 検索候補を選んだら検索欄と候補を消してから詳細へ（戻ったとき単語帳に被らない）
@@ -3927,7 +3933,7 @@ function wbPlaceSearchBar(){
   box.style.width=Math.round(594*k)+"px";
   box.style.top=Math.round((rr&&rr.height)?rr.bottom+8*k:hr.top+180*k)+"px";
 }
-/* いま画面に見えている「単語をさがす」欄（ROOMスライドごとに同じものがある） */
+/* いま画面に見えている「単語をさがす」欄（WORLDスライドごとに同じものがある） */
 function wbSearchInput(){
   const cur=document.querySelector(`.room-slide[data-n="${curSection}"] .wb-qin`);
   if(cur)return cur;
@@ -3945,7 +3951,7 @@ function wbFocus(){
 function wbBlur(){const q=wbSearchInput();if(q&&!q.value.trim()){const p=document.getElementById("wb-panel");if(p)p.classList.remove("searching");}wbPlaceSearchBar();}
 function wbSearch2(q){
   q=(q||"").trim();
-  _wbQ=q; // ROOMを切りかえても入力した言葉が消えないように覚えておく
+  _wbQ=q; // WORLDを切りかえても入力した言葉が消えないように覚えておく
   const p=document.getElementById("wb-panel"),hw=document.getElementById("homewrap"),box=document.getElementById("wb-hits2");
   if(!q){if(p)p.classList.remove("typing");if(hw)hw.classList.remove("wb-typing");if(box)box.innerHTML="";return;}
   wbPlaceSearchBar();
@@ -3954,7 +3960,7 @@ function wbSearch2(q){
   const m=secOfWord(),seen=new Set();
   const pool=BEGINNER_WORDS.concat(WORDS,MIDDLE_WORDS).filter(w=>{if(seen.has(w.id))return false;seen.add(w.id);return true;});
   const hits=pool.filter(w=>w.ko.indexOf(q)>=0||(w.ja||"").indexOf(q)>=0).slice(0,40);
-  box.innerHTML=hits.length?hits.map(w=>{const key=m[w.id],rn=key?key.split("-")[1]:"";const lv=key?(key.indexOf("beginner")===0?"初級":"中級"):"";return `<div class="wbh-row" onclick="wbPickHit2(${w.id})"><span class="wbh-ko">${esc(w.ko)}</span><span class="wbh-ja">${esc(w.ja)}</span><span class="wbh-room">${lv}${rn?" ROOM "+rn:""}</span></div>`;}).join(""):'<div class="wbh-row" style="cursor:default;color:#888;justify-content:center">見つかりませんでした</div>';
+  box.innerHTML=hits.length?hits.map(w=>{const key=m[w.id],rn=key?key.split("-")[1]:"";const lv=key?(key.indexOf("beginner")===0?"初級":"中級"):"";return `<div class="wbh-row" onclick="wbPickHit2(${w.id})"><span class="wbh-ko">${esc(w.ko)}</span><span class="wbh-ja">${esc(w.ja)}</span><span class="wbh-room">${lv}${rn?" WORLD "+rn:""}</span></div>`;}).join(""):'<div class="wbh-row" style="cursor:default;color:#888;justify-content:center">見つかりませんでした</div>';
 }
 function wbPickHit2(id){wbClearQ();wbSearch2("");const p=document.getElementById("wb-panel");if(p)p.classList.remove("searching","typing");renderWordDetail(id,'room');}
 function wbClearQ(){_wbQ="";document.querySelectorAll(".wb-qin").forEach(q=>{q.value="";});}
@@ -3963,17 +3969,17 @@ function wbResetPanel(){wbClearQ();const p=document.getElementById("wb-panel");i
    ポップアップで読ませるのはやめ、実際のホーム画面の部品を四角く切り抜いて、
    そこへ矢印を向けた説明を1つずつ出す（メール指示 2026-07-31）。 */
 const COACH_STEPS=[
-  // pager:true＝この説明の間だけルームメニューバーを出しっぱなしにする（時間で消えてしまい何を指しているか分からなくなるため。メール指示 2026-08-02）
-  {sel:"#room-pager",pager:true,h:"ここがROOM",sub:"1ROOM＝約100単語。左右にスワイプするとROOMを切りかえられます"},
+  // pager:true＝この説明の間だけWORLDメニューバーを出しっぱなしにする（時間で消えてしまい何を指しているか分からなくなるため。メール指示 2026-08-02）
+  {sel:"#room-pager",pager:true,h:"ここがWORLD",sub:"1WORLD＝約100単語。左右にスワイプするとWORLDを切りかえられます"},
   // スタートは「いまここ」の吹き出し＋光っているマスの2つで1かたまりなので、両方を囲む
   {sel:".sg-tile.now .sg-img,.sg-tile.now .sg-noimg",sel2:".sg-tile.now .sg-here",
    h:"光っているマスがスタート",sub:"タップすると12問。おわるとこのマスがクリアになり、次のマスへ進みます"},
   {sel:".sg-d5",h:"今日の5問",sub:"アプリを開くと自動ではじまります。まずはこれだけでOK"},
-  {sel:"#hd-menu",h:"ゲームとROOM一覧",sub:"メニューの中にスペシャル問題・ROOM一覧・カレンダーがあります"},
+  {sel:"#hd-menu",h:"ゲームとWORLD一覧",sub:"メニューの中にスペシャル問題・WORLD一覧・カレンダーがあります"},
   {sel:".hv-pwrg",h:"PWRとXPの見かた",sub:"PWR＝いま覚えている度合い／XP＝解くほどたまる。下スワイプでステータス"}
 ];
 let _coachIdx=0,_coachSteps=[];
-/* いま画面に映っているものだけを囲む。ROOMは横に並んだ隣のスライドにも同じ部品があるので、
+/* いま画面に映っているものだけを囲む。WORLDは横に並んだ隣のスライドにも同じ部品があるので、
    画面の外にあるものは無視して、残りをひとまとめにした四角を返す */
 function _coachRect(sel){
   let box=null;
@@ -3999,7 +4005,7 @@ function showCoach(){
   try{closeSettings();}catch(e){}                       // 設定から開いたときはシートを閉じて実画面を見せる
   const home=document.getElementById("s-home");
   if(!home||!home.classList.contains("on")){try{show("s-home");}catch(e){}}
-  // ルームメニューバーは普段ふだん隠れているので、囲む位置を測る前に出しておく（メール指示 2026-08-02）
+  // WORLDメニューバーは普段ふだん隠れているので、囲む位置を測る前に出しておく（メール指示 2026-08-02）
   _pagerHold=true;try{showRoomPager();}catch(e){}
   _coachSteps=COACH_STEPS.filter(st=>!!coachRectOf(st)); // 画面に出ていない部品（まだ作られていない今日の5問など）は飛ばす
   if(!_coachSteps.length){closeCoach();return;}
@@ -4022,7 +4028,7 @@ function showCoach(){
 function coachPaint(){
   const root=document.getElementById("coach");if(!root)return;
   const st=_coachSteps[_coachIdx];if(!st)return;
-  // ルームメニューバーを指している間だけ出しっぱなし。次の説明に移ったら普段どおり引っ込める（メール指示 2026-08-02）
+  // WORLDメニューバーを指している間だけ出しっぱなし。次の説明に移ったら普段どおり引っ込める（メール指示 2026-08-02）
   if(st.pager){_pagerHold=true;try{showRoomPager();}catch(e){}}
   else if(_pagerHold){_pagerHold=false;try{hideRoomPager();}catch(e){}}
   const r=coachRectOf(st);if(!r){coachNext();return;}
@@ -4116,7 +4122,7 @@ function maybeBackupNag(){
 function roomInfoFor(n){
   const ids=LEVEL_SECTIONS[curLevel][n]||[],s=loadStats(),now=Date.now();
   const learned=ids.filter(id=>s[id]&&s[id].reviewCount>0);
-  let pw=0;ids.forEach(id=>pw+=displayScore(getStat(id,s),now)); // ステータスと同じ「ROOM全単語平均（未学習=0）」
+  let pw=0;ids.forEach(id=>pw+=displayScore(getStat(id,s),now)); // ステータスと同じ「WORLD全単語平均（未学習=0）」
   const rec=loadSections()[curLevel+"-"+String(n).padStart(2,"0")]||{};
   return{learned:learned.length,total:ids.length||1,pwr:ids.length?Math.round(pw/ids.length):0,
     recent:(rec.recentRanks||[]).slice(-3),best:rec.bestRank||null};
@@ -4127,7 +4133,7 @@ function mapSwitchLevel(l){if(l!==curLevel)switchLevel(l);openRoomMap();} // マ
 function buildRoomSlides(){
   const el=document.getElementById("hv-rooms");if(!el)return;
   const count=LEVEL_INFO[curLevel].count;
-  // 先頭(ROOM01の左)に難易度切替スライド
+  // 先頭(WORLD01の左)に難易度切替スライド
   const levelSlide=`<div class="room-slide level-slide" data-n="0" style="background:${LEVEL_SLIDE_BG}">
     <div class="lv-pick">
       <div class="lv-cap">LEVEL</div>
@@ -4135,7 +4141,7 @@ function buildRoomSlides(){
       <button class="lvbtn ${curLevel==="middle"?"on":""}" onclick="switchLevel('middle')">中級</button>
     </div>
   </div>`;
-  // ROOM01の左（難易度スライドの右）に特別ルーム プリQQ。通常ROOMのレイアウトを流用しプリティー化
+  // WORLD01の左（難易度スライドの右）に特別WORLD プリQQ。通常WORLDのレイアウトを流用しプリティー化
   // ※PQ_ON=false のあいだは組み立てない（メール指示 2026-08-02）
   const pqrate=PQ_ON&&PRIQQ.total?Math.round(PRIQQ.learned/PRIQQ.total*100):0;
   const _pqc=PQ_ON?loadCards():{};const pqlearned=PQ_ON?PRIQQ.ids.filter(id=>(_pqc[id]||0)>0).length:0; // カードは1回だけ読む（語ごとに読み直さない）
@@ -4143,7 +4149,7 @@ function buildRoomSlides(){
     <div class="slide-inner">
       <div class="rmenu-clip">
       <div class="rmenu-bg" onclick="roomMenuTap('pq')"></div>
-      <div class="hv-roomlabel" onclick="roomMenuTap('pq')">ROOM</div>
+      <div class="hv-roomlabel" onclick="roomMenuTap('pq')">WORLD</div>
       <div class="hv-roomno" onclick="roomMenuTap('pq')" style="left:60px">プリQQ</div>
       <div class="hv-learned">${pqlearned}<span class="unit">語</span></div>
       <div class="gauge hv-wordsg"><div class="gfill" style="width:${Math.round(pqlearned/PRIQQ.total*100)}%"></div></div>
@@ -4156,7 +4162,7 @@ function buildRoomSlides(){
       ${_listMode?roomListHTMLFromIds(PRIQQ.ids):`<div class="pq-main" onclick="roomMenuTap('pq')">${pqMainInner()}<div class="pq-ribbon">${esc(PRIQQ.name)}</div></div>`}
     </div>
   </div>`;
-  const _board=loadBoard(); // すごろくの進み具合は1回だけ読む（ROOMごとに読み直さない）
+  const _board=loadBoard(); // すごろくの進み具合は1回だけ読む（WORLDごとに読み直さない）
   el.innerHTML=levelSlide+specialSlide+Array.from({length:count},(_,i)=>{
     const n=i+1,nn=String(n).padStart(2,"0"),ri=roomInfoFor(n);
     const circ=(cls,rank)=>rank?`<div class="${cls}" style="background:${RANK_COLORS[rank]||"#555"};cursor:pointer" onclick="openRoomHistory(${n})">${rank}</div>`:""; // ランク円タップ=過去履歴一覧
@@ -4171,7 +4177,7 @@ function buildRoomSlides(){
       <div class="slide-inner">
       <div class="rmenu-clip">
       <div class="rmenu-bg" onclick="roomMenuTap(${n})"></div>
-      <div class="hv-roomlabel" onclick="roomMenuTap(${n})">ROOM</div>
+      <div class="hv-roomlabel" onclick="roomMenuTap(${n})">WORLD</div>
       <div class="hv-roomno" onclick="roomMenuTap(${n})">${nn}</div>
       <div class="hv-learned">${ri.learned}<span class="unit">語</span></div>
       <div class="gauge hv-wordsg"><div class="gfill" style="background:#00FFFF;width:${Math.round(ri.learned/ri.total*100)}%"></div></div>
@@ -4184,7 +4190,7 @@ function buildRoomSlides(){
       </div>
       ${_listMode?((_wdId!=null&&n===curSection)?wdCenterHTML(_wdId) /* 単語詳細も真ん中だけ差し替え（メール指示 2026-08-02） */
           :(Math.abs(n-curSection)<=1?roomListHTML(n):`<div class="slide-list wb-list" data-lazy="${n}"></div>`))
-        :(Math.abs(n-curSection)<=1?sgBoardHTML(n):`<div class="sg-wrap" data-sglazy="${n}"></div>`)} <!-- すごろくは近傍3ROOMだけ実描画（全ROOM分を持つとページが落ちる） -->
+        :(Math.abs(n-curSection)<=1?sgBoardHTML(n):`<div class="sg-wrap" data-sglazy="${n}"></div>`)} <!-- すごろくは近傍3WORLDだけ実描画（全WORLD分を持つとページが落ちる） -->
       </div>
     </div>`;
   }).join("");
@@ -4258,25 +4264,25 @@ function buildRoomSlides(){
       });
     }
     el.addEventListener("scroll",()=>{
-      // スライド順: idx0=難易度 /（PQ_ON時のみ）idx1=特別ルーム プリQQ / 以降=ROOM(idx-PQ_OFF)
+      // スライド順: idx0=難易度 /（PQ_ON時のみ）idx1=特別WORLD プリQQ / 以降=WORLD(idx-PQ_OFF)
       const idx=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count+PQ_OFF);
       const onSp=PQ_ON&&idx===1;_onSpecial=onSp;
       document.getElementById("homewrap").classList.toggle("pq-active",onSp);
       applyBgAll(idx===0?LEVEL_SLIDE_BG:(onSp?"#ffe3f1":roomBg(idx-PQ_OFF)));
       syncRoomArrows(); // 両端では進めない側の三角を消す
-      maybeDismissRoomHint(idx); // 隣のROOMへ動けた＝スワイプのヒントはもう要らない
-      if(idx>=1)showRoomPager(); // ルーム切替中は丸ページャーを表示（難易度スライドは除く）
+      maybeDismissRoomHint(idx); // 隣のWORLDへ動けた＝スワイプのヒントはもう要らない
+      if(idx>=1)showRoomPager(); // WORLD切替中は丸ページャーを表示（難易度スライドは除く）
       _clearReco(); // 切替時は前スライドのおすすめ表示を戻す
       clearTimeout(_roomScrollT);
       _roomScrollT=setTimeout(()=>{
         const i=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count+PQ_OFF);
-        if(i>=1+PQ_OFF){const n=i-PQ_OFF;if(n!==curSection){curSection=n;applyHomeBg();saveLastRoom();if(_wdId!=null)closeWordDetail();attachHomeRain();fillNearbyRoomLists();fillNearbyBoards();}} // 玉の山も新ROOMへ移す＋近傍の単語帳/すごろくを実描画（別ROOMへ移ったら単語詳細は閉じる）
+        if(i>=1+PQ_OFF){const n=i-PQ_OFF;if(n!==curSection){curSection=n;applyHomeBg();saveLastRoom();if(_wdId!=null)closeWordDetail();attachHomeRain();fillNearbyRoomLists();fillNearbyBoards();}} // 玉の山も新WORLDへ移す＋近傍の単語帳/すごろくを実描画（別WORLDへ移ったら単語詳細は閉じる）
       },120);
     });
   }
-  el.scrollLeft=_onSpecial?602:(curSection+PQ_OFF)*602; // 特別ルーム選択中は特別スライド(index1=602)、通常はROOM n
-  buildRoomPager(); // 丸ページャーを現在の難易度のルーム構成で組み直す
-  syncRoomArrows(); // 難易度切替でROOM数が変わるので、両端の三角の出し分けも組み直す
+  el.scrollLeft=_onSpecial?602:(curSection+PQ_OFF)*602; // 特別WORLD選択中は特別スライド(index1=602)、通常はWORLD n
+  buildRoomPager(); // 丸ページャーを現在の難易度のWORLD構成で組み直す
+  syncRoomArrows(); // 難易度切替でWORLD数が変わるので、両端の三角の出し分けも組み直す
 }
 /* 602px基準で比例スケール（PCは等倍上限・中央寄せ） */
 function scaleHome(){
@@ -4301,7 +4307,7 @@ function scaleHome(){
 }
 window.addEventListener("resize",scaleHome);
 if(window.visualViewport)window.visualViewport.addEventListener("resize",scaleHome); // ツールバー出入りに追従
-/* ヘッダーの軽い数値だけ更新（XP/PWR/連続日数/次回復習）。ROOMスライド再構築を伴わないのでプレゼント受取等の高頻度呼び出しに使う */
+/* ヘッダーの軽い数値だけ更新（XP/PWR/連続日数/次回復習）。WORLDスライド再構築を伴わないのでプレゼント受取等の高頻度呼び出しに使う */
 function updateHomeStats(){
   const codeEl=document.getElementById("hv-code");if(!codeEl)return;
   codeEl.innerHTML=`<img class="streak-fire" src="images-thumb/0773.webp" alt="連続ログイン"><span class="ctext">${loginStreak()}</span>`;
@@ -4322,7 +4328,7 @@ function renderHome(){
   updateHomeStats();
   buildRoomSlides();
   attachHomeRain(); // スライド再構築後に玉レイヤーを差し直し（玉は保持）
-  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();initRoomHint();setTimeout(maybeRestAsk,300);setTimeout(maybeResume,600);setTimeout(()=>{if(!document.getElementById("resume-ask")&&!document.querySelector(".rest-ask"))maybeCoach();},900);setTimeout(maybeAutoDaily5,1500);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋ROOMスワイプのヒント＋（連続が途切れていれば）おやすみチケット＋初回コーチ＋今日の5問の自動スタート＋バックアップ提案
+  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();initRoomHint();setTimeout(maybeRestAsk,300);setTimeout(maybeResume,600);setTimeout(()=>{if(!document.getElementById("resume-ask")&&!document.querySelector(".rest-ask"))maybeCoach();},900);setTimeout(maybeAutoDaily5,1500);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋WORLDスワイプのヒント＋（連続が途切れていれば）おやすみチケット＋初回コーチ＋今日の5問の自動スタート＋バックアップ提案
   applyHomeBg();
   scaleHome();
   const _fb=document.getElementById("home-fbtn"); // 今日の5問／ミッション／育成ゲームはスライドではなくホーム直下のフロート（作り直すと演出が飛ぶので初回だけ）
@@ -4332,7 +4338,7 @@ function renderHome(){
   checkAchievements();
   calibratePwr(); // ホーム表示のたびに実測し直し、以降は実際の下がりかたで減算
   updatePwrFine();
-  startRoomRecoLoop(); // ルームメニューの3面ローテーションを開始
+  startRoomRecoLoop(); // WORLDメニューの3面ローテーションを開始
   startSideBtnFlip(); // 単語帳/忘却曲線ボタンのアイコン⇄ラベル入替
   startBubbleLoop(); // スタートボタンの感情吹き出し
   startAvatarFlip(); // アバターのキャラ⇄MBTI入替
@@ -5434,7 +5440,7 @@ function buildQuestions(){
   const last=prog.lastTestIds||[],prev=prog.prevTestIds||[];
   const blocked=new Set(last.filter(id=>prev.includes(id)));
   // 状態分類と優先度
-  // 先にシャッフル: 優先度が同点（例: 全部newの新規ROOM）のとき01から順に出ず、ランダムになる
+  // 先にシャッフル: 優先度が同点（例: 全部newの新規WORLD）のとき01から順に出ず、ランダムになる
   const info=shuffle(POOL_IDS).map(id=>{const w=WORD_BY_ID[id],st=getStat(id,stats);return{id,w,st,state:wordState(st,nowMs),ps:priorityScore(w,st,nowMs)};});
   const seen=info.filter(x=>x.st.hasSeen).length;
   const coverage=seen/Math.max(1,POOL_IDS.length);
@@ -5531,9 +5537,9 @@ function show(id){
   // 単語帳の検索パネルはホームの一覧モード中のみ表示（単語詳細などに戻る/単語帳が重なる不具合を防ぐ）
   const _wp=document.getElementById("wb-panel");
   if(_wp){if(id==="s-home"&&_listMode){wbResetPanel();_wp.classList.add("on");}else _wp.classList.remove("on");}
-  // 背景色: 全体PWRメータ/タイプ詳細はグレー固定、ROOM別PWRはそのROOMの色、他は現在ROOMの色
+  // 背景色: 全体PWRメータ/タイプ詳細はグレー固定、WORLD別PWRはそのWORLDの色、他は現在WORLDの色
   applyBgAll(((id==="s-curve"&&!_roomCurveMode)||id==="s-type")?LEVEL_SLIDE_BG:roomBg(curSection));
-  // 特別ルーム プリQQ の出題/結果はピンクテーマに（背景も変える）
+  // 特別WORLD プリQQ の出題/結果はピンクテーマに（背景も変える）
   const _pq=state&&state.pq&&(id==="s-quiz"||id==="s-result");
   document.getElementById("s-quiz").classList.toggle("pq",!!(_pq&&id==="s-quiz"));
   document.getElementById("s-result").classList.toggle("pq",!!(_pq&&id==="s-result"));
@@ -5610,8 +5616,8 @@ function startTest(reviewIds){
   const conditionBefore=Math.round(overallCondition(now)),reviewBefore=reviewNeedCount(now);
   const qs=reviewIds&&reviewIds.length?buildReviewQuestions(reviewIds):buildQuestions();
   const _spk=(!_d5.on&&!_pqQuiz&&!_onSpecial)?specialKind(curLevel,curSection):"";
-  if(_spk==="green")toPuzzleQuestions(qs); // 緑ROOM＝12問すべてがジグソーパズルの穴うめ
-  else if(_spk)insertShootQuestion(qs,_spk); // 青・赤ROOMは13問目としてシューティングを差し込む（青=風船マッチ／赤=4択）
+  if(_spk==="green")toPuzzleQuestions(qs); // 緑WORLD＝12問すべてがジグソーパズルの穴うめ
+  else if(_spk)insertShootQuestion(qs,_spk); // 青・赤WORLDは13問目としてシューティングを差し込む（青=風船マッチ／赤=4択）
   const prog=loadProgress();
   state={questions:qs,idx:0,results:[],testId:"t-"+Date.now().toString(36),userId:getUserId(),
     cycleNumber:prog.cycleNumber||1,isReview:!!(reviewIds&&reviewIds.length),conditionBefore,reviewBefore,pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level,pq:_pqQuiz,spk:_spk};
@@ -5802,7 +5808,7 @@ function u5Daily5HTML(auto){
        <button class="d5-ghost" onclick="closeAutoD5(false)">戻る（中断する）</button>`
       :`<button class="d5-go" onclick="startDaily5()">${d5SlotLabel(slot)}をはじめる</button>`}`;
   return `<div class="u5-sec">
-    <div class="u5-hd"><span class="u5-kick">TODAY</span><span class="d5-h u5-ti">今日の5問</span>${streak}</div>
+    <div class="u5-hd"><span class="d5-h u5-ti">今日の5問</span>${streak}</div>
     <div class="d5-slots">${cell("am")}${cell("pm")}</div>
     ${body}</div>`;
 }
@@ -5820,7 +5826,7 @@ function d5RenderModal(){
   if(!(rec&&rec.done))d5StartCountdown(()=>startDaily5()); // 触らなければ10秒で始まる
   else d5StopCountdown();
 }
-/* いま画面に見えている「今日の5問」ボタンを探す（ROOMスライドごとに同じボタンがある） */
+/* いま画面に見えている「今日の5問」ボタンを探す（WORLDスライドごとに同じボタンがある） */
 function d5AnchorBtn(sel){
   const vw=innerWidth,vh=innerHeight;let best=null,bestA=0;
   // 統合ポップアップの入口は、その時に中央へ出ているカプセル（今日の5問／今週のミッション）
@@ -6360,8 +6366,9 @@ function petTap(){
   if(el&&!lessFxOn()){el.classList.remove("pt-jump");void el.offsetWidth;el.classList.add("pt-jump");}
   const l=document.getElementById("pt-line");
   if(l){const p=petLine();l.innerHTML=`<b>${esc(p.ko)}</b><span>${esc(p.ja)}</span>`;}
-  const f=document.getElementById("pt-friend");
-  if(f)f.textContent="親密度 "+petState().friend;
+  const f=document.getElementById("pt-friend"); // 親密度の丸ゲージ（数字とリングの両方を更新する）
+  if(f){const v=petState().friend||0;f.textContent=v;
+    const sp=f.parentNode;if(sp&&sp.style)sp.style.setProperty("--p",Math.max(0,Math.min(100,Math.round(v))));}
 }
 /* 11. その日だけの1枚（AI画像のかわりに、絵文字と背景の組み合わせで毎日ちがう見た目をつくる） */
 /* 12. AI画像のさしかえ口。pet/{種類}/{進化段階}.webp があればそれを、無ければ絵文字のまま出す。
@@ -6418,37 +6425,31 @@ function openPet(){
   if(!m.classList.contains("on"))pushNav("modal");
   m.classList.add("on");
   const day=petDaily(),o=petState(),lv=petLevel(o.xp),st=petStage(lv),ln=petLine(),pw=petPower();
-  const mo=PET_MOODS[day.mood%PET_MOODS.length],next=petNextLvXp(o.xp);
+  const next=petNextLvXp(o.xp);
   const nx=PET_STAGES.find(x=>x.lv>lv),ev=petEventNow();
   const back=o.back&&o.back.k===day.k?o.back:null,bond=o.bondNew?PET_BONDS.find(b=>b.d===o.bondNew):null;
   if(back||bond||o.evNew){const s=petState();delete s.back;delete s.bondNew;delete s.evNew;savePet(s);} // 迎えの言葉は1回だけ
+  // 育成画面はできるだけシンプルに：キャラクター・ひとこと・3つのゲージ・ボタンだけ。
+  // たべたことば／思い出アルバムは図鑑へ移した（メール指示 2026-08-08 22:26）
   m.innerHTML=`<div class="d5-card pt-card">
     <button class="d5-close" onclick="closePet()" aria-label="閉じる">×</button>
-    <div class="pt-ko">단어 친구</div>
-    <div class="pt-name">${esc(o.name)}<span>Lv.${lv} ／ ${esc(st.name)}（${esc(st.ko)}）／ いっしょに ${o.days}日</span></div>
+    <div class="pt-name">${esc(o.name)}<span>Lv.${lv}／${esc(st.name)}／いっしょに ${o.days}日</span></div>
     ${petArtHTML(day,lv,st.k)}
     ${back?`<div class="pt-back">おかえり！ ${back.gap}日ぶりだね。まってたよ 🫧<em>단어의 열매 ＋${Math.min(30,back.gap*2)}</em></div>`:""}
     ${bond?`<div class="pt-bondnew">🎉 ${esc(bond.t)}（${esc(bond.ko)}）ありがとう！<em>記念に「${esc((PET_ITEM_BY_K[bond.item]||{}).t||"")}」と 単語の実${bond.seeds}</em></div>`:""}
     <div class="pt-line" id="pt-line"><b>${esc(ln.ko)}</b><span>${esc(ln.ja)}</span></div>
     ${ln.worry?`<button class="pt-worry" onclick="closePet();startDueReview()">わすれかけの${ln.worry}語を いっしょに 思いだす</button>`:""}
-    <div class="pt-st">
-      <span>${mo.ico} ${esc(mo.t)}</span>
-      <span id="pt-friend">親密度 ${o.friend}</span>
-      <span>韓国語力 ${pw}語</span>
-      <span id="pt-seed">🌰 単語の実 ${o.seeds}</span>
-    </div>
-    <div class="pt-bar"><i style="width:${Math.round(((o.xp%40)/40)*100)}%"></i></div>
+    <div class="pm-bar"><i style="width:${Math.round(((o.xp%40)/40)*100)}%"></i></div>
+    <div class="pm-st">${pmRingHTML(o.seeds||0,10,"ごはん","#FFC400")}${pmRingHTML(o.friend||0,100,"親密度","#FF6FA8","pt-friend")}${pmRingHTML(pw,500,"韓国語力","#3FA9F5")}</div>
     <div class="pt-next">${lv>=PET_MAXLV?"いまはここまで育ちました"
-      :"次のレベルまで 韓国語エネルギー あと"+next+(nx?("／Lv."+nx.lv+"で「"+nx.name+"」に進化"):"")}</div>
-    ${petAteHTML(o)}
-    <button class="d5-go" style="margin-top:9px" onclick="closePet();openDaily5()">今日の5問でごはんをあげる</button>
+      :"次のレベルまで あと"+next+(nx?("／Lv."+nx.lv+"で進化"):"")}</div>
+    <button class="d5-go" style="margin-top:9px" onclick="closePet();openPetMenu();petSnack()">🌰 ごはんをあげる</button>
     <div class="pt-tabs">
       <button onclick="openPetZoo()"><b>📖</b>図鑑</button>
       <button onclick="openPetGacha()"><b>🎁</b>ガチャ</button>
       <button onclick="openPetWear()"><b>👕</b>きせかえ</button>
       <button onclick="openPetEvent()"><b>${ev.ico}</b>イベント</button>
     </div>
-    ${petAlbumHTML()}
   </div>`;
   d5AnchorBubble(null,m.querySelector(".pt-card"));
   m.onclick=e=>{if(e.target===m)closePet();};
@@ -6530,6 +6531,8 @@ function openPetZoo(){
       </button>`;}).join("")}</div>
     <div class="pt-note">まだ会っていない子は、ガチャで来てくれます。タップするとその子と過ごせます（それまでの育ちはそのまま残ります）。</div>
     <button class="d5-go" style="margin-top:9px" onclick="openPetGacha()">ガチャへ</button>
+    ${petAteHTML(o)}
+    ${petAlbumHTML()}
   </div>`;
   d5AnchorBubble(null,m.querySelector(".pt-card"));
 }
@@ -6654,12 +6657,12 @@ function openPetEvent(){
 }
 
 /* ============================================================ すごろく（1マス=1テスト・12マスで1周） ============================================================
- * 1周の枠数 = 12マス×12問 = 144枠。そのうち100枠をそのROOMの全語（初出枠）、残り44枠を忘却曲線の優先度による復習に充てる。
+ * 1周の枠数 = 12マス×12問 = 144枠。そのうち100枠をそのWORLDの全語（初出枠）、残り44枠を忘却曲線の優先度による復習に充てる。
  * → 1周こなせば必ず全語が登場する（従来は正答率が低いと一周できなかった）。復習の混ざり方は従来どおり毎回3〜4問。 */
 const LS_BOARD="kwt_board_v1";
 const SG_QPT=12;                                   // 1マスの問題数
 const SG_STEP=178,SG_TOP=120,SG_AMP=178,SG_CX=277;  // マスの間隔・端の余白・蛇行の振幅・中心x（下から上へ登る）
-/* いちばん上のマス（＝そのROOMの最後の問題）は、絵が上へ186px・スタートの吹き出しが268px はみ出す。
+/* いちばん上のマス（＝そのWORLDの最後の問題）は、絵が上へ186px・スタートの吹き出しが268px はみ出す。
    そのぶんの余白を道の上に足しておかないと、スクロールしきっても絵が見切れる（メール指示 2026-07-29） */
 const SG_HEADROOM=300;
 const SG_FREQ=0.95,SG_FAR=0.34;                     // 蛇行の急さ・遠方の縮小率（斜め見の遠近感）
@@ -6672,7 +6675,7 @@ function grantLapPresent(level,sec,lap){
   if(st.achv[id])return 0;
   const amount=200+(lap-1)*50;
   st.achv[id]=1;
-  st.queue.push({cat:"level",kind:"achv",title:"ROOM"+String(sec).padStart(2,"0")+" "+lap+"周達成",total:amount,at:new Date().toISOString()});
+  st.queue.push({cat:"level",kind:"achv",title:"WORLD"+String(sec).padStart(2,"0")+" "+lap+"周達成",total:amount,at:new Date().toISOString()});
   _savePresent(st);updatePresent();
   return amount;
 }
@@ -6684,12 +6687,12 @@ function showLapDone(){
   const ov=document.createElement("div");ov.className="lapdone";
   ov.innerHTML='<div class="lap-kicker">LAP '+d.lap+' COMPLETE</div>'
     +'<div class="lap-medal">'+d.lap+'</div>'
-    +'<div class="lap-title">ROOM'+nn+' <b>'+d.lap+'周</b> 達成！</div>'
+    +'<div class="lap-title">WORLD'+nn+' <b>'+d.lap+'周</b> 達成！</div>'
     +'<div class="lap-sub">この周で <b>'+d.words+'語</b> すべてに挑戦しました'
       +(bonus?'<br>ボーナス <b>+'+bonus+' XP</b> をプレゼントに追加':'')+'</div>'
     +'<div class="lap-btns">'
-      +(nextSec?'<button class="lb-next" onclick="lapGoNext('+nextSec+')">ROOM'+nx+' へ進む</button>':'')
-      +'<button class="lb-stay" onclick="closeLapDone()">'+(nextSec?'このROOMを続ける':'閉じる')+'</button>'
+      +(nextSec?'<button class="lb-next" onclick="lapGoNext('+nextSec+')">WORLD'+nx+' へ進む</button>':'')
+      +'<button class="lb-stay" onclick="closeLapDone()">'+(nextSec?'このWORLDを続ける':'閉じる')+'</button>'
     +'</div>';
   document.body.appendChild(ov);
   requestAnimationFrame(()=>ov.classList.add("on"));
@@ -6703,8 +6706,8 @@ function boardLapSize(level,sec){ // 100語→12マス（8.33語/マス）。語
 }
 function boardKey(level,sec){return level+"-"+String(sec).padStart(2,"0");}
 /* これまでの学習履歴ぶんだけすごろくを進める（1度だけ）。
- * ・12問を完走したテストを、そのROOMのマスとして古い順に埋める
- * ・履歴は90日で間引かれるため、記憶データ(reviewCount)からも「そのROOMで何回ぶん解いたか」を見積もり、多いほうを採る
+ * ・12問を完走したテストを、そのWORLDのマスとして古い順に埋める
+ * ・履歴は90日で間引かれるため、記憶データ(reviewCount)からも「そのWORLDで何回ぶん解いたか」を見積もり、多いほうを採る
  * ・すでに進めているぶんは絶対に下げない（マージする） */
 (function boardSeedFromHistory(){
   try{
@@ -6916,16 +6919,22 @@ function openPetMenu(){
   m.onclick=e=>{if(e.target===m)closePetMenu();};
 }
 function closePetMenu(){const m=document.getElementById("petmenu-modal");if(m)m.classList.remove("on");}
-function petMenuRender(msg,jump){
+/* ごはん・親密度・韓国語力は、同じ大きさの丸ゲージ3つで見せる（メール指示 2026-08-08 22:26） */
+function pmRingHTML(v,max,lab,color,id){
+  const p=Math.max(0,Math.min(100,Math.round((v/max)*100)));
+  return `<div class="pm-ring"><span style="--p:${p};--c:${color}"><b${id?` id="${id}"`:""}>${v}</b></span><em>${lab}</em></div>`;
+}
+function petMenuRender(msg,jump,need){
   const m=document.getElementById("petmenu-modal");if(!m)return;
   const day=petDaily(),o=petState(),lv=petLevel(o.xp),st=petStage(lv);
   m.innerHTML=`<div class="d5-card u5-card pm-card">
     <button class="d5-close" onclick="closePetMenu()" aria-label="閉じる">×</button>
-    <div class="u5-hd"><span class="u5-kick">FRIEND</span><span class="u5-ti">${esc(o.name)}</span>
+    <div class="u5-hd"><span class="u5-ti">${need?"ごはんを集める":esc(o.name)}</span>
       <span class="pm-lv">Lv.<b>${lv}</b></span></div>
     ${petArtHTML(day,lv,st.k)}
     <div class="pm-bar"><i style="width:${Math.round(((o.xp%40)/40)*100)}%"></i></div>
-    <div class="pm-st"><span>🌰 ごはん<b>${o.seeds}</b></span><span>💗 親密度<b>${o.friend}</b></span><span>🗣 韓国語力<b>${petPower()}</b></span></div>
+    <div class="pm-st">${pmRingHTML(o.seeds||0,10,"ごはん","#FFC400")}${pmRingHTML(o.friend||0,100,"親密度","#FF6FA8")}${pmRingHTML(petPower(),500,"韓国語力","#3FA9F5")}</div>
+    ${need?petFeedNeedHTML(o):""}
     ${msg?`<div class="pm-msg">${esc(msg)}</div>`:""}
     <button class="d5-go pm-feed" onclick="petSnack()">🌰 ごはんをあげる</button>
     <button class="d5-ghost" onclick="closePetMenu();openPet()">育成画面をひらく</button>
@@ -6934,9 +6943,33 @@ function petMenuRender(msg,jump){
   if(jump&&el&&!lessFxOn())el.classList.add("pt-jump");
   d5AnchorBubble(".sg-pet",m.querySelector(".pm-card"));
 }
-/* ごはん＝ためた「単語の実」を1つ食べさせる。実が無いときは、実がたまる今日の5問へ案内する */
+/* ごはん（単語の実）が足りないときに勧める集めかた。
+ * ごはんは 今日の5問＝＋3 ／ テスト1本＝＋2 でたまるので、
+ * いま挑戦できるWORLDのステップ（すごろくの現在地）を、たまりやすい順に出す（メール指示 2026-08-08 22:26） */
+function petFeedWays(){
+  const ways=[];
+  if(typeof d5Done==="function"&&!d5Done())
+    ways.push({ico:"🗓",t:"今日の5問をやる",s:"5問こたえるだけ",n:PET_SEED.d5||0,act:"closePetMenu();openDaily5()"});
+  _msRoomCandidates().slice(0,2).forEach(r=>{
+    const g=boardState(curLevel,r.sec).cleared+1,nn=String(r.sec).padStart(2,"0");
+    ways.push({ico:"🚩",t:"WORLD "+nn+" のステップ "+r.sec+"-"+g,
+      s:"いま挑戦できるステップ（PWR "+r.pwr+"％）",n:PET_SEED.test||0,act:"petGoStep("+r.sec+")"});
+  });
+  return ways;
+}
+function petFeedNeedHTML(o){
+  const ways=petFeedWays();
+  return `<div class="pm-need">ごはんが足りません（いま 🌰<b>${(o||petState()).seeds||0}</b>）<br>ここで集められます</div>
+    <div class="pm-way">${ways.map(w=>`<button onclick="${w.act}">
+      <span class="pw-ico">${w.ico}</span>
+      <span class="pw-b"><span class="pw-t">${esc(w.t)}</span><span class="pw-s">${esc(w.s)}</span></span>
+      <span class="pw-n">🌰+${w.n}</span></button>`).join("")}</div>`;
+}
+/* おすすめのステップへ移動する（そのWORLDの現在地まで運ぶ） */
+function petGoStep(sec){closePetMenu();missionTapRoom(sec);}
+/* ごはん＝ためた「単語の実」を1つ食べさせる。実が無いときは「ごはんを集める」を同じ吹き出しに出す */
 function petSnack(){
-  if((petState().seeds||0)<1){closePetMenu();openDaily5();return;}
+  if((petState().seeds||0)<1){petMenuRender("",false,true);return;}
   const res=petFeed("snack");
   petMenuRender(res?(res.evolved?("✨ "+res.stage.name+"（"+res.stage.ko+"）に進化！")
     :res.up?("Lv."+res.lv0+" → Lv."+res.lv1+" に成長！")
@@ -6959,7 +6992,7 @@ function openGiftMenu(){
   d5AnchorBubble(".sg-gift",m.querySelector(".gf-card"));
 }
 function closeGiftMenu(){const m=document.getElementById("gift-modal");if(m)m.classList.remove("on");}
-/* ハンバーガーメニューの吹き出し：カレンダー／ROOM一覧／スペシャルモード */
+/* ハンバーガーメニューの吹き出し：カレンダー／WORLD一覧／スペシャルモード */
 function openHomeMenu(){
   const m=document.getElementById("menu-modal");if(!m)return;
   if(!m.classList.contains("on"))pushNav("modal");
@@ -6971,7 +7004,7 @@ function closeHomeMenu(){const m=document.getElementById("menu-modal");if(m)m.cl
 /* ============================================================ 今週のミッション ============================================================
  * 「今日の5問」を終えたら、中央のカプセルは「今週のミッション」に入れかわる（メール指示 2026-08-01）。
  * 週の区切りは月曜あさ5:00（1日の区切りは今日の5問と同じ）。ミッションはその週のはじめに5つ組み立てて、週のあいだ固定する。
- *   1〜2つめ … これまでの学習から選んだおすすめROOMで目標ランクをとる（タップでそのROOMまでスクロールして移動）
+ *   1〜2つめ … これまでの学習から選んだおすすめWORLDで目標ランクをとる（タップでそのWORLDまでスクロールして移動）
  *   3つめ   … 書き取り／スペシャル問題（青赤緑）／3秒以内の即答 などから、その週ぶんの1つ
  * ミッションは3つだけに絞ってある（メール指示 2026-08-08）。
  * 進み具合は保存せず、そのつど履歴・すごろくの記録から数え直す（記録の二重管理を作らない）。 */
@@ -6987,49 +7020,49 @@ function weekStartMs(ms){
 }
 /* 日付のキー(YYYY-MM-DD)とそのまま大小比較できるよう0埋めで作る */
 function weekKey(ms){const d=new Date(weekStartMs(ms)),p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());}
-/* スペシャル問題（青赤緑）をクリアした時刻を残す。青・赤＝風船をぜんぶ割った時／緑＝そのROOMのテストを完走した時 */
+/* スペシャル問題（青赤緑）をクリアした時刻を残す。青・赤＝風船をぜんぶ割った時／緑＝そのWORLDのテストを完走した時 */
 function loadSpClears(){const a=_lsJSON(LS_SPCLEAR,()=>[]);return Array.isArray(a)?a:[];}
 function noteSpecialClear(){const a=loadSpClears();a.push(new Date().toISOString());_lsSetJSON(LS_SPCLEAR,a.slice(-80));}
-/* おすすめROOM：学習が進んでいて、まだランクを上げきっていないROOMほど「あと一歩」なので上に出す */
+/* おすすめWORLD：学習が進んでいて、まだランクを上げきっていないWORLDほど「あと一歩」なので上に出す */
 function _msRoomCandidates(){
   const cnt=(LEVEL_INFO[curLevel]||{}).count||0,out=[];
   for(let i=1;i<=cnt;i++){
     const ri=roomInfoFor(i);
     out.push({sec:i,pwr:ri.pwr,learned:ri.learned,rate:ri.total?ri.learned/ri.total:0,best:ri.best});
   }
-  const played=out.filter(r=>r.learned>0&&(RANK_VAL[r.best]||0)<5); // Sランクまで取り切ったROOMは外す
+  const played=out.filter(r=>r.learned>0&&(RANK_VAL[r.best]||0)<5); // Sランクまで取り切ったWORLDは外す
   const src=played.length?played:out;
   return src.slice().sort((a,b)=>(b.rate-a.rate)||(b.pwr-a.pwr)||(a.sec-b.sec));
 }
 function buildWeeklyMissions(){
   const rooms=_msRoomCandidates().slice(0,2).map(r=>({
-    kind:"room",sec:r.sec,rank:MS_RANK_UP[r.best]||"C",n:1})); // 未挑戦のROOMはまずCランクを目標にする
+    kind:"room",sec:r.sec,rank:MS_RANK_UP[r.best]||"C",n:1})); // 未挑戦のWORLDはまずCランクを目標にする
   // バリエーションを増やした（メール指示 2026-08-02）。どれも履歴・記憶率・今日の5問の記録から数え直せるものだけ
   const pool=[{kind:"write",n:3},{kind:"special",n:6},{kind:"fast",n:10},
     {kind:"tests",n:5},{kind:"d5",n:5},{kind:"newword",n:20},{kind:"rooms",n:3},{kind:"perfect",n:1},{kind:"streak",n:5}];
   const h=_d5Hash("kwt-ms|"+weekKey()+"|"+curLevel); // 週ごとに決まる＝週のあいだ入れ替わらない
   const i0=h%pool.length,i1=(i0+1+(Math.floor(h/pool.length)%(pool.length-1)))%pool.length;
   const list=rooms.concat([pool[i0],pool[i1]]);
-  for(let i=0;list.length<MS_N&&i<pool.length;i++)if(list.indexOf(pool[i])<0)list.push(pool[i]); // ROOMが足りない級でも3つ埋める
+  for(let i=0;list.length<MS_N&&i<pool.length;i++)if(list.indexOf(pool[i])<0)list.push(pool[i]); // WORLDが足りない級でも3つ埋める
   return list.slice(0,MS_N);
 }
 function loadMission(){
   const o=_lsJSON(LS_MISSION,()=>({})),w=weekKey();
-  // 週が変わったとき・級を切りかえたときは組み直す（おすすめROOMは級ごとに違うため）
+  // 週が変わったとき・級を切りかえたときは組み直す（おすすめWORLDは級ごとに違うため）
   if(o.week!==w||o.level!==curLevel||!Array.isArray(o.list)||o.list.length!==MS_N){
     const n={week:w,level:curLevel,list:buildWeeklyMissions()};_lsSetJSON(LS_MISSION,n);return n;
   }
   return o;
 }
 function missionTitle(m){
-  if(m.kind==="room")return "ROOM "+String(m.sec).padStart(2,"0")+" で "+m.rank+" ランクをとる";
+  if(m.kind==="room")return "WORLD "+String(m.sec).padStart(2,"0")+" で "+m.rank+" ランクをとる";
   if(m.kind==="write")return "書き取り問題を"+m.n+"問正解する";
   if(m.kind==="special")return "スペシャル問題（青赤緑）のいずれかを"+m.n+"回クリアする";
   if(m.kind==="fast")return "3秒以内に答えて正解するを"+m.n+"問";
   if(m.kind==="tests")return "テストを"+m.n+"本やりきる";
   if(m.kind==="d5")return "今日の5問を"+m.n+"回こなす";
   if(m.kind==="newword")return "はじめての単語を"+m.n+"語おぼえる";
-  if(m.kind==="rooms")return "ちがうROOMを"+m.n+"つあそぶ";
+  if(m.kind==="rooms")return "ちがうWORLDを"+m.n+"つあそぶ";
   if(m.kind==="perfect")return "12問ぜんぶ正解を"+m.n+"回";
   if(m.kind==="streak")return "連続学習を"+m.n+"日つづける";
   return "";
@@ -7048,7 +7081,7 @@ function missionProgress(m){
     Object.keys(s).forEach(id=>{const t=s[id]&&s[id].firstCorrectAt;if(t&&new Date(t).getTime()>=ws)c++;});
     return c;
   }
-  if(m.kind==="room"){ // すごろくのマスに残っているランク（このROOM・今週ぶん）で判定する
+  if(m.kind==="room"){ // すごろくのマスに残っているランク（このWORLD・今週ぶん）で判定する
     const need=RANK_VAL[m.rank]||2,tiles=boardState(curLevel,m.sec).tiles;
     return Object.keys(tiles).some(g=>{const t=tiles[g];
       return t&&t.at&&new Date(t.at).getTime()>=ws&&(RANK_VAL[t.rank]||0)>=need;})?1:0;
@@ -7099,14 +7132,14 @@ function u5MissionHTML(){
       +'<span class="ms-n">'+r.cur+'<em>/'+r.m.n+'</em></span></button>';
   }).join("");
   return '<div class="u5-sec">'
-    +'<div class="u5-hd"><span class="u5-kick">MISSION</span><span class="u5-ti">今週のミッション</span>'
+    +'<div class="u5-hd"><span class="u5-ti">今週のミッション</span>'
     +'<span class="u5-ring'+(done>=MS_N?" full":"")+'" style="--p:'+Math.round(done/MS_N*100)+'"><b>'+done+'</b><i>/'+MS_N+'</i></span></div>'
     +'<div class="ms-list">'+html+'</div>'
     +(done>=MS_N?'<div class="ms-all">🎉 今週はぜんぶ達成！</div>':'')
     +'</div>';
 }
 function missionRenderModal(){d5RenderModal();} // 中身は統合ポップアップに一本化した
-/* おすすめROOMのミッションをタッチしたら、そのROOMまでスクロールして移動する（メール指示 2026-08-01） */
+/* おすすめWORLDのミッションをタッチしたら、そのWORLDまでスクロールして移動する（メール指示 2026-08-01） */
 function missionTapRoom(sec){
   closeDaily5();
   show("s-home");
@@ -7117,26 +7150,26 @@ function missionTapRoom(sec){
     if(typeof showRoomPager==="function")showRoomPager();
   },220);
 }
-/* スペシャル問題：初級・中級それぞれで3ROOMだけ「スペシャル問題発生中！」になる。
- *   青ROOM … 韓国語の風船3つ × 日本語の大砲3つ（組み合わせ当て）
- *   赤ROOM … 韓国語の風船1つ（出題）× 日本語の大砲4つ（4択）
- *   緑ROOM … ジグソーパズルの穴うめ（12問すべてがこの形式）
- * 青・赤ROOMのテストには5〜11問目のどこかにシューティングが1問だけ混ざる（採点・記憶スコアには入らない）。
- * テストを1本終えるたびに、6つとも別のROOMへ入れ替わる。 */
+/* スペシャル問題：初級・中級それぞれで3WORLDだけ「スペシャル問題発生中！」になる。
+ *   青WORLD … 韓国語の風船3つ × 日本語の大砲3つ（組み合わせ当て）
+ *   赤WORLD … 韓国語の風船1つ（出題）× 日本語の大砲4つ（4択）
+ *   緑WORLD … ジグソーパズルの穴うめ（12問すべてがこの形式）
+ * 青・赤WORLDのテストには5〜11問目のどこかにシューティングが1問だけ混ざる（採点・記憶スコアには入らない）。
+ * テストを1本終えるたびに、6つとも別のWORLDへ入れ替わる。 */
 const LS_SPECIAL="kwt_special_v4";
 let _spCache=null;
 function _spPick(level,exclude){
   const secs=Object.keys(LEVEL_SECTIONS[level]||{}).map(Number).filter(x=>x>0).sort((a,b)=>a-b);
   if(!secs.length)return 0;
   const pool=secs.filter(n=>exclude.indexOf(n)<0);
-  const src=pool.length?pool:secs; // ROOMが少ない級でも必ず1つ返す
+  const src=pool.length?pool:secs; // WORLDが少ない級でも必ず1つ返す
   return src[Math.floor(Math.random()*src.length)];
 }
 function _spRoll(prev){
   const o={};
   ["beginner","middle"].forEach(lv=>{
     const p=(prev&&prev[lv])||{};
-    const blue=_spPick(lv,[p.blue,p.red,p.green].filter(Boolean));   // 直前と同じROOMは避ける
+    const blue=_spPick(lv,[p.blue,p.red,p.green].filter(Boolean));   // 直前と同じWORLDは避ける
     const red=_spPick(lv,[p.blue,p.red,p.green,blue].filter(Boolean));
     const green=_spPick(lv,[p.blue,p.red,p.green,blue,red].filter(Boolean));
     o[lv]={blue,red,green};
@@ -7151,7 +7184,7 @@ function specialRooms(){
   }
   _spCache=o;return o;
 }
-/* テストを1本終えるたびに呼ぶ：スペシャルROOMを全部ほかのROOMへ切り替える */
+/* テストを1本終えるたびに呼ぶ：スペシャルWORLDを全部ほかのWORLDへ切り替える */
 function rerollSpecial(){
   const o=_spRoll(specialRooms());
   try{localStorage.setItem(LS_SPECIAL,JSON.stringify(o));}catch(e){}
@@ -7181,7 +7214,7 @@ function sgBoardHTML(n){
     tiles.push('<button class="sg-tile'+(done?" done":"")+(now?" now":"")+(lock?" lock":"")+'" data-x="'+p.x+'" data-y="'+p.y+'" style="left:'+p.x+'px;top:'+p.y+'px"'
       +' onclick="sgTap('+n+','+g+')" aria-label="マス'+g+'">'
       +(src?'<img class="sg-img" src="'+src+'" alt="" loading="lazy" decoding="async" onload="sgFitBadges(this)">':'<span class="sg-noimg">🃏</span>')
-      +'<span class="sg-num">'+n+'-'+g+'</span>' /* 番号は「ROOMナンバー-ステップナンバー」（例 ROOM3の5マス目＝3-5。メール指示 2026-08-02） */
+      +'<span class="sg-num">'+n+'-'+g+'</span>' /* 番号は「WORLDナンバー-ステップナンバー」（例 WORLD3の5マス目＝3-5。メール指示 2026-08-02） */
       +(rank?'<span class="sg-rank" style="background:'+(RANK_COLORS[rank]||"#555")+'">'+rank+'</span>':"")
       +(now?'<span class="sg-here'+(sp?" sp":"")+(spk==="red"?" sp-red":"")+(spk==="green"?" sp-green":"")+'"><span>ス</span><span>タ</span><span>ー</span><span>ト</span></span>':"")
       +((now&&sp)?'<span class="sg-spbub'+(spk==="red"?" red":"")+(spk==="green"?" green":"")+'"><i>✦</i>スペシャル問題発生中！<i>✦</i></span>':"")
@@ -7196,7 +7229,7 @@ function sgBoardHTML(n){
       +' data-x="'+Math.round(dx)+'" data-y="'+dy+'" style="left:'+Math.round(dx-sz/2)+'px;top:'+dy+'px;width:'+sz+'px;opacity:'+(0.82+rnd()*0.18).toFixed(2)+'" onerror="this.style.display=\'none\'">');
   }
   const nn=String(n).padStart(2,"0");
-  // 進捗チップ(.sg-prog)はルームメニューの周回表示(.hv-lap)へ移した（メール指示 2026-07-31）
+  // 進捗チップ(.sg-prog)はWORLDメニューの周回表示(.hv-lap)へ移した（メール指示 2026-07-31）
   return '<div class="sg-wrap">'
     +'<img class="sg-bg" src="rooms/'+level+'-'+nn+'.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">'
     +'<div class="sg-scroll" data-n="'+n+'"><div class="sg-track" style="height:'+h+'px">'
@@ -7208,7 +7241,7 @@ function sgBoardHTML(n){
     +'</div></div>'
     +'</div>'
     // 現在地ボタンは器の外（スライド直下）に置いてアイコン群と左右位置を揃える
-    // （今日の5問／ミッションはROOMごとに変わらないので、home-wrap直下のフロート1組に移してある）
+    // （今日の5問／ミッションはWORLDごとに変わらないので、home-wrap直下のフロート1組に移してある）
     +'<button class="sg-fbtn sg-home" onclick="sgScrollToCurrent('+n+',true)" aria-label="現在地に戻る">'+SG_HOME_ICON+'</button>';
 }
 /* 画像ファイルは正方形でも、被写体の形は縦長・横長とまちまちで、まわりの透明部分の量が画像ごとに違う。
@@ -7272,9 +7305,9 @@ function sgScrollToCurrent(n,smooth){
   if(smooth&&sc.scrollTo)sc.scrollTo({top,behavior:"smooth"});else sc.scrollTop=top;
   sgApplyDepth(sc);sgSyncHome(sc);
 }
-/* 全ROOMスライドの道と遠近を初期化（スライドを作り直すたびに呼ぶ） */
+/* 全WORLDスライドの道と遠近を初期化（スライドを作り直すたびに呼ぶ） */
 function sgHydrateAll(){document.querySelectorAll(".room-slide .sg-scroll").forEach(sc=>sgHydrate(+sc.dataset.n));}
-/* 近傍ROOMのすごろくだけを実描画する（遠いROOMは空のまま＝DOMとGPUレイヤーを増やさない） */
+/* 近傍WORLDのすごろくだけを実描画する（遠いWORLDは空のまま＝DOMとGPUレイヤーを増やさない） */
 function fillNearbyBoards(){
   if(_listMode)return;
   const keep=new Set([curSection-1,curSection,curSection+1]);
@@ -7286,7 +7319,7 @@ function fillNearbyBoards(){
     const sc=host.querySelector('.sg-scroll[data-n="'+n+'"]');
     if(sc){sgHydrate(n);sgScrollToCurrent(n);}
   });
-  // 離れたROOMは器に戻してDOMを解放する
+  // 離れたWORLDは器に戻してDOMを解放する
   document.querySelectorAll('.room-slide .sg-scroll').forEach(sc=>{
     const n=+sc.dataset.n;if(keep.has(n))return;
     const wrap=sc.closest('.sg-wrap');if(!wrap)return;
@@ -7317,7 +7350,7 @@ let _gearActive=false,_gearTimer=null,_gearStart=0,_gearAnswered=false;
 let _gear={rounds:[],idx:0,score:0,rot:0,shift:0,oks:[]};
 
 function _gearBuildRounds(){
-  // 現在ROOMの単語からラウンドごとに4語ずつ。プールが足りなければシャッフルして継ぎ足す
+  // 現在WORLDの単語からラウンドごとに4語ずつ。プールが足りなければシャッフルして継ぎ足す
   let pool=shuffle(sectionPoolWords().filter(w=>w));
   while(pool.length<GEAR_ROUNDS*4)pool=pool.concat(shuffle(sectionPoolWords().filter(w=>w)));
   const rounds=[];
@@ -7491,7 +7524,7 @@ function updateStartBtnMode(){const b=document.querySelector(".start-button");if
 
 /* ============================================================ スペシャルモード（ミニゲーム集） ============================================================
  * 左アイコン群4つ目「スペシャル」から起動。歯車モードもここへ集約。
- * いずれも記憶エンジン（memoryScore等）を更新しない自己完結ゲーム。出題は現在ROOMの単語プールから。 */
+ * いずれも記憶エンジン（memoryScore等）を更新しない自己完結ゲーム。出題は現在WORLDの単語プールから。 */
 let _sp={_t:null,_ivs:[]};
 function _spClear(){if(_sp._t){clearTimeout(_sp._t);_sp._t=null;}_sp._ivs.forEach(clearInterval);_sp._ivs=[];}
 function _spTimeout(fn,ms){_sp._t=setTimeout(fn,ms);}
@@ -7555,7 +7588,7 @@ function openSpecial(){
       ${SP_MENU.map(t=>tile(t[0],t[1],t[2],t[3])).join("")}
     </div>
     ${prev}
-    <div class="sp-note">遊ぶとXPがもらえます（記憶スコアには影響しません）。<br>出題はいま選んでいるROOMの単語から。</div>
+    <div class="sp-note">遊ぶとXPがもらえます（記憶スコアには影響しません）。<br>出題はいま選んでいるWORLDの単語から。</div>
   </div>`;
   m.classList.add("on");
   m.onclick=e=>{if(e.target===m)closeSpecial();};
@@ -7910,7 +7943,7 @@ function spSurvival(){
 }
 
 /* ============ 追加ミニゲーム8種（v2.118）============
- * いずれも記憶エンジンに影響しない自己完結ゲーム。出題は現在ROOMの単語プール。
+ * いずれも記憶エンジンに影響しない自己完結ゲーム。出題は現在WORLDの単語プール。
  * 既存ヘルパー(_spPool・_spDistractors・_spTop・_spResult・_spTimeout・_spInterval・_spClear・speakKorean・sfx系・shuffle・esc)を再利用。 */
 const _HCHO=["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
 const _HJUNG=["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"];
@@ -8288,14 +8321,14 @@ function bindChoiceDrag(){
 }
 
 /* ============================================================ スペシャル問題：シューティング ============================================================
- * スペシャル発生中のROOM（初級1つ・中級1つ／毎日入替）のテストにだけ、5〜11問目のどこかに1問だけ混ざる。
+ * スペシャル発生中のWORLD（初級1つ・中級1つ／毎日入替）のテストにだけ、5〜11問目のどこかに1問だけ混ざる。
  * ・下＝日本語の大砲3つ（丸の中に単語画像、その下に日本語）／上＝韓国語の風船3つ
  * ・大砲は左右スワイプ（ダイヤル：右へ向けたいときは右から左へ払う）で傾き、タップ＝1発。連打ぶんだけ出る
  * ・意味の合う風船に正しい大砲の弾を5発当てると割れる。撃ちまちがえると必要な数がその分ふえる（5発誤爆＝10発）
  * ・記憶スコア・履歴・採点には一切入れない（お楽しみ枠）。3つ割ると次の問題へ進む */
 const SHG_NEED=5, SHG_SPEED=780, SHG_MAXANG=72, SHG_COOL=110; // 必要弾数／弾速(px/秒)／可動域(±度)／連打の最短間隔(ms)
 const SHG_COLORS=["#FF6B81","#38BDF8","#FBBF24"];
-const SHG_COLOR4="#FF6B81"; // 4択版（赤ROOM）の風船
+const SHG_COLOR4="#FF6B81"; // 4択版（赤WORLD）の風船
 let _shg=null;
 
 /* 意味が多い語は最初の意味だけ（大砲に収める）。かっこ内の読点では切らない */
@@ -8458,7 +8491,7 @@ function shgDropBall(b){
   const src=(typeof WORD_IMG!=="undefined"&&w.ko)?WORD_IMG[w.ko]:null;
   const el=document.createElement("div");el.className="shg-ball";
   const bg=(typeof roomBg==="function")?roomBg(curSection):null;
-  if(bg)el.style.background=bg+"D9"; // ROOM色85%（玉のカプセルと同じ塗り）
+  if(bg)el.style.background=bg+"D9"; // WORLD色85%（玉のカプセルと同じ塗り）
   el.style.left=b.x+"px";el.style.top=b.y+"px";
   el.style.setProperty("--fall",Math.max(120,Math.round(g.H-42-b.y))+"px");
   el.innerHTML=src?`<img src="${src}" alt="">`:`<span>🃏</span>`;
@@ -8512,8 +8545,8 @@ function shgStop(){
 /* シューティングを終えて次の問題へ（結果・記憶スコアには何も残さない） */
 function shootAdvance(){shgStop();afterAnswer();}
 
-/* ============================================================ スペシャル問題：パズル穴うめ（緑ROOM） ============================================================
- * 緑ROOMのテストは12問すべてがこの形式。日本語の意味に対する韓国語を、1文字だけ抜いたジグソーパズルにして出す。
+/* ============================================================ スペシャル問題：パズル穴うめ（緑WORLD） ============================================================
+ * 緑WORLDのテストは12問すべてがこの形式。日本語の意味に対する韓国語を、1文字だけ抜いたジグソーパズルにして出す。
  * 2文字なら1文字目か2文字目のどちらかが抜ける。抜けた穴と同じ形のピースが4つ並び、正しいものをはめる。
  * 通常の四択と同じく採点・記憶スコアに入る（出題形式が変わるだけ）。 */
 const PZ_HANGUL=/[가-힣]/;
@@ -8771,7 +8804,7 @@ function spawnWordDrop(word,speed){
   try{
     const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[word.ko]:null;if(!src)return;
     const r=32+Math.round(28*Math.min(1,Math.max(0,speed==null?0.5:speed))); // 速答ほど大きい玉（直径64〜120px）
-    const bg=roomBg(curSection); // 玉のカプセル色は出題ROOMの背景色
+    const bg=roomBg(curSection); // 玉のカプセル色は出題WORLDの背景色
     _ballLog.push({src,r,bg});if(_ballLog.length>48)_ballLog.shift();
     spawnBallRaw(src,r,bg);
   }catch(e){}
@@ -8790,7 +8823,7 @@ function spawnBallRaw(src,r,bg,layerId){
   const el=document.createElement("div");el.className="qr-card";
   el.style.width=el.style.height=(r*2)+"px";
   el.style.willChange="transform"; // 落下中のみGPU昇格（停止時にautoへ戻す）
-  if(bg)el.style.borderColor=bg; // 枠が出題ROOMの色（カードの面は単語カードと同じ白→クリーム）
+  if(bg)el.style.borderColor=bg; // 枠が出題WORLDの色（カードの面は単語カードと同じ白→クリーム）
   el.innerHTML=src?`<img src="${src}" alt="">`:""; // 画像なし単語は無地のカード
   layer.appendChild(el);
   const W=layer.clientWidth||602;
@@ -8800,7 +8833,7 @@ function spawnBallRaw(src,r,bg,layerId){
 }
 function qrClearLayer(layerId){QR.balls=QR.balls.filter(b=>{if(b.layer===layerId){b.el.remove();return false;}return true;});}
 function qrStopRain(){if(QR.rainTimer){clearInterval(QR.rainTimer);QR.rainTimer=0;}}
-/* ホームの玉レイヤーは現在ROOMスライドのslide-inner最背面に挿し込む（ROOM画像の後ろに積もる）。再構築・ROOM切替で差し直しても玉DOMは保持 */
+/* ホームの玉レイヤーは現在WORLDスライドのslide-inner最背面に挿し込む（WORLD画像の後ろに積もる）。再構築・WORLD切替で差し直しても玉DOMは保持 */
 function attachHomeRain(){
   if(!QR.homeEl){QR.homeEl=document.createElement("div");QR.homeEl.className="q-rain";QR.homeEl.id="home-rain";}
   const host=document.querySelector(`.room-slide[data-n="${curSection}"] .slide-inner`);
@@ -9030,10 +9063,72 @@ function pickResultCheer(totalDisp,nCorrect,newCnt){
   else pool=RESULT_CHEERS.mid;
   return pool[Math.floor(Math.random()*pool.length)];
 }
+/* ---- 結果画面の見た目は1本にまとめる（メール指示 2026-08-08 22:26） ----
+ * テスト直後も「過去の結果」も、下のresultCardsHTML＋resultViewHTMLで同じ画面を描く。
+ * 「過去の結果」専用の表組みUIは廃止した。 */
+/* 結果の単語一覧は「獲得カード」風のグリッド。各カードに正誤記号と記憶率(忘却度)＋変化を載せる */
+function resultCardsHTML(R){
+  const SYM={correct:["○","#FF3B3B"],incorrect:["×","#2F6FE0"],unknown:["－","rgba(255,255,255,.75)"],timeout:["△","#DFB10F"]};
+  return R.map(r=>{
+    const sy=SYM[r.answerStatus]||["−",""];
+    const syc=r.isHintProvided?"#FFD84D":sy[1];
+    const dAfter=(r.displayMemoryScoreAfter!=null?r.displayMemoryScoreAfter:(r.displayMemoryScoreAfterDecay!=null?r.displayMemoryScoreAfterDecay:r.memoryScoreAfter))||0;
+    const dBefore=(r.displayMemoryScoreBefore!=null?r.displayMemoryScoreBefore:r.memoryScoreBefore)||0;
+    const cardsGot=(r.cardsEarned!=null?r.cardsEarned:0); // このカードで獲得した枚数
+    const memDelta=Math.round(dAfter-dBefore); // 記憶率の増減（±）＝テスト前後の記憶率の差
+    const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[r.korean])?`<img src="${WORD_IMG[r.korean]}" alt="">`:`<div class="cg-noimg">🃏</div>`;
+    const rare=(cardsGot>0&&r.cardRarity)?r.cardRarity:null; // このカードのレア度（メール指示 2026-08-01）
+    // レア度は左上の小さな札をやめ、カードの中・絵の裏に薄く大きく、右上に寄せて出す（メール指示 2026-08-02）
+    const rareTag=(rare&&rare!=="N")?`<span class="rc-rareb">${rare}</span>`:"";
+    return `<div class="rc-card speakable${rare?" rare-"+rare:""}" data-id="${r.wordId||0}" data-ko="${esc(r.korean)}">
+      ${rareTag}
+      <div class="rc-imgw"><span class="rc-sym" style="color:${syc}">${sy[0]}</span>${img}</div>
+      <div class="rc-ko">${esc(r.korean)}</div>
+      <div class="rc-ja">${esc(r.japanese)}</div>
+      <div class="rc-foot"><span class="rc-cards">${cardsGot}枚</span><span class="rc-delta" style="color:${memDelta>=0?'#1FAD62':'#FF6B6B'}">${memDelta>0?'+':''}${memDelta}%</span></div>
+    </div>`;
+  }).join("");
+}
+/* animate=true のときだけ、点数・XP・PWRを0（テスト前の値）から描いてアニメで動かす。
+ * 過去の結果は動かす必要がないので、はじめから最終の値で描く。 */
+function resultViewHTML(o){
+  const xpPct=Math.min(100,Math.round((o.xpCur/(o.xpNext||1))*100));
+  const pwrGain=(o.pwrDelta==null)?"" // 過去の結果は「今回いくら上がったか」が分からないので数字は出さない
+    :`<span class="res-mgain" style="color:${o.pwrDelta>=0?"#1FAD62":"#FF6B6B"}">${o.pwrDelta>0?"+":""}${o.pwrDelta}<span>%</span></span>`;
+  return `
+   <div class="res">
+    <div class="res-head">
+      <!-- 左＝メダル／右上＝点数と正誤／右下＝XP・PWRの2本のメーター。コメントは全体の一番下に1行（メール指示 2026-07-29） -->
+      <div class="res-top">
+        <div class="res-idw">
+          <div class="rank-c rank-medal" style="background:${RANK_COLORS[o.rank]||"#555"}">${o.rank||"-"}</div>
+        </div>
+        <div class="res-side">
+          <!-- 上の段：左＝点数／中＝正解数／右＝不正解数（メール指示 2026-07-29） -->
+          <div class="res-scorerow">
+            <div class="res-score"><b id="res-score-n" data-to="${o.total}">${o.animate?0:o.total}</b><span> / 100</span></div>
+            <div class="res-cnt" style="color:#FF3B3B">○ ${o.nCorrect}</div>
+            <div class="res-cnt" style="color:#2F6FE0">× ${o.nWrong}</div>
+          </div>
+          <!-- メーターはステータス画面（ホームのヘッダー）と同じ見た目：黒の座布団＋右揃えラベル＋太いゲージ -->
+          <div class="res-meters">
+            <div class="res-mrow"><span class="res-mlab">Lv.${o.xpLevel}</span><div class="res-mg"><div class="res-mfill" id="res-xpfill" style="background:#FFFF37;width:${o.animate?0:xpPct}%"></div></div><span class="res-mval">${o.xpCur}/${o.xpNext}</span><span class="res-mgain res-xp-gain" id="res-xp-gain" data-to="${o.xpGain}">+${o.animate?0:o.xpGain}<span> XP</span></span></div>
+            <div class="res-mrow"><span class="res-mlab">PWR</span><div class="res-mg"><div class="res-mfill" id="res-pwrfill" style="background:#00FF37;width:${o.animate?o.pwrFrom:o.pwrTo}%"></div></div><span class="res-mval">${o.pwrTo}%</span>${pwrGain}</div>
+          </div>
+        </div>
+      </div>
+      <div class="res-cheer"><span class="rch">${o.cheer}</span></div>
+    </div>
+    ${o.typeUpd||""}
+    <div class="res-listwrap"><div class="res-cards">${o.rows}</div></div>
+    ${resBtns4HTML(o.third)}
+    ${adSlotHTML()}
+   </div>`;
+}
 function finishTest(){
   txnCommit();clearResumePoint(); // 完走したので記録を確定し、復帰の控えを消す
   if(state.spk==="green")try{noteSpecialClear();}catch(e){} // 緑は12問すべてがパズル＝完走でクリア1回ぶん（青・赤は風船を割った時に数える）
-  rerollSpecial(); // 1本（12問／13問）終えるたびにスペシャルROOMを別のROOMへ入れ替える
+  rerollSpecial(); // 1本（12問／13問）終えるたびにスペシャルWORLDを別のWORLDへ入れ替える
   const R=state.results,totalRaw=R.reduce((a,r)=>a+r.score,0),total=Math.ceil(totalRaw),rank=rankFor(total); // 小数は切り上げ
   const totalDisp=total;
   const nCorrect=R.filter(r=>r.isCorrect).length,nWrong=12-nCorrect;
@@ -9058,33 +9153,13 @@ function finishTest(){
   track("test_complete",{score:totalDisp,rank:rank,correct:nCorrect});
   const typeUpd=(dg.changed&&dg.prevCode&&dg.prevCode!==dg.diag.code)
     ?`<div class="type-upd">WORD TYPE UPDATED　<b>${esc(dg.prevCode)} → ${esc(dg.diag.code)}</b></div>`:"";
-  const SYM={correct:["○","#FF3B3B"],incorrect:["×","#2F6FE0"],unknown:["－","rgba(255,255,255,.75)"],timeout:["△","#DFB10F"]};
-  // 結果の単語一覧は「獲得カード」風のグリッド。各カードに正誤記号と記憶率(忘却度)＋変化を載せる
-  const rows=R.map(r=>{
-    const sy=SYM[r.answerStatus]||["−",""];
-    const syc=r.isHintProvided?"#FFD84D":sy[1];
-    const dAfter=(r.displayMemoryScoreAfter!=null?r.displayMemoryScoreAfter:(r.displayMemoryScoreAfterDecay!=null?r.displayMemoryScoreAfterDecay:r.memoryScoreAfter))||0;
-    const dBefore=(r.displayMemoryScoreBefore!=null?r.displayMemoryScoreBefore:r.memoryScoreBefore)||0;
-    const cardsGot=(r.cardsEarned!=null?r.cardsEarned:0); // このカードで獲得した枚数
-    const memDelta=Math.round(dAfter-dBefore); // 記憶率の増減（±）＝テスト前後の記憶率の差
-    const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[r.korean])?`<img src="${WORD_IMG[r.korean]}" alt="">`:`<div class="cg-noimg">🃏</div>`;
-    const rare=(cardsGot>0&&r.cardRarity)?r.cardRarity:null; // このカードのレア度（メール指示 2026-08-01）
-    // レア度は左上の小さな札をやめ、カードの中・絵の裏に薄く大きく、右上に寄せて出す（メール指示 2026-08-02）
-    const rareTag=(rare&&rare!=="N")?`<span class="rc-rareb">${rare}</span>`:"";
-    return `<div class="rc-card speakable${rare?" rare-"+rare:""}" data-id="${r.wordId||0}" data-ko="${esc(r.korean)}">
-      ${rareTag}
-      <div class="rc-imgw"><span class="rc-sym" style="color:${syc}">${sy[0]}</span>${img}</div>
-      <div class="rc-ko">${esc(r.korean)}</div>
-      <div class="rc-ja">${esc(r.japanese)}</div>
-      <div class="rc-foot"><span class="rc-cards">${cardsGot}枚</span><span class="rc-delta" style="color:${memDelta>=0?'#1FAD62':'#FF6B6B'}">${memDelta>0?'+':''}${memDelta}%</span></div>
-    </div>`;
-  }).join("");
+  const rows=resultCardsHTML(R);
   // このテストで増えたXP（XP＝履歴の得点累計なので、今回の得点合計がそのまま増分）
   // ガチャの「XP2倍チャンス」が生きている間は、同じぶんをボーナスXPとして足して合計2倍にする（メール指示 2026-08-01）
   const _xpRaw=Math.max(0,Math.round(totalRaw)),xpDoubled=xpBoostActive()&&_xpRaw>0;
   if(xpDoubled)addBonus(_xpRaw);
   const xpGain=xpDoubled?_xpRaw*2:_xpRaw,xpNow=xpInfo(),xpLvBefore=state.levelBefore||1,xpLeveled=xpNow.level>xpLvBefore;
-  const _ri=roomInfoFor(curSection),pwrAfter=_ri.pwr,pwrBefore=(state.roomPwrBefore!=null?state.roomPwrBefore:0),pwrDelta=pwrAfter-pwrBefore; // そのROOMのPWR
+  const _ri=roomInfoFor(curSection),pwrAfter=_ri.pwr,pwrBefore=(state.roomPwrBefore!=null?state.roomPwrBefore:0),pwrDelta=pwrAfter-pwrBefore; // そのWORLDのPWR
   enqueuePresent(rank,pwrDelta); // このテストのプレゼント（レベル/ランク/PWR/レインボー）を1個追加
   petFeed("test"); // ことばの友だち：通常テスト・復習でも韓国語エネルギーが育つ
   // ホーム復帰時のお知らせ：その日初テストなら連続ログインボーナス、それ以外はプレゼント到着
@@ -9100,35 +9175,11 @@ function finishTest(){
   // 初テストは白い座布団の告知をやめ、ランクの下の一言コメントだけで伝える（メール指示 2026-07-29）
   const cheer=_firstEver?"初テストおつかれさま！　正解するとカードが集まる。まずは毎日1回！"
     :pickResultCheer(totalDisp,nCorrect,R.filter(r=>(r.displayMemoryScoreBefore||0)===0).length);
-  document.getElementById("s-result").innerHTML=`
-   <div class="res">
-    <div class="res-head">
-      <!-- 左＝メダル／右上＝点数と正誤／右下＝XP・PWRの2本のメーター。コメントは全体の一番下に1行（メール指示 2026-07-29） -->
-      <div class="res-top">
-        <div class="res-idw">
-          <div class="rank-c rank-medal" style="background:${RANK_COLORS[rank]||"#555"}">${rank}</div>
-        </div>
-        <div class="res-side">
-          <!-- 上の段：左＝点数／中＝正解数／右＝不正解数（メール指示 2026-07-29） -->
-          <div class="res-scorerow">
-            <div class="res-score"><b id="res-score-n" data-to="${totalDisp}">0</b><span> / 100</span></div>
-            <div class="res-cnt" style="color:#FF3B3B">○ ${nCorrect}</div>
-            <div class="res-cnt" style="color:#2F6FE0">× ${nWrong}</div>
-          </div>
-          <!-- メーターはステータス画面（ホームのヘッダー）と同じ見た目：黒の座布団＋右揃えラベル＋太いゲージ -->
-          <div class="res-meters">
-            <div class="res-mrow"><span class="res-mlab">Lv.${xpNow.level}</span><div class="res-mg"><div class="res-mfill" id="res-xpfill" style="background:#FFFF37;width:0%"></div></div><span class="res-mval">${xpNow.cur}/${xpNow.next}</span><span class="res-mgain res-xp-gain" id="res-xp-gain" data-to="${xpGain}">+0<span> XP</span></span></div>
-            <div class="res-mrow"><span class="res-mlab">PWR</span><div class="res-mg"><div class="res-mfill" id="res-pwrfill" style="background:#00FF37;width:${pwrBefore}%"></div></div><span class="res-mval">${pwrAfter}%</span><span class="res-mgain" style="color:${pwrDelta>=0?"#1FAD62":"#FF6B6B"}">${pwrDelta>0?"+":""}${pwrDelta}<span>%</span></span></div>
-          </div>
-        </div>
-      </div>
-      <div class="res-cheer"><span class="rch">${cheer}</span></div>
-    </div>
-    ${typeUpd}
-    <div class="res-listwrap"><div class="res-cards">${rows}</div></div>
-    ${resBtns4HTML({ico:"↻",lab:"もう一度",act:"if(typeof track==='function')track('retry');sgRetry()"})}
-    ${adSlotHTML()}
-   </div>`;
+  document.getElementById("s-result").innerHTML=resultViewHTML({
+    animate:true,rank,total:totalDisp,nCorrect,nWrong,cheer,typeUpd,rows,
+    xpLevel:xpNow.level,xpCur:xpNow.cur,xpNext:xpNow.next,xpGain,
+    pwrFrom:pwrBefore,pwrTo:pwrAfter,pwrDelta,
+    third:{ico:"↻",lab:"もう一度",act:"if(typeof track==='function')track('retry');sgRetry()"}});
   show("s-result");
   activateAds(document.getElementById("s-result"));
   bindSpeakables(document.getElementById("s-result")); // 結果のカードをタップ＝その単語を読み上げ
@@ -9141,7 +9192,7 @@ function finishTest(){
     // 増えたものは順番に全面ポップアップで知らせる：XP → PWR → レベルアップ（メール指示 2026-08-01）
     const pops=[];
     if(xpGain>0)pops.push(next=>showGainPopup({lab:xpDoubled?"XP GET! ✕2":"XP GET!",unit:" XP",num:xpGain,color:"#FFFF37",msg:xpDoubled?"XP2倍チャンス中！ もらえるXPが2倍になりました":"問題を解いてXPがたまりました"},next));
-    if(pwrDelta>0)pops.push(next=>showGainPopup({lab:"PWR UP!",unit:" %",num:pwrDelta,color:"#00FF37",msg:"このROOMのPWRが上がりました"},next));
+    if(pwrDelta>0)pops.push(next=>showGainPopup({lab:"PWR UP!",unit:" %",num:pwrDelta,color:"#00FF37",msg:"このWORLDのPWRが上がりました"},next));
     if(xpLeveled)pops.push(next=>showLevelUp(xpNow.level,xpLvBefore,next)); // レベルが上がったらその場で知らせる
     if(pops.length)setTimeout(()=>runPopupChain(pops),_lapDone?2600:1500);
   });
@@ -9187,7 +9238,7 @@ function showCardGetSequence(words,done){
   ov.onclick=fin; // タップでスキップ
 }
 
-/* 学習履歴ページは廃止（単語の履歴はROOMメニュー→単語詳細で確認） */
+/* 学習履歴ページは廃止（単語の履歴はWORLDメニュー→単語詳細で確認） */
 const STATUS_JA={correct:"正解",incorrect:"不正解",unknown:"わからない",timeout:"時間切れ"};
 function fmtDate(iso){const d=new Date(iso);const p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;}
 /* 単語詳細の学習履歴用: 西暦は出さない（メール指示 2026-08-02） */
@@ -9231,13 +9282,13 @@ function wdHistRows(wordId){
     return `<tr><td>${fmtDateNoYear(r.answeredAt)}</td><td>${dir}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}</td><td class="num">${secTxt}</td><td class="num">${r.score}</td><td class="num">${mem}</td></tr>`;
   }).join("");
 }
-/* 単語IDから正しい所属ROOMと室内番号を求める（一覧の並び位置ではなくデータ上の所属。最近学んだ単語などどこから開いてもズレない） */
+/* 単語IDから正しい所属WORLDと室内番号を求める（一覧の並び位置ではなくデータ上の所属。最近学んだ単語などどこから開いてもズレない） */
 function wordRoomInfo(id){
-  if(typeof PRIQQ!=="undefined"&&PRIQQ.ids&&PRIQQ.ids.includes(id)){return {label:"ROOM プリQQ",no:PRIQQ.ids.indexOf(id)+1};}
+  if(typeof PRIQQ!=="undefined"&&PRIQQ.ids&&PRIQQ.ids.includes(id)){return {label:"WORLD プリQQ",no:PRIQQ.ids.indexOf(id)+1};}
   const k=secOfWord()[id];if(!k)return {label:"",no:null};
   const h=k.indexOf("-"),lv=k.slice(0,h),n=k.slice(h+1);
   const arr=(LEVEL_SECTIONS[lv]||{})[n]||[];
-  return {label:(lv==="beginner"?"初級":"中級")+" ROOM "+String(n).padStart(2,"0"),no:arr.indexOf(id)+1};
+  return {label:(lv==="beginner"?"初級":"中級")+" WORLD "+String(n).padStart(2,"0"),no:arr.indexOf(id)+1};
 }
 /* 持っているカードは「獲得したカード N枚」という言葉ではなく、出題中の帯と同じ
    黄色い座布団＋白枠の札のアイコンで出す。レア度ごとに札を分けて枚数を添える（メール指示 2026-08-02）。
@@ -9289,11 +9340,11 @@ function wdSlideHTML(id,i){
     </div>`;
 }
 /* 単語詳細も、単語帳と同じく「ホーム画面の真ん中だけが差し替わる」方式にした（メール指示 2026-08-02）。
-   ステータスバー・ルームメニュー・ページャーはホームのまま出ているので、最上部にあった
-   「初級 ROOM xx」のバーとタイトルの行は廃止。一番下までスクロールしてさらに引くと単語帳へ戻る。 */
+   ステータスバー・WORLDメニュー・ページャーはホームのまま出ているので、最上部にあった
+   「初級 WORLD xx」のバーとタイトルの行は廃止。一番下までスクロールしてさらに引くと単語帳へ戻る。 */
 function renderWordDetail(wordId,back){
   _wdBack=back||"room";
-  // その単語が入っているROOMへ合わせる（最近学んだ単語など一覧の外から開いても背景・ルームメニューが合う）
+  // その単語が入っているWORLDへ合わせる（最近学んだ単語など一覧の外から開いても背景・WORLDメニューが合う）
   const key=secOfWord()[wordId];
   if(key){
     const h=key.indexOf("-"),lv=key.slice(0,h),n=parseInt(key.slice(h+1),10);
@@ -9332,7 +9383,7 @@ function wdCenterHTML(id){
     <button class="wd-more" onclick="closeWordDetail()">↑ さらに下へ引くと単語帳へもどる</button>
   </div>`;
 }
-function wdNav(d){ // 前後の単語へ（同じROOMの並び順）
+function wdNav(d){ // 前後の単語へ（同じWORLDの並び順）
   const ids=sectionIds(),i=ids.indexOf(_wdId);
   if(i<0)return;
   const j=i+d;if(j<0||j>=ids.length)return;
@@ -9404,13 +9455,13 @@ function statusMbtiHTML(){ // UI.pdf準拠: 白15%パネル・職業名・目盛
     <div class="st-job">${any?esc((TYPE_INFO[fullCode]||[""])[0]):"分析中"}</div>
     ${rows}`;
 }
-function statusSlideHTML(n){ // ヘッダー下=ROOM表記+PWRメーター+そのROOMのグラフ
+function statusSlideHTML(n){ // ヘッダー下=WORLD表記+PWRメーター+そのWORLDのグラフ
   const now=Date.now();
   const base=(LEVEL_SECTIONS[curLevel][n]||[]).map(id=>WORD_BY_ID[id]);
   const st2=loadStats();let t=0;base.forEach(w=>t+=displayScore(getStat(w.id,st2),now));
   const cond=Math.round(t/Math.max(1,base.length));
   return `<div class="st-top">
-      <div class="mpanel"><div class="cs-head">ROOM ${String(n).padStart(2,"0")}</div>
+      <div class="mpanel"><div class="cs-head">WORLD ${String(n).padStart(2,"0")}</div>
       <div class="cond pwrline" style="margin:2px 0 4px"><span class="pwr-lab">PWR</span><div class="pwr-g"><div style="background:#00FF37;width:${cond}%"></div></div><span class="pwr-val">${cond}%</span></div></div>
       <div class="st-graphpanel" onclick="curSection=${n};renderRoomCurve()">${memChart(chartPoints(now,base))}
         <div class="t16link" onclick="curSection=${n};renderRoomCurve()">PWRメータ 詳細 <b>›</b></div>
@@ -9418,7 +9469,7 @@ function statusSlideHTML(n){ // ヘッダー下=ROOM表記+PWRメーター+そ�
     </div>`;
 }
 function updateStatusOverlay(){
-  // フルブリード: ROOMごとのスライドが自分の背景色を持ち、左右スワイプで隣ROOMのステータスへ
+  // フルブリード: WORLDごとのスライドが自分の背景色を持ち、左右スワイプで隣WORLDのステータスへ
   const N=LEVEL_INFO[curLevel].count;
   const slides=Array.from({length:N},(_,k)=>{const n=k+1;
     return `<div class="st-slide" style="background:${roomBg(n)}"><div class="st-in" id="st-in-${n}"></div></div>`;}).join("");
@@ -9435,7 +9486,7 @@ function updateStatusOverlay(){
     const n=Math.max(1,Math.min(N,Math.round(sc.scrollLeft/602)+1));
     if(n!==curSection){
       curSection=n;
-      const hv=document.getElementById("hv-rooms");if(hv)hv.scrollLeft=(n+1)*602;saveLastRoom(); // ホーム側も同じROOMへ同期（特別スライドぶんのオフセット）
+      const hv=document.getElementById("hv-rooms");if(hv)hv.scrollLeft=(n+1)*602;saveLastRoom(); // ホーム側も同じWORLDへ同期（特別スライドぶんのオフセット）
     }
     applyBgAll(roomBg(n));
     fill(n);fill(Math.max(1,n-1));fill(Math.min(N,n+1));
@@ -9530,7 +9581,7 @@ function memChart(pts,opt){
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${th}${grid}<polyline class="grow" points="${poly}" fill="none" stroke="#00E650" stroke-width="4.2" stroke-linejoin="round" stroke-linecap="round"/>${dots}${lbl}</svg>`;
 }
 
-/* PWRメータ: 左右スワイプで 全体(最左) → ROOM01..NN を移動。各スライドは遅延レンダリング */
+/* PWRメータ: 左右スワイプで 全体(最左) → WORLD01..NN を移動。各スライドは遅延レンダリング */
 let _curveIdx=0;
 function curveForecastBlock(now,words){
   const s=loadStats();
@@ -9555,7 +9606,7 @@ function curveSlideHTML(i,now){
   const words=(LEVEL_SECTIONS[curLevel][i]||[]).map(id=>WORD_BY_ID[id]);
   const st2=loadStats();let t=0;words.forEach(w=>t+=displayScore(getStat(w.id,st2),now));
   const cond=Math.round(t/Math.max(1,words.length));
-  return `<div class="mpanel"><div class="cs-head">ROOM ${nn}</div>${meter(cond)}</div>${curveOverall(now,words)}${curveForecastBlock(now,words)}`;
+  return `<div class="mpanel"><div class="cs-head">WORLD ${nn}</div>${meter(cond)}</div>${curveOverall(now,words)}${curveForecastBlock(now,words)}`;
 }
 function renderCurveCarousel(){
   const N=LEVEL_INFO[curLevel].count;
@@ -9588,7 +9639,7 @@ function curveOverall(now,words){
   return `<div class="chartbox">${memChart(chartPoints(now,words))}</div>
     <div style="background:rgba(255,255,255,.92);color:#1a1a1a;font-weight:700;font-size:11.5px;line-height:1.7;margin-top:8px;padding:9px 11px">※ 横軸＝過去1週間の実績（日）と今後の予測，縦軸＝推定記憶率。黄色の点線=70%ライン。</div>`;
 }
-function curveWords(now,words){ // ROOMボードの単語表と同じUI（番号・韓・日・記憶）
+function curveWords(now,words){ // WORLDボードの単語表と同じUI（番号・韓・日・記憶）
   const s=loadStats();
   const rows=(words||WORDS).map((w,i)=>{
     const st=getStat(w.id,s),no=String(i+1).padStart(3,"0");
@@ -9602,50 +9653,44 @@ function curveWords(now,words){ // ROOMボードの単語表と同じUI（番号
 }
 function startReviewTest(ids){curLevel="middle";curSection=1;startTest(ids);} // 復習予報は中級Section01(基本100語)ベース
 
-/* ============================================================ 過去のテスト結果画面 ============================================================ */
+/* ============================================================ 過去のテスト結果画面 ============================================================
+ * 専用のUIは廃止し、テスト直後の結果画面（resultViewHTML）をそのまま流用する（メール指示 2026-08-08 22:26）。
+ * 「そのときいくつ上がったか」はテスト直後にしか分からないので、PWRの増減だけは出さない。 */
+function pastResultPwr(R){ // その回で出た単語からWORLDを割り出し、いまのPWRを出す（級をまたいでも計算できる）
+  const map=secOfWord(),cnt={};
+  R.forEach(r=>{const k=map[r.wordId];if(k)cnt[k]=(cnt[k]||0)+1;});
+  const key=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];if(!key)return 0;
+  const p=key.split("-"),ids=((LEVEL_SECTIONS[p[0]]||{})[p[1]]||[]);
+  if(!ids.length)return 0;
+  const s=loadStats(),now=Date.now();let pw=0;ids.forEach(id=>pw+=displayScore(getStat(id,s),now));
+  return Math.round(pw/ids.length);
+}
 function renderPastResult(testId){
   const R=loadHistory().filter(r=>r.testId===testId).sort((a,b)=>a.answeredAt.localeCompare(b.answeredAt));
   if(!R.length)return;
   const total=Math.ceil(R.reduce((a,r)=>a+(r.score||0),0)),rank=R.length>=12?rankFor(total):null;
-  const totalDisp=total;
   const nCorrect=R.filter(r=>r.isCorrect).length,nWrong=R.length-nCorrect;
-  const SYM={correct:["○","#FF3B3B"],incorrect:["×","#2F6FE0"],unknown:["－","rgba(255,255,255,.75)"],timeout:["△","#DFB10F"]};
-  const rows=R.map((r,i)=>{
-    const sy=SYM[r.answerStatus]||["－",""];
-    const syc=r.isHintProvided?"#FFD84D":sy[1]; // ヒントありは記号を黄色に（「ヒント」表記は出さない）
-    const dAfter=(r.displayMemoryScoreAfter!=null?r.displayMemoryScoreAfter:(r.displayMemoryScoreAfterDecay!=null?r.displayMemoryScoreAfterDecay:r.memoryScoreAfter))||0;
-    const dBefore=(r.displayMemoryScoreBefore!=null?r.displayMemoryScoreBefore:r.memoryScoreBefore)||0;
-    const dlt=Math.round(dAfter-dBefore);
-    return `<tr><td class="no">${r.questionNumber||i+1}</td><td class="ko">${esc(r.korean)}</td><td>${esc(r.japanese)}</td><td style="color:${syc};font-weight:900">${sy[0]}</td><td class="num" style="color:${dlt>=0?"#1FAD62":"#FF6B6B"};font-weight:800">${dlt>0?"+":""}${dlt}</td></tr>`;
-  }).join("");
-  document.getElementById("s-result").innerHTML=`
-   <div class="res">
-    <div class="page-head" style="flex:0 0 auto;margin-bottom:4px"><button class="back" onclick="show('s-home')">‹</button><h2>過去の結果</h2></div>
-    <div class="res-head">
-      <div class="res-top">
-        <div class="rank-c" style="background:${rank?(RANK_COLORS[rank]||"#555"):"rgba(0,0,0,.22)"}">${rank||"-"}</div>
-        <div class="res-right">
-          <div class="res-score">${totalDisp}<span> / 100</span></div>
-          <div class="res-counts"><span style="color:#FF3B3B">○ ${nCorrect}</span><span style="color:#2F6FE0">× ${nWrong}</span></div>
-        </div>
-      </div>
-    </div>
-    <div class="res-listwrap">
-      <table class="rtab"><thead><tr><th class="no">No.</th><th>韓国語</th><th>日本語</th><th>結果</th><th class="num">変化</th></tr></thead>
-      <tbody>${rows}</tbody></table>
-    </div>
-    <div class="res-btns"><button class="btn line full" onclick="show('s-home')">ホームに戻る</button></div>
-   </div>`;
+  const xp=xpInfo(),d=new Date(R[0].answeredAt),p=n=>String(n).padStart(2,"0");
+  const when=`${d.getFullYear()}/${p(d.getMonth()+1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())} の結果`;
+  const ids=R.map(r=>Number(r.wordId)).filter(n=>n>0); // onclickに埋める＝数値だけに限る
+  _lastResult={total,rank:rank||"",nCorrect,code:""}; // シェア文面もいま見ている回のものにする
+  document.getElementById("s-result").innerHTML=resultViewHTML({
+    animate:false,rank,total,nCorrect,nWrong,cheer:when,typeUpd:"",rows:resultCardsHTML(R),
+    xpLevel:xp.level,xpCur:xp.cur,xpNext:xp.next,xpGain:total, // XPは得点の積み上げ＝この回のぶんはその得点そのもの
+    pwrTo:pastResultPwr(R),pwrDelta:null,
+    third:{ico:"↻",lab:"もう一度",act:`startTest(${JSON.stringify(ids)})`}});
   show("s-result");
+  activateAds(document.getElementById("s-result"));
+  bindSpeakables(document.getElementById("s-result")); // 結果のカードをタップ＝その単語を読み上げ
 }
 
-/* ROOM限定: 現在ROOMのスライドから開始（左右スワイプで他ROOM/全体へ） */
+/* WORLD限定: 現在WORLDのスライドから開始（左右スワイプで他WORLD/全体へ） */
 function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSection;renderCurveCarousel();}
 
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v7.1 (2026-08-08)";
+const APP_VERSION="v7.2 (2026-08-08)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -9802,9 +9847,9 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
       ${tile("k-fx","✨","演出",st.lessFx,"ひかえめ","通常","toggleSetting('lessFx')")}
     </div>
     <div class="cc-list">
-      <div class="cc-item cc-tone"><span>🎨 ルームの色</span><span class="tone-bar">
+      <div class="cc-item cc-tone"><span>🎨 WORLDの色</span><span class="tone-bar">
         <i id="tone-sw" style="background:${roomBg(curSection)}"></i>
-        <input id="tone-range" type="range" min="0" max="100" step="1" value="${roomTone()}" aria-label="ルームの色の濃さ" oninput="setRoomTone(this.value)">
+        <input id="tone-range" type="range" min="0" max="100" step="1" value="${roomTone()}" aria-label="WORLDの色の濃さ" oninput="setRoomTone(this.value)">
         <em id="tone-lab">${roomToneLabel(roomTone())}</em></span></div>
       <div class="cc-item" onclick="showCoach()"><span>📖 つかいかた</span><span class="cc-arw">›</span></div>
       <div class="cc-item cc-2btn"><button onclick="exportData()">⬆ 書き出す</button><label>⬇ 読み込む<input type="file" accept="application/json" style="display:none" onchange="importData(this)"></label></div>
@@ -9852,7 +9897,7 @@ function importData(inp){
   }catch(e){alert("読み込みに失敗しました（ファイル形式を確認してください）");}};
   r.readAsText(f);
 }
-/* 前回開いていたROOMを起動時に復元 */
+/* 前回開いていたWORLDを起動時に復元 */
 function saveLastRoom(){try{localStorage.setItem(LS_LASTROOM,JSON.stringify({level:curLevel,section:curSection}));}catch(e){}}
 (function restoreLastRoom(){
   try{

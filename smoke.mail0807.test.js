@@ -205,8 +205,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     const o = petState(); o.ate = []; for (let i = 0; i < 60; i++) o.ate.push('말' + i); savePet(o);
     return petState().ate.length === 50 && petState().ate[0] === '말10';
   }));
-  check('7-2 食べた単語が育成画面にならぶ', await (async () => {
-    await page.evaluate(() => openPet());
+  // たべたことばは、育成画面の簡素化で図鑑へ移した（メール指示 2026-08-08 22:26）
+  check('7-2 食べた単語が図鑑にならぶ', await (async () => {
+    await page.evaluate(() => { openPet(); openPetZoo(); });
     await page.waitForTimeout(300);
     const t = await page.evaluate(() => (document.querySelector('#pet-modal .pt-ate') || {}).textContent || '');
     await page.evaluate(() => closePet());

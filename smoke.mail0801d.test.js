@@ -143,9 +143,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check(`ミッションが3つある (${list.n}件)`, list.n === 3);
   check('トレンド問題のミッションは無い', list.kinds.indexOf('trend') < 0 && list.titles.every(t => !/トレンド/.test(t)));
   const roomIdx = list.kinds.map((k, i) => k === 'room' ? i : -1).filter(i => i >= 0);
-  check(`おすすめROOM＋目標ランクのミッションが2つ (${roomIdx.map(i => list.titles[i]).join(' / ')})`, roomIdx.length === 2);
-  check('ROOMミッションは「ROOM NN で X ランクをとる」の形', roomIdx.every(i => /^ROOM \d\d で [SABCD] ランクをとる$/.test(list.titles[i])));
-  check('ROOMミッションはタッチできる', roomIdx.every(i => list.tapable[i] === true));
+  check(`おすすめWORLD＋目標ランクのミッションが2つ (${roomIdx.map(i => list.titles[i]).join(' / ')})`, roomIdx.length === 2);
+  check('WORLDミッションは「WORLD NN で X ランクをとる」の形', roomIdx.every(i => /^WORLD \d\d で [SABCD] ランクをとる$/.test(list.titles[i])));
+  check('WORLDミッションはタッチできる', roomIdx.every(i => list.tapable[i] === true));
   // 3つに絞ったので、ROOM2つ＋スキル系1つ（メール指示 2026-08-08）
   const skills = list.kinds.filter(k => k !== 'room');
   check(`ROOM以外から1つ (${skills.join(',')})`, skills.length === 1);
@@ -212,11 +212,13 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     document.querySelector('.sg-mission').click();
     await new Promise(r => setTimeout(r, 400));
     const c = document.querySelector('#d5-modal .u5-card');
+    // 小さな英字の見出し(MISSION/TODAY)は廃止したので、日本語の見出しで確かめる（メール指示 2026-08-08 22:26）
     return { on: document.getElementById('d5-modal').classList.contains('on'),
-             kicks: c ? [...c.querySelectorAll('.u5-kick')].map(e => e.textContent) : [] };
+             titles: c ? [...c.querySelectorAll('.u5-ti')].map(e => e.textContent) : [],
+             kicks: c ? c.querySelectorAll('.u5-kick').length : -1 };
   });
-  check(`ミッションのカプセルで統合ポップアップが開く (${one.kicks.join('/')})`,
-    one.on && one.kicks.join('/') === 'MISSION/TODAY');
+  check(`ミッションのカプセルで統合ポップアップが開く (${one.titles.join('/')})`,
+    one.on && one.titles.join('/') === '今週のミッション/今日の5問' && one.kicks === 0);
 
   check('コンソールエラーなし', errors.length === 0, errors.join(' | '));
   await browser.close();

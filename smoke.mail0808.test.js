@@ -90,11 +90,12 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
       chars: c.textContent.replace(/\s/g, '').length
     };
   });
-  check(`4-1 ダーク地のカード (${look.bg})`, look.bg === 'rgb(18, 20, 27)');
+  // ダーク地は 2026-08-08 22:26 の指示で白地に変えた
+  check(`4-1 白地のカード (${look.bg})`, look.bg === 'rgb(255, 255, 255)');
   check(`4-2 角丸を大きくしたカード (${look.radius})`, parseFloat(look.radius) >= 20);
   check('4-3 達成数はドーナツ（円グラフ）で見せる', look.ring);
   check('4-4 進み具合は色のついたバーで見せる', look.bar);
-  check(`4-5 しっぽの色もカードに合わせている (${look.tail})`, look.tail === 'rgb(18, 20, 27)');
+  check(`4-5 しっぽの色もカードに合わせている (${look.tail})`, look.tail === 'rgb(255, 255, 255)');
   check(`4-6 文字数はしぼってある (${look.chars}字)`, look.chars <= 200);
   await page.evaluate(() => closeDaily5());
 
@@ -141,15 +142,22 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check(`5-8 ごはんで韓国語エネルギーが増える (${fed.xp0}→${fed.xp1})`, fed.xp1 > fed.xp0);
   check(`5-9 ごはん（単語の実）を1つ使う (${fed.seed0}→${fed.seed1})`, fed.seed1 === fed.seed0 - 1);
   check(`5-10 食べたことが分かる (${fed.msg.trim()})`, /エネルギー|成長|進化/.test(fed.msg));
+  // ごはんが無いときは、同じ吹き出しに「ごはんを集める」を出す（メール指示 2026-08-08 22:26）
   const empty = await page.evaluate(async () => {
     const o = petState(); o.seeds = 0; savePet(o);
     petMenuRender();
     document.querySelector('#petmenu-modal .pm-feed').click();
     await new Promise(r => setTimeout(r, 350));
-    return { menu: document.getElementById('petmenu-modal').classList.contains('on'),
-             d5: document.getElementById('d5-modal').classList.contains('on') };
+    const m = document.getElementById('petmenu-modal');
+    return { menu: m.classList.contains('on'),
+             title: (m.querySelector('.u5-ti') || {}).textContent || '',
+             need: !!m.querySelector('.pm-need'),
+             ways: [...m.querySelectorAll('.pm-way .pw-t')].map(e => e.textContent) };
   });
-  check('5-11 ごはんが無いときは今日の5問へ案内する', !empty.menu && empty.d5);
+  check(`5-11 ごはんが無いときは「ごはんを集める」を出す (${empty.title})`,
+    empty.menu && empty.need && empty.title === 'ごはんを集める');
+  check(`5-12 ごはんが集まりやすいWORLDのステップをすすめる (${empty.ways.join(' / ')})`,
+    empty.ways.some(t => /^WORLD \d\d のステップ \d+-\d+$/.test(t)));
   await page.evaluate(() => closeDaily5());
 
   /* ============ 回帰 ============ */
