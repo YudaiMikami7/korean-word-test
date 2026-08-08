@@ -115,7 +115,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   });
   check('今日の5問を終えたら今週のミッションが出る', after5.on);
   check(`ボタンの文字が「今週のミッション」 (${after5.label})`, after5.label === '今週のミッション');
-  check(`残り数のバッジが出る (${after5.badge})`, after5.badge === '5');
+  check(`残り数のバッジが出る (${after5.badge})`, after5.badge === '3'); // 3つに絞った（メール指示 2026-08-08）
   check('今日のトレンドのボタンはホームに出さない', after5.trendGone);
   check('中央のカプセル位置にある', after5.centered);
 
@@ -128,21 +128,27 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       titles: rows.map(r => r.querySelector('.ms-t').textContent),
       tapable: rows.map(r => r.classList.contains('tapable')),
       kinds: loadMission().list.map(m => m.kind),
-      head: document.querySelector('#d5-modal .d5-h').textContent,
+      head: document.querySelector('#d5-modal .u5-ti').textContent,   // 統合ポップアップの1つめの見出し
+      d5Head: [...document.querySelectorAll('#d5-modal .u5-ti')].map(e => e.textContent),
+      d5Below: (() => { const c = document.querySelector('#d5-modal .u5-card'); if (!c) return false;
+        const ms = c.querySelector('.ms-list'), d5 = c.querySelector('.d5-slots');
+        return !!ms && !!d5 && ms.getBoundingClientRect().top < d5.getBoundingClientRect().top; })(),
       bubbleShown: document.getElementById('d5-modal').classList.contains('on')
     };
   });
   check('吹き出しの見出しが「今週のミッション」', list.head === '今週のミッション');
-  check(`ミッションが5つある (${list.n}件)`, list.n === 5);
-  check(`1つめがトレンド問題 (${list.titles[0]})`, list.kinds[0] === 'trend' && /トレンド問題/.test(list.titles[0]));
-  check('1つめはタッチできるボタン', list.tapable[0] === true);
+  // 今日の5問と同じ1枚にまとめ、ミッションを上に置いた（メール指示 2026-08-08）
+  check(`同じポップアップに今日の5問もある (${list.d5Head.join(' / ')})`, list.d5Head.indexOf('今日の5問') > 0);
+  check('今週のミッションが今日の5問より上にある', list.d5Below);
+  check(`ミッションが3つある (${list.n}件)`, list.n === 3);
+  check('トレンド問題のミッションは無い', list.kinds.indexOf('trend') < 0 && list.titles.every(t => !/トレンド/.test(t)));
   const roomIdx = list.kinds.map((k, i) => k === 'room' ? i : -1).filter(i => i >= 0);
   check(`おすすめROOM＋目標ランクのミッションが2つ (${roomIdx.map(i => list.titles[i]).join(' / ')})`, roomIdx.length === 2);
   check('ROOMミッションは「ROOM NN で X ランクをとる」の形', roomIdx.every(i => /^ROOM \d\d で [SABCD] ランクをとる$/.test(list.titles[i])));
   check('ROOMミッションはタッチできる', roomIdx.every(i => list.tapable[i] === true));
-  // バリエーションを増やしたので、4〜5つめは「トレンド・ROOM以外」の種類から2つ（メール指示 2026-08-02）
-  const skills = list.kinds.filter(k => k !== 'trend' && k !== 'room');
-  check(`トレンド・ROOM以外から2つ (${skills.join(',')})`, skills.length === 2 && new Set(skills).size === 2);
+  // 3つに絞ったので、ROOM2つ＋スキル系1つ（メール指示 2026-08-08）
+  const skills = list.kinds.filter(k => k !== 'room');
+  check(`ROOM以外から1つ (${skills.join(',')})`, skills.length === 1);
   check('スキル系ミッションの文言が指示どおり', list.titles.every(t =>
     !/書き取り|スペシャル|3秒/.test(t) ||
     /書き取り問題を3問正解する|スペシャル問題（青赤緑）のいずれかを6回クリアする|3秒以内に答えて正解するを10問/.test(t)));
@@ -192,22 +198,25 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('週の区切りは月曜', prog.weekStartIsMonday);
   check(`週の区切りはあさ5時 (${prog.weekStartHour}時)`, prog.weekStartHour === 5);
 
+  const MSN = await page.evaluate(() => MS_N);
   const badge = await page.evaluate(() => {
     updateMissionBtn();
     const ms = document.querySelector('.sg-mission');
     return { badge: ms.querySelector('.ms-b').textContent, done: missionDoneCount() };
   });
-  check(`達成したぶんバッジの残り数が減る (残り${badge.badge} / 達成${badge.done})`, Number(badge.badge) === 5 - badge.done);
+  check(`達成したぶんバッジの残り数が減る (残り${badge.badge} / 達成${badge.done})`, Number(badge.badge) === MSN - badge.done);
 
-  // ================= トレンドミッションからトレンドを開ける =================
-  const tr = await page.evaluate(async () => {
-    openMission();
-    document.querySelectorAll('#d5-modal .ms-row.tapable')[0].click();
+  // ================= ミッションのカプセルからも同じ統合ポップアップが開く =================
+  const one = await page.evaluate(async () => {
+    document.getElementById('d5-modal').classList.remove('on');
+    document.querySelector('.sg-mission').click();
     await new Promise(r => setTimeout(r, 400));
-    const h = document.querySelector('#d5-modal .d5-h');
-    return { head: h && h.textContent, on: document.getElementById('d5-modal').classList.contains('on') };
+    const c = document.querySelector('#d5-modal .u5-card');
+    return { on: document.getElementById('d5-modal').classList.contains('on'),
+             kicks: c ? [...c.querySelectorAll('.u5-kick')].map(e => e.textContent) : [] };
   });
-  check(`トレンドミッションのボタンでトレンドが開く (${tr.head})`, tr.on && tr.head === '今日のトレンド問題');
+  check(`ミッションのカプセルで統合ポップアップが開く (${one.kicks.join('/')})`,
+    one.on && one.kicks.join('/') === 'MISSION/TODAY');
 
   check('コンソールエラーなし', errors.length === 0, errors.join(' | '));
   await browser.close();

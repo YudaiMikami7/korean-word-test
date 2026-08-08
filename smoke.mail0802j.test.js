@@ -85,19 +85,20 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   await page.evaluate(() => { const all = loadD5(); all[d5Key(Date.now())] = { done: true }; saveD5(all); updateD5Btn(); });
   await page.waitForTimeout(600);
   await clearFx(); await stopBob();
-  const ms = await box('.sg-mission'), d5o = await box('.sg-d5'), g2 = await box('.sg-gift');
+  // 消化後の丸は育成ゲームの入口に変わった（メール指示 2026-08-08）
+  const ms = await box('.sg-mission'), d5o = await box('.sg-pet'), g2 = await box('.sg-gift');
   check('3-1 5問を消化するとミッションの黄色カプセルが出る', ms && ms.vis);
   check(`3-2 ミッションの下端も単語帳ボタンとそろう (${ms.b.toFixed(0)} / ${right.b.toFixed(0)})`, Math.abs(ms.b - right.b) < 1.5);
   check('3-3 ミッションが単語帳ボタン・プレゼントと重ならない', !hit(ms, right) && !hit(ms, g2));
-  check(`3-4 縮まった5問の丸も同じ下端 (${d5o.b.toFixed(0)})`, Math.abs(d5o.b - right.b) < 1.5);
-  check(`3-5 プレゼントは縮まった丸のすぐ上（すき間${(d5o.y - g2.b).toFixed(1)}px）`, d5o.y - g2.b > 3 && d5o.y - g2.b < 20);
-  check(`3-6 プレゼントと縮まった丸は横位置がそろう (${g2.x.toFixed(0)} / ${d5o.x.toFixed(0)})`, Math.abs(g2.x - d5o.x) < 1);
+  check(`3-4 育成ゲームの丸も同じ下端 (${d5o.b.toFixed(0)})`, Math.abs(d5o.b - right.b) < 1.5);
+  check(`3-5 プレゼントは育成ゲームの丸のすぐ上（すき間${(d5o.y - g2.b).toFixed(1)}px）`, d5o.y - g2.b > 3 && d5o.y - g2.b < 20);
+  check(`3-6 プレゼントと育成ゲームの丸は横位置がそろう (${g2.x.toFixed(0)} / ${d5o.x.toFixed(0)})`, Math.abs(g2.x - d5o.x) < 1);
   check('3-7 ミッションを押すと吹き出しが開き、画面内に収まる', await (async () => {
     await page.evaluate(() => document.querySelector('.sg-mission').click());
     await page.waitForTimeout(500);
     const r = await page.evaluate(() => {
-      const m = document.getElementById('mission-modal') || document.querySelector('.ms-card') && document.querySelector('.ms-card').closest('.d5-modal,.gf-modal,[id$="-modal"]');
-      const c = document.querySelector('.ms-card');
+      const m = document.getElementById('d5-modal');
+      const c = document.querySelector('.u5-card');   // ミッションと今日の5問の統合ポップアップ（メール指示 2026-08-08）
       if (!c) return null;
       const b = c.getBoundingClientRect();
       return { on: !!m && m.classList.contains('on'), fit: b.left >= -0.5 && b.top >= -0.5 && b.right <= innerWidth + 1 && b.bottom <= innerHeight + 1 };
@@ -124,13 +125,14 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   await page.evaluate(() => { wbResetPanel(); if (typeof exitListMode === 'function') exitListMode(); });
   await page.waitForTimeout(700);
   await clearFx(); await stopBob();
-  check('R-4 ホームに戻ると今日の5問・プレゼントが戻る', await (async () => {
-    const a = await box('.sg-d5'), b = await box('.sg-gift'); return a && a.vis && b && b.vis;
+  check('R-4 ホームに戻ると中央カプセル・プレゼント・育成ゲームが戻る', await (async () => {
+    const a = await box('.sg-mission'), b = await box('.sg-gift'), c = await box('.sg-pet');
+    return a && a.vis && b && b.vis && c && c.vis;
   })());
   check('R-5 ステータス（下スワイプ）へ移るとフロートは消える', await (async () => {
     await page.evaluate(() => { if (typeof openStatus === 'function') openStatus(); else document.getElementById('homewrap').classList.add('status'); });
     await page.waitForTimeout(700);
-    const a = await box('.sg-d5'), b = await box('.sg-gift');
+    const a = await box('.sg-mission'), b = await box('.sg-gift');
     await page.evaluate(() => { if (typeof closeStatus === 'function') closeStatus(); else document.getElementById('homewrap').classList.remove('status'); });
     await page.waitForTimeout(700);
     return (!a || !a.vis) && (!b || !b.vis);
@@ -140,7 +142,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     const p = await box('#room-pager'), r = await box('.rmenu-bg'), s = await box('.sg-wrap');
     return p && Math.abs(p.y - 292) < 1.5 && r && r.vis && s && s.vis;
   })());
-  check('R-7 版数が上がっている', await page.evaluate(() => { const m = /^v6\.(\d+)/.exec(APP_VERSION); return !!m && +m[1] >= 4; }));
+  check('R-7 版数が上がっている', await page.evaluate(() => { const m = /^v(\d+)\.(\d+)/.exec(APP_VERSION); return !!m && (+m[1] > 6 || +m[2] >= 4); }));
   check('R-8 JSコンソールエラーが無い', errors.length === 0);
   if (errors.length) console.log(errors);
 

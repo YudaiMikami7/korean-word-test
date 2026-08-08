@@ -67,15 +67,7 @@ const LABS = ['応援する', 'シェアする', null, 'ホーム']; // 3番目�
   check('正解した行に自分の回答は出さない', d5.rows.filter(r => r.ok).every(r => r.your === ''));
   check('まちがえた行だけ自分の回答が出る', d5.rows.filter(r => !r.ok).length === 2 && d5.rows.filter(r => !r.ok).every(r => /^あなた：/.test(r.your)));
 
-  // ---------- 今日のトレンド問題の結果画面 ----------
-  const tr = await page.evaluate(() => {
-    const rec = { slot: 'trend', finished: new Date().toISOString(), correct: 3, total: 5,
-      items: [1, 2, 3, 4, 5].map(n => ({ n, type: 'kj', q: '사과', your: 'りんご', correct: 'りんご', status: n <= 3 ? 'correct' : 'incorrect', ok: n <= 3, ko: '사과', ja: 'りんご' })) };
-    d5RenderResult(rec, false, true);
-    return [...document.querySelectorAll('#s-d5result .res-btns .rb-lab')].map(e => e.textContent.trim());
-  });
-  check(`トレンドの結果も4ボタン (${tr.join(' / ')})`, tr.length === 4 && tr[0] === LABS[0] && tr[1] === LABS[1] && tr[3] === LABS[3]);
-  check(`トレンドの③は「トレンド単語」(${tr[2]})`, tr[2] === 'トレンド単語');
+  // 今日のトレンド問題は廃止したので、その結果画面の確認も外した（メール指示 2026-08-08）
 
   // ---------- スペシャル問題（ゲーム）の結果画面 ----------
   const sp = await page.evaluate(() => {

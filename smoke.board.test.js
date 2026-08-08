@@ -294,8 +294,8 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check(`ランクは58px・メダル風 (${look.w} / ${look.fs})`, look.w === '58px' && look.fs === '41px' && look.ring);
   check(`マス番号が大きい (${look.numFs})`, look.numFs === '32px'); // 「周-マス」の2つ組みになったぶん一段小さく（メール指示 2026-08-02）
   check('左のアイコン列は廃止された', look.railGone);
-  // ことばの友だちを追加（メール指示 2026-08-06 の続き）／今日のボーナスを追加（メール指示 2026-08-07）
-  check(`カレンダー等はメニューの中にある (${look.menuCaps.join('|')})`, look.menuCaps.join('|') === 'カレンダー|ROOM一覧|スペシャルモード|ことばの友だち|今日のボーナス');
+  // ことばの友だちを追加（メール指示 2026-08-06 の続き）／今日のボーナスは廃止（メール指示 2026-08-08）
+  check(`カレンダー等はメニューの中にある (${look.menuCaps.join('|')})`, look.menuCaps.join('|') === 'カレンダー|ROOM一覧|スペシャルモード|ことばの友だち');
   check('設定はヘッダー右の角丸ボタンへ移った（左のレールには無い）', look.hdSet);
   // プレゼントとガチャは1つのボタンに統合し、中身は吹き出しの2ボタンになった（メール指示 2026-08-02 16:32）
   check(`統合ボタンの中はプレゼントとガチャの2つ (${look.labels.join('|')})`, look.labels.join('|') === 'プレゼント|ガチャ');

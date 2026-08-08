@@ -47,21 +47,8 @@ const FILE = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '
   // ---------- その日はじめて開いたら「今日の5問」が自動で出る ----------
   await page.evaluate(() => coachNext()); // 閉じる
   await page.waitForTimeout(500);
-  // 2026-08-06 の指示で、その日はじめての起動では先に「今日のボーナス」が公開される。
-  // 「この効果で今日の5問を始める」を押すと、これまでどおり自動スタートの吹き出しに続く
-  const passLuck = async () => {
-    for (let i = 0; i < 60; i++) {
-      const done = await page.evaluate(() => {
-        const b = document.querySelector('.lkauto .lk-go');   // ボーナス専用カードのボタン（2026-08-07 に今日の5問と別立てにした）
-        if (b) { b.click(); return true; }
-        return !document.querySelector('.lkauto');
-      });
-      if (done) break;
-      await page.waitForTimeout(100);
-    }
-    await page.waitForTimeout(400);
-  };
-  await passLuck();
+  // 今日のボーナスは廃止した（メール指示 2026-08-08）ので、ガイドを閉じたらそのまま自動スタートへ進む
+  await page.waitForTimeout(400);
   check('ガイドを閉じると今日の5問が自動で出る', await page.evaluate(() => !!document.querySelector('.d5auto')));
   check('「戻る」で見送れる', await page.evaluate(() => { closeAutoD5(false); return !document.getElementById('s-quiz').classList.contains('on'); }));
   await page.waitForTimeout(400);
@@ -70,7 +57,6 @@ const FILE = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '
   await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); });
   await page.reload();
   await page.waitForTimeout(2000);
-  await passLuck();
   check('2回目以降もその日最初の起動で自動で出る', await page.evaluate(() => !!document.querySelector('.d5auto')));
   check('「いますぐ」で今日の5問が始まる', await page.evaluate(() => { closeAutoD5(true); return document.getElementById('s-quiz').classList.contains('on') && _d5.on && _d5.mode === 'd5'; }));
   await page.evaluate(() => { quitTest(); });

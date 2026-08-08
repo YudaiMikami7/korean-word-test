@@ -195,10 +195,11 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   await page.waitForTimeout(120);
   const fly = await page.evaluate(() => {
     const b = document.querySelector('.sg-d5'); // home-wrap直下のフロート1組
-    return { hasFly: b.classList.contains('sg-fly'), flyx: parseFloat(b.style.getPropertyValue('--flyx')) };
+    // 5問はミッションと同じ吹き出しに入ったので、消化後はその場でしぼんで消える（メール指示 2026-08-08）
+    return { fade: b.classList.contains('sg-fade'), anim: getComputedStyle(b).animationName };
   });
-  check('5問ボタンが左へ吸い込まれるアニメが走る', fly.hasFly);
-  check(`中央のカプセル位置から左へ動く (--flyx ${isNaN(fly.flyx) ? 'なし' : fly.flyx.toFixed(1)})`, fly.flyx > 40);
+  check('5問カプセルがその場でしぼんで消えるアニメが走る', fly.fade);
+  check(`しぼむアニメが当たっている (${fly.anim})`, fly.anim === 'sgGone');
 
   await page.waitForTimeout(1100);
   const pop = await page.evaluate(() => {
@@ -208,25 +209,28 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   });
   check('引っ込んだ後に今週のミッションが登場する', pop.on && pop.pop && pop.vis === 'visible');
   check('登場演出が終わったらクラスは外れる（単語帳で消えなくなるのを防ぐ）', !pop.left);
-  check('登場音（ピロロン）が定義されている', await page.evaluate(() => typeof sfxTrendPop === 'function'));
+  check('登場音（ピロロン）が定義されている', await page.evaluate(() => typeof sfxPopIn === 'function'));
 
-  // トレンドを消化しても、中央のカプセルは今週のミッションのまま（引っ込まない）。進み具合だけが増える
-  await page.evaluate(() => {
-    const all = loadTrend();
-    all[trendDayKey()] = { slot: 'trend', finished: new Date().toISOString(), correct: 3, total: 5, done: true, items: [] };
-    saveTrend(all);
-    show('s-home'); updateTrendBtn();
-  });
+  // 5問を消化したあとは、中央カプセルは今週のミッション。押すと統合ポップアップが開く（メール指示 2026-08-08）
+  await page.evaluate(() => { show('s-home'); updateD5Btn(); });
   await page.waitForTimeout(1000);
   const off = await page.evaluate(() => {
     const vis = el => { const r = el.getBoundingClientRect(); return { l: r.left, b: r.bottom, w: r.width, h: r.height, cx: r.left + r.width / 2 }; };
-    const d5 = document.querySelector('.sg-d5'), ms = document.querySelector('.sg-mission');
-    const row = missionRows()[0];
-    return { d5: vis(d5), ms: vis(ms), on: ms.classList.contains('on'), cur: row.cur, kind: row.m.kind, slideCx: innerWidth / 2 };
+    const pet = document.querySelector('.sg-pet'), ms = document.querySelector('.sg-mission');
+    return { pet: vis(pet), ms: vis(ms), on: ms.classList.contains('on'), slideCx: innerWidth / 2,
+             d5w: document.querySelector('.sg-d5').getBoundingClientRect().width };
   });
-  check('トレンド消化後も今週のミッションは中央カプセルのまま', off.on && near(off.ms.cx, off.slideCx, 40));
-  check(`5問ボタンと縦位置が揃う (${off.ms.b.toFixed(1)} vs ${off.d5.b.toFixed(1)})`, near(off.ms.b, off.d5.b, 2));
-  check(`トレンドのミッションが1回ぶん進む (${off.cur}回)`, off.kind === 'trend' && off.cur >= 1);
+  check('消化後は今週のミッションが中央カプセル', off.on && near(off.ms.cx, off.slideCx, 40) && off.d5w === 0);
+  check(`育成ゲームの丸と縦位置が揃う (${off.ms.b.toFixed(1)} vs ${off.pet.b.toFixed(1)})`, near(off.ms.b, off.pet.b, 2));
+  const uni = await page.evaluate(async () => {
+    document.querySelector('.sg-mission').click();
+    await new Promise(r => setTimeout(r, 400));
+    const c = document.querySelector('#d5-modal .u5-card');
+    const k = c ? [...c.querySelectorAll('.u5-kick')].map(e => e.textContent).join('/') : '';
+    document.getElementById('d5-modal').classList.remove('on');
+    return k;
+  });
+  check(`統合ポップアップ（ミッション＋今日の5問）が開く (${uni})`, uni === 'MISSION/TODAY');
 
   check('コンソールエラー無し', errors.length === 0);
   if (errors.length) console.log(errors);

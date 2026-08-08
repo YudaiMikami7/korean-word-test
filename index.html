@@ -1992,10 +1992,10 @@ body.bigtext .set-d{font-size:13.5px}
    下端56pxはマスクで薄くなるので、そこには掛からない高さに置く */
 /* z-indexはマスより上（マスは遠近に応じて4〜44が入る）。sg-wrap自身が重ね合わせ文脈なので外へは影響しない */
 /* 中身は文字を置かず、Googleマップの現在地ボタンと同じくコンパスの針アイコンだけ（黒座布団＋黄色枠は据え置き） */
-/* 現在地／今日の5問／今日のトレンドの3ボタンは、すごろくの器(.sg-wrap＝左右24px内側・はみ出しを切る)ではなく
+/* 現在地／今日の5問／今週のミッションの3ボタンは、すごろくの器(.sg-wrap＝左右24px内側・はみ出しを切る)ではなく
    スライド直下に置く。こうするとアイコン群(.reward-rail)と同じ左右14pxに揃えられる。
    bottom:-28px ＝ 旧12px から、ルームメニューを詰めてスライドを40px上げた（top:225→185px）ぶんを引いた値。
-   これで画面上の高さは今までどおり（下から279px＝今日の5問／トレンドと同じ行）に残る（メール指示 2026-08-02 16:54） */
+   これで画面上の高さは今までどおり（下から279px＝今日の5問と同じ行）に残る（メール指示 2026-08-02 16:54） */
 /* 丸の大きさ(68px)と横位置(14px)は右のアイコン群(.reward-rail .rr-btn)に揃える */
 .sg-home{position:absolute;right:14px;bottom:-28px;z-index:60;border:none;padding:0;width:68px;height:68px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
@@ -2035,45 +2035,24 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-d5 .sgd5-t span:nth-child(5){animation-delay:.48s}
 .sg-d5 .d5-b{position:absolute;right:-2px;top:-2px;width:22px;height:22px;border-radius:50%;background:#FF8A00;color:#fff;
   font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;line-height:1}
-/* 朝の部・夜の部を消化して挑戦できないあいだは、カプセルをやめて左のアイコン群(.reward-rail-left .rr-btn)と
-   同じ丸（68px・白・同じ影）にし、横位置(left:14px)も縦位置(bottom:66px＝現在地ボタンと同じ)も揃える。
-   中央のカプセル位置は「今日のトレンド問題」ボタン(.sg-trend)が引き継ぐ */
-.sg-d5.d5-off{left:14px;bottom:var(--fbtm);transform:none;width:68px;height:68px;padding:0;border-radius:50%;
+/* 朝の部・夜の部を消化したら、中央のカプセルは「今週のミッション」(.sg-mission)に入れかわる。
+   今日の5問はミッションと同じ吹き出しの中にあるので、消化後のカプセルはその場でしぼんで消える。
+   左下の丸（もとの消化後アイコンの場所）は育成ゲーム(.sg-pet)へ明けわたした（メール指示 2026-08-08） */
+.sg-d5.d5-off{display:none}
+.sg-d5.d5-off.sg-fade{display:block;animation:sgGone .46s ease forwards}
+@keyframes sgGone{0%{opacity:1;transform:translateX(-50%) scale(1)}
+  38%{opacity:1;transform:translateX(-50%) scale(1.07)}
+  100%{opacity:0;transform:translateX(-50%) scale(.3)}}
+/* 育成ゲーム（ことばの友だち）の入口。もとは「今日の5問」の丸があった場所＝プレゼントの真下 */
+.sg-pet{position:absolute;left:14px;bottom:var(--fbtm);z-index:60;border:none;padding:0;width:68px;height:68px;border-radius:50%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
-  background:#fff;color:#9a9a9a;letter-spacing:0;box-shadow:0 2px 6px rgba(0,0,0,.12)}
-.sg-d5.d5-off:active{transform:scale(.93)}
-.sg-d5.d5-off .sgd5-t{display:none}
-.sg-d5 .sgd5-mini{display:none}
-.sg-d5.d5-off .sgd5-mini{display:flex;flex-direction:column;align-items:center;line-height:1.1}
-.sg-d5.d5-off .sgd5-mini i{font-style:normal;font-size:19px;color:#C9C9C9}
-.sg-d5.d5-off .sgd5-mini b{font-size:11px;font-weight:900;color:#9a9a9a}
-/* 今日のトレンド問題（中央カプセル・黄色）。5問を消化した日だけ出る */
-.sg-trend{position:absolute;left:50%;bottom:var(--fbtm);z-index:60;border:none;padding:11px 22px 13px;border-radius:999px;
-  background:#FFC400;color:#2b1a00;font-size:22px;font-weight:900;letter-spacing:.06em;white-space:nowrap;cursor:pointer;font-family:inherit;
-  box-shadow:0 8px 18px rgba(0,0,0,.55);transform:translateX(-50%);display:none}
-.sg-trend.on{display:block}
-.sg-trend:active{transform:translateX(-50%) scale(.93)}
-.sg-trend .sgtr-t span{display:inline-block;animation:sbchar 3s ease-in-out infinite;backface-visibility:hidden}
-.sg-trend .sgtr-t span:nth-child(2){animation-delay:.1s}
-.sg-trend .sgtr-t span:nth-child(3){animation-delay:.2s}
-.sg-trend .sgtr-t span:nth-child(4){animation-delay:.3s}
-.sg-trend .sgtr-t span:nth-child(5){animation-delay:.4s}
-.sg-trend .sgtr-t span:nth-child(6){animation-delay:.5s}
-.sg-trend .sgtr-t span:nth-child(7){animation-delay:.6s}
-.sg-trend .tr-b{position:absolute;right:-2px;top:-2px;width:22px;height:22px;border-radius:50%;background:#E0831A;color:#fff;
-  font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;line-height:1}
-/* トレンドも消化したら、5問ボタン(left:14px)の1つ右(14+68+8=90px)へ引っ込めて同じ丸にする */
-.sg-trend.tr-off{left:90px;bottom:var(--fbtm);transform:none;width:68px;height:68px;padding:0;border-radius:50%;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
-  background:#EDEDED;color:#9a9a9a;letter-spacing:0;box-shadow:0 2px 6px rgba(0,0,0,.12)}
-.sg-trend.tr-off:active{transform:scale(.93)}
-.sg-trend.tr-off .sgtr-t{display:none}
-.sg-trend .sgtr-mini{display:none}
-.sg-trend.tr-off .sgtr-mini{display:flex;flex-direction:column;align-items:center;line-height:1.1}
-.sg-trend.tr-off .sgtr-mini i{font-style:normal;font-size:19px;color:#C9C9C9}
-.sg-trend.tr-off .sgtr-mini b{font-size:10px;font-weight:900;color:#9a9a9a}
+  background:#fff;color:#9a9a9a;cursor:pointer;font-family:inherit;box-shadow:0 2px 6px rgba(0,0,0,.12);
+  -webkit-tap-highlight-color:transparent}
+.sg-pet:active{transform:scale(.93)}
+.sg-pet i{font-style:normal;font-size:27px;line-height:1}
+.sg-pet b{font-size:10px;font-weight:900;color:#9a9a9a;letter-spacing:0}
 /* 今週のミッション（今日の5問を終えたあと、中央カプセルに出る）。
-   今日のトレンドはホームには出さず、この中の1つめのミッションから始める（メール指示 2026-08-01） */
+   今日の5問も同じ吹き出しの中に、ミッションの下へ並べて出す（メール指示 2026-08-08） */
 .sg-mission{position:absolute;left:50%;bottom:var(--fbtm);z-index:60;border:none;padding:11px 18px 13px;border-radius:999px;
   background:#FFC400;color:#2b1a00;font-size:21px;font-weight:900;letter-spacing:.05em;white-space:nowrap;cursor:pointer;font-family:inherit;
   box-shadow:0 8px 18px rgba(0,0,0,.55);transform:translateX(-50%);display:none}
@@ -2091,26 +2070,89 @@ body.bigtext .set-d{font-size:13.5px}
 .sg-mission .ms-b{position:absolute;right:-2px;top:-2px;min-width:22px;height:22px;border-radius:11px;background:#E0831A;color:#fff;
   font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;line-height:1;padding:0 5px;box-sizing:border-box}
 .sg-mission.ms-clear .ms-b{background:#00924A}
-/* --- 今週のミッションの吹き出し（今日の5問・トレンドと同じ白いカード） --- */
-.ms-card{width:302px}
-.ms-week{font-size:11px;font-weight:800;color:#777;margin-top:3px}
-.ms-list{display:flex;flex-direction:column;gap:6px;margin:9px 0 0}
-.ms-row{display:flex;align-items:center;gap:9px;width:100%;box-sizing:border-box;text-align:left;
-  background:#F7F7F7;border:2px solid #EDEDED;padding:7px 9px;font-family:inherit;cursor:default}
-.ms-row.tapable{cursor:pointer;background:#FFF7E0;border-color:#FFE39A}
-.ms-row.tapable:active{background:#FFEFC6}
-.ms-row.done{background:#fff;border-color:#E0831A}
-.ms-ico{flex:0 0 26px;width:26px;height:26px;border-radius:50%;background:#fff;border:2px solid #E3E3E3;
+/* --- 統合ポップアップ（上＝今週のミッション／下＝今日の5問。メール指示 2026-08-08） ---
+   ことばを減らし、ダーク地＋リング・チップ・バーの図だけで進み具合が分かるようにした */
+.d5-card.u5-card{width:322px;background:#12141B;color:#fff;border-radius:24px;padding:15px 13px 13px;text-align:left;
+  box-shadow:0 18px 44px rgba(0,0,0,.62)}
+.d5-card.u5-card::after{border-top-color:#12141B}
+.d5-card.u5-card.flip::after{border-bottom-color:#12141B}
+.d5-card.u5-card.edge-l::after{border-top-color:#12141B;border-right-color:#12141B;border-left-color:transparent}
+.d5-card.u5-card.edge-r::after{border-top-color:#12141B;border-left-color:#12141B;border-right-color:transparent}
+.u5-card .d5-close{color:#6D7383}
+.u5-card .d5-close:active{background:rgba(255,255,255,.12)}
+.u5-hd{display:flex;align-items:center;gap:8px;padding:0 1px 9px}
+/* 閉じるボタン(×)が置かれる1つめの見出しだけ、右にその場所を空ける */
+.d5-card.u5-card .d5-close+.u5-sec .u5-hd,.d5-card.u5-card .d5-close+.u5-hd{padding-right:32px}
+.u5-kick{font-size:9px;font-weight:900;letter-spacing:.26em;color:#FFC400;flex:0 0 auto}
+.u5-ti{font-size:15px;font-weight:900;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 達成数はドーナツ（円グラフ）で見せる */
+.u5-ring{flex:0 0 auto;position:relative;width:42px;height:42px;border-radius:50%;text-align:center;
+  background:conic-gradient(#FFC400 calc(var(--p,0) * 1%),rgba(255,255,255,.13) 0)}
+.u5-ring::before{content:"";position:absolute;inset:4px;border-radius:50%;background:#12141B}
+.u5-ring b{position:relative;font-size:16px;font-weight:900;line-height:42px}
+.u5-ring i{position:relative;font-style:normal;font-size:9.5px;font-weight:900;color:#8B91A1}
+.u5-ring.full{background:conic-gradient(#37D67A 100%,#37D67A 0)}
+.u5-ring.full b{color:#37D67A}
+.u5-streak{flex:0 0 auto;font-size:10.5px;font-weight:900;color:#FFB24D;background:rgba(255,178,77,.15);border-radius:999px;padding:4px 10px}
+.u5-streak b{font-size:14px;margin:0 1px}
+.u5-div{height:1px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.2),rgba(255,255,255,0));margin:13px 0 12px}
+/* ミッション1行＝アイコン・見出し・バー。数字は右に小さく */
+.ms-list{display:flex;flex-direction:column;gap:5px}
+.ms-row{display:flex;align-items:center;gap:9px;width:100%;box-sizing:border-box;text-align:left;border:none;border-radius:13px;
+  background:rgba(255,255,255,.055);padding:8px 10px;font-family:inherit;cursor:default;-webkit-tap-highlight-color:transparent}
+.ms-row.tapable{cursor:pointer;background:rgba(255,196,0,.12)}
+.ms-row.tapable:active{background:rgba(255,196,0,.22)}
+.ms-row.done{background:rgba(55,214,122,.1)}
+.ms-ico{flex:0 0 27px;width:27px;height:27px;border-radius:9px;background:rgba(255,255,255,.1);
   display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1}
-.ms-row.done .ms-ico{background:#E0831A;border-color:#E0831A;color:#fff;font-size:15px}
+.ms-row.done .ms-ico{background:#37D67A;color:#0B2F1B;font-size:15px}
 .ms-body{flex:1;min-width:0}
-.ms-t{display:block;font-size:12.5px;font-weight:900;color:#1a1a1a;line-height:1.3}
-.ms-row.done .ms-t{color:#8a8a8a}
-.ms-bar{display:block;height:5px;background:#E3E3E3;margin-top:5px;border-radius:999px;overflow:hidden}
-.ms-bar i{display:block;height:100%;background:#FFC400;border-radius:999px;transition:width .4s ease}
-.ms-row.done .ms-bar i{background:#E0831A}
-.ms-n{flex:0 0 auto;font-size:11px;font-weight:900;color:#777;font-variant-numeric:tabular-nums}
-.ms-all{font-size:12.5px;font-weight:900;color:#E0831A;margin-top:9px}
+.ms-t{display:block;font-size:12px;font-weight:900;color:#fff;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ms-row.done .ms-t{color:#8B91A1}
+.ms-bar{display:block;height:4px;background:rgba(255,255,255,.12);margin-top:6px;border-radius:999px;overflow:hidden}
+.ms-bar i{display:block;height:100%;background:linear-gradient(90deg,#FFC400,#FF8A00);border-radius:999px;transition:width .4s ease}
+.ms-row.done .ms-bar i{background:#37D67A}
+.ms-n{flex:0 0 auto;font-size:13.5px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;line-height:1}
+.ms-n em{font-style:normal;font-size:9.5px;font-weight:900;color:#8B91A1}
+.ms-all{font-size:11.5px;font-weight:900;color:#37D67A;margin-top:9px;text-align:center}
+/* 今日の5問：朝／夜の2チップ＋大きなボタン */
+.u5-card .d5-slots{display:flex;gap:7px;margin:0 0 10px}
+.u5-card .d5-slot{flex:1;padding:8px 4px;text-align:center;background:rgba(255,255,255,.055);border:none;border-radius:13px}
+.u5-card .d5-slot.now{background:rgba(255,196,0,.14);box-shadow:0 0 0 1.5px rgba(255,196,0,.6) inset}
+.u5-card .d5-slot .d5-sl{font-size:10.5px;font-weight:900;color:#8B91A1;line-height:1.4}
+.u5-card .d5-slot .d5-sv{font-size:14px;font-weight:900;margin-top:2px;color:#fff}
+.u5-card .d5-slot .d5-sv.ok{color:#FFC400}
+.u5-card .d5-slot .d5-sv.no{color:#5D6373}
+.u5-card .d5-go{background:#FFC400;color:#191100;border-radius:14px;padding:14px;letter-spacing:.02em}
+.u5-card .d5-go:active{background:#F0B800}
+.u5-card .d5-ghost{border:none;background:rgba(255,255,255,.08);color:#C9CED9;border-radius:12px}
+.u5-card .d5-ghost:active{background:rgba(255,255,255,.16)}
+.u5-card .d5-wait{background:rgba(255,255,255,.055);border-radius:13px;padding:10px;text-align:center}
+.u5-card .d5-wait .d5-wt{color:#8B91A1}
+.u5-card .d5-wait .d5-wv{color:#fff}
+.u5-card .d5-again{background:rgba(255,138,0,.14);color:#FFB24D;border-radius:11px;text-align:center;padding:7px 6px}
+.u5-card .d5a-note{background:rgba(255,255,255,.055);color:#C9CED9;border-radius:11px}
+.u5-card .d5a-note b{color:#FFC400}
+.u5-card .d5a-cd{color:#8B91A1;text-align:center}
+.u5-card .d5a-cd b{color:#fff}
+.u5-card .d5a-bar{background:rgba(255,255,255,.12);border-radius:999px}
+.u5-card .d5a-bar div{background:#FFC400}
+/* --- 育成ゲームのメニュー（左下の丸から出す吹き出し。キャラクターとごはんボタンだけ） --- */
+#petmenu-modal{position:fixed;inset:0;z-index:400;display:none;background:rgba(0,0,0,.34)}
+#petmenu-modal.on{display:block}
+.pm-card{width:272px}
+.pm-lv{flex:0 0 auto;font-size:10.5px;font-weight:900;color:#8B91A1}
+.pm-lv b{font-size:15px;color:#fff;margin-left:2px}
+.pm-card .pt-art{border:none;border-radius:14px;margin:0}
+.pm-bar{height:5px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin:9px 0 8px}
+.pm-bar i{display:block;height:100%;background:linear-gradient(90deg,#FFC400,#FF8A00);border-radius:999px;transition:width .4s ease}
+.pm-st{display:flex;gap:6px;margin-bottom:9px}
+.pm-st span{flex:1;text-align:center;background:rgba(255,255,255,.055);border-radius:11px;padding:6px 2px;
+  font-size:9.5px;font-weight:900;color:#8B91A1;line-height:1.3}
+.pm-st b{display:block;font-size:14px;color:#fff}
+.pm-msg{font-size:11.5px;font-weight:900;color:#37D67A;background:rgba(55,214,122,.12);border-radius:11px;
+  padding:7px 6px;margin-bottom:8px;text-align:center;line-height:1.4}
+.pm-card .d5-ghost{margin-top:7px}
 /* --- 消化直後の演出 --- */
 /* 中央のカプセルが横に伸びながら縮み、左のアイコンへ吸い込まれるように収まる（--flyx＝中央から今の位置までの距離） */
 @keyframes sgFlyLeft{
@@ -2120,15 +2162,15 @@ body.bigtext .set-d{font-size:13.5px}
   100%{transform:none}
 }
 .sg-fbtn.sg-fly{animation:sgFlyLeft .62s cubic-bezier(.3,.9,.32,1) both}
-/* 引っ込んだ後に、トレンドボタンがキラっと登場する */
+/* 引っ込んだ後に、今週のミッションがキラっと登場する */
 @keyframes sgPopIn{0%{opacity:0;transform:translateX(-50%) scale(.2)}62%{opacity:1;transform:translateX(-50%) scale(1.14)}100%{opacity:1;transform:translateX(-50%) scale(1)}}
-.sg-trend.tr-pop,.sg-mission.tr-pop{animation:sgPopIn .46s cubic-bezier(.34,1.5,.5,1) both}
+.sg-mission.tr-pop{animation:sgPopIn .46s cubic-bezier(.34,1.5,.5,1) both}
 @keyframes sgSparkle{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(0)}30%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.9) rotate(120deg)}}
 .sg-spark{position:absolute;left:50%;top:50%;width:150px;height:150px;pointer-events:none;z-index:61;
   background:radial-gradient(circle,rgba(255,255,255,.95) 0%,rgba(255,224,120,.55) 26%,rgba(255,196,0,0) 62%);
   animation:sgSparkle .72s ease-out forwards}
 .home-wrap.status .sg-wrap{opacity:0;pointer-events:none;transition:opacity .3s ease}
-/* ステータスへ移ったら、今日の5問／トレンドのフロートも消す。
+/* ステータスへ移ったら、今日の5問／今週のミッションのフロートも消す。
    登場演出(tr-pop)は fill:both で opacity:1 を固定し続けるため、opacity だけでは消えなかった。
    visibility も落として、演出中でも確実に隠れるようにする（メール指示 2026-07-31）。 */
 .home-wrap.status .sg-fbtn{opacity:0;visibility:hidden;pointer-events:none;
@@ -2187,14 +2229,6 @@ body.bigtext .set-d{font-size:13.5px}
 .gf-btn:active{background:#F2F2F2}
 .gf-btn img{width:84px;height:84px;object-fit:contain}
 .gf-txt{font-size:18px;font-weight:900;color:#333}
-/* --- 今日のトレンド問題（黄色いカプセルから出す吹き出し） --- */
-.tr-topic{font-size:11.5px;font-weight:800;color:#777;margin-top:3px;line-height:1.4}
-.tr-list{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:9px 0 10px}
-.tr-w{background:#FFF7E0;border:2px solid #FFE39A;padding:4px 8px;line-height:1.2;text-align:center}
-.tr-w b{display:block;font-size:14px;font-weight:900;color:#1a1a1a}
-.tr-w span{display:block;font-size:9.5px;font-weight:800;color:#8a7a4a}
-.d5-go.tr-go{background:#FFC400;color:#2b1a00}
-.d5-go.tr-go:active{background:#F0B800}
 .d5-h{font-size:16px;font-weight:900;letter-spacing:.04em}
 .d5-close{position:absolute;right:2px;top:2px;width:38px;height:38px;border:none;background:transparent;color:#999;font-size:20px;font-weight:900;cursor:pointer;line-height:1;font-family:inherit;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .d5-close:active{background:rgba(0,0,0,.1)}
@@ -2256,75 +2290,6 @@ body.bigtext .set-d{font-size:13.5px}
 @keyframes d5word{0%{opacity:0;transform:scale(2.6) rotate(-8deg)}20%{opacity:1;transform:scale(1) rotate(0)}74%{opacity:1;transform:scale(1.03)}100%{opacity:0;transform:scale(1.14)}}
 .d5-spk{position:absolute;left:50%;top:37%;width:10px;height:10px;border-radius:50%;background:#FFE79A;box-shadow:0 0 12px 4px rgba(255,214,90,.9);animation:d5spk 1.3s ease-out forwards}
 @keyframes d5spk{0%{opacity:0;transform:translate(0,0) scale(.3)}12%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.1)}}
-/* ============================================================ 今日限定ボーナス（오늘의 행운／今日の幸運） ============================================================
- * UIは「今日の5問」とは別立てにする（メール指示 2026-08-07）。
- * 白い吹き出し(.d5-card)は使わず、画面のまん中に置く紺地＋金ぶちの専用カード(.lk-card)。しっぽも出さない＝どのボタンからも生えない。
- * 入口も「今日の5問」の吹き出しの中の1行をやめ、ハンバーガーメニューの「今日のボーナス」に独立させた。 */
-#luck-modal{position:fixed;inset:0;z-index:400;display:none;background:rgba(0,0,0,.5)}
-#luck-modal.on{display:flex;align-items:center;justify-content:center}
-.lkauto{position:fixed;inset:0;z-index:612;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);
-  opacity:0;transition:opacity .2s ease} /* 今日の5問の自動スタート(610)より上に出す */
-.lkauto.on{opacity:1}
-/* --- ボーナス専用カード（今日の5問の白い吹き出しとは地色・ふち・角丸・置き場所すべてを変える） --- */
-.lk-card{position:relative;width:290px;max-width:90vw;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
-  background:linear-gradient(180deg,#222E63,#151E45);color:#fff;border:3px solid #FFC400;border-radius:6px;
-  padding:15px 15px 14px;text-align:center;box-shadow:0 16px 40px rgba(0,0,0,.55)}
-.lk-close{position:absolute;right:2px;top:2px;width:38px;height:38px;border:none;background:transparent;color:#9AA6D4;font-size:20px;font-weight:900;
-  cursor:pointer;line-height:1;font-family:inherit;border-radius:50%;display:flex;align-items:center;justify-content:center}
-.lk-close:active{background:rgba(255,255,255,.14)}
-.lk-go{width:100%;margin-top:11px;border:none;background:#FFC400;color:#2b1a00;font-size:15px;font-weight:900;padding:12px;
-  cursor:pointer;font-family:inherit;border-radius:999px}
-.lk-go:active{background:#F0B800}
-.lk-h{font-size:16px;font-weight:900;letter-spacing:.04em;color:#fff;margin-top:3px}
-.lk-card .lk-ko{color:#FFC400} /* 単語友だちの白いカードでも使う文字なので、色はカードの中だけで上書きする */
-.lk-face{width:74px;height:74px;margin:7px auto 0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;
-  background:radial-gradient(circle at 50% 34%,#FFF7E0,#FFE39A);border:3px solid #FFC400}
-.lk-face.sil{background:#EDEDED;border-color:#DCDCDC;color:#BDBDBD;animation:lkSil .5s ease-in-out infinite alternate} /* 公開前のシルエット */
-@keyframes lkSil{from{transform:scale(.94)}to{transform:scale(1.06)}}
-.lk-open{animation:lkOpen .5s cubic-bezier(.2,1.5,.4,1) both}
-@keyframes lkOpen{0%{opacity:0;transform:scale(.6) rotate(-10deg)}70%{opacity:1;transform:scale(1.08) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
-.lk-badge{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:900;color:#fff;letter-spacing:.1em}
-.lk-name{font-size:19px;font-weight:900;line-height:1.25;margin-top:5px;color:#fff;word-break:break-word}
-.lk-eff{font-size:12.5px;font-weight:800;color:#C9D2F0;line-height:1.5;margin-top:4px;text-wrap:balance}
-.lk-tags{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:8px}
-.lk-tag{font-size:10px;font-weight:900;color:#C9D2F0;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.16);padding:3px 7px}
-.lk-wait{font-size:12px;font-weight:800;color:#9AA6D4;margin-top:9px;line-height:1.5}
-.lk-got{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:9px 0 0}
-.lk-gi{font-size:11.5px;font-weight:900;color:#1a1a1a;background:#FFF7E0;border:2px solid #FFE39A;padding:3px 8px}
-.lk-next{font-size:10.5px;font-weight:800;color:#FFE9A8;background:rgba(255,196,0,.13);padding:6px 5px;margin-top:9px;line-height:1.45}
-/* レアリティのコード（C／R／SR…）の丸バッジ。カードの履歴と結果画面の両方で使う */
-.lk-sd{display:inline-block;flex:0 0 auto;font-size:9px;font-weight:900;color:#fff;padding:2px 6px;border-radius:999px}
-/* 5.2 情報階層（第2＝なにをすれば発動するか／第3＝どこまで増やせるか）と 6.1 の「0 / 5」 */
-.lk-h2{font-size:10.5px;font-weight:900;color:#FFD873;margin-top:9px;letter-spacing:.04em}
-.lk-h3{font-size:10px;font-weight:800;color:#9AA6D4;margin-top:6px;line-height:1.4}
-.lk-prog{display:flex;align-items:center;gap:6px;margin-top:6px}
-.lk-prog .lk-pb{flex:1;height:7px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.2);overflow:hidden}
-.lk-prog .lk-pb i{display:block;height:100%;transition:width .3s ease}
-.lk-prog b{font-size:10.5px;font-weight:900;color:#C9D2F0}
-.lk-ev{font-size:10px;font-weight:800;color:#C9D2F0;background:rgba(255,255,255,.07);padding:5px;margin-top:7px;line-height:1.4}
-.lk-msg{font-size:11px;font-weight:800;color:#C9D2F0;margin-top:7px;line-height:1.45}
-/* 14.3 ボーナス履歴7日分 */
-.lk-hist{margin-top:9px;border-top:2px solid rgba(255,255,255,.16);padding-top:7px;text-align:left}
-.lk-hist .lk-hh{font-size:9.5px;font-weight:900;color:#8E9AC8;letter-spacing:.06em;margin-bottom:4px}
-.lk-hr{display:flex;align-items:center;gap:5px;padding:2px 0}
-.lk-hr .lk-hd{flex:0 0 auto;font-size:10px;font-weight:900;color:#8E9AC8;width:32px}
-.lk-hr .lk-hn{flex:1;min-width:0;font-size:10.5px;font-weight:800;color:#C9D2F0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lk-hr .lk-hs{flex:0 0 auto;font-size:9.5px;font-weight:900;color:#6E7BAE}
-/* 8.1 レアリティ別の開封（フラッシュは使わず、カードのふちが色づく） */
-.lk-pop{animation:lkPop .42s cubic-bezier(.2,1.4,.4,1) both;box-shadow:0 0 0 4px var(--lkfx,#FFF6DC)}
-@keyframes lkPop{0%{transform:scale(.94)}70%{transform:scale(1.02)}100%{transform:scale(1)}}
-/* 結果画面：発動したボーナスと、もらったもの */
-.lk-res{background:rgba(255,255,255,.92);color:#1a1a1a;padding:8px 11px;margin-top:9px;text-align:center}
-.lk-res .lk-rh{font-size:10px;font-weight:900;color:#E0831A;letter-spacing:.08em}
-.lk-res .lk-rn{font-size:14.5px;font-weight:900;margin-top:1px;line-height:1.25}
-.lk-res .lk-rt{font-size:10.5px;font-weight:800;color:#888;margin-top:6px;line-height:1.4}
-/* 8.4 正解した語から小さな光が集まって、ボーナスのアイコンに入る（報酬は学習から生まれた、という因果を見せる） */
-.lk-rfly{position:relative;height:34px;margin:4px 0 2px}
-.lk-rfly .lk-rico{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px;animation:lkRico .5s ease-out .55s both}
-@keyframes lkRico{0%{transform:translate(-50%,-50%) scale(1)}45%{transform:translate(-50%,-50%) scale(1.28)}100%{transform:translate(-50%,-50%) scale(1)}}
-.lk-rfly i{position:absolute;left:50%;top:50%;width:8px;height:8px;border-radius:50%;margin:-4px 0 0 -4px;
-  animation:lkFly .62s ease-in var(--ld,0ms) both}
-@keyframes lkFly{0%{opacity:0;transform:translate(var(--lx),16px) scale(.6)}18%{opacity:1}100%{opacity:0;transform:translate(0,0) scale(.2)}}
 /* ============================================================ ことばの友だち（단어 친구／動物育成） ============================================================ */
 #pet-modal{position:fixed;inset:0;z-index:400;display:none;background:rgba(0,0,0,.34)}
 #pet-modal.on{display:block}
@@ -2521,7 +2486,7 @@ body.bigtext .set-d{font-size:13.5px}
       <!-- ROOMが横に並んでいることは触ってみないと分からないので、1度も切りかえていない間だけヒントを出す -->
       <div id="room-hint" style="display:none"><span class="rh-a rh-l"></span><span class="rh-t">スワイプでROOMを切りかえ</span><span class="rh-a rh-r"></span></div>
       <button class="wb-back" id="wb-back" onclick="exitListMode()" aria-label="ホームに戻る">‹</button>
-      <!-- 今日の5問／今日のトレンド：スライドごとに置かず、home-wrap直下のフロート1組で全ページ共通 -->
+      <!-- 今日の5問／今週のミッション／育成ゲーム：スライドごとに置かず、home-wrap直下のフロート1組で全ページ共通 -->
       <div id="home-fbtn"></div>
       <div id="pull-hint">↓ さらに引くとホームに戻る</div>
       <div id="wb-search"><input id="wb-q" type="search" placeholder="単語をさがす（韓国語・日本語）" oninput="wbSearch(this.value)"><div id="wb-hits"></div></div>
@@ -2570,8 +2535,8 @@ body.bigtext .set-d{font-size:13.5px}
 <div id="settings-modal"></div>
 <div id="special-modal"></div>
 <div id="d5-modal"></div>
-<div id="luck-modal"></div><!-- 今日限定ボーナス（メール指示 2026-08-06） -->
 <div id="pet-modal"></div><!-- ことばの友だち（動物育成。メール指示 2026-08-06 の続き） -->
+<div id="petmenu-modal"></div><!-- 育成ゲームのメニュー（メール指示 2026-08-08） -->
 <div id="petevo-modal"></div><!-- 進化の全画面演出（メール指示 2026-08-06 23:54 のPhase2） -->
 <!-- ハンバーガーメニューの吹き出し（カレンダー／ROOM一覧／スペシャルモードのカプセル3つ。メール指示 2026-08-02） -->
 <div id="menu-modal">
@@ -2580,8 +2545,6 @@ body.bigtext .set-d{font-size:13.5px}
     <button class="hm-cap" onclick="closeHomeMenu();openRoomMap()"><img src="icons/map.webp" alt=""><span>ROOM一覧</span></button>
     <button class="hm-cap" onclick="closeHomeMenu();openSpecial()"><img src="images-thumb/0731.webp" alt=""><span>スペシャルモード</span></button>
     <button class="hm-cap" onclick="closeHomeMenu();openPet()"><span class="hm-emo" aria-hidden="true">🐶</span><span>ことばの友だち</span></button>
-    <!-- 今日のボーナスは「今日の5問」の吹き出しから切り離し、ここを入口にした（メール指示 2026-08-07） -->
-    <button class="hm-cap" onclick="closeHomeMenu();openLuck()"><span class="hm-emo" aria-hidden="true">🍀</span><span>今日のボーナス</span></button>
   </div>
 </div>
 <!-- プレゼント／ガチャを1つにまとめたボタンの吹き出し（単語帳ボタンと同じ見た目のボタン2つを横並び。メール指示 2026-08-02） -->
@@ -2607,7 +2570,6 @@ body.bigtext .set-d{font-size:13.5px}
 <script src="words-images.js"></script>
 <script src="words-imgbox.js"></script>
 <script src="words-beginner.js"></script>
-<script src="trend-words.js"></script>
 <script>
 /* ============================================================ 単語データ 100語 ============================================================ */
 const WORDS=[
@@ -4088,7 +4050,7 @@ function coachNext(){
   if(_coachIdx>=_coachSteps.length-1){closeCoach();return;}
   _coachIdx++;coachPaint();
 }
-function closeCoach(){const el=document.getElementById("coach");if(el)el.remove();_pagerHold=false;try{hideRoomPager();}catch(e){}maybeAutoLuck();} // ガイドを閉じたら、今日のボーナスを公開してそのまま今日の5問へ
+function closeCoach(){const el=document.getElementById("coach");if(el)el.remove();_pagerHold=false;try{hideRoomPager();}catch(e){}maybeAutoDaily5();} // ガイドを閉じたら、そのまま今日の5問へ
 function maybeCoach(){
   if(localStorage.getItem("kwt_coach_v1"))return;
   localStorage.setItem("kwt_coach_v1","1");
@@ -4360,10 +4322,10 @@ function renderHome(){
   updateHomeStats();
   buildRoomSlides();
   attachHomeRain(); // スライド再構築後に玉レイヤーを差し直し（玉は保持）
-  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();initRoomHint();setTimeout(maybeRestAsk,300);setTimeout(maybeResume,600);setTimeout(()=>{if(!document.getElementById("resume-ask")&&!document.querySelector(".rest-ask"))maybeCoach();},900);setTimeout(maybeAutoLuck,1500);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋ROOMスワイプのヒント＋（連続が途切れていれば）おやすみチケット＋初回コーチ＋今日のボーナスの公開→今日の5問の自動スタート＋バックアップ提案
+  if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();initRoomHint();setTimeout(maybeRestAsk,300);setTimeout(maybeResume,600);setTimeout(()=>{if(!document.getElementById("resume-ask")&&!document.querySelector(".rest-ask"))maybeCoach();},900);setTimeout(maybeAutoDaily5,1500);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋ROOMスワイプのヒント＋（連続が途切れていれば）おやすみチケット＋初回コーチ＋今日の5問の自動スタート＋バックアップ提案
   applyHomeBg();
   scaleHome();
-  const _fb=document.getElementById("home-fbtn"); // 今日の5問／トレンドはスライドではなくホーム直下のフロート（作り直すと演出が飛ぶので初回だけ）
+  const _fb=document.getElementById("home-fbtn"); // 今日の5問／ミッション／育成ゲームはスライドではなくホーム直下のフロート（作り直すと演出が飛ぶので初回だけ）
   if(_fb&&!_fb.firstChild)_fb.innerHTML=sgGiftHTML()+sgD5HTML(); // プレゼント・ガチャの統合ボタンは今日の5問のすぐ上
   updateD5Btn(); // 今日の5問：残り回数バッジ／消化済みのグレーアウト
   updatePresent(); // プレゼント・ガチャの統合ボタンを描いてからバッジを付ける
@@ -5256,8 +5218,8 @@ function sfxClaim(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)
 /* --- 今日の5問テスト用 --- */
 function sfxD5Ack(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;_tone(c,660,t,0.06,0.13,"square");} // 回答受付（正誤を示さない中立音）
 function sfxD5Roll(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;[0,0.07,0.14].forEach((d,i)=>_tone(c,440+i*40,t+d,0.05,0.09,"square"));} // 判定前のドラムロール風
-/* 「ピロロン」＝トレンドボタン登場音（短い上昇3音＋キラっとした余韻） */
-function sfxTrendPop(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;
+/* 「ピロロン」＝ボタン登場音（短い上昇3音＋キラっとした余韻） */
+function sfxPopIn(){if(loadSettings().sound===false)return;const c=_sfx();if(!c)return;const t=c.currentTime;
   [1046.5,1396.9,2093].forEach((f,i)=>_tone(c,f,t+i*0.075,0.22,0.15,"triangle"));
   _tone(c,3136,t+0.24,0.5,0.06,"sine");}
 /* 「ピラン」＝すごろくのコマが次のマスへ進んだ音（短い上昇3音＋きらめきの余韻。メール指示 2026-07-31） */
@@ -5545,7 +5507,7 @@ window.addEventListener("popstate",()=>{
     const _spg=document.getElementById("spov");
     if(_spg&&_spg.classList.contains("on")){spExitGame();return;}
     // 1) 開いているモーダルを閉じる
-    for(const id of ["luck-modal","pet-modal","present-modal","gacha-modal","calendar-modal","settings-modal","special-modal","history-modal","map-modal","d5-modal","menu-modal","gift-modal"]){
+    for(const id of ["pet-modal","present-modal","gacha-modal","calendar-modal","settings-modal","special-modal","history-modal","map-modal","d5-modal","menu-modal","gift-modal","petmenu-modal"]){
       const m=document.getElementById(id);
       if(m&&m.classList.contains("on")){m.classList.remove("on");if(id==="d5-modal"){clearInterval(_d5Timer);_d5Timer=null;}return;}
     }
@@ -5583,7 +5545,7 @@ function show(id){
     if(_ballLog.length)homeRain();
     else if(QR.balls.some(b=>b.layer==="home-rain")&&!QR.raf){QR.active="home-rain";QR.calm=0;QR.last=0;QR.raf=requestAnimationFrame(qrStep);} // 途中で離脱した玉を着地させる
   }
-  if(id==="s-home"){renderHome();playHomeBtnFly();} // 今日の5問／トレンドを終えた直後は、ボタンが左へ引っ込む演出を出す
+  if(id==="s-home"){renderHome();playHomeBtnFly();} // 今日の5問を終えた直後は、カプセルが入れかわる演出を出す
 }
 
 /* ============================================================ テスト進行 ============================================================ */
@@ -5619,7 +5581,7 @@ function confirmQuit(){
   if(typeof shgPause==="function")shgPause(true); // シューティングも止める（弾・風船が動き続けない）
   const _qs=document.getElementById("s-quiz");if(_qs)_qs.classList.add("paused"); // 問題文を横棒で伏せる
   const m=document.createElement("div");m.className="appconfirm";
-  m.innerHTML=`<div class="ac-card"><div class="ac-t">${(_d5.on&&_d5.mode==="trend")?"今日のトレンド問題を中断しますか？":_d5.on?"今日の5問を中断しますか？<br><span style=\"font-size:13px;font-weight:700;opacity:.8\">この枠はもう挑戦できません</span>":"テストを中断して<br>ホームに戻りますか？"}<br><span class="ac-nolog">※記録されません</span></div>
+  m.innerHTML=`<div class="ac-card"><div class="ac-t">${_d5.on?"今日の5問を中断しますか？<br><span style=\"font-size:13px;font-weight:700;opacity:.8\">この枠はもう挑戦できません</span>":"テストを中断して<br>ホームに戻りますか？"}<br><span class="ac-nolog">※記録されません</span></div>
     <div class="ac-btns"><button class="btn ac-stop" id="ac-yes">はい</button><button class="btn ghost" id="ac-no">いいえ</button></div></div>`;
   document.body.appendChild(m);
   const unpause=()=>{const e=document.getElementById("s-quiz");if(e)e.classList.remove("paused");if(typeof shgPause==="function")shgPause(false);};
@@ -5754,29 +5716,11 @@ function updateD5Btn(){
     if(!used)b.classList.remove("sg-fly");
     const bd=b.querySelector(".d5-b");if(bd)bd.style.display=used?"none":"flex";
   });
-  updateTrendBtn();
+  updateMissionBtn(); // 5問を終えたあとの中央カプセルは今週のミッション（メール指示 2026-08-01）
+  updatePetBtn();     // 左下の丸は育成ゲーム（メール指示 2026-08-08）
 }
-/* 今日のトレンド問題ボタン：5問を消化した日だけ中央に出す（消化済みならグレー） */
-function updateTrendBtn(){
-  const on=trendAvailable(),used=trendUsed();
-  document.querySelectorAll(".sg-trend").forEach(b=>{
-    b.classList.toggle("on",on);
-    b.classList.toggle("tr-off",used);
-    // 登場(tr-pop)・引っ込み(sg-fly)の演出はfill:bothでtransformを固定し続ける。
-    // 丸に引っ込んだら登場ぶんを、中央カプセルに戻ったら引っ込みぶんを外して、位置ズレを防ぐ
-    b.classList.remove(used?"tr-pop":"sg-fly");
-    const bd=b.querySelector(".tr-b");if(bd)bd.style.display=used?"none":"flex";
-  });
-  updateMissionBtn(); // 中央のカプセルは今週のミッション（メール指示 2026-08-01）
-}
-/* ---- 消化直後の演出：中央のカプセルが左のアイコン位置へ吸い込まれ、続けてトレンドボタンがキラっと登場する ---- */
-let _sgFly={d5:false,trend:false}; // finishDaily5 / finishTrend で立て、ホームへ戻った時に一度だけ再生
-function _sgFlyBtn(btn){
-  const host=btn.offsetParent||btn.parentNode;if(!host)return;
-  const r=btn.getBoundingClientRect(),hr=host.getBoundingClientRect();
-  btn.style.setProperty("--flyx",((hr.left+hr.width/2)-(r.left+r.width/2)).toFixed(1)+"px"); // 中央のカプセル位置からの距離
-  btn.classList.remove("sg-fly");void btn.offsetWidth;btn.classList.add("sg-fly");
-}
+/* ---- 消化直後の演出：中央のカプセルがその場でしぼんで消え、続けて今週のミッションがキラっと登場する ---- */
+let _sgFly={d5:false}; // finishDaily5 で立て、ホームへ戻った時に一度だけ再生
 function _sgSpark(btn){
   const host=btn.offsetParent||btn.parentNode;if(!host)return;
   const r=btn.getBoundingClientRect(),hr=host.getBoundingClientRect();
@@ -5785,20 +5729,22 @@ function _sgSpark(btn){
   host.appendChild(s);setTimeout(()=>s.remove(),900);
 }
 function playHomeBtnFly(){
-  if(_sgFly.d5){
-    _sgFly.d5=false;
-    document.querySelectorAll(".sg-d5.d5-off").forEach(_sgFlyBtn);
-    if(missionAvailable())setTimeout(()=>{ // 引っ込んだ後に「ピロロン」＋キラで今週のミッションが登場
-      document.querySelectorAll(".sg-mission.on").forEach(b=>{
-        b.classList.remove("tr-pop");void b.offsetWidth;b.classList.add("tr-pop");_sgSpark(b);
-        // 登場が終わったら演出クラスを外す。fill:both のまま残すと opacity:1 が固定され、
-        // 単語帳に入っても消えなくなる（メール指示 2026-07-31）
-        setTimeout(()=>b.classList.remove("tr-pop"),520);
-      });
-      sfxTrendPop();
-    },660);
-  }
-  if(_sgFly.trend){_sgFly.trend=false;document.querySelectorAll(".sg-trend.tr-off").forEach(_sgFlyBtn);}
+  if(!_sgFly.d5)return;
+  _sgFly.d5=false;
+  // しぼむ演出は fill:forwards なので、終わったらクラスを外して display:none に戻す
+  document.querySelectorAll(".sg-d5.d5-off").forEach(b=>{
+    b.classList.remove("sg-fade");void b.offsetWidth;b.classList.add("sg-fade");
+    setTimeout(()=>b.classList.remove("sg-fade"),520);
+  });
+  if(missionAvailable())setTimeout(()=>{ // 消えた後に「ピロロン」＋キラで今週のミッションが登場
+    document.querySelectorAll(".sg-mission.on").forEach(b=>{
+      b.classList.remove("tr-pop");void b.offsetWidth;b.classList.add("tr-pop");_sgSpark(b);
+      // 登場が終わったら演出クラスを外す。fill:both のまま残すと opacity:1 が固定され、
+      // 単語帳に入っても消えなくなる（メール指示 2026-07-31）
+      setTimeout(()=>b.classList.remove("tr-pop"),520);
+    });
+    sfxPopIn();
+  },560);
 }
 function openDaily5(){
   const m=document.getElementById("d5-modal");
@@ -5815,7 +5761,7 @@ function openDaily5(){
   },1000);
 }
 function closeDaily5(){document.getElementById("d5-modal").classList.remove("on");clearInterval(_d5Timer);_d5Timer=null;d5StopCountdown();}
-/* 「今日の5問」「今日のトレンド」は吹き出しが出た時点で10秒のカウントダウンを始め、
+/* 「今日の5問」は吹き出しが出た時点で10秒のカウントダウンを始め、
    触らなければそのまま始まる。中断してから開き直したときも同じ（メール指示 2026-07-29） */
 let _d5CdTimer=null,_d5CdTo=null;
 function d5StopCountdown(){if(_d5CdTimer){clearInterval(_d5CdTimer);_d5CdTimer=null;}if(_d5CdTo){clearTimeout(_d5CdTo);_d5CdTo=null;}}
@@ -5837,23 +5783,39 @@ function d5StartCountdown(go){
   },1000);
   _d5CdTo=setTimeout(()=>{const ok=open();d5StopCountdown();if(ok)go();},D5_AUTO_SEC*1000);
 }
-function d5RenderModal(){
+/* ---- 統合ポップアップ（上＝今週のミッション／下＝今日の5問。メール指示 2026-08-08） ----
+ * 入口（中央のカプセル）が5問でもミッションでも、開くのはこの1枚。
+ * auto=true は、その日はじめて開いたときに自動で出るぶん（閉じるボタンの代わりに「戻る」を出す） */
+function u5Daily5HTML(auto){
   const now=Date.now(),slot=d5Slot(now),rec=d5Rec(now),all=loadD5(),dk=dayKey(now);
   const cell=(s)=>{const r=all[dk+"#"+s];
-    return `<div class="d5-slot${slot===s?" now":""}"><div class="d5-sl">${d5SlotLabel(s)}<br>${d5SlotTime(s)}</div>
-      <div class="d5-sv ${r?"ok":"no"}">${r?(r.done?(r.correct+" / "+D5_N+" 正解"):"中断"):"未プレイ"}</div></div>`;};
+    return `<div class="d5-slot${slot===s?" now":""}"><div class="d5-sl">${s==="am"?"☀":"🌙"} ${d5SlotLabel(s)}</div>
+      <div class="d5-sv ${r?"ok":"no"}">${r?(r.done?(r.correct+" / "+D5_N):"中断"):"未プレイ"}</div></div>`;};
+  const streak=(()=>{const k=d5Streak();return k?`<span class="u5-streak">🔥<b>${k}</b>日</span>`:"";})();
   const body=(rec&&rec.done)
    ?`<div class="d5-wait"><div class="d5-wt">次の「今日の5問」まで</div><div class="d5-wv" id="d5-cd">${d5Countdown(now)}</div></div>
      <button class="d5-ghost" onclick="closeDaily5();d5ShowSaved()">この回の結果をもう一度見る</button>`
    :`${rec?`<div class="d5-again">中断した分は、もう一度はじめられます</div>`:""}
+     ${auto?`<div class="d5a-note">朝の部・夜の部の<b>1日2回</b>。それぞれ<b>1回だけ</b>挑戦できる5問です。</div>`:""}
      ${d5CountdownHTML(d5SlotLabel(slot))}
-     <button class="d5-go" onclick="startDaily5()">${d5SlotLabel(slot)}をはじめる</button>`;
-  document.getElementById("d5-modal").innerHTML=`<div class="d5-card">
-    <button class="d5-close" onclick="closeDaily5()" aria-label="閉じる">×</button>
-    <div class="d5-h">今日の5問テスト</div>
-    ${(()=>{const k=d5Streak();return k?`<div class="d5-streak"><img src="images-thumb/0773.webp" alt="" style="width:20px;height:20px;object-fit:contain">連続 <b>${k}</b> 日</div>`:"";})()}
+     ${auto?`<button class="d5-go" onclick="closeAutoD5(true)">いますぐはじめる</button>
+       <button class="d5-ghost" onclick="closeAutoD5(false)">戻る（中断する）</button>`
+      :`<button class="d5-go" onclick="startDaily5()">${d5SlotLabel(slot)}をはじめる</button>`}`;
+  return `<div class="u5-sec">
+    <div class="u5-hd"><span class="u5-kick">TODAY</span><span class="d5-h u5-ti">今日の5問</span>${streak}</div>
     <div class="d5-slots">${cell("am")}${cell("pm")}</div>
     ${body}</div>`;
+}
+function u5CardHTML(auto){
+  return `<div class="d5-card u5-card">
+    ${auto?"":`<button class="d5-close" onclick="closeDaily5()" aria-label="閉じる">×</button>`}
+    ${u5MissionHTML()}
+    <div class="u5-div"></div>
+    ${u5Daily5HTML(auto)}</div>`;
+}
+function d5RenderModal(){
+  const rec=d5Rec(Date.now());
+  document.getElementById("d5-modal").innerHTML=u5CardHTML(false);
   d5AnchorBubble();
   if(!(rec&&rec.done))d5StartCountdown(()=>startDaily5()); // 触らなければ10秒で始まる
   else d5StopCountdown();
@@ -5861,7 +5823,8 @@ function d5RenderModal(){
 /* いま画面に見えている「今日の5問」ボタンを探す（ROOMスライドごとに同じボタンがある） */
 function d5AnchorBtn(sel){
   const vw=innerWidth,vh=innerHeight;let best=null,bestA=0;
-  document.querySelectorAll(sel||".sg-d5").forEach(b=>{
+  // 統合ポップアップの入口は、その時に中央へ出ているカプセル（今日の5問／今週のミッション）
+  document.querySelectorAll(sel||".sg-d5,.sg-mission").forEach(b=>{
     const r=b.getBoundingClientRect();
     const a=Math.max(0,Math.min(r.right,vw)-Math.max(r.left,0))*Math.max(0,Math.min(r.bottom,vh)-Math.max(r.top,0));
     if(a>bestA){bestA=a;best=b;}
@@ -5894,107 +5857,6 @@ addEventListener("resize",()=>{
   const m=document.getElementById("d5-modal");if(m&&m.classList.contains("on"))d5AnchorBubble();
   const a=document.querySelector(".d5auto .d5-card");if(a)d5AnchorBubble(null,a);
 });
-/* ============================================================ 今日のトレンド問題 ============================================================
- * ・Xで流れているK-POPのトレンドから拾った5単語（trend-words.js）で遊ぶ、1日1回のおまけモード
- * ・出題の骨格・結果画面は「今日の5問」と同じものを使う（_d5.mode==="trend"）
- * ・単語帳の外の言葉なので、記憶エンジン（忘却/形成）・単語カード・回答履歴には入れない */
-const LS_TREND="kwt_trend_v1";
-/* 1日の区切りは5:00（今日の5問と同じ）。trend-words.js のキーと突き合わせるので0埋めのYYYY-MM-DDで作る
-   （アプリ内の dayKey() は "2026-7-8" 形式なので、そのままでは日付の大小比較に使えない） */
-function trendDayKey(ms){
-  const d=new Date((ms||Date.now())-D5_AM*3600000),p=n=>String(n).padStart(2,"0");
-  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());
-}
-/* その日ぶんが無ければ、いちばん新しい日付ぶんで遊べるようにする */
-function trendEntry(ms){
-  if(typeof TREND_WORDS==="undefined"||!TREND_WORDS)return null;
-  const k=trendDayKey(ms),e=TREND_WORDS[k];
-  if(e&&e.words&&e.words.length)return Object.assign({},e,{key:k,fresh:true});
-  const all=Object.keys(TREND_WORDS).sort();
-  const past=all.filter(x=>x<=k);
-  const lk=past.length?past[past.length-1]:all[0]; // 過去ぶんが無ければいちばん古いぶんで遊べるようにする
-  const le=lk?TREND_WORDS[lk]:null;
-  return (le&&le.words&&le.words.length)?Object.assign({},le,{key:lk,fresh:false}):null;
-}
-function trendAvailable(ms){return !!trendEntry(ms)&&d5Done(ms);} // 今日の5問を「最後まで」終えた日だけ出す
-function loadTrend(){return _lsJSON(LS_TREND,()=>({}));}
-function saveTrend(o){const ks=Object.keys(o);if(ks.length>40)ks.slice(0,ks.length-40).forEach(k=>delete o[k]);_lsSetJSON(LS_TREND,o);}
-function trendRec(ms){return loadTrend()[trendDayKey(ms)]||null;}
-function trendUsed(ms){return !!trendRec(ms);}
-function trendWords(){
-  const e=trendEntry();if(!e)return[];
-  return e.words.slice(0,D5_N).map((w,i)=>({id:"trend-"+e.key+"-"+i,ko:w.ko,ja:w.ja,read:w.read||"",note:w.note||""}));
-}
-function buildTrendQuestions(){
-  const pool=levelAllWords(),ws=trendWords();
-  return ws.map((w,i)=>{
-    const type=D5_PLAN[i]||"jk";
-    const cs=buildChoiceSet(w,pool,type==="kj"?"ja":"ko");
-    return{word:w,type,choices:cs.choices,correct:type==="kj"?w.ja:w.ko,source:"trend",trend:true,cmeta:cs.meta};
-  });
-}
-/* ---- 入口（中央の黄色いカプセル） ---- */
-function openTrend(){
-  const m=document.getElementById("d5-modal");
-  if(!m.classList.contains("on"))pushNav("modal");
-  m.classList.add("on");
-  trendRenderModal();
-  m.onclick=e=>{if(e.target===m)closeDaily5();};
-}
-function trendRenderModal(){
-  const e=trendEntry(),rec=trendRec();
-  const list=trendWords().map(w=>`<div class="tr-w"><b>${esc(w.ko)}</b><span>${esc(w.read||"")}</span></div>`).join("");
-  const body=rec
-   ?`<div class="d5-wait"><div class="d5-wt">今日のトレンド問題</div><div class="d5-wv">${rec.correct} / ${rec.total} 正解</div></div>
-     <button class="d5-ghost" onclick="closeDaily5();trendShowSaved()">この回の結果をもう一度見る</button>`
-   :`${d5CountdownHTML("トレンド5問")}<button class="d5-go tr-go" onclick="startTrend()">トレンド5問をはじめる</button>`;
-  document.getElementById("d5-modal").innerHTML=`<div class="d5-card tr-card">
-    <button class="d5-close" onclick="closeDaily5()" aria-label="閉じる">×</button>
-    <div class="d5-h">今日のトレンド問題</div>
-    <div class="tr-topic">${esc((e&&e.topic)||"")}${(e&&!e.fresh)?"（最新ぶん）":""}</div>
-    <div class="tr-list">${list}</div>
-    ${body}</div>`;
-  d5AnchorBubble(".sg-mission"); // トレンドは今週のミッションから開くので、しっぽもそのボタンを指す
-  if(!rec)d5StartCountdown(()=>startTrend()); // 触らなければ10秒で始まる
-  else d5StopCountdown();
-}
-function startTrend(){
-  if(trendUsed()){trendRenderModal();return;}
-  closeDaily5();
-  const now=Date.now(),qs=buildTrendQuestions();
-  if(!qs.length)return;
-  _d5={on:true,mode:"trend",slot:"trend",key:trendDayKey(now)};
-  state={questions:qs,idx:0,results:[],testId:"tr-"+now.toString(36),userId:getUserId(),
-    cycleNumber:loadProgress().cycleNumber||1,isReview:false,daily5:true,trend:true,
-    conditionBefore:Math.round(overallCondition(now)),reviewBefore:reviewNeedCount(now),
-    pwrBefore:pwrOverall(),roomPwrBefore:roomInfoFor(curSection).pwr,levelBefore:xpInfo().level,pq:false};
-  _pqQuiz=false;_cdSkip=false;
-  txnBegin(state.testId); // 中断したら記録を差し戻す
-  sfxStart();
-  qrStopRain();qrClearLayer("q-rain");QR.active="q-rain";
-  updateAdvBtn();
-  show("s-quiz");
-  showCountdown(()=>renderQuestion());
-}
-function finishTrend(){
-  txnCommit();clearResumePoint(); // 完走したので記録を確定
-  clearInterval(timer);
-  const R=state.results,qs=state.questions;
-  const items=R.map((r,i)=>({n:i+1,type:(qs[i]&&qs[i].type)||"jk",
-    q:((qs[i]&&qs[i].type)==="kj")?r.korean:r.japanese,
-    your:r.userAnswer||"",correct:r.correctAnswer,status:r.answerStatus,ok:!!r.isCorrect,ko:r.korean,ja:r.japanese}));
-  const nCorrect=items.filter(x=>x.ok).length;
-  const all=loadTrend();
-  all[_d5.key]={slot:"trend",finished:new Date().toISOString(),correct:nCorrect,total:items.length,done:true,items};
-  saveTrend(all);
-  _d5={on:false,mode:"",slot:"",key:""};
-  updateTrendBtn();_sgFly.trend=true; // ホームへ戻ったらトレンドボタンも左へ引っ込める
-  _petRes=petFeed("trend");           // ことばの友だち：トレンドでも育つ
-  if(typeof track==="function")track("trend_complete",{correct:nCorrect});
-  d5RenderResult(all[trendDayKey()],true,true);
-}
-function trendShowSaved(){const r=trendRec();if(r&&r.done)d5RenderResult(r,false,true);}
-
 /* ---- 開始 ---- */
 function startDaily5(){
   if(d5Done()){d5RenderModal();return;} // やり切った枠だけ締切。中断した枠はここから作り直して再挑戦できる
@@ -6038,24 +5900,9 @@ function maybeAutoDaily5(){
 }
 function showAutoD5Splash(){
   _killAutoD5();
-  const now=Date.now(),slot=d5Slot(now),all=loadD5(),dk=dayKey(now);
-  // 朝の部・夜の部の2マスは「今日の5問」の吹き出しとまったく同じ作り（左=朝／右=夜・いまの枠に黄色い枠線）
-  const cell=(s)=>{const r=all[dk+"#"+s];
-    return `<div class="d5-slot${slot===s?" now":""}"><div class="d5-sl">${d5SlotLabel(s)}<br>${d5SlotTime(s)}</div>
-      <div class="d5-sv ${r?"ok":"no"}">${r?(r.done?(r.correct+" / "+D5_N+" 正解"):"中断"):"未プレイ"}</div></div>`;};
-  const streak=(()=>{const k=d5Streak();return k?`<div class="d5-streak"><img src="images-thumb/0773.webp" alt="" style="width:20px;height:20px;object-fit:contain">連続 <b>${k}</b> 日</div>`:"";})();
   const ov=document.createElement("div");ov.className="d5auto";
-  ov.innerHTML=`<div class="d5-card">
-    <div class="d5-h">今日の5問テスト</div>
-    ${streak}
-    <div class="d5-slots">${cell("am")}${cell("pm")}</div>
-    <!-- 毎回出す説明：朝の部・夜の部があり、それぞれ1日1回だけということが分かればよい -->
-    <div class="d5a-note">朝の部・夜の部の<b>1日2回</b>。<br>それぞれ<b>1回だけ</b>挑戦できる5問です。</div>
-    <div class="d5a-cd">あと<b id="d5a-sec">${D5_AUTO_SEC}</b>秒で${d5SlotLabel(slot)}がはじまります</div>
-    <div class="d5a-bar"><div id="d5a-fill"></div></div>
-    <button class="d5-go" onclick="closeAutoD5(true)">いますぐはじめる</button>
-    <button class="d5-ghost" onclick="closeAutoD5(false)">戻る（中断する）</button>
-  </div>`;
+  // 中身は入口から開いたときとまったく同じ統合ポップアップ（メール指示 2026-08-08）
+  ov.innerHTML=u5CardHTML(true);
   document.body.appendChild(ov);
   d5AnchorBubble(null,ov.querySelector(".d5-card"));
   requestAnimationFrame(()=>{
@@ -6087,7 +5934,6 @@ function closeAutoD5(go){
 function d5AfterAnswer(status,userAnswer){
   const wrap=document.querySelector("#qstage .choices");
   if(wrap)wrap.querySelectorAll(".choice").forEach(b=>{b.disabled=true;if(b.dataset.v===userAnswer)b.classList.add("d5-pick");});
-  if(_d5.mode==="d5")luckNoteProgress(); // 5.4 今日のボーナスは IN_PROGRESS へ（ホームの「0/5」がここで進む）
   sfxD5Ack();
   const ov=document.createElement("div");ov.className="d5-ack";
   ov.innerHTML=`<span>${status==="timeout"?"時間切れ":status==="unknown"?"スキップ":"回答しました"}</span>`;
@@ -6107,9 +5953,8 @@ function finishDaily5(){
   const rec={slot:_d5.slot,started:prev.started||new Date().toISOString(),finished:new Date().toISOString(),
     correct:nCorrect,total:items.length,done:true,items};
   all[_d5.key]=rec;saveD5(all);
-  _d5.on=false;_sgFly.d5=true; // ホームへ戻ったらカプセルを左へ吸い込む→トレンドボタン登場
+  _d5.on=false;_sgFly.d5=true; // ホームへ戻ったらカプセルはしぼんで消え、今週のミッションが登場
   grantRestTicketPresent(); // 5問を1回終えるたびに、プレゼントへ「おやすみチケット」を1枚入れる（メール指示 2026-08-01）
-  _luckRes=luckApply(rec); // 今日限定ボーナスの発動（結果画面に出す。メール指示 2026-08-06）
   _petRes=petFeed("d5");   // ことばの友だち：韓国語エネルギーを食べて育つ（学習直後に見せる）
   updateDiagnosis(); // タイプ診断だけ更新（ランク／プレゼントは通常テスト専用）
   if(typeof track==="function")track("daily5_complete",{slot:rec.slot,correct:nCorrect});
@@ -6133,7 +5978,7 @@ const D5_CHEER=[
   "今回はウォームアップ。まだ挽回できます🌱"
 ];
 function d5PickCheer(n){return n>=5?D5_CHEER[0]:n===4?D5_CHEER[1]:n===3?D5_CHEER[2]:n===2?D5_CHEER[3]:D5_CHEER[4];}
-/* すべての結果画面（通常のテスト・今日の5問・トレンド・スペシャル問題）で共通の下段4ボタン。
+/* すべての結果画面（通常のテスト・今日の5問・スペシャル問題）で共通の下段4ボタン。
    ①応援する ②シェアする ③その形式ごとの一手 ④ホーム
    これから問題形式が増えても、結果画面はこの1本を呼んで並びを揃える（メール指示 2026-07-31） */
 function resBtns4HTML(third,extra){
@@ -6147,10 +5992,8 @@ function resBtns4HTML(third,extra){
       <button class="rb" onclick="${extra&&extra.homeAct?extra.homeAct:"resultGoHome()"}"><span class="rb-ico">⌂</span><span class="rb-lab">ホーム</span></button>
     </div>`;
 }
-let _luckRes=null; // 直前に発動した今日限定ボーナス（結果画面で1度だけ出す）
 let _petRes=null;  // 直前のことばの友だちの成長（結果画面で1度だけ出す）
-function d5RenderResult(rec,animate,isTrend){
-  const luckHTML=(!isTrend&&_luckRes)?luckResultHTML(_luckRes,rec):"";_luckRes=null;
+function d5RenderResult(rec,animate){
   const petHTML=_petRes?petResultHTML(_petRes):"";_petRes=null;
   const SYM={correct:["○","o"],incorrect:["×","x"],unknown:["－","u"],timeout:["△","t"]};
   // 1行＝出題（韓国語なら韓国語）＋その下に答え。まちがえたときだけ自分の回答を足す（メール指示 2026-07-31）
@@ -6171,8 +6014,8 @@ function d5RenderResult(rec,animate,isTrend){
   // 通常の結果画面（.res / .res-head / .btn）と同じ骨格・同じ配色を使う
   document.getElementById("s-d5result").innerHTML=`<div class="res">
     <div class="res-head">
-      <div style="font-size:15px;font-weight:900">${isTrend?"今日のトレンド問題":"今日の5問テスト・"+d5SlotLabel(rec.slot)}</div>
-      <div style="font-size:12px;font-weight:800;color:var(--faint);margin-top:2px">${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}${isTrend?`　${esc((trendEntry()||{}).topic||"")}`:(()=>{const k=d5Streak();return k?`　🔥 連続 ${k} 日`:"";})()}</div>
+      <div style="font-size:15px;font-weight:900">${"今日の5問テスト・"+d5SlotLabel(rec.slot)}</div>
+      <div style="font-size:12px;font-weight:800;color:var(--faint);margin-top:2px">${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}${(()=>{const k=d5Streak();return k?`　🔥 連続 ${k} 日`:"";})()}</div>
       <div class="d5r-phase">
         <div class="d5r-judging"${animate?"":' style="opacity:0"'}>判定中…</div>
         <div class="d5r-score${animate?"":" shown"}">
@@ -6182,17 +6025,13 @@ function d5RenderResult(rec,animate,isTrend){
       </div>
     </div>
     <div class="d5r-list">${rows}</div>
-    ${luckHTML}
     ${petHTML}
-    ${resBtns4HTML(isTrend
-      ?{ico:"🔥",lab:"トレンド単語",act:"show('s-home');openTrend()"}
-      :{ico:"⏱",lab:"次までの時間",act:"show('s-home');openDaily5()"},
+    ${resBtns4HTML({ico:"⏱",lab:"次までの時間",act:"show('s-home');openDaily5()"},
       {homeAct:"show('s-home')"})}
   </div>`;
   // シェア文面はこの形式のものに差し替える（通常テストの点数・ランクとは別）
   _lastResult={total:rec.correct,rank:"",nCorrect:rec.correct,code:"",
-    headline:isTrend?`今日のトレンド問題、${rec.correct}/${rec.total}正解でした🇰🇷`
-                    :`今日の5問テスト、${rec.correct}/${rec.total}正解でした🇰🇷`};
+    headline:`今日の5問テスト、${rec.correct}/${rec.total}正解でした🇰🇷`};
   show("s-d5result");
   if(animate)d5Reveal();
 }
@@ -6237,662 +6076,10 @@ function d5RareBurst(){
   setTimeout(()=>ov.remove(),1900);
 }
 
-/* ============================================================ 今日限定ボーナス（오늘의 행운／今日の幸運） ============================================================
- * 仕様書（メール指示 2026-08-06 22:32 ＋ その続き 2026-08-06 23:42）:
- *  ・毎日ひとつだけ「今日だけの学習効果」が選ばれる。起動時に公開し、今日の5問を1セット終えると発動して報酬になる。
- *  ・ランダムなのは「学習するかどうか」ではなく「学習にどの楽しさが加わるか」。最低条件は今日の5問だけ。
- *  ・抽選は2段：まずレアリティを決め（3.1／3.2／3.3の天井）、そのレアリティの中から重みつきで中身を選ぶ（4.2の7係数）。
- *  ・学習量を増やすほど伸びるが逓減し、25問以降は増えない（11.4）。ボーナス由来XPには1日の上限がある（11.1）。
- *  ・演出は最大2.5秒。色だけでレアリティを示さず、必ず名前とアイコンを併記する（8.3）。
- *  ・「逃す恐怖」ではなく、明日のテーマ予告と復刻で「明日への好奇心」を残す（11.5）。
- * このアプリでの受け皿:
- *  ・XP／ガチャ／単語カード／おやすみチケット／XP2倍チャンス という、いまアプリにある値打ちに換算して渡す。
- *  ・制限時間まわり（No.66 時間延長・No.67 ノータイマー）だけは、その日の出題そのものに効く。
- *  ・サーバー前提の項目（署名つき配布・API・運営ダッシュボード・全体協力）は、端末内の記録で置きかえている。 */
-const LS_LUCK="kwt_luck_v1";
-/* 3.1／3.4／8.1 レアリティ。w=基本出現率(%)／ms=公開演出の長さ／val=基準価値／cap=その日ボーナスから出せるXPの上限／fx=演出の光の色 */
-const LUCK_RARE={
-  C :{lab:"COMMON"    ,code:"C" ,col:"#9AA0A6",fx:"#FFF6DC",w:46 ,ms:600 ,val:1.0,cap:60 },
-  R :{lab:"RARE"      ,code:"R" ,col:"#2F6FE0",fx:"#D3E8FF",w:30 ,ms:900 ,val:1.5,cap:60 },
-  SR:{lab:"SUPER RARE",code:"SR",col:"#8A4BE0",fx:"#F3D7FF",w:15 ,ms:1300,val:2.5,cap:60 },
-  E :{lab:"EPIC"      ,code:"E" ,col:"#C0298A",fx:"#FFDDA8",w:6  ,ms:1700,val:4.0,cap:60 },
-  L :{lab:"LEGENDARY" ,code:"L" ,col:"#C99400",fx:"#FFF4C8",w:2.5,ms:2100,val:6.0,cap:80 },
-  M :{lab:"MYTHIC"    ,code:"M" ,col:"#1F2A5A",fx:"#EADFB4",w:0.5,ms:2500,val:10 ,cap:100}
-}; // 8.2 「SSR」は使わない（Super Rare は SR と書く）
-const LUCK_ORDER=["C","R","SR","E","L","M"];
-const LUCK_NEWBIE={C:35,R:38,SR:20,E:6,L:1,M:0}; // 3.2 はじめの7日間は最高レアを出さない
-/* 9. 年間イベントカレンダー（size 1=小 2=中 3=大 5=最大）。10月1〜9日はハングルの日ウィーク */
-const LUCK_CAL={
-  1 :{name:"新年・설날準備"        ,body:"新年挨拶、干支、福袋カード"    ,size:3},
-  2 :{name:"설날・バレンタイン"    ,body:"家族語彙、贈り物、恋愛表現"    ,size:3},
-  3 :{name:"新生活・삼일절"        ,body:"学校、仕事、春、歴史入門"      ,size:2},
-  4 :{name:"桜・韓国旅行"          ,body:"花見、交通、旅行会話"          ,size:2},
-  5 :{name:"GW・子どもの日・両親の日",body:"家族、旅行、感謝表現"        ,size:3},
-  6 :{name:"梅雨・環境の日"        ,body:"天気、衣類、生活語彙"          ,size:1},
-  7 :{name:"夏・초복"              ,body:"夏料理、体調、旅行"            ,size:2},
-  8 :{name:"夏休み・광복절"        ,body:"旅行、歴史、地域カード"        ,size:3},
-  9 :{name:"추석準備"              ,body:"食事、家族、帰省、伝統文化"    ,size:3},
-  10:{name:"ハングルの日"          ,body:"ハングル、固有語、文字史"      ,size:5},
-  11:{name:"ペペロ・受験・紅葉"    ,body:"応援表現、勉強、秋"            ,size:2},
-  12:{name:"クリスマス・年末"      ,body:"冬、贈り物、振り返り"          ,size:3}
-};
-/* 10. 韓国らしいテーマ50種。効果30種×テーマ×条件で毎日の見え方を変える（16.1 マンネリ対策） */
-const LUCK_THEMES=[
-  {c:"旅行",n:"空港チェックインの日"},{c:"旅行",n:"地下鉄乗り換えの日"},{c:"旅行",n:"ソウル駅の日"},
-  {c:"旅行",n:"明洞ショッピングの日"},{c:"旅行",n:"弘大カフェの日"},{c:"旅行",n:"釜山の海の日"},
-  {c:"旅行",n:"済州島の日"},{c:"旅行",n:"ホテル韓国語の日"},{c:"旅行",n:"タクシー韓国語の日"},{c:"旅行",n:"韓国コンビニの日"},
-  {c:"K-POP",n:"カムバックの日"},{c:"K-POP",n:"推しに一言の日"},{c:"K-POP",n:"応援法の日"},
-  {c:"K-POP",n:"音楽番組の日"},{c:"K-POP",n:"ライブ会場の日"},{c:"K-POP",n:"ファンサイン会の日"},
-  {c:"K-POP",n:"アルバム開封の日"},{c:"K-POP",n:"歌詞によく出る動詞の日"},{c:"K-POP",n:"感情表現の日"},{c:"K-POP",n:"メンバー紹介の日"},
-  {c:"料理",n:"キンパの日"},{c:"料理",n:"トッポッキの日"},{c:"料理",n:"サムギョプサルの日"},
-  {c:"料理",n:"ビビンバの日"},{c:"料理",n:"チキンの日"},{c:"料理",n:"ラーメンの日"},
-  {c:"料理",n:"カフェスイーツの日"},{c:"料理",n:"市場の日"},{c:"料理",n:"屋台の日"},{c:"料理",n:"注文韓国語の日"},
-  {c:"ドラマ",n:"告白表現の日"},{c:"ドラマ",n:"驚き表現の日"},{c:"ドラマ",n:"敬語の日"},
-  {c:"ドラマ",n:"家族会話の日"},{c:"ドラマ",n:"職場会話の日"},{c:"ドラマ",n:"病院会話の日"},
-  {c:"ドラマ",n:"学園会話の日"},{c:"ドラマ",n:"サスペンス語彙の日"},{c:"ドラマ",n:"時代劇語彙の日"},{c:"ドラマ",n:"次回予告の日"},
-  {c:"文化",n:"ハングルの日"},{c:"文化",n:"韓服の日"},{c:"文化",n:"韓屋の日"},
-  {c:"文化",n:"民俗遊びの日"},{c:"文化",n:"伝統市場の日"},{c:"文化",n:"チムジルバンの日"},
-  {c:"文化",n:"韓国の年齢表現の日"},{c:"文化",n:"姓と呼称の日"},{c:"文化",n:"敬語文化の日"},{c:"文化",n:"地域方言の日"}
-]; // 著作権上、歌詞・アーティスト写真・公式ロゴは使わず、一般語彙とオリジナル表現だけで表す
-/* 7.2 通知60パターン。この端末アプリにはプッシュ配信の仕組みが無いので、その日の1行メッセージとして使う（7.3の型で選ぶ） */
-const LUCK_MSGS={
-  curious:["今日のボーナスが決まりました。","今日はいつもと少し違う5問です。","今日のカプセルに、新しい効果が入っています。",
-    "今日だけ使える学習効果を確認できます。","今日の韓国語に、小さな幸運が届いています。","今日のカードテーマが公開されました。",
-    "今日はどの韓国語テーマでしょう。","今日の学習ルートが決まりました。","5問の先に、今日限定の報酬があります。","今日のボーナスには、追加条件があります。"],
-  start:["3分の韓国語を始めましょう。","今日の5問を用意しました。","最初の1問から、今日のボーナスが進みます。",
-    "今日は5問でカードのかけらを獲得できます。","今日覚える5語が待っています。","まずは1問、韓国語を思い出しましょう。",
-    "今日の学習は約3分です。","5問クリアで今日の効果が発動します。","今日の復習にちょうどよい時間です。","昨日の単語を、今日もう一度思い出しましょう。"],
-  rare:["今日は少し珍しい光が出ています。","今日のカプセルは青く輝いています。","いつもより強いボーナスが選ばれました。",
-    "今日のボーナスはSR以上です。","特別なカードの気配があります。","今日の抽選結果は、まだ開けていません。",
-    "久しぶりのレアボーナスです。","今日の5問には特別報酬があります。","図鑑が進む可能性の高い日です。","今日だけ、未所持カードが見つかりやすくなっています。"],
-  theme:["今日は韓国カフェで使う5語です。","ソウル旅行に役立つ単語を用意しました。","今日のテーマは韓国料理です。",
-    "韓国ドラマで聞く表現を学びましょう。","K-POPで見かける韓国語が登場します。","コンビニで使える韓国語を5問だけ。",
-    "今日のトレンド語を1つ覚えましょう。","釜山に関するカードが登場しています。","ハングルにまつわる特別ボーナスです。","今日の韓国文化クイズが届きました。"],
-  review:["忘れかけている単語が3語あります。","今思い出すと定着しやすい単語があります。","7日前の単語を覚えているか確認しましょう。",
-    "苦手語を5問にまとめました。","昨日間違えた単語を短く復習できます。","今日の復習は3分以内で完了します。",
-    "記憶が薄れる前に、1回だけ思い出しましょう。","今日のボーナスは復習XPアップです。","苦手カテゴリの正解XPが2倍です。","今日の5問は、あなたの復習履歴から選ばれています。"],
-  streak:["今日も5問で学習記録を残せます。","連続学習7日目まで、あと1日です。","今週はあと1回で週間目標達成です。",
-    "久しぶりの5問を、やさしい内容で用意しました。","前回の続きから再開できます。","ストリークより、今日の1回を大切にしましょう。",
-    "休んだ分は気にせず、5問から再開できます。","今日戻ると復帰ボーナスが発動します。","学習記録をもう一度始める日です。","今週の学習はあと3分で完了です。"]
-}; // 7.1 「失います」「連続記録が消えます」は使わない／Mythicの中身は文面で明かさない
-const LUCK_CATS={xp:{lab:"XP・レベル",ico:"⭐"},gacha:{lab:"ガチャ",ico:"🪙"},card:{lab:"カード収集",ico:"🃏"},
-  review:{lab:"復習・記憶",ico:"🧠"},support:{lab:"学習支援",ico:"🤝"},streak:{lab:"継続",ico:"🔥"},
-  culture:{lab:"韓国文化",ico:"🇰🇷"},special:{lab:"サプライズ",ico:"🎁"}};
-/* g=系統／r=レアリティ／t=対象／c=コスト／mul=XPのふくらませ方（効果文の倍率に合わせる） */
-const LUCK_LIST=[
-  {n:1  ,g:"xp"     ,name:"はじめの一歩"    ,eff:"今日の5問XP＋10%"                ,r:"C" ,t:"全員"    ,c:"低",mul:1.1},
-  {n:2  ,g:"xp"     ,name:"学習エンジン"    ,eff:"全学習XP＋15%、最大30XP"          ,r:"C" ,t:"全員"    ,c:"低",mul:1.15},
-  {n:3  ,g:"xp"     ,name:"集中タイム"      ,eff:"最初の1セットXP＋25%"             ,r:"R" ,t:"全員"    ,c:"低",mul:1.25},
-  {n:4  ,g:"xp"     ,name:"XPダブル"        ,eff:"最初の5問XP×2"                   ,r:"SR",t:"全員"    ,c:"低",mul:2},
-  {n:5  ,g:"xp"     ,name:"XPフィーバー"    ,eff:"10分間XP×1.5"                    ,r:"SR",t:"中上級"  ,c:"中",mul:1.5},
-  {n:6  ,g:"xp"     ,name:"完璧主義"        ,eff:"全問正解時＋30XP"                 ,r:"R" ,t:"全員"    ,c:"低"},
-  {n:7  ,g:"xp"     ,name:"再挑戦ボーナス"  ,eff:"誤答再挑戦のXP＋100%"             ,r:"C" ,t:"初心者"  ,c:"低",mul:1.4},
-  {n:8  ,g:"xp"     ,name:"朝活韓国語"      ,eff:"12時までの完了で＋20XP"           ,r:"R" ,t:"朝利用者",c:"低"},
-  {n:9  ,g:"xp"     ,name:"夜の集中"        ,eff:"18時以降の完了で＋20XP"           ,r:"R" ,t:"夜利用者",c:"低"},
-  {n:10 ,g:"xp"     ,name:"レベル接近"      ,eff:"次レベルまでの必要XPを当日5%軽減" ,r:"E" ,t:"中上級"  ,c:"中",mul:1.3},
-  {n:11 ,g:"xp"     ,name:"成長スパート"    ,eff:"当日の獲得XPが段階的に＋5%、最大25%",r:"SR",t:"学習量多",c:"中",mul:1.25},
-  {n:12 ,g:"xp"     ,name:"週末ブースト"    ,eff:"土日限定XP＋20%"                  ,r:"R" ,t:"全員"    ,c:"低",mul:1.2},
-  {n:13 ,g:"xp"     ,name:"ハングルパワー"  ,eff:"ハングル問題XP×1.5"               ,r:"R" ,t:"初心者"  ,c:"低",mul:1.5},
-  {n:14 ,g:"xp"     ,name:"語彙マスター"    ,eff:"単語問題XP×1.4"                   ,r:"R" ,t:"全員"    ,c:"低",mul:1.4},
-  {n:15 ,g:"xp"     ,name:"書き取り名人"    ,eff:"書き取り正解XP×2"                 ,r:"SR",t:"中上級"  ,c:"低",mul:1.8},
-  {n:16 ,g:"gacha"  ,name:"ガチャのかけら"  ,eff:"完了でガチャゲージ＋1"            ,r:"C" ,t:"全員"    ,c:"低"},
-  {n:17 ,g:"gacha"  ,name:"もう1プッシュ"   ,eff:"ガチャゲージ＋2"                  ,r:"R" ,t:"全員"    ,c:"低"},
-  {n:18 ,g:"gacha"  ,name:"今日の無料ガチャ",eff:"5問完了で無料1回"                 ,r:"SR",t:"全員"    ,c:"低"},
-  {n:19 ,g:"gacha"  ,name:"ラッキーチケット",eff:"ガチャ券1枚"                      ,r:"SR",t:"全員"    ,c:"低"},
-  {n:20 ,g:"gacha"  ,name:"10連のかけら"    ,eff:"10連用かけら2個"                  ,r:"R" ,t:"全員"    ,c:"低"},
-  {n:21 ,g:"gacha"  ,name:"レア率アップ小"  ,eff:"当日初回ガチャのR以上＋3pt"       ,r:"R" ,t:"全員"    ,c:"中"},
-  {n:22 ,g:"gacha"  ,name:"レア率アップ中"  ,eff:"初回ガチャのSR以上＋2pt"          ,r:"SR",t:"全員"    ,c:"中"},
-  {n:23 ,g:"gacha"  ,name:"ピックアップ運"  ,eff:"当日テーマカード出現率×2"         ,r:"E" ,t:"全員"    ,c:"中"},
-  {n:24 ,g:"gacha"  ,name:"最低保証強化"    ,eff:"初回ガチャをR以上確定"            ,r:"E" ,t:"全員"    ,c:"中"},
-  {n:25 ,g:"gacha"  ,name:"虹色の予感"      ,eff:"初回ガチャで最高レア率＋1pt"      ,r:"L" ,t:"全員"    ,c:"中"},
-  {n:26 ,g:"gacha"  ,name:"リトライコイン"  ,eff:"ガチャ結果を1度だけ引き直せる"    ,r:"M" ,t:"全員"    ,c:"高"},
-  {n:27 ,g:"gacha"  ,name:"選べる2択"       ,eff:"2つのガチャ結果から1つ選択"       ,r:"L" ,t:"全員"    ,c:"高"},
-  {n:28 ,g:"gacha"  ,name:"学習連動ガチャ"  ,eff:"追加5問ごとに排出候補＋1、最大3"  ,r:"SR",t:"学習量多",c:"高"},
-  {n:29 ,g:"gacha"  ,name:"復習ガチャ"      ,eff:"復習完了で専用ガチャ解放"         ,r:"R" ,t:"復習対象",c:"中"},
-  {n:30 ,g:"gacha"  ,name:"コンプリート運"  ,eff:"未所持カード率を＋15pt"           ,r:"L" ,t:"コレクター",c:"高"},
-  {n:31 ,g:"card"   ,name:"カードのかけら"  ,eff:"ランダムカードかけら1個"          ,r:"C" ,t:"全員"    ,c:"低"},
-  {n:32 ,g:"card"   ,name:"かけら増量"      ,eff:"獲得かけら＋1"                    ,r:"R" ,t:"全員"    ,c:"低"},
-  {n:33 ,g:"card"   ,name:"新カード優先"    ,eff:"未所持カード抽選率＋10pt"         ,r:"SR",t:"全員"    ,c:"中"},
-  {n:34 ,g:"card"   ,name:"初級カードの日"  ,eff:"初級カード獲得量×2"               ,r:"R" ,t:"初心者"  ,c:"低"},
-  {n:35 ,g:"card"   ,name:"上級カードの日"  ,eff:"上級カード獲得量×2"               ,r:"R" ,t:"上級者"  ,c:"低"},
-  {n:36 ,g:"card"   ,name:"テーマカード"    ,eff:"料理・旅行など指定テーマ出現率×3" ,r:"R" ,t:"全員"    ,c:"中"},
-  {n:37 ,g:"card"   ,name:"キラ加工券"      ,eff:"所持カード1枚をキラ化"            ,r:"E" ,t:"コレクター",c:"中"},
-  {n:38 ,g:"card"   ,name:"カード経験値＋50%",eff:"使用・学習カードの成長量増加"    ,r:"R" ,t:"全員"    ,c:"低"},
-  {n:39 ,g:"card"   ,name:"お気に入り育成"  ,eff:"お気に入りカードXP×2"             ,r:"SR",t:"全員"    ,c:"中"},
-  {n:40 ,g:"card"   ,name:"図鑑ボーナス"    ,eff:"新規登録時に図鑑XP＋50%"          ,r:"SR",t:"全員"    ,c:"中"},
-  {n:41 ,g:"card"   ,name:"欠番サーチ"      ,eff:"近い番号の未所持カードを優先"     ,r:"E" ,t:"コレクター",c:"高"},
-  {n:42 ,g:"card"   ,name:"カード交換券"    ,eff:"重複3枚を別カードに変換"          ,r:"L" ,t:"長期利用",c:"高"},
-  {n:43 ,g:"card"   ,name:"レアカード試着"  ,eff:"未所持カードを当日だけ使用可能"   ,r:"SR",t:"全員"    ,c:"中"},
-  {n:44 ,g:"card"   ,name:"シークレットカード",eff:"日替わり限定カード抽選"         ,r:"M" ,t:"全員"    ,c:"高"},
-  {n:45 ,g:"card"   ,name:"思い出アルバム"  ,eff:"今日覚えた5語を1枚の記念カード化" ,r:"L" ,t:"全員"    ,c:"高"},
-  {n:46 ,g:"review" ,name:"復習XPアップ"    ,eff:"復習XP＋30%"                      ,r:"C" ,t:"復習対象",c:"低"},
-  {n:47 ,g:"review" ,name:"苦手克服"        ,eff:"苦手語正解時XP×2"                 ,r:"R" ,t:"苦手あり",c:"中"},
-  {n:48 ,g:"review" ,name:"記憶レスキュー"  ,eff:"忘れかけ単語を5語提示"            ,r:"C" ,t:"全員"    ,c:"中"},
-  {n:49 ,g:"review" ,name:"復習ショートカット",eff:"今日必要な復習を3問に圧縮"      ,r:"R" ,t:"忙しい人",c:"高"},
-  {n:50 ,g:"review" ,name:"記憶定着日"      ,eff:"適正復習語のカードXP×2"           ,r:"R" ,t:"全員"    ,c:"中"},
-  {n:51 ,g:"review" ,name:"弱点発見"        ,eff:"最も正答率の低いカテゴリを表示"   ,r:"C" ,t:"全員"    ,c:"中"},
-  {n:52 ,g:"review" ,name:"苦手テーマ特訓"  ,eff:"弱点カテゴリから5問"              ,r:"R" ,t:"中上級"  ,c:"中"},
-  {n:53 ,g:"review" ,name:"発音復習"        ,eff:"誤答語の音声再生を自動提示"       ,r:"C" ,t:"全員"    ,c:"低"},
-  {n:54 ,g:"review" ,name:"書き取り復習"    ,eff:"誤答1語だけ書き取りに再出題"      ,r:"R" ,t:"全員"    ,c:"中"},
-  {n:55 ,g:"review" ,name:"24時間リコール"  ,eff:"昨日覚えた語を優先出題"           ,r:"R" ,t:"2日目以降",c:"中"},
-  {n:56 ,g:"review" ,name:"1週間リコール"   ,eff:"7日前の語を優先出題"              ,r:"SR",t:"長期利用",c:"中"},
-  {n:57 ,g:"review" ,name:"30日記憶テスト"  ,eff:"30日前の語を3問提示"              ,r:"SR",t:"長期利用",c:"中"},
-  {n:58 ,g:"review" ,name:"完全習得判定"    ,eff:"連続正解語の習得判定を実施"       ,r:"E" ,t:"上級者"  ,c:"高"},
-  {n:59 ,g:"review" ,name:"復習猶予"        ,eff:"今日の復習期限を翌日まで延長"     ,r:"SR",t:"忙しい人",c:"中"},
-  {n:60 ,g:"review" ,name:"記憶の宝箱"      ,eff:"復習5問完了でカード箱"            ,r:"E" ,t:"復習対象",c:"中"},
-  {n:61 ,g:"support",name:"ヒント無料"      ,eff:"当日最初のヒント消費なし"         ,r:"C" ,t:"初心者"  ,c:"低"},
-  {n:62 ,g:"support",name:"ヒント3回"       ,eff:"無料ヒント3回"                    ,r:"R" ,t:"初心者"  ,c:"低"},
-  {n:63 ,g:"support",name:"1文字ヒント"     ,eff:"書き取りで語頭1文字表示"          ,r:"C" ,t:"全員"    ,c:"低"},
-  {n:64 ,g:"support",name:"2択レスキュー"   ,eff:"1問だけ選択肢を2択にする"         ,r:"R" ,t:"初心者"  ,c:"中"},
-  {n:65 ,g:"support",name:"ミスガード"      ,eff:"最初の誤答を成績計算から除外"     ,r:"SR",t:"初心者"  ,c:"中"},
-  {n:66 ,g:"support",name:"時間延長"        ,eff:"制限時間＋3秒"                    ,r:"C" ,t:"初心者"  ,c:"低"},
-  {n:67 ,g:"support",name:"ノータイマー"    ,eff:"今日の5問のみ時間制限なし"        ,r:"R" ,t:"初心者"  ,c:"中"},
-  {n:68 ,g:"support",name:"音声ゆっくり"    ,eff:"0.75倍音声を利用可能"             ,r:"C" ,t:"初心者"  ,c:"低"},
-  {n:69 ,g:"support",name:"発音比較"        ,eff:"標準音声を2回連続再生"            ,r:"R" ,t:"全員"    ,c:"低"},
-  {n:70 ,g:"support",name:"日本語非表示"    ,eff:"韓国語のみモードでXP＋30%"        ,r:"SR",t:"上級者"  ,c:"中",mul:1.3},
-  {n:71 ,g:"support",name:"選択肢シャッフル",eff:"類似語中心の高品質問題＋XP増加"   ,r:"SR",t:"上級者"  ,c:"高",mul:1.2},
-  {n:72 ,g:"support",name:"自信度チェック"  ,eff:"回答後に自信度を記録し復習最適化" ,r:"R" ,t:"全員"    ,c:"高"},
-  {n:73 ,g:"support",name:"例文追加"        ,eff:"今日の5語すべてに短い例文"        ,r:"R" ,t:"全員"    ,c:"中"},
-  {n:74 ,g:"support",name:"ミニ解説"        ,eff:"誤答語に文法・語源解説"           ,r:"SR",t:"全員"    ,c:"高"},
-  {n:75 ,g:"support",name:"個人ベスト挑戦"  ,eff:"自分の平均速度を基準にXP追加"     ,r:"R" ,t:"中上級"  ,c:"中"},
-  {n:76 ,g:"streak" ,name:"ストリークの火種",eff:"5問完了で通常ストリーク更新"      ,r:"C" ,t:"全員"    ,c:"低"},
-  {n:77 ,g:"streak" ,name:"連続学習XP"      ,eff:"連続日数に応じ＋1〜15XP"          ,r:"C" ,t:"継続者"  ,c:"低"},
-  {n:78 ,g:"streak" ,name:"3日チャレンジ"   ,eff:"3日中2日達成でガチャ券"           ,r:"R" ,t:"全員"    ,c:"中"},
-  {n:79 ,g:"streak" ,name:"7日スタンプ"     ,eff:"1日1スタンプ、7個でカード"        ,r:"R" ,t:"全員"    ,c:"中"},
-  {n:80 ,g:"streak" ,name:"ストリークシールド",eff:"1日分の保護アイテム"            ,r:"E" ,t:"継続者"  ,c:"中"},
-  {n:81 ,g:"streak" ,name:"おかえりボーナス",eff:"2〜6日休止後の初回XP＋50%"        ,r:"R" ,t:"復帰者"  ,c:"中",mul:1.5},
-  {n:82 ,g:"streak" ,name:"リスタートギフト",eff:"7日以上休止後に復習セット"        ,r:"SR",t:"復帰者"  ,c:"中"},
-  {n:83 ,g:"streak" ,name:"自己ベスト接近"  ,eff:"最長記録まで残り日数を表示"       ,r:"C" ,t:"継続者"  ,c:"低"},
-  {n:84 ,g:"streak" ,name:"節目カード"      ,eff:"10・30・100日節目カード"          ,r:"E" ,t:"継続者"  ,c:"中"},
-  {n:85 ,g:"streak" ,name:"ゆるストリーク"  ,eff:"週5日達成で週間継続判定"          ,r:"R" ,t:"忙しい人",c:"中"},
-  {n:86 ,g:"culture",name:"ソウル旅行"      ,eff:"旅行語彙5問＋ソウルカード"        ,r:"R" ,t:"全員"    ,c:"中"},
-  {n:87 ,g:"culture",name:"釜山旅行"        ,eff:"方言・旅行語彙＋釜山カード"       ,r:"SR",t:"中上級"  ,c:"高"},
-  {n:88 ,g:"culture",name:"韓国カフェ"      ,eff:"カフェ語彙のカード率×2"           ,r:"R" ,t:"全員"    ,c:"中"},
-  {n:89 ,g:"culture",name:"韓国料理"        ,eff:"料理語彙＋料理カード"             ,r:"R" ,t:"全員"    ,c:"中"},
-  {n:90 ,g:"culture",name:"K-POPカムバック" ,eff:"音楽・応援語彙＋限定背景"         ,r:"E" ,t:"全員"    ,c:"高"},
-  {n:91 ,g:"culture",name:"韓国ドラマの日"  ,eff:"感情・会話表現を優先"             ,r:"R" ,t:"全員"    ,c:"中"},
-  {n:92 ,g:"culture",name:"推しに一言"      ,eff:"ファンレター表現を1つ解放"        ,r:"SR",t:"全員"    ,c:"高"},
-  {n:93 ,g:"culture",name:"コンビニ韓国語"  ,eff:"買い物語彙＋商品カード"           ,r:"R" ,t:"初中級"  ,c:"中"},
-  {n:94 ,g:"culture",name:"屋台めぐり"      ,eff:"食べ物語彙を3問クリアでかけら"    ,r:"SR",t:"全員"    ,c:"中"},
-  {n:95 ,g:"culture",name:"ハングルの日"    ,eff:"文字・語源・固有語報酬×2"         ,r:"L" ,t:"全員"    ,c:"高"},
-  {n:96 ,g:"culture",name:"韓国の季節"      ,eff:"季節語彙カードの出現率×3"         ,r:"R" ,t:"全員"    ,c:"中"},
-  {n:97 ,g:"culture",name:"今日の流行語"    ,eff:"当日のトレンド語を1語解説"        ,r:"SR",t:"中上級"  ,c:"高"},
-  {n:98 ,g:"culture",name:"韓国ニュース入門",eff:"やさしいニュース語彙3問"          ,r:"E" ,t:"中上級"  ,c:"高"},
-  {n:99 ,g:"culture",name:"文化クイズ"      ,eff:"学習後に文化問題1問、正解でかけら",r:"R" ,t:"全員"    ,c:"高"},
-  {n:100,g:"culture",name:"韓国一周"        ,eff:"地域カードをランダム解放"         ,r:"L" ,t:"全員"    ,c:"高"},
-  {n:101,g:"special",name:"ボーナス選択"    ,eff:"XP・カード・復習から1つ選ぶ"      ,r:"E" ,t:"全員"    ,c:"中"},
-  {n:102,g:"special",name:"今日だけ3択"     ,eff:"3つのボーナスから1つ選択"         ,r:"L" ,t:"全員"    ,c:"高"},
-  {n:103,g:"special",name:"ボーナス進化"    ,eff:"学習5問ごとに1段階強化、最大3段階",r:"E" ,t:"学習量多",c:"高"},
-  {n:104,g:"special",name:"サプライズ箱"    ,eff:"完了後まで中身を一部非公開"       ,r:"SR",t:"全員"    ,c:"中"},
-  {n:105,g:"special",name:"ラッキーナンバー",eff:"今日の正解数が指定数で追加報酬"   ,r:"R" ,t:"全員"    ,c:"中"},
-  {n:106,g:"special",name:"ゴールデン5問"   ,eff:"5問中ランダム1問が報酬3倍"        ,r:"SR",t:"全員"    ,c:"中"},
-  {n:107,g:"special",name:"完璧な一日"      ,eff:"今日の5問＋復習完了で豪華箱"      ,r:"E" ,t:"中上級"  ,c:"中"},
-  {n:108,g:"special",name:"学習ルート分岐"  ,eff:"やさしい・標準・挑戦から選択"     ,r:"SR",t:"全員"    ,c:"高"},
-  {n:109,g:"special",name:"ミステリーカード",eff:"シルエットからカードを予想"       ,r:"E" ,t:"全員"    ,c:"高"},
-  {n:110,g:"special",name:"神話の一日"      ,eff:"限定Mythicカード抽選＋全学習効果" ,r:"M" ,t:"全員"    ,c:"高"},
-  {n:111,g:"special",name:"ペアボーナス"    ,eff:"今日の5問とトレンド両方で報酬増加",r:"SR",t:"全員"    ,c:"中"},
-  {n:112,g:"special",name:"雨の日ボーナス"  ,eff:"季節の演出として出現"             ,r:"R" ,t:"全員"    ,c:"中"},
-  {n:113,g:"special",name:"誕生月ギフト"    ,eff:"任意の月に設定できる記念ボーナス" ,r:"E" ,t:"全員"    ,c:"中"},
-  {n:114,g:"special",name:"開発者からの贈り物",eff:"メンテナンス・記念日配布"       ,r:"L" ,t:"全員"    ,c:"低"},
-  {n:115,g:"special",name:"全員協力デー"    ,eff:"全体学習数達成で翌日報酬"         ,r:"E" ,t:"全員"    ,c:"高"},
-  {n:116,g:"special",name:"みんなの苦手語"  ,eff:"全体誤答率が高い語を学習"         ,r:"SR",t:"全員"    ,c:"高"},
-  {n:117,g:"special",name:"新語先行体験"    ,eff:"新カードを正式追加前に試せる"     ,r:"E" ,t:"全員"    ,c:"高"},
-  {n:118,g:"special",name:"復刻ボーナス"    ,eff:"過去イベントカードを再取得"       ,r:"L" ,t:"長期利用",c:"中"},
-  {n:119,g:"special",name:"コレクション記念日",eff:"所持カード数に応じ記念枠"       ,r:"SR",t:"長期利用",c:"中"},
-  {n:120,g:"special",name:"学習の軌跡"      ,eff:"1年前の学習語を再出題し記念カード",r:"M" ,t:"1年以上" ,c:"高"}
-];
-function luckById(n){for(const it of LUCK_LIST)if(it.n===n)return it;return null;}
-function _luckKeyNum(k){const a=String(k).split("-");return (+a[0])*10000+(+a[1])*100+(+a[2]);}
-function luckState(){const o=_lsJSON(LS_LUCK,()=>({}));if(!o.days||typeof o.days!=="object")o.days={};if(!Array.isArray(o.hist))o.hist=[];return o;}
-/* 抽選の履歴。番号だけの旧いかたちも受けつける（4.2の係数はレアリティ・系統も見るのでここで補う） */
-function luckLog(st){
-  return (st.hist||[]).map(h=>{
-    const n=(h&&typeof h==="object")?h.n:h,it=luckById(n);
-    return{n:n,r:(h&&h.r)||(it?it.r:"C"),g:(h&&h.g)||(it?it.g:"special")};
-  });
-}
-function saveLuck(o){
-  const ks=Object.keys(o.days);
-  if(ks.length>40)ks.sort((a,b)=>_luckKeyNum(a)-_luckKeyNum(b)).slice(0,ks.length-40).forEach(k=>delete o.days[k]); // 古い日は間引き
-  if(o.hist.length>400)o.hist.splice(0,o.hist.length-400); // 天井（365日）の判定に使うので長めに残す
-  _lsSetJSON(LS_LUCK,o);
-}
-/* 1日の区切りは朝5:00（今日の5問と同じ）。仕様書14.6は午前4時だが、アプリの中に日の境目が2つあると混乱するので既存に合わせている */
-function luckDayKey(ms){return dayKey((ms||Date.now())-D5_AM*3600000);}
-/* 16.3 端末の時刻を戻しても、過ぎた日をもう一度引き直せないようにする（進めるぶんは通常どおり） */
-function luckTodayKey(){
-  const st=luckState(),k=luckDayKey();
-  if(st.maxk&&_luckKeyNum(k)<_luckKeyNum(st.maxk))return st.maxk;
-  if(!st.maxk||_luckKeyNum(k)>_luckKeyNum(st.maxk)){st.maxk=k;saveLuck(st);}
-  return k;
-}
-/* 抽選に使う、その人の状態（4.3の補正はここの値を見る） */
-function luckProfile(){
-  const now=Date.now(),dc=doneCountByDay(),done=Object.keys(dc);
-  let last=0;done.forEach(k=>{const t=_dayFromKey(k).getTime();if(t>last)last=t;});
-  const today=new Date();today.setHours(0,0,0,0);
-  let due=0;
-  try{const s=loadStats();Object.keys(s).forEach(id=>{const t=s[id];if(t&&t.hasSeen&&t.nextReviewAt&&new Date(t.nextReviewAt).getTime()<=now)due++;});}catch(e){}
-  let ok=0,ng=0;
-  try{loadHistory().forEach(r=>{if(!r||!r.answeredAt)return;if(now-new Date(r.answeredAt).getTime()>7*86400000)return;if(r.isCorrect)ok++;else ng++;});}catch(e){}
-  let cards=0,pool=1;
-  try{cards=Object.keys(loadCards()).length;pool=Math.max(1,levelAllWords().length);}catch(e){}
-  return{lv:xpInfo().level,tests:totalTests(),days:launchedDays().length,streak:d5Streak(),
-    cards:cards,newRate:1-Math.min(1,cards/pool),acc:(ok+ng)?ok/(ok+ng):1,due:due,
-    twice:(dc[dayKey(now)]||0)>=2,hour:new Date().getHours(),
-    gap:last?Math.max(0,Math.round((today.getTime()-last)/86400000)):0};
-}
-/* 対象（t）に合う人にだけ配る。合わない日のためだけに用意された効果は引かない（無理のある条件を出さない） */
-function luckEligible(it,p){
-  switch(it.t){
-    case "初心者":    return p.lv<5||p.tests<10;
-    case "初中級":    return p.lv<12;
-    case "中上級":    return p.lv>=4||p.tests>=8;
-    case "上級者":    return p.lv>=8||p.tests>=25;
-    case "継続者":    return p.streak>=3;
-    case "復帰者":    return p.gap>=2;
-    case "長期利用":  return p.days>=14;
-    case "1年以上":   return p.days>=365;
-    case "コレクター":return p.cards>=30;
-    case "学習量多":  return p.tests>=15;
-    case "復習対象":  case "苦手あり": return p.tests>=3;
-    case "2日目以降": return p.days>=2;
-    case "朝利用者":  return p.hour<11;  // その日のうちに達成できない時間帯には出さない
-    case "夜利用者":  return p.hour>=16;
-    default: return true;                // 全員／忙しい人 など
-  }
-}
-/* ---- 9. その日のイベント（10月1〜9日はハングルの日ウィーク＝年間最大） ---- */
-function luckEvent(key){
-  const d=_dayFromKey(key||luckDayKey()),m=d.getMonth()+1,ev=LUCK_CAL[m];
-  if(!ev)return null;
-  const hangul=(m===10&&d.getDate()<=9);
-  return{name:hangul?"한글날 ハングルの日ウィーク":ev.name,body:ev.body,size:hangul?5:ev.size,hangul:hangul};
-}
-/* ---- 3.1〜3.3 レアリティ抽選（天井つき） ---- */
-function luckRarityWeights(p){
-  const w={},nb=(p.days<=7); // 3.2 開始後7日間は初心者補正（最高レアを出さない）
-  LUCK_ORDER.forEach(r=>w[r]=nb?LUCK_NEWBIE[r]:LUCK_RARE[r].w);
-  return w;
-}
-function luckDrawRarity(rnd,p,log){
-  const gte=r=>LUCK_ORDER.slice(LUCK_ORDER.indexOf(r));
-  const w=luckRarityWeights(p);
-  const pick=list=>{
-    let t=0;list.forEach(r=>t+=w[r]||0);
-    if(t<=0)return list[0];
-    let x=rnd()*t;
-    for(const r of list){if((x-=(w[r]||0))<0)return r;}
-    return list[list.length-1];
-  };
-  const since=rs=>{let n=0;for(let i=log.length-1;i>=0;i--){if(rs.indexOf(log[i].r)>=0)return n;n++;}return n;};
-  if(log.length>=365&&since(["M"])>=365)return "M";                             // 365日Mなし → 366日目はM確定
-  if(log.length>=120&&since(gte("L"))>=120)return pick(gte("L"));               // 120日L以上なし → L以上確定
-  if(log.length>=30 &&since(gte("E"))>=30 )return pick(gte("E"));               // 30日E以上なし → E以上確定
-  if(log.length>=5  &&log.slice(-5).every(x=>x.r==="C"))return pick(gte("R"));  // 5日連続Cのみ → 翌日はR以上確定
-  if(log.length>=10 &&since(gte("SR"))>=10&&rnd()<0.30)return pick(gte("SR"));  // 10日SR以上なし → 翌日のSR以上率を30%に
-  return pick(LUCK_ORDER);
-}
-/* ---- 4.2 重み係数（どれも仕様書の範囲におさめる） ---- */
-function luckNovelty(it,log){ // 0.1〜1.5 最近出ていないものほど増える
-  for(let i=log.length-1,d=1;i>=0;i--,d++)if(log[i].n===it.n)return Math.max(0.1,Math.min(1.5,d/20));
-  return 1.5;
-}
-function luckLearningNeed(it,p){ // 0.7〜1.8（4.3）／3日以上休止の復帰系だけは別枠で強める
-  let f=1;
-  if(p.due>=10&&it.g==="review")f*=1.6;
-  if(p.acc<0.6&&it.g==="support")f*=1.5;
-  if(p.acc>=0.9&&(it.t==="上級者"||it.t==="中上級"))f*=1.4;
-  if(p.newRate>=0.7&&it.g==="card")f*=1.3;
-  if(p.twice&&(it.n===11||it.n===103))f*=1.3;                       // 1日2セット以上 → 段階成長系
-  if(p.days>=30&&(it.n===56||it.n===57||it.n===120))f*=1.4;         // 30日以上利用 → 長期記憶系
-  f=Math.max(0.7,Math.min(1.8,f));
-  if(p.gap>=3&&(it.g==="streak"||it.t==="復帰者"))f*=3.0;           // 4.3 3日以上休止 → 復帰系×3.0
-  return f;
-}
-function luckLevelFit(it,p){ // 0.5〜1.5
-  if(it.t==="初心者"||it.t==="初中級")return p.lv<6?1.5:0.5;
-  if(it.t==="上級者")return p.lv>=10?1.5:0.6;
-  if(it.t==="中上級")return p.lv>=6?1.3:0.7;
-  return 1.0;
-}
-function luckStreakFit(it,p){ // 0.7〜1.4（4.4 長いほど際限なく強くはせず、記念・象徴的な報酬へ移す）
-  if(p.gap>=2)return(it.g==="streak"||it.t==="復帰者"||it.t==="初心者")?1.4:0.8;
-  const s=p.streak;
-  if(s<=2)return(it.g==="support"||it.t==="初心者")?1.4:0.9;
-  if(s<=6)return(it.g==="card"||it.g==="xp")?1.4:0.9;
-  if(s<=29)return(it.g==="review"||it.g==="card")?1.4:0.9;
-  return(it.g==="culture"||it.g==="special"||it.g==="streak")?1.4:0.7;
-}
-function luckEventFit(it,key){ // 1.0〜5.0（9）
-  const ev=luckEvent(key);
-  if(!ev||it.g!=="culture")return 1;
-  const f={1:1.5,2:2,3:3,4:4,5:4}[ev.size]||1;
-  return Math.min(5,(ev.hangul&&it.n===95)?5:f); // ハングルの日ウィークの「ハングルの日」だけ最大
-}
-function luckFatigue(it,log){ // 0.2〜1.0 同じ系統が続くのを抑える
-  return Math.max(0.2,1-log.slice(-7).filter(x=>x.g===it.g).length*0.2);
-}
-function luckCat3(it,log){ // 3.3 同一カテゴリは3日連続しない
-  return log.length>=2&&log[log.length-1].g===it.g&&log[log.length-2].g===it.g;
-}
-/* 4.1 抽選処理（その人・その日で固定）。レアリティ → 候補の絞りこみ → 重みつき抽選 の順 */
-function luckPick(key){
-  key=key||luckDayKey();
-  const p=luckProfile(),st=luckState(),log=luckLog(st);
-  const rnd=_d5Rng(_d5Hash("kwt-luck|"+getUserId()+"|"+key));
-  const rarity=luckDrawRarity(rnd,p,log);
-  const recent=log.slice(-14).map(x=>x.n);                       // 3.3 同一ボーナスは14日以内に再抽選しない
-  const okAll=LUCK_LIST.filter(it=>luckEligible(it,p));
-  const inR=okAll.filter(it=>it.r===rarity);
-  const tries=[
-    inR.filter(it=>recent.indexOf(it.n)<0&&!luckCat3(it,log)),
-    inR.filter(it=>recent.indexOf(it.n)<0),
-    okAll.filter(it=>recent.indexOf(it.n)<0),
-    inR,okAll,LUCK_LIST];
-  const pool=tries.find(a=>a.length)||LUCK_LIST;
-  const cand=pool.map(it=>({it,w:Math.max(0.001,
-    luckNovelty(it,log)*luckLearningNeed(it,p)*luckLevelFit(it,p)*luckStreakFit(it,p)*luckEventFit(it,key)*luckFatigue(it,log))}));
-  const tot=cand.reduce((a,c)=>a+c.w,0);
-  let r=rnd()*tot,pick=cand[0].it;
-  for(const c of cand){if((r-=c.w)<0){pick=c.it;break;}}
-  return{n:pick.n,lucky:3+Math.floor(rnd()*3),golden:Math.floor(rnd()*D5_N),th:Math.floor(rnd()*LUCK_THEMES.length)};
-}
-function luckEnsure(key){
-  key=key||luckTodayKey();
-  const st=luckState();
-  if(!st.days[key]){
-    const p=luckPick(key),it=luckById(p.n);
-    st.days[key]={n:p.n,lucky:p.lucky,golden:p.golden,th:p.th,revealed:false,applied:false,step:0,prog:0};
-    st.hist.push({n:p.n,r:it?it.r:"C",g:it?it.g:"special"});
-    saveLuck(st);
-  }
-  return st.days[key];
-}
-function luckMark(patch,key){const st=luckState(),k=key||luckTodayKey();if(!st.days[k])return null;Object.assign(st.days[k],patch);saveLuck(st);return st.days[k];}
-function luckTodayItem(){const d=luckEnsure();return luckById(d.n);}
-/* 明日のテーマ予告（系統だけ。中身は明日のお楽しみ） */
-function luckTomorrowCat(){
-  try{
-    const p=luckPick(luckDayKey(Date.now()+86400000)),it=luckById(p.n);
-    return it?(LUCK_CATS[it.g]||{}).lab||"":"";
-  }catch(e){return "";}
-}
-/* 10・16.1 その日のテーマ（同じ効果でも見え方が変わるようにする） */
-function luckTheme(d){const t=LUCK_THEMES[((d&&d.th!=null?d.th:0)%LUCK_THEMES.length+LUCK_THEMES.length)%LUCK_THEMES.length];return t?t.n:"";}
-/* 7.2・7.3 その日の1行メッセージ。型は利用状況で選ぶ（Mythicの中身は文面で明かさない） */
-function luckMsg(){
-  try{
-    const p=luckProfile(),d=luckEnsure(),it=luckById(d.n);
-    let kind="curious";
-    if(p.gap>=2||p.days<=2)kind="start";
-    else if(it&&it.r!=="C"&&it.r!=="R")kind="rare";
-    else if(p.due>=5)kind="review";
-    else if(p.streak>=3)kind="streak";
-    else if(p.cards>=30)kind="theme";
-    const a=LUCK_MSGS[kind]||LUCK_MSGS.curious;
-    return a[_d5Hash("kwt-luckmsg|"+getUserId()+"|"+luckTodayKey())%a.length];
-  }catch(e){return "";}
-}
-/* 5.4 状態遷移 LOCKED → IN_PROGRESS → CLAIMED → UPGRADED（日付が変わると EXPIRED） */
-function luckStatus(d){
-  d=d||luckEnsure();
-  if((d.step||0)>=2)return "UPGRADED";
-  if(d.applied)return "CLAIMED";
-  return (d.prog||0)>0?"IN_PROGRESS":"LOCKED";
-}
-/* 6.1・6.2 「0 / 5」の進み具合 */
-function luckProgress(){const d=luckEnsure();return{p:d.applied?D5_N:Math.min(D5_N,d.prog||0),t:D5_N};}
-function luckNoteProgress(){try{const d=luckEnsure();if(!d.applied)luckMark({prog:Math.min(D5_N,(d.prog||0)+1)});}catch(e){}}
-/* 11.5 期限は翌朝5:00。残り時間は見せるが「永久に入手不能」はうたわない（復刻で取り戻せる） */
-function luckExpireMs(){const d=new Date();d.setHours(D5_AM,0,0,0);let t=d.getTime();if(t<=Date.now())t+=86400000;return t;}
-function luckLeftText(){
-  const ms=Math.max(0,luckExpireMs()-Date.now()),h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000);
-  return h>0?("あと"+h+"時間"+m+"分"):("あと"+m+"分");
-}
-/* ---- 報酬（11.1／11.4） ---- */
-const LUCK_BASE={C:12,R:20,SR:32,E:45,L:60,M:90}; // レアリティ別のXP水準
-const LUCK_STEP=[1,0.20,0.15,0.10];               // 5問=100%／追加5問ごとに20%・15%・10%／25問以降は増えない
-const LUCK_MAXSTEP=LUCK_STEP.length;
-/* 条件つきの上乗せ（達成できたときだけ）。効果文に書いてある条件をそのまま見る */
-function luckDynXp(it,ctx){
-  const h=new Date().getHours();
-  switch(it.n){
-    case 6:   return ctx.correct>=D5_N?30:0;                       // 完璧主義
-    case 8:   return h<12?20:0;                                    // 朝活韓国語
-    case 9:   return h>=18?20:0;                                   // 夜の集中
-    case 77:  return Math.max(1,Math.min(15,d5Streak()));          // 連続学習XP
-    case 105: return ctx.correct===ctx.lucky?40:0;                 // ラッキーナンバー
-    case 106: return ctx.goldenOk?60:0;                            // ゴールデン5問
-    case 111: return (typeof trendUsed==="function"&&trendUsed())?30:0; // ペアボーナス
-    case 119: try{return Math.min(40,Math.floor(Object.keys(loadCards()).length/5));}catch(e){return 0;} // コレクション記念日
-    case 120: return 50;                                           // 学習の軌跡（1年前の学習語）
-    default:  return 0;
-  }
-}
-function luckReward(it,step,ctx){
-  const R=LUCK_RARE[it.r]||LUCK_RARE.C,b=LUCK_BASE[it.r]||12;
-  const s=Math.max(1,Math.min(LUCK_MAXSTEP,step||1));
-  const o={xp:0,coin:0,card:0,rest:0,boost:0};
-  o.xp=Math.round(b*(it.mul||1)*LUCK_STEP[s-1]);
-  if(s===1){
-    if(it.g==="gacha")o.coin=(it.r==="C"||it.r==="R")?1:2;
-    if(it.g==="card")o.card=(it.r==="C")?1:2;
-    if(it.g==="culture")o.card=1;
-    if(it.g==="streak")o.rest=1;
-    if(it.g==="review")o.xp=Math.round(o.xp*1.3);
-    if(it.n===119||it.n===120)o.card+=1;                  // 記念枠のカード
-    if(it.r==="L"||it.r==="M"){o.boost=30;o.coin+=1;}
-    if(ctx)o.xp+=luckDynXp(it,ctx);
-    o.xp=Math.max(10,o.xp);                               // 設計原則5：レアが低い日にも必ず実用的な価値を残す
-  }else{
-    if(s>=3&&(it.g==="gacha"||it.g==="special"))o.coin+=1;
-    if(s>=3&&(it.g==="card"||it.g==="culture"))o.card+=1;
-    o.xp=Math.max(3,o.xp);
-  }
-  o.xp=Math.min(R.cap,o.xp);                              // 11.1 ボーナス由来XPの上限
-  return o;
-}
-/* カードは、いま遊んでいるレベルの単語からランダムに配る */
-function luckGrantCards(n){
-  const pool=levelAllWords().filter(w=>w&&w.id!=null);
-  if(!pool.length)return;
-  for(let i=0;i<n;i++)addCards(pool[Math.floor(Math.random()*pool.length)].id,1);
-}
-function luckGrant(rw){
-  if(rw.xp>0)addBonus(rw.xp);
-  for(let i=0;i<rw.coin;i++)addGachaSpin(0,"");
-  if(rw.card>0)luckGrantCards(rw.card);
-  if(rw.rest>0)addRestTicket(rw.rest);
-  if(rw.boost>0)startXpBoost(rw.boost);
-  try{updatePresent();}catch(e){} // ガチャ・XP2倍のバッジだけ更新（ホームの作り直しは結果画面の演出を壊すのでしない）
-}
-/* その日ボーナスから出せるXPの残り（11.1 の上限） */
-function _luckXpLeft(it,d){return Math.max(0,((LUCK_RARE[it.r]||LUCK_RARE.C).cap)-((d.got&&d.got.xp)||0));}
-function luckGotHTML(rw){
-  const p=[];
-  if(rw.xp>0)p.push("＋"+rw.xp+" XP");
-  if(rw.coin>0)p.push("🪙 ガチャ "+rw.coin+"回");
-  if(rw.card>0)p.push("🃏 単語カード "+rw.card+"枚");
-  if(rw.rest>0)p.push("💤 おやすみチケット "+rw.rest+"枚");
-  if(rw.boost>0)p.push("✕2 XP2倍 "+rw.boost+"分");
-  return p.map(t=>`<span class="lk-gi">${t}</span>`).join("");
-}
-/* 今日の5問を終えた瞬間に発動（1日1回だけ） */
-function luckApply(rec){
-  try{
-    const d=luckEnsure();
-    if(d.applied)return null;
-    const it=luckById(d.n);if(!it)return null;
-    const ctx={correct:rec?rec.correct:0,lucky:d.lucky,
-      goldenOk:!!(rec&&rec.items&&rec.items[d.golden]&&rec.items[d.golden].ok)};
-    const rw=luckReward(it,1,ctx);
-    rw.xp=Math.min(rw.xp,_luckXpLeft(it,d));
-    luckGrant(rw);
-    luckMark({applied:true,step:1,prog:D5_N,got:rw,at:new Date().toISOString()});
-    return{it,rw,step:1};
-  }catch(e){return null;}
-}
-/* 11.4 追加のテストを終えるたびに1段階だけ伸びる。伸び幅は逓減し、25問（4段階）で頭打ち */
-function luckStepUp(){
-  try{
-    const d=luckEnsure();
-    if(!d.applied||(d.step||1)>=LUCK_MAXSTEP)return null;
-    const it=luckById(d.n);if(!it)return null;
-    const step=(d.step||1)+1,rw=luckReward(it,step,null);
-    rw.xp=Math.min(rw.xp,_luckXpLeft(it,d));
-    luckGrant(rw);
-    luckMark({step,got:{xp:((d.got&&d.got.xp)||0)+rw.xp,coin:((d.got&&d.got.coin)||0)+rw.coin,
-      card:((d.got&&d.got.card)||0)+rw.card,rest:((d.got&&d.got.rest)||0)+rw.rest,boost:((d.got&&d.got.boost)||0)+rw.boost}});
-    return{it,rw,step};
-  }catch(e){return null;}
-}
-/* 制限時間に効く効果（No.66 時間延長／No.67 ノータイマー）。ここだけは出題そのものに効く */
-function luckTimeBonus(){
-  try{
-    const st=luckState(),d=st.days[luckTodayKey()];
-    if(!d)return 0;
-    if(d.n===66)return 3;
-    if(d.n===67&&_d5.on&&_d5.mode==="d5")return 600;
-    return 0;
-  }catch(e){return 0;}
-}
-/* ---- 表示 ---- */
-/* 8.3 「演出を減らす」設定＋端末の「視差効果を減らす」に追従 */
-function luckLessFx(){try{return !!loadSettings().lessFx||_reducedMotion();}catch(e){return false;}}
-function luckFaceHTML(it,sil){
-  const c=LUCK_CATS[it.g]||{ico:"🎁"};
-  return sil?`<div class="lk-face sil">？</div>`:`<div class="lk-face lk-open">${c.ico}</div>`;
-}
-/* 5.2 情報階層：第1=今日なにが起きるか／第2=なにをすれば発動するか／第3=どこまで増やせるか／第4=詳細条件 */
-function luckBodyHTML(it,d){
-  const R=LUCK_RARE[it.r]||LUCK_RARE.C,cat=(LUCK_CATS[it.g]||{}).lab||"";
-  const ev=luckEvent(luckTodayKey()),th=luckTheme(d),msg=luckMsg(),pr=luckProgress();
-  return `<div class="lk-ko">오늘의 행운</div>
-    <div class="lk-h">今日のボーナス</div>
-    ${luckFaceHTML(it)}
-    <div class="lk-badge" style="background:${R.col}">${(LUCK_CATS[it.g]||{}).ico||"🎁"} ${R.lab}</div>
-    <div class="lk-name">${esc(it.name)}</div>
-    <div class="lk-eff">${esc(it.eff)}</div>
-    <div class="lk-h2">今日の5問をクリアすると</div>
-    <div class="lk-got">${luckGotHTML(luckReward(it,1,null))}</div>
-    <div class="lk-h3">追加の5問ごとに、あと3段階までのびます（25問まで）</div>
-    <div class="lk-prog"><span class="lk-pb"><i style="width:${Math.round(pr.p/pr.t*100)}%;background:${R.col}"></i></span><b>${pr.p} / ${pr.t}</b></div>
-    <div class="lk-tags"><span class="lk-tag">${esc(cat)}</span><span class="lk-tag">対象：${esc(it.t)}</span>
-      ${(th&&it.g==="culture")?`<span class="lk-tag">テーマ：${esc(th)}</span>`:""}
-      ${it.n===105?`<span class="lk-tag">ラッキーナンバー ${d.lucky}</span>`:""}
-      <span class="lk-tag">${esc(luckLeftText())}</span></div>
-    ${ev?`<div class="lk-ev">今月のイベント：${esc(ev.name)}（${esc(ev.body)}）</div>`:""}
-    ${msg?`<div class="lk-msg">${esc(msg)}</div>`:""}`;
-}
-/* 14.3 ボーナス履歴7日分 */
-function luckHistoryHTML(){
-  try{
-    const st=luckState(),ks=Object.keys(st.days).sort((a,b)=>_luckKeyNum(b)-_luckKeyNum(a)).slice(0,7);
-    if(ks.length<2)return "";
-    const rows=ks.map(k=>{
-      const d=st.days[k],it=luckById(d.n);if(!it)return "";
-      const R=LUCK_RARE[it.r]||LUCK_RARE.C,a=k.split("-");
-      return `<div class="lk-hr"><span class="lk-hd">${a[1]}/${a[2]}</span>
-        <span class="lk-sd" style="background:${R.col}">${R.code}</span>
-        <span class="lk-hn">${esc(it.name)}</span>
-        <span class="lk-hs">${d.applied?"発動":"—"}</span></div>`;
-    }).join("");
-    return `<div class="lk-hist"><div class="lk-hh">この7日間のボーナス</div>${rows}</div>`;
-  }catch(e){return "";}
-}
-/* ハンバーガーメニューから開く。今日の5問の自動スタートが動いていたら止めてから開く（見ている間に始めない） */
-function openLuck(){
-  const m=document.getElementById("luck-modal");if(!m)return;
-  try{d5StopCountdown();}catch(e){}
-  if(!m.classList.contains("on"))pushNav("modal");
-  m.classList.add("on");
-  const d=luckEnsure(),it=luckById(d.n);
-  const nx=luckTomorrowCat();
-  m.innerHTML=`<div class="lk-card">
-    <button class="lk-close" onclick="closeLuck()" aria-label="閉じる">×</button>
-    ${luckBodyHTML(it,d)}
-    ${d.applied
-      ?`<div class="lk-got">${luckGotHTML(d.got||{})}</div>
-        <div class="lk-wait">${(d.step||1)>=LUCK_MAXSTEP?"今日はここまで伸びました":"テストをもう1本終えると、もう一段だけ伸びます"}</div>`
-      :`<div class="lk-wait">今日の5問を1セット終えると発動します</div>`}
-    ${nx?`<div class="lk-next">明日は「${esc(nx)}」の予感…</div>`:""}
-    ${luckHistoryHTML()}
-  </div>`;
-  m.onclick=e=>{if(e.target===m)closeLuck();};
-}
-function closeLuck(){const m=document.getElementById("luck-modal");if(m)m.classList.remove("on");}
-/* 起動時：今日のボーナスを公開してから、いつもの「今日の5問」へつなぐ（5.1 強制ポップアップは1日1回だけ） */
-function maybeAutoLuck(){
-  try{
-    if(document.querySelector(".rest-ask")){setTimeout(maybeAutoLuck,800);return;}
-    if(document.getElementById("coach")||document.getElementById("resume-ask"))return;
-    if(_d5.on||_gearActive){maybeAutoDaily5();return;}
-    const home=document.getElementById("s-home");
-    if(!home||!home.classList.contains("on"))return;
-    const d=luckEnsure();
-    // その枠の自動スタートが済んでいる日は、今日の公開も済んだものとして割り込まない
-    if(d.revealed||localStorage.getItem(LS_D5AUTO)===d5Key(Date.now())){
-      if(!d.revealed)luckMark({revealed:true});
-      maybeAutoDaily5();return;
-    }
-    luckMark({revealed:true});
-    showLuckReveal(()=>maybeAutoDaily5());
-  }catch(e){try{maybeAutoDaily5();}catch(e2){}}
-}
-function _killLuckReveal(){const ov=document.querySelector(".lkauto");if(!ov)return;if(ov._t){clearTimeout(ov._t);ov._t=null;}ov.remove();}
-/* 8.1 公開の演出はレアリティごとに0.6〜2.5秒。シルエット → 開封 → 「今日の5問を始める」
-   8.3 「演出を減らす」ときは待たずに中身を出す（画面のフラッシュは使わない） */
-function showLuckReveal(onDone){
-  _killLuckReveal();
-  const d=luckEnsure(),it=luckById(d.n);
-  if(!it){if(onDone)onDone();return;}
-  const R=LUCK_RARE[it.r]||LUCK_RARE.C,less=luckLessFx(),ms=less?0:R.ms;
-  const ov=document.createElement("div");ov.className="lkauto";
-  const done=()=>{_killLuckReveal();if(onDone)onDone();};
-  const openCard=()=>{
-    if(!document.body.contains(ov))return;
-    ov.innerHTML=`<div class="lk-card${less?"":" lk-pop"}" style="--lkfx:${R.fx}">
-      <button class="lk-close" onclick="closeLuckReveal()" aria-label="閉じる">×</button>
-      ${luckBodyHTML(it,d)}
-      <button class="lk-go" onclick="closeLuckReveal()">この効果で今日の5問を始める</button>
-    </div>`;
-    ov._done=done;
-    if(!less){if(it.r==="C"||it.r==="R")sfxTrendPop();else sfxRare();}
-    ov._t=setTimeout(()=>{if(document.body.contains(ov))done();},12000); // 触らなければそのまま今日の5問へ
-  };
-  ov.innerHTML=`<div class="lk-card">
-    <button class="lk-close" onclick="closeLuckReveal()" aria-label="閉じる">×</button>
-    <div class="lk-ko">오늘의 행운</div>
-    <div class="lk-h">今日のボーナス</div>
-    <div class="lk-face sil">？</div>
-    <div class="lk-wait">今日だけの学習効果を選んでいます…</div>
-  </div>`;
-  document.body.appendChild(ov);
-  requestAnimationFrame(()=>ov.classList.add("on"));
-  ov._done=done;
-  if(less)openCard();else ov._t=setTimeout(openCard,ms);
-}
-function closeLuckReveal(){const ov=document.querySelector(".lkauto");if(!ov)return;const f=ov._done;_killLuckReveal();if(f)f();}
-/* 結果画面に出す「今日のボーナス発動」。
-   8.4 報酬は画面の外から飛んでこず、正解した語から小さな光が集まってボーナスのアイコンに入る（報酬は学習から生まれた、という因果を見せる） */
-function luckResultHTML(res,rec){
-  if(!res)return "";
-  const R=LUCK_RARE[res.it.r]||LUCK_RARE.C,nx=luckTomorrowCat();
-  const ok=Math.max(1,(rec&&rec.items)?rec.items.filter(x=>x.ok).length:D5_N);
-  const spk=luckLessFx()?"":Array.from({length:ok},(_,i)=>
-    `<i style="--lx:${Math.round((i-(ok-1)/2)*46)}px;--ld:${i*90}ms;background:${R.fx}"></i>`).join("");
-  const more=(res.step||1)>=LUCK_MAXSTEP?"今日はここまで伸びました"
-    :"テストをもう1本終えるごとに、あと"+(LUCK_MAXSTEP-(res.step||1))+"段階までのびます";
-  return `<div class="lk-res">
-    <div class="lk-rh">今日のボーナス発動</div>
-    <div class="lk-rfly"><span class="lk-rico">${(LUCK_CATS[res.it.g]||{}).ico||"🎁"}</span>${spk}</div>
-    <div class="lk-rn"><span class="lk-sd" style="background:${R.col};margin-right:5px">${R.code}</span>${esc(res.it.name)}</div>
-    <div class="lk-got">${luckGotHTML(res.rw)}</div>
-    <div class="lk-rt">${more}${nx?`／明日は「${esc(nx)}」の予感…`:""}</div>
-  </div>`;
-}
-
+/* 1日の区切りは朝5:00（今日の5問と同じ）。日付の変わり目をアプリの中で1つにそろえる共通関数 */
+function appDayKey(ms){return dayKey((ms||Date.now())-D5_AM*3600000);}
+/* 「演出を減らす」設定＋端末の「視差効果を減らす」に追従 */
+function lessFxOn(){try{return !!loadSettings().lessFx||_reducedMotion();}catch(e){return false;}}
 
 /* ============================================================ ことばの友だち（단어 친구／動物育成） ============================================================
  * 2つめの仕様書（メール指示 2026-08-06 の続き）の Phase1 ぶん:
@@ -6965,7 +6152,7 @@ const PET_SP_BY_K={};PET_SPECIES.forEach(x=>PET_SP_BY_K[x.k]=x);
 const PET_RARE={N:{w:60,c:"#9AA4B2"},R:{w:25,c:"#2E7BE0"},SR:{w:12,c:"#8B3FD0"},SSR:{w:3,c:"#D08A00"}};
 const PET_GACHA_COST=10,PET_PITY=10;
 /* 単語の実：学習でたまる。ガチャの元手（韓国語エネルギーとは別の通貨） */
-const PET_SEED={d5:3,test:2,trend:2};
+const PET_SEED={d5:3,test:2,snack:-1};
 /* Phase2 ④：年間イベント（その月だけ限定のものが出る／もらえる） */
 const PET_EVENTS=[
   {m:1 ,t:"お正月（설날）"       ,ico:"🎍",ko:"설날"},
@@ -7021,7 +6208,7 @@ function petState(){
   /* --- Phase2ぶん。Phase1の記録（xp/friend）はそのまま最初の子（멍이）のものとして引き継ぐ --- */
   if(!o.sp||!PET_SP_BY_K[o.sp])o.sp=PET_SPECIES[0].k;
   if(!o.zoo||typeof o.zoo!=="object")o.zoo={};
-  if(!o.zoo[o.sp])o.zoo[o.sp]={xp:o.xp,friend:o.friend,got:o.album.length?o.album[0].k:luckDayKey()};
+  if(!o.zoo[o.sp])o.zoo[o.sp]={xp:o.xp,friend:o.friend,got:o.album.length?o.album[0].k:appDayKey()};
   if(!o.items||typeof o.items!=="object")o.items={};
   if(!o.eq||typeof o.eq!=="object")o.eq={};
   if(typeof o.seeds!=="number")o.seeds=0;
@@ -7103,7 +6290,7 @@ function petLevelGreet(lv){
 }
 /* その日だけの1枚（出来事×気分×衣装×天気×背景）。同じ人・同じ日なら何度開いても同じ */
 function petDaily(){
-  const o=petState(),k=luckDayKey(),d=_dayFromKey(k),m=d.getMonth()+1;
+  const o=petState(),k=appDayKey(),d=_dayFromKey(k),m=d.getMonth()+1;
   if(o.day&&o.day.k===k)return o.day;
   const rnd=_d5Rng(_d5Hash("kwt-pet|"+getUserId()+"|"+k));
   const wOK=(m===12||m<=2)?4:3; // 雪は冬だけ
@@ -7138,22 +6325,22 @@ function petBondCheck(o){
 }
 /* 10. イベント：その月に1回だけ、限定の衣装がひとつ届く */
 function petEventGrant(o){
-  const m=_dayFromKey(luckDayKey()).getMonth()+1,ym=String(_dayFromKey(luckDayKey()).getFullYear())+"-"+m;
+  const m=_dayFromKey(appDayKey()).getMonth()+1,ym=String(_dayFromKey(appDayKey()).getFullYear())+"-"+m;
   if(o.evGot===ym)return;
   const pool=PET_ITEMS.filter(x=>x.ev===m&&!o.items[x.k]);
   if(!pool.length){o.evGot=ym;return;}
   o.items[pool[0].k]=1;o.evGot=ym;o.evNew=pool[0].k;
 }
-function petEventNow(){const m=_dayFromKey(luckDayKey()).getMonth()+1;return PET_EVENTS.find(e=>e.m===m)||PET_EVENTS[0];}
-/* 5. 韓国語エネルギー：今日の5問・復習・トレンド・カード取得で育つ */
-const PET_GAIN={d5:30,test:20,trend:15,tap:0};
+function petEventNow(){const m=_dayFromKey(appDayKey()).getMonth()+1;return PET_EVENTS.find(e=>e.m===m)||PET_EVENTS[0];}
+/* 5. 韓国語エネルギー：今日の5問・復習・育成メニューのごはんで育つ */
+const PET_GAIN={d5:30,test:20,snack:10,tap:0};
 function petFeed(kind){
   try{
     petDaily();
     const o=petState(),g=PET_GAIN[kind]||10;
     const lv0=petLevel(o.xp),s0=petStage(lv0).k;
     o.xp=(o.xp||0)+g;o.friend=(o.friend||0)+3; // 学習で親密度＋3
-    o.seeds=(o.seeds||0)+(PET_SEED[kind]||1);  // 9. 単語の実（ガチャの元手）もたまる
+    o.seeds=Math.max(0,(o.seeds||0)+(PET_SEED[kind]||0));  // 9. 単語の実（ガチャの元手）。ごはんは1つ減る
     // 7. 覚えた単語を「食べる」＝食べた単語として残る（育成画面でしゃべる材料になる）
     petTodayWords().forEach(w=>{if(o.ate.indexOf(w)<0)o.ate.push(w);});
     if(o.day)o.day.fed=(o.day.fed||0)+1;
@@ -7166,11 +6353,11 @@ function petFeed(kind){
 }
 /* 2. タップでも少しなつく（1日5回まで） */
 function petTap(){
-  const o=petState(),k=luckDayKey();
+  const o=petState(),k=appDayKey();
   if(o.taps.k!==k)o.taps={k:k,n:0};
   if(o.taps.n<5){o.taps.n++;o.friend=(o.friend||0)+1;savePet(o);}
   const el=document.querySelector("#pet-modal .pt-art");
-  if(el&&!luckLessFx()){el.classList.remove("pt-jump");void el.offsetWidth;el.classList.add("pt-jump");}
+  if(el&&!lessFxOn()){el.classList.remove("pt-jump");void el.offsetWidth;el.classList.add("pt-jump");}
   const l=document.getElementById("pt-line");
   if(l){const p=petLine();l.innerHTML=`<b>${esc(p.ko)}</b><span>${esc(p.ja)}</span>`;}
   const f=document.getElementById("pt-friend");
@@ -7237,7 +6424,7 @@ function openPet(){
   if(back||bond||o.evNew){const s=petState();delete s.back;delete s.bondNew;delete s.evNew;savePet(s);} // 迎えの言葉は1回だけ
   m.innerHTML=`<div class="d5-card pt-card">
     <button class="d5-close" onclick="closePet()" aria-label="閉じる">×</button>
-    <div class="lk-ko">단어 친구</div>
+    <div class="pt-ko">단어 친구</div>
     <div class="pt-name">${esc(o.name)}<span>Lv.${lv} ／ ${esc(st.name)}（${esc(st.ko)}）／ いっしょに ${o.days}日</span></div>
     ${petArtHTML(day,lv,st.k)}
     ${back?`<div class="pt-back">おかえり！ ${back.gap}日ぶりだね。まってたよ 🫧<em>단어의 열매 ＋${Math.min(30,back.gap*2)}</em></div>`:""}
@@ -7277,7 +6464,7 @@ function closePet(){const m=document.getElementById("pet-modal");if(m)m.classLis
 /* 学習後：エネルギーが飛ぶ → 食べる → 成長。結果画面に小さく出す（11. 学習後） */
 function petResultHTML(res){
   if(!res)return "";
-  const o=petState(),day=o.day||petDaily(),lv=res.lv1,st=res.stage,less=luckLessFx();
+  const o=petState(),day=o.day||petDaily(),lv=res.lv1,st=res.stage,less=lessFxOn();
   const pct=Math.round(((o.xp%40)/40)*100);
   return `<div class="pt-res${less?" less":""}">
     <div class="pt-rh">ことばの友だち</div>
@@ -7306,7 +6493,7 @@ function petEvoShow(){
   const sp=PET_SP_BY_K[p.sp]||PET_SPECIES[0],st=PET_STAGES.find(x=>x.k===p.stage)||PET_STAGES[0];
   const si=PET_STAGES.indexOf(st),prev=PET_STAGES[Math.max(0,si-1)],pi=PET_STAGES.indexOf(prev);
   m.classList.add("on");pushNav("modal");
-  m.innerHTML=`<div class="pv-in${luckLessFx()?" less":""}">
+  m.innerHTML=`<div class="pv-in${lessFxOn()?" less":""}">
     <div class="pv-h">진화！ 進化</div>
     <div class="pv-row">
       <span class="pv-old">${sp.ico[pi]||prev.ico}</span>
@@ -7326,7 +6513,7 @@ function closePetEvo(){const m=document.getElementById("petevo-modal");if(m){m.c
 function petSubHead(title,ko){
   return `<button class="d5-close" onclick="closePet()" aria-label="閉じる">×</button>
     <button class="pt-back2" onclick="openPet()" aria-label="友だちにもどる">‹</button>
-    <div class="lk-ko">${esc(ko)}</div><div class="pt-subh">${esc(title)}</div>`;
+    <div class="pt-ko">${esc(ko)}</div><div class="pt-subh">${esc(title)}</div>`;
 }
 function openPetZoo(){
   const m=document.getElementById("pet-modal");if(!m)return;
@@ -7363,7 +6550,7 @@ function petRarePick(rnd){
   return "N";
 }
 function petGachaPool(rare,o,animalOnly){
-  const mo=_dayFromKey(luckDayKey()).getMonth()+1;
+  const mo=_dayFromKey(appDayKey()).getMonth()+1;
   const sps=PET_SPECIES.filter(s=>s.rare===rare&&!o.zoo[s.k]).map(s=>({type:"sp",k:s.k,t:s.name,ico:s.ico[1],rare:rare}));
   if(animalOnly)return sps;
   const its=PET_ITEMS.filter(i=>i.rare===rare&&(!i.ev||i.ev===mo)).map(i=>({type:"item",k:i.k,t:i.t,ico:i.ico,rare:rare}));
@@ -7387,7 +6574,7 @@ function petRoll(){
     return{type:"dup",t:"もう みんな そろっています",ico:"🌰",rare:"R",back:back};
   }
   if(hit.type==="sp"){
-    o.zoo[hit.k]={xp:0,friend:0,got:luckDayKey()};o.pity=0;
+    o.zoo[hit.k]={xp:0,friend:0,got:appDayKey()};o.pity=0;
   }else{
     if(o.items[hit.k]){const back=PET_DUP_SEED[hit.rare]||3;o.seeds+=back;savePet(o);return Object.assign({},hit,{type:"dup",back:back});}
     o.items[hit.k]=1;
@@ -7399,7 +6586,7 @@ function openPetGacha(res){
   const m=document.getElementById("pet-modal");if(!m)return;
   const o=petState(),can=(o.seeds||0)>=PET_GACHA_COST,rest=PET_SPECIES.filter(s=>!o.zoo[s.k]).length;
   m.innerHTML=`<div class="d5-card pt-card">${petSubHead("友だちガチャ","친구 뽑기")}
-    <div class="pt-seedbig">🌰 単語の実 <b id="pt-seedn">${o.seeds}</b><em>1回 ${PET_GACHA_COST}／今日の5問・テスト・トレンドでたまります</em></div>
+    <div class="pt-seedbig">🌰 単語の実 <b id="pt-seedn">${o.seeds}</b><em>1回 ${PET_GACHA_COST}／今日の5問・テストでたまります</em></div>
     <div class="pt-ball${res?" open":""}" id="pt-ball">${res?`<span class="pt-bico" style="color:${(PET_RARE[res.rare]||{}).c||"#999"}">${res.ico}</span>`:"🥚"}</div>
     ${res?`<div class="pt-got"><i style="background:${(PET_RARE[res.rare]||{}).c||"#999"}">${res.rare}</i>
       <b>${esc(res.t)}</b>
@@ -7415,9 +6602,9 @@ function openPetGacha(res){
 }
 function petDoRoll(){
   const b=document.getElementById("pt-ball");
-  if(b&&!luckLessFx()){b.classList.add("spin");}
+  if(b&&!lessFxOn()){b.classList.add("spin");}
   const r=petRoll();
-  setTimeout(()=>openPetGacha(r),luckLessFx()?0:620);
+  setTimeout(()=>openPetGacha(r),lessFxOn()?0:620);
 }
 
 /* ------------------------------------------------------------ きせかえ（つける場所ごとに、持っているものから選ぶ） */
@@ -7705,9 +6892,56 @@ function sgD5HTML(){
   const used=(typeof d5Done==="function")&&d5Done();
   return '<button class="sg-fbtn sg-d5'+(used?" d5-off":"")+'" onclick="openDaily5()" aria-label="今日の5問テスト">'
     +'<span class="sgd5-t"><span>今</span><span>日</span><span>の</span><span>5</span><span>問</span></span>'
-    +'<span class="sgd5-mini" aria-hidden="true"><i>✓</i><b>5問</b></span>'
     +'<span class="d5-b"'+(used?' style="display:none"':'')+'>!</span></button>'
-    +sgMissionHTML(); // 5問を終えたあとの中央カプセルは「今週のミッション」（メール指示 2026-08-01）
+    +sgMissionHTML()  // 5問を終えたあとの中央カプセルは「今週のミッション」（メール指示 2026-08-01）
+    +sgPetHTML();     // もとの5問の丸の場所は育成ゲームの入口（メール指示 2026-08-08）
+}
+/* ---- 育成ゲーム（ことばの友だち）の入口とメニュー（メール指示 2026-08-08） ----
+ * ホーム左下の丸を押すと、キャラクターと「ごはんをあげる」ボタンだけの小さな吹き出しが出る。
+ * じっくり見たいときは、そこから育成画面（openPet）へ1タップで行ける。 */
+function petFaceIco(o){
+  try{o=o||petState();const sp=petSp(o),st=petStage(petLevel(o.xp));return sp.ico[PET_STAGES.indexOf(st)]||st.ico;}
+  catch(e){return "🥚";}
+}
+function sgPetHTML(){
+  return '<button class="sg-fbtn sg-pet" id="sg-pet" onclick="openPetMenu()" aria-label="育成ゲーム">'
+    +'<i>'+petFaceIco()+'</i><b>そだてる</b></button>';
+}
+function updatePetBtn(){const i=document.querySelector(".sg-pet i");if(i)i.textContent=petFaceIco();}
+function openPetMenu(){
+  const m=document.getElementById("petmenu-modal");if(!m)return;
+  if(!m.classList.contains("on"))pushNav("modal");
+  m.classList.add("on");
+  petMenuRender();
+  m.onclick=e=>{if(e.target===m)closePetMenu();};
+}
+function closePetMenu(){const m=document.getElementById("petmenu-modal");if(m)m.classList.remove("on");}
+function petMenuRender(msg,jump){
+  const m=document.getElementById("petmenu-modal");if(!m)return;
+  const day=petDaily(),o=petState(),lv=petLevel(o.xp),st=petStage(lv);
+  m.innerHTML=`<div class="d5-card u5-card pm-card">
+    <button class="d5-close" onclick="closePetMenu()" aria-label="閉じる">×</button>
+    <div class="u5-hd"><span class="u5-kick">FRIEND</span><span class="u5-ti">${esc(o.name)}</span>
+      <span class="pm-lv">Lv.<b>${lv}</b></span></div>
+    ${petArtHTML(day,lv,st.k)}
+    <div class="pm-bar"><i style="width:${Math.round(((o.xp%40)/40)*100)}%"></i></div>
+    <div class="pm-st"><span>🌰 ごはん<b>${o.seeds}</b></span><span>💗 親密度<b>${o.friend}</b></span><span>🗣 韓国語力<b>${petPower()}</b></span></div>
+    ${msg?`<div class="pm-msg">${esc(msg)}</div>`:""}
+    <button class="d5-go pm-feed" onclick="petSnack()">🌰 ごはんをあげる</button>
+    <button class="d5-ghost" onclick="closePetMenu();openPet()">育成画面をひらく</button>
+  </div>`;
+  const el=m.querySelector(".pt-art");
+  if(jump&&el&&!lessFxOn())el.classList.add("pt-jump");
+  d5AnchorBubble(".sg-pet",m.querySelector(".pm-card"));
+}
+/* ごはん＝ためた「単語の実」を1つ食べさせる。実が無いときは、実がたまる今日の5問へ案内する */
+function petSnack(){
+  if((petState().seeds||0)<1){closePetMenu();openDaily5();return;}
+  const res=petFeed("snack");
+  petMenuRender(res?(res.evolved?("✨ "+res.stage.name+"（"+res.stage.ko+"）に進化！")
+    :res.up?("Lv."+res.lv0+" → Lv."+res.lv1+" に成長！")
+    :("おいしい！ 韓国語エネルギー ＋"+res.gain)):"",true);
+  updatePetBtn();
 }
 /* プレゼント＋ガチャの統合ボタン（今日の5問のすぐ上）。中身は吹き出しで選ばせる（メール指示 2026-08-02） */
 function sgGiftHTML(){
@@ -7734,25 +6968,15 @@ function openHomeMenu(){
   d5AnchorBubble("#hd-menu",m.querySelector(".hm-card"));
 }
 function closeHomeMenu(){const m=document.getElementById("menu-modal");if(m)m.classList.remove("on");}
-/* 今日のトレンド問題（5問を消化したあと、カプセルの位置に出る黄色いボタン） */
-function sgTrendHTML(){
-  const on=(typeof trendAvailable==="function")&&trendAvailable();
-  const used=(typeof trendUsed==="function")&&trendUsed();
-  return '<button class="sg-fbtn sg-trend'+(on?" on":"")+(used?" tr-off":"")+'" onclick="openTrend()" aria-label="今日のトレンド問題">'
-    +'<span class="sgtr-t"><span>今</span><span>日</span><span>の</span><span>ト</span><span>レ</span><span>ン</span><span>ド</span></span>'
-    +'<span class="sgtr-mini" aria-hidden="true"><i>✓</i><b>トレンド</b></span>'
-    +'<span class="tr-b"'+(used?' style="display:none"':'')+'>!</span></button>';
-}
-
 /* ============================================================ 今週のミッション ============================================================
- * 「今日の5問」を終えたら、中央のカプセルは今日のトレンドではなく「今週のミッション」を出す（メール指示 2026-08-01）。
+ * 「今日の5問」を終えたら、中央のカプセルは「今週のミッション」に入れかわる（メール指示 2026-08-01）。
  * 週の区切りは月曜あさ5:00（1日の区切りは今日の5問と同じ）。ミッションはその週のはじめに5つ組み立てて、週のあいだ固定する。
- *   1つめ   … トレンド問題をこなす（タップで今日のトレンドの吹き出しへ）
- *   2〜3つめ … これまでの学習から選んだおすすめROOMで目標ランクをとる（タップでそのROOMまでスクロールして移動）
- *   4〜5つめ … 書き取り／スペシャル問題（青赤緑）／3秒以内の即答 から、その週ぶんの2つ
- * 進み具合は保存せず、そのつど履歴・すごろく・トレンド記録から数え直す（記録の二重管理を作らない）。 */
+ *   1〜2つめ … これまでの学習から選んだおすすめROOMで目標ランクをとる（タップでそのROOMまでスクロールして移動）
+ *   3つめ   … 書き取り／スペシャル問題（青赤緑）／3秒以内の即答 などから、その週ぶんの1つ
+ * ミッションは3つだけに絞ってある（メール指示 2026-08-08）。
+ * 進み具合は保存せず、そのつど履歴・すごろくの記録から数え直す（記録の二重管理を作らない）。 */
 const LS_MISSION="kwt_mission_v1",LS_SPCLEAR="kwt_spclear_v1";
-const MS_N=5,MS_TREND_N=3;
+const MS_N=3;
 const MS_RANK_UP={D:"C",C:"B",B:"A",A:"S",S:"S"};
 /* その週の月曜あさ5:00 */
 function weekStartMs(ms){
@@ -7761,7 +6985,7 @@ function weekStartMs(ms){
   d.setHours(0,0,0,0);
   return d.getTime()+D5_AM*3600000;
 }
-/* トレンド記録のキー(YYYY-MM-DD)とそのまま大小比較できるよう0埋めで作る */
+/* 日付のキー(YYYY-MM-DD)とそのまま大小比較できるよう0埋めで作る */
 function weekKey(ms){const d=new Date(weekStartMs(ms)),p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());}
 /* スペシャル問題（青赤緑）をクリアした時刻を残す。青・赤＝風船をぜんぶ割った時／緑＝そのROOMのテストを完走した時 */
 function loadSpClears(){const a=_lsJSON(LS_SPCLEAR,()=>[]);return Array.isArray(a)?a:[];}
@@ -7785,8 +7009,8 @@ function buildWeeklyMissions(){
     {kind:"tests",n:5},{kind:"d5",n:5},{kind:"newword",n:20},{kind:"rooms",n:3},{kind:"perfect",n:1},{kind:"streak",n:5}];
   const h=_d5Hash("kwt-ms|"+weekKey()+"|"+curLevel); // 週ごとに決まる＝週のあいだ入れ替わらない
   const i0=h%pool.length,i1=(i0+1+(Math.floor(h/pool.length)%(pool.length-1)))%pool.length;
-  const list=[{kind:"trend",n:MS_TREND_N}].concat(rooms,[pool[i0],pool[i1]]);
-  for(let i=0;list.length<MS_N&&i<pool.length;i++)if(list.indexOf(pool[i])<0)list.push(pool[i]); // ROOMが足りない級でも5つ埋める
+  const list=rooms.concat([pool[i0],pool[i1]]);
+  for(let i=0;list.length<MS_N&&i<pool.length;i++)if(list.indexOf(pool[i])<0)list.push(pool[i]); // ROOMが足りない級でも3つ埋める
   return list.slice(0,MS_N);
 }
 function loadMission(){
@@ -7798,7 +7022,6 @@ function loadMission(){
   return o;
 }
 function missionTitle(m){
-  if(m.kind==="trend")return "トレンド問題を"+m.n+"回こなす";
   if(m.kind==="room")return "ROOM "+String(m.sec).padStart(2,"0")+" で "+m.rank+" ランクをとる";
   if(m.kind==="write")return "書き取り問題を"+m.n+"問正解する";
   if(m.kind==="special")return "スペシャル問題（青赤緑）のいずれかを"+m.n+"回クリアする";
@@ -7811,10 +7034,9 @@ function missionTitle(m){
   if(m.kind==="streak")return "連続学習を"+m.n+"日つづける";
   return "";
 }
-function missionIcon(m){return{trend:"🔥",room:"🚪",write:"✏️",special:"✨",fast:"⚡",tests:"📝",d5:"🗓",newword:"🌱",rooms:"🧭",perfect:"💯",streak:"🔗"}[m.kind]||"★";}
+function missionIcon(m){return{room:"🚪",write:"✏️",special:"✨",fast:"⚡",tests:"📝",d5:"🗓",newword:"🌱",rooms:"🧭",perfect:"💯",streak:"🔗"}[m.kind]||"★";}
 function missionProgress(m){
   const ws=weekStartMs();
-  if(m.kind==="trend")return Object.keys(loadTrend()).filter(k=>k>=weekKey()).length;
   if(m.kind==="special")return loadSpClears().filter(t=>new Date(t).getTime()>=ws).length;
   if(m.kind==="streak")return loginStreak();
   if(m.kind==="d5"){ // 今週ぶんの「今日の5問」をやり切った枠の数
@@ -7850,7 +7072,7 @@ function missionDoneCount(){return missionRows().filter(r=>r.done).length;}
 function missionAvailable(ms){return (typeof d5Done==="function")&&d5Done(ms);} // 今日の5問を終えた日から出す
 function sgMissionHTML(){
   const on=missionAvailable(),rest=MS_N-(on?missionDoneCount():0);
-  return '<button class="sg-fbtn sg-mission'+(on?" on":"")+(on&&rest<=0?" ms-clear":"")+'" onclick="openMission()" aria-label="今週のミッション">'
+  return '<button class="sg-fbtn sg-mission'+(on?" on":"")+(on&&rest<=0?" ms-clear":"")+'" onclick="openDaily5()" aria-label="今週のミッションと今日の5問">'
     +'<span class="sgms-t"><span>今</span><span>週</span><span>の</span><span>ミ</span><span>ッ</span><span>シ</span><span>ョ</span><span>ン</span></span>'
     +'<span class="ms-b">'+(rest>0?rest:"✓")+'</span></button>';
 }
@@ -7862,36 +7084,28 @@ function updateMissionBtn(){
     const bd=b.querySelector(".ms-b");if(bd)bd.textContent=rest>0?String(rest):"✓";
   });
 }
-function openMission(){
-  const m=document.getElementById("d5-modal");
-  if(!m.classList.contains("on"))pushNav("modal");
-  m.classList.add("on");
-  missionRenderModal();
-  m.onclick=e=>{if(e.target===m)closeDaily5();};
-}
-function missionRenderModal(){
+/* ミッションも今日の5問も、開くのは同じ統合ポップアップ（メール指示 2026-08-08） */
+function openMission(){openDaily5();}
+/* 統合ポップアップの上半分。3つのミッションを、達成数のドーナツと進み具合のバーだけで見せる */
+function u5MissionHTML(){
   const rows=missionRows(),done=rows.filter(r=>r.done).length;
   const html=rows.map(r=>{
     const pct=Math.round(Math.min(1,r.cur/r.m.n)*100);
-    const tap=r.m.kind==="trend"?'onclick="missionTapTrend()"'
-             :r.m.kind==="room"?'onclick="missionTapRoom('+r.m.sec+')"':"";
+    const tap=r.m.kind==="room"?'onclick="missionTapRoom('+r.m.sec+')"':"";
     return '<button class="ms-row'+(tap?" tapable":"")+(r.done?" done":"")+'" '+(tap||"disabled")+'>'
       +'<span class="ms-ico">'+(r.done?"✓":missionIcon(r.m))+'</span>'
       +'<span class="ms-body"><span class="ms-t">'+esc(missionTitle(r.m))+'</span>'
       +'<span class="ms-bar"><i style="width:'+pct+'%"></i></span></span>'
-      +'<span class="ms-n">'+r.cur+'/'+r.m.n+'</span></button>';
+      +'<span class="ms-n">'+r.cur+'<em>/'+r.m.n+'</em></span></button>';
   }).join("");
-  document.getElementById("d5-modal").innerHTML='<div class="d5-card ms-card">'
-    +'<button class="d5-close" onclick="closeDaily5()" aria-label="閉じる">×</button>'
-    +'<div class="d5-h">今週のミッション</div>'
-    +'<div class="ms-week">'+done+' / '+MS_N+' 達成　月曜あさ5時に入れかわります</div>'
+  return '<div class="u5-sec">'
+    +'<div class="u5-hd"><span class="u5-kick">MISSION</span><span class="u5-ti">今週のミッション</span>'
+    +'<span class="u5-ring'+(done>=MS_N?" full":"")+'" style="--p:'+Math.round(done/MS_N*100)+'"><b>'+done+'</b><i>/'+MS_N+'</i></span></div>'
     +'<div class="ms-list">'+html+'</div>'
-    +(done>=MS_N?'<div class="ms-all">🎉 今週のミッションはぜんぶ達成！</div>':'')
+    +(done>=MS_N?'<div class="ms-all">🎉 今週はぜんぶ達成！</div>':'')
     +'</div>';
-  d5AnchorBubble(".sg-mission");
-  d5StopCountdown(); // ミッション一覧は勝手に始まらない（10秒カウントダウンは付けない）
 }
-function missionTapTrend(){closeDaily5();setTimeout(openTrend,180);}
+function missionRenderModal(){d5RenderModal();} // 中身は統合ポップアップに一本化した
 /* おすすめROOMのミッションをタッチしたら、そのROOMまでスクロールして移動する（メール指示 2026-08-01） */
 function missionTapRoom(sec){
   closeDaily5();
@@ -7994,7 +7208,7 @@ function sgBoardHTML(n){
     +'</div></div>'
     +'</div>'
     // 現在地ボタンは器の外（スライド直下）に置いてアイコン群と左右位置を揃える
-    // （今日の5問／トレンドはROOMごとに変わらないので、home-wrap直下のフロート1組に移してある）
+    // （今日の5問／ミッションはROOMごとに変わらないので、home-wrap直下のフロート1組に移してある）
     +'<button class="sg-fbtn sg-home" onclick="sgScrollToCurrent('+n+',true)" aria-label="現在地に戻る">'+SG_HOME_ICON+'</button>';
 }
 /* 画像ファイルは正方形でも、被写体の形は縦長・横長とまちまちで、まわりの透明部分の量が画像ごとに違う。
@@ -8964,7 +8178,7 @@ function runnerStep(ok,rarity){
   ch.classList.add(ok?"step":"trip");
 }
 
-function curLimit(){const base=state.questions[state.idx].type==="w"?20:10;return Math.round((base+luckTimeBonus())*(loadSettings().slowTimer?1.5:1));} // じっくりモードは1.5倍／今日のボーナスの時間延長ぶんを足す
+function curLimit(){const base=state.questions[state.idx].type==="w"?20:10;return Math.round(base*(loadSettings().slowTimer?1.5:1));} // じっくりモードは1.5倍
 
 function _tick(){
   const limit=curLimit(),fill=document.getElementById("tfill"),tt=document.getElementById("time");
@@ -8999,7 +8213,7 @@ function renderQuestion(){
   // 重複防止は次の読み上げ時に speakKorean() 側の stopSpeak() が担う
   //（韓国語→日本語の問題は下で表示と同時に読み上げるため、そこで前の音声が止まる）。
   const q=state.questions[state.idx];
-  document.getElementById("prog").textContent=(_d5.on?(_d5.mode==="trend"?"今日のトレンド　":"今日の5問　"):"")+(state.idx+1)+" / "+((state.questions&&state.questions.length)||12);
+  document.getElementById("prog").textContent=(_d5.on?"今日の5問　":"")+(state.idx+1)+" / "+((state.questions&&state.questions.length)||12);
   const _qa=document.getElementById("qadv");if(_qa)_qa.style.visibility=_d5.on?"hidden":"visible";
   // 進捗は「キャラが歩いて進む」帯で表す（山吹色メーターは廃止）。出題番号と同時にスイッチ表示（今日の5問は正誤表示が無いので隠す）
   const stage=document.getElementById("qstage");
@@ -9388,16 +8602,8 @@ function submit(status,userAnswer){
   const score=scoreFor(q.type,isCorrect,elapsed,isHint);
   // 単語カードの枚数とレア度は同じ「残り時間」から決める（速いほど枚数もレア度も上がる／メール指示 2026-08-01）
   const remainSec=Math.max(0,limit-elapsed);
-  const cardRarity=(q.trend||status==="timeout")?null:rollCardRarity(remainSec/limit,isCorrect);
+  const cardRarity=(status==="timeout")?null:rollCardRarity(remainSec/limit,isCorrect);
   runnerStep(isCorrect,cardRarity); // 正解なら景色が流れてキャラが1歩前へ／不正解はつまずくだけ。札はレア度の色になる
-  // 今日のトレンド問題は単語帳の外の言葉なので、記憶スコア・単語カード・回答履歴には一切入れない
-  if(q.trend){
-    state.results.push({userId:state.userId,wordId:q.word.id,testId:state.testId,questionNumber:state.idx+1,
-      korean:q.word.ko,japanese:q.word.ja,userAnswer:userAnswer||"",correctAnswer:q.correct,
-      answerStatus:status,isCorrect,questionSource:"trend",
-      responseTimeSec:Math.round(elapsed*10)/10,score,answeredAt:new Date().toISOString()});
-    d5AfterAnswer(status,userAnswer);return;
-  }
   // ---- タイプ診断用の誤答メタ ----
   let distractorType=null,selectedWrongWordId=null,writingErrorType=null,writingErrorDetail=null;
   if(q.type!=="w"){
@@ -9758,8 +8964,8 @@ function writingAnsHTML(status,q,userAnswer){
   return `<div class="ovans"><div class="oa-ko correct">${ko}</div>${spk}</div>`;
 }
 function afterAnswer(){
-  if(_d5.on){ // 今日の5問／今日のトレンド問題（5問で終了 → 専用結果画面へ）
-    if(state.idx>=state.questions.length-1){if(_d5.mode==="trend")finishTrend();else finishDaily5();return;}
+  if(_d5.on){ // 今日の5問（5問で終了 → 専用結果画面へ）
+    if(state.idx>=state.questions.length-1){finishDaily5();return;}
     state.idx++;renderQuestion();return;
   }
   if(state.idx>=((state.questions&&state.questions.length)||12)-1){finishTest();return;} // 通常12問／スペシャル問題入りは13問
@@ -9880,7 +9086,6 @@ function finishTest(){
   const xpGain=xpDoubled?_xpRaw*2:_xpRaw,xpNow=xpInfo(),xpLvBefore=state.levelBefore||1,xpLeveled=xpNow.level>xpLvBefore;
   const _ri=roomInfoFor(curSection),pwrAfter=_ri.pwr,pwrBefore=(state.roomPwrBefore!=null?state.roomPwrBefore:0),pwrDelta=pwrAfter-pwrBefore; // そのROOMのPWR
   enqueuePresent(rank,pwrDelta); // このテストのプレゼント（レベル/ランク/PWR/レインボー）を1個追加
-  luckStepUp(); // 今日限定ボーナス：発動ずみの日は、テストを1本終えるごとに1段階だけ伸びる（25問=4段階で頭打ち。メール指示 2026-08-06）
   petFeed("test"); // ことばの友だち：通常テスト・復習でも韓国語エネルギーが育つ
   // ホーム復帰時のお知らせ：その日初テストなら連続ログインボーナス、それ以外はプレゼント到着
   const _tday=dayKey(Date.now());
@@ -10440,7 +9645,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v6.9 (2026-08-07)";
+const APP_VERSION="v7.1 (2026-08-08)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -10505,7 +9710,7 @@ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();_bipEvt=e;}
 function shareResult(){
   const r=_lastResult;if(!r)return;
   track("share_click",{score:r.total,rank:r.rank});
-  // 今日の5問・トレンド・スペシャル問題は見出しだけ差し替える（点数とランクは通常テストだけの指標）
+  // 今日の5問・スペシャル問題は見出しだけ差し替える（点数とランクは通常テストだけの指標）
   const lines=[r.headline||`韓国語単語テスト、12問やって${r.total}点・${r.rank}ランクでした🇰🇷`];
   if(r.code)lines.push(`暗記タイプ診断は「${r.code}」`);
   lines.push(r.rank==="S"?"Sランク、あなたも取れる？（無料・登録不要）":"あなたは何点取れる？（無料・登録不要）");

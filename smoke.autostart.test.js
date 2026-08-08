@@ -25,25 +25,7 @@ const FILE = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '
   await page.evaluate(() => { localStorage.clear(); localStorage.setItem('kwt_coach_v1', '1'); });
   await page.reload();
   await page.waitForTimeout(2000);
-  // 2026-08-06 の指示で、その日はじめての起動では先に「今日のボーナス」が公開される。
-  // 「この効果で今日の5問を始める」を押したあと、これまでどおり自動スタートの吹き出しに続く
-  const passLuck = async () => {
-    for (let i = 0; i < 60; i++) {
-      const go = await page.evaluate(() => {
-        const b = document.querySelector('.lkauto .lk-go');   // ボーナス専用カードのボタン（2026-08-07 に今日の5問と別立てにした）
-        if (b) { b.click(); return true; }
-        return !document.querySelector('.lkauto');
-      });
-      if (go) break;
-      await page.waitForTimeout(100);
-    }
-    await page.waitForTimeout(400);
-  };
-  check('今日のボーナスの公開をはさんでから自動スタートに進む', await (async () => {
-    const had = await page.evaluate(() => !!document.querySelector('.lkauto'));
-    await passLuck();
-    return had && await page.evaluate(() => !document.querySelector('.lkauto'));
-  })());
+  // 今日のボーナスは廃止した（メール指示 2026-08-08）ので、起動したらそのまま自動スタートの吹き出しに進む
   check('その日はじめての起動で自動スタートの吹き出しが出る', await page.evaluate(() => !!document.querySelector('.d5auto')));
   check('制限時間は10秒', await page.evaluate(() => D5_AUTO_SEC === 10));
   check('「あと10秒」と書いてある', await page.evaluate(() => {
@@ -62,10 +44,16 @@ const FILE = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '
 
   // ---------- 見た目は「今日の5問」の吹き出しと同じ ----------
   check('吹き出しは今日の5問と同じ .d5-card', await page.evaluate(() => !!document.querySelector('.d5auto .d5-card')));
-  check('見出しは「今日の5問テスト」', await page.evaluate(() => document.querySelector('.d5auto .d5-h').textContent === '今日の5問テスト'));
+  check('見出しは「今日の5問」', await page.evaluate(() => document.querySelector('.d5auto .d5-h').textContent === '今日の5問'));
+  // 今週のミッションと同じ1枚になった（上＝ミッション／下＝今日の5問。メール指示 2026-08-08）
+  check('上に今週のミッション、下に今日の5問が並ぶ', await page.evaluate(() => {
+    const c = document.querySelector('.d5auto .u5-card'); if (!c) return false;
+    const ms = c.querySelector('.ms-list'), d5 = c.querySelector('.d5-slots');
+    return !!ms && !!d5 && ms.getBoundingClientRect().top < d5.getBoundingClientRect().top;
+  }));
   check('朝の部・夜の部の2マスがある', await page.evaluate(() => {
     const s = [...document.querySelectorAll('.d5auto .d5-slot .d5-sl')].map(e => e.textContent);
-    return s.length === 2 && s[0].indexOf('朝の部') === 0 && s[1].indexOf('夜の部') === 0;
+    return s.length === 2 && s[0].indexOf('朝の部') >= 0 && s[1].indexOf('夜の部') >= 0;
   }));
   check('いまの枠のマスに印が付く', await page.evaluate(() => document.querySelectorAll('.d5auto .d5-slot.now').length === 1));
   check('しっぽ付きで「今日の5問」ボタンの上に出る', await page.evaluate(() => {

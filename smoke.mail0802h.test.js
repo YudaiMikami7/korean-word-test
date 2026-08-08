@@ -265,7 +265,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check('R-6 ルーム番号ページャーはルームメニューの下のまま', await (async () => {
     const p = await box('#room-pager'); return p && Math.abs(p.y - 292) < 1.5;
   })());
-  check('R-7 版数が上がっている', await page.evaluate(() => { const m = /^v6\.(\d+)/.exec(APP_VERSION); return !!m && +m[1] >= 2; }));
+  check('R-7 版数が上がっている', await page.evaluate(() => { const m = /^v(\d+)\.(\d+)/.exec(APP_VERSION); return !!m && (+m[1] > 6 || +m[2] >= 2); }));
   check('R-8 JSコンソールエラーが無い', errors.length === 0);
   if (errors.length) console.log(errors);
 

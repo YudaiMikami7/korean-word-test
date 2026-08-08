@@ -246,7 +246,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check('8-1 年間12か月ぶんのイベントがある', await page.evaluate(() => PET_EVENTS.length === 12 && PET_EVENTS.every(e => e.m >= 1 && e.m <= 12 && e.t && e.ko)));
   check('8-2 その月だけの限定品が、月に1つ届く', await page.evaluate(() => {
     localStorage.removeItem('kwt_pet_v1');
-    const m = _dayFromKey(luckDayKey()).getMonth() + 1;
+    const m = _dayFromKey(appDayKey()).getMonth() + 1;
     petDaily();
     const o = petState(), got = Object.keys(o.items);
     const lim = PET_ITEMS.filter(i => i.ev === m);
@@ -376,7 +376,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
 
   /* ============ 回帰 ============ */
   await fresh({ kwt_d5auto_v1: 'x' });
-  check('R-1 版数が上がっている（v6.8以降）', await page.evaluate(() => /^v6\.[89]/.test(APP_VERSION)));
+  check('R-1 版数が上がっている（v6.8以降）', await page.evaluate(() => { const m = /^v(\d+)\.(\d+)/.exec(APP_VERSION); return !!m && (+m[1] > 6 || +m[2] >= 8); }));
   check('R-2 ホームのレイアウトは変わっていない（今日の5問の丸の位置）', await (async () => {
     await page.evaluate(() => { show('s-home'); renderHome(); });
     await page.waitForTimeout(700);

@@ -120,12 +120,16 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   await page.evaluate(() => { const all = loadD5(); all[d5Key(Date.now())] = { done: true }; saveD5(all); updateD5Btn(); });
   await page.waitForTimeout(500);
   await clearFx(); await stopBob();
-  const d5off = await page.evaluate(() => !!document.querySelector('.sg-d5.d5-off'));
-  check('2-6 今日の5問が縮んだ丸になっている', d5off);
-  const g2 = await box('.sg-gift'), d5 = await box('.sg-d5');
-  check(`2-7 縮まった丸と横位置がそろう (プレゼント${g2.x.toFixed(0)} / 5問${d5.x.toFixed(0)})`, Math.abs(g2.x - d5.x) < 1);
-  check(`2-8 縮まった丸と同じ大きさ (${g2.w.toFixed(0)} / ${d5.w.toFixed(0)})`, Math.abs(g2.w - d5.w) < 1);
-  check(`2-9 縮まった丸の「上」にある (プレゼント下端${g2.b.toFixed(0)} ≦ 5問上端${d5.y.toFixed(0)})`, g2.b <= d5.y + 0.5);
+  // 消化後の5問カプセルはその場で消え、丸の場所は育成ゲームの入口になった（メール指示 2026-08-08）
+  const d5off = await page.evaluate(() => {
+    const d5 = document.querySelector('.sg-d5');
+    return d5.classList.contains('d5-off') && d5.getBoundingClientRect().width === 0 && !!document.querySelector('.sg-pet');
+  });
+  check('2-6 今日の5問のカプセルは消え、丸の場所は育成ゲーム', d5off);
+  const g2 = await box('.sg-gift'), d5 = await box('.sg-pet');
+  check(`2-7 育成ゲームの丸と横位置がそろう (プレゼント${g2.x.toFixed(0)} / 育成${d5.x.toFixed(0)})`, Math.abs(g2.x - d5.x) < 1);
+  check(`2-8 育成ゲームの丸と同じ大きさ (${g2.w.toFixed(0)} / ${d5.w.toFixed(0)})`, Math.abs(g2.w - d5.w) < 1);
+  check(`2-9 育成ゲームの丸の「上」にある (プレゼント下端${g2.b.toFixed(0)} ≦ 育成上端${d5.y.toFixed(0)})`, g2.b <= d5.y + 0.5);
   check(`2-10 くっつきすぎず離れすぎない（すき間${(d5.y - g2.b).toFixed(1)}px）`, d5.y - g2.b > 3 && d5.y - g2.b < 20);
   check('2-11 画面の中に収まっている', g2.y > 0 && g2.b < 1178);
   // 上下に動く演出は「上へ浮く」向き（下の5問の丸にぶつからない）
@@ -160,11 +164,11 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   await page.evaluate(() => { closePresent(); }); await page.waitForTimeout(300);
 
   /* ---------- 左下の他の部品と当たっていないか ---------- */
-  const home = await box('.sg-home'), trend = await box('.sg-trend'), band = await box('#today-band');
+  const home = await box('.sg-home'), ms2 = await box('.sg-mission'), band = await box('#today-band');
   const g3 = await box('.sg-gift');
   const hit = (a, b) => a && b && !(a.r <= b.x || b.r <= a.x || a.b <= b.y || b.b <= a.y);
   check('2-18 現在地ボタンと重ならない', !hit(g3, home));
-  check('2-19 トレンド／ミッションの中央カプセルと重ならない', !hit(g3, trend));
+  check('2-19 今週のミッションの中央カプセルと重ならない', !hit(g3, ms2));
   check('2-20 「最近学んだ単語」の帯と重ならない', !band || !band.vis || !hit(g3, band));
   check('2-21 スタートボタンと重ならない', await (async () => { const s = await box('.start-button'); return !s || !s.vis || !hit(g3, s); })());
 
@@ -181,13 +185,13 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   await page.waitForTimeout(700);
   await clearFx();
   check('R-4 ホームに戻るとプレゼントの丸も戻る', await (async () => { const g = await box('.sg-gift'); return g && g.vis; })());
-  check('R-5 ステータスバー・ルームメニュー・今日の5問が残っている', await (async () => {
-    const a = await box('.status-panel'), b = await box('.rmenu-bg'), c = await box('.sg-d5');
+  check('R-5 ステータスバー・ルームメニュー・中央カプセルが残っている', await (async () => {
+    const a = await box('.status-panel'), b = await box('.rmenu-bg'), c = await box('.sg-mission');
     return a && a.vis && b && b.vis && c && c.vis;
   })());
   check('R-6 ルーム番号ページャーはルームメニューの下のまま',
     await (async () => { const p = await box('#room-pager'); return p && Math.abs(p.y - 292) < 1.5; })());
-  check('R-7 版数が上がっている', await page.evaluate(() => { const m = /^v6\.(\d+)/.exec(APP_VERSION); return !!m && +m[1] >= 3; }));
+  check('R-7 版数が上がっている', await page.evaluate(() => { const m = /^v(\d+)\.(\d+)/.exec(APP_VERSION); return !!m && (+m[1] > 6 || +m[2] >= 3); }));
   check('R-8 JSコンソールエラーが無い', errors.length === 0);
   if (errors.length) console.log(errors);
 
