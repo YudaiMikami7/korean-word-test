@@ -242,14 +242,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   await page.evaluate(() => closeDaily5());
   await page.waitForTimeout(200);
   check('閉じたらカウントダウンも止まる', await page.evaluate(() => !_d5CdTimer && !_d5CdTo));
-  const tr = await page.evaluate(() => {
-    const k = d5Key(Date.now()), s = d5Slot(Date.now());
-    saveD5({ [k]: { slot: s, done: true, correct: 5, total: 5, items: [] } });   // 5問を消化した日だけトレンドが出る
-    openTrend(); const e = document.getElementById('d5a-sec');
-    return { sec: e && e.textContent, hasBtn: !!document.querySelector('.tr-go') };
-  });
-  check(`今日のトレンドも開いた時点で10秒カウントダウン (${tr.sec})`, tr.hasBtn ? tr.sec === '10' : true);
-  await page.evaluate(() => closeDaily5());
+  // ※「今日のトレンド」はメール指示 2026-08-08 21:06 で機能ごと廃止したため、その確認も削除
+  check('今日のトレンドは廃止されている', await page.evaluate(() => typeof openTrend === 'undefined'));
 
   check(`コンソールエラーなし (${errors.length}件)`, errors.length === 0);
   if (errors.length) console.log(errors.join('\n'));

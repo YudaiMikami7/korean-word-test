@@ -334,40 +334,67 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* ステータスバー(下端147px)とWORLDメニューのあいだのすき間を詰めるため、スライドごと40px上へ
    （225→185px。WORLDメニュー上端は213→173px＝ステータスバーの26px下・アイコン丸の15px下。メール指示 2026-08-02 16:54） */
 .slide-inner{position:absolute;left:0;top:185px;width:602px;height:686px}
-/* WORLDパラメータ（ラベル/番号・語数/バー/%の間に余白。ランクD,B=36px・A=98pxで下端揃え） */
-.rmenu-bg{position:absolute;left:40px;top:-12px;width:522px;height:116px;background:rgba(255,255,255,.15);border-radius:999px;cursor:pointer} /* 縦幅=旧174の2/3 */
-.hv-roomlabel{position:absolute;left:83px;top:2px;font-size:21px;letter-spacing:.5px;line-height:1;cursor:pointer}
-.hv-roomno{position:absolute;left:72px;top:28px;font-size:72px;line-height:1;cursor:pointer}
-.hv-learned{position:absolute;left:244px;top:7px;font-size:27px;line-height:1;color:#FFFFFF}
-.hv-roompwr{position:absolute;left:244px;top:51px;font-size:32px;line-height:1;color:#FFFFFF}
-.hv-learned .unit{font-size:16px;margin-left:4px}
-.hv-roompwr .unit{font-size:19px;margin-left:4px}
-.hv-wordsg{left:238px;top:37px;width:89px;height:10px;padding:2px}
-.hv-roomg{left:238px;top:88px;width:89px;height:10px;padding:2px}
-/* WORLDメニューの2本のバーは伸びる動きを付けない（アニメ廃止。ステータス欄のバーは従来どおり） */
-.hv-wordsg .gfill,.hv-roomg .gfill{transition:none}
+/* ============================================================ WORLD進捗ヘッダー（メール指示 2026-08-08 22:51）
+ * 1本の横長ステータスパネル。W=コンテナ幅・H=コンテナ高さ(--rh) を 100% として、位置は%・文字とバーは calc(var(--rh,138px)*係数) で
+ * すべて比率で組む（固定pxのコピーにしない）。中身の並びは
+ *   左矢印 → WORLD番号 → 学習進捗(周回) → 単語数 → 正答率 → ランク → 右矢印
+ * で、数字（01 / 周回 / 語数 / 正答率）を主役に、補助文字は小さく。3本のバーは同じ高さ・同じY。
+ * ランクだけは新しい丸を作らず、これまでのメダル（金リング＋光沢＝.rank-b）をそのまま使う。 */
+.rmenu{--rh:138px;position:absolute;left:0;top:-23px;width:100%;height:var(--rh,138px);color:#fff}
+/* 中央の横長カプセル：全幅の88%・全高の84%・上下中央。角丸はカプセル高さの約42%、影は付けずフラットに */
+.rmenu-bg{position:absolute;left:6%;top:8%;width:88%;height:84%;background:rgba(255,255,255,.17);border-radius:calc(var(--rh,138px)*.355);cursor:pointer}
+/* ① WORLD番号（全幅の約10〜23%）。WORLDと番号で1つの情報ブロック＝縦の間隔はごく小さく、主役は番号 */
+.rm-world{position:absolute;left:9.3%;top:17.8%;width:14%;line-height:1;cursor:pointer;z-index:2;white-space:nowrap}
+.hv-roomlabel{display:block;font-size:calc(var(--rh,138px)*.16);font-weight:900;letter-spacing:.04em;line-height:1}
+.hv-roomno{display:block;font-size:calc(var(--rh,138px)*.47);font-weight:900;line-height:1;margin-top:calc(var(--rh,138px)*.015)}
+/* ②〜④ 学習進捗／単語数／正答率の3ブロック。数字は上・バーは下で、3本とも同じY・同じ高さ・同じ角丸。
+   ブロック幅は「数字＋単位」が収まる実寸に合わせてあり、中身は上下方向にカプセルの中央でそろう */
+.rm-blk{position:absolute;top:0;height:100%;line-height:1;cursor:pointer;z-index:2}
+.rm-lap{left:25.3%;width:18.9%}
+.rm-words{left:46.6%;width:15%}
+.rm-rate{left:63.9%;width:14.9%}
+.rm-blk .gauge{left:2.5%;top:63%;width:95%;height:10%;padding:calc(var(--rh,138px)*.014)}
+.rm-blk .gauge .gfill{transition:none} /* バーは伸びる動きを付けない（アニメ廃止） */
+/* ② 学習進捗：「10」を極大、右上に「2週目」、右下に「/12」でひとまとまりに見せる */
+.hv-lap{position:absolute;left:0;top:27%;width:100%;text-align:left;white-space:nowrap;cursor:pointer}
+.hv-lap .lp-v{display:flex;justify-content:space-between;align-items:baseline;font-size:calc(var(--rh,138px)*.31);font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+.hv-lap .lp-v b{font-weight:900;min-width:1.3em;text-align:left} /* 大きい数字は行の基準サイズそのまま＝単語数・正答率と同じ高さの行。1桁でも2桁ぶんの幅を取り、「/12」との間隔が回ごとに変わらないようにする */
+.hv-lap .lp-v i{font-style:normal;font-size:calc(var(--rh,138px)*.17);opacity:.9} /* 「/12」は数字の右下（同じベースライン） */
+.hv-lap .lp-l{position:absolute;right:0;top:calc(var(--rh,138px)*-.04);font-size:calc(var(--rh,138px)*.135);font-weight:900;opacity:.95} /* 「2週目」は数字の右上 */
+/* ③ 単語数／④ 正答率：数字を極大・単位はひとまわり小さく、ブロック中央ぞろえ */
+.hv-learned,.hv-roompwr{position:absolute;left:0;top:27%;width:100%;text-align:center;white-space:nowrap;
+  font-size:calc(var(--rh,138px)*.31);font-weight:900;line-height:1;color:#FFFFFF}
+.hv-learned .unit{font-size:calc(var(--rh,138px)*.20);margin-left:calc(var(--rh,138px)*.012)}
+.hv-roompwr .unit{font-size:calc(var(--rh,138px)*.21);margin-left:calc(var(--rh,138px)*.012)}
+/* 3桁（100語・100%）になる回だけ数字をひとまわり落として、となりのブロックに掛からないようにする */
+.rm-blk.w3 .hv-learned,.rm-blk.w3 .hv-roompwr{font-size:calc(var(--rh,138px)*.245)}
 /* ランクの下端(146)を下段バー(132+14=146)・WORLD番号の字面下端と一致させる */
 /* ※.rank-s（1つ前・2つ前のランク）はWORLDメニューから廃止し、その場所に周回表示(.hv-lap)を置いた（メール指示 2026-07-31）。
      スタイルは他の場所（過去履歴など）と同じ書式のまま残してある */
 .rank-s{position:absolute;left:363px;top:72px;width:30px;height:30px;border-radius:50%;background:#555;
   display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;z-index:1}
 .rank-s1{left:389px}
-.rank-b{position:absolute;left:442px;top:15px;width:78px;height:78px;border-radius:50%;background:#555;
-  display:flex;align-items:center;justify-content:center;font-size:62px;line-height:1;z-index:2}
+/* ⑤ ランク：新しい円アイコンは作らず、これまでのメダル意匠（下の金リング＋光沢）をそのまま使う。
+   大きさだけ全高の約58%にし、カプセル右側で上下中央・左右に十分な余白を取る */
+.rank-b{position:absolute;left:81.1%;top:calc(50% - var(--rh,138px)*.245);width:calc(var(--rh,138px)*.49);height:calc(var(--rh,138px)*.49);
+  border-radius:50%;background:#555;
+  display:flex;align-items:center;justify-content:center;font-size:calc(var(--rh,138px)*.385);line-height:1;z-index:2}
 /* WORLDメニューのランクを結果と同じメダル風（金リング＋光沢）に。※登場ポップはWORLDメニューのアニメ廃止で削除 */
 .rank-b,.rank-s{box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 4px rgba(255,196,0,.9),0 3px 8px rgba(0,0,0,.3)}
 .rank-b::after,.rank-s::after{content:"";position:absolute;inset:3px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%);pointer-events:none}
 /* WORLDメニュー領域のクリップ：3面ローテのアニメが座布団の外にはみ出て描画されないように（座標は不変） */
-.rmenu-clip{position:absolute;inset:0;z-index:2;clip-path:inset(-12px 40px calc(100% - 104px) 40px round 56px)}
+.rmenu-clip{position:absolute;inset:0;z-index:2;clip-path:inset(-12px 36px calc(100% - 104px) 36px round 49px)}
 /* WORLDメニュー（カプセル）の外側・左右に置く「隣のページへ」矢印。
    スライドの中ではなくhome-wrap直下に1組だけ置くフロート＝難易度・プリQQ・どのWORLDでも同じ位置に出る。
-   top=185(slide-innerの位置)+14(従来のtop)。単語一覧モードのメニュー上昇には--liftで追従する */
-.rm-arrow{position:absolute;top:calc(199px + var(--lift,0px));width:36px;height:76px;z-index:6;border:none;padding:0;background:transparent;
+   高さは全高(138px)の約30%＝41pxの三角にし、上下中央をカプセルの中心(slide-inner基準46px→画面231px)に合わせる
+   （メール指示 2026-08-08 22:51）。左右位置は単語帳・単語詳細の端とそろえるため left/right:4px のまま。
+   単語一覧モードのメニュー上昇には--liftで追従する */
+.rm-arrow{position:absolute;top:calc(183px + var(--lift,0px));width:36px;height:96px;z-index:6;border:none;padding:0;background:transparent;
   font-size:0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;
   transition:transform .08s ease,top .35s ease,opacity .25s ease}
 .rm-arrow::before{content:"";display:block;width:0;height:0;border-style:solid} /* 三角だけ。座布団と影は付けない */
-.rm-prev::before{border-width:14px 17px 14px 0;border-color:transparent rgba(255,255,255,.95) transparent transparent}
-.rm-next::before{border-width:14px 0 14px 17px;border-color:transparent transparent transparent rgba(255,255,255,.95)}
+.rm-prev::before{border-width:21px 25px 21px 0;border-color:transparent rgba(255,255,255,.95) transparent transparent}
+.rm-next::before{border-width:21px 0 21px 25px;border-color:transparent transparent transparent rgba(255,255,255,.95)}
 .rm-arrow:active{transform:scale(.84)}
 /* まだ1度もWORLDを切りかえていない間だけ、矢印を左右に揺らして「ここは横に動く」と伝える
    （動かすのは中の三角＝::beforeだけ。ボタン自体は動かさないのでタップ位置がぶれない） */
@@ -407,17 +434,11 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rmenu-reco{flex-direction:row;align-items:center;justify-content:flex-start;gap:12px}
 .rr-img{width:86px;height:86px;object-fit:contain;flex:0 0 auto}
 .rr-txt{display:flex;flex-direction:column;min-width:0}
-/* WORLD番号と右側領域のマージンを半分に（通常WORLDのみ。プリQQは従来位置のまま） */
-.room-slide:not(.pq-slide) .hv-learned,.room-slide:not(.pq-slide) .hv-roompwr{left:206px}
-.room-slide:not(.pq-slide) .hv-wordsg,.room-slide:not(.pq-slide) .hv-roomg{left:200px}
-.room-slide:not(.pq-slide) .rank-b{left:390px} /* 直近のランクだけを大きく出す */
+/* ※旧レイアウトの左位置上書き（.hv-learned/.hv-roompwr/.hv-wordsg/.hv-roomg/.rank-b を通常WORLDだけ左に寄せる指定）は、
+     WORLD進捗ヘッダーを比率レイアウトに刷新したので廃止（メール指示 2026-08-08 22:51） */
 /* 1つ前・2つ前のランクをやめ、空いた場所に「いま何周目・N/12」を出す（メール指示 2026-07-31）。
    下端(38+18+7+30=93)を直近ランク rank-b(15+78=93) にそろえる */
-.hv-lap{position:absolute;left:288px;top:38px;width:98px;z-index:1;color:#fff;text-align:center;line-height:1;cursor:pointer}
-.hv-lap .lp-l{display:block;font-size:18px;font-weight:900;letter-spacing:.02em;opacity:.92}
-.hv-lap .lp-v{display:block;font-size:30px;font-weight:900;margin-top:7px;font-variant-numeric:tabular-nums;white-space:nowrap}
-.hv-lap .lp-v b{color:#FFD84D}
-.hv-lap .lp-v i{font-style:normal;font-size:21px;opacity:.85;margin:0 2px}
+/* ※周回表示(.hv-lap)の見た目は「学習進捗」ブロックとして上に集約した（メール指示 2026-08-08 22:51） */
 .room-slide:not(.pq-slide) .rmenu-reco,.room-slide:not(.pq-slide) .rmenu-pwr{left:182px}
 .slide-inner.face-word .rmenu-reco{transform:rotate(0) scale(1);opacity:1}
 .slide-inner.face-pwr .rmenu-pwr{transform:rotate(0) scale(1);opacity:1}
@@ -865,8 +886,8 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .wd-nav{flex:0 0 36px;width:36px;height:76px;border:none;padding:0;background:transparent;cursor:pointer;font-family:inherit;font-size:0;
   display:flex;align-items:center;justify-content:center}
 .wd-nav::before{content:"";display:block;width:0;height:0;border-style:solid} /* 三角だけ。座布団と影は付けない */
-.wd-prev::before{border-width:14px 17px 14px 0;border-color:transparent rgba(255,255,255,.95) transparent transparent}
-.wd-next::before{border-width:14px 0 14px 17px;border-color:transparent transparent transparent rgba(255,255,255,.95)}
+.wd-prev::before{border-width:21px 25px 21px 0;border-color:transparent rgba(255,255,255,.95) transparent transparent}
+.wd-next::before{border-width:21px 0 21px 25px;border-color:transparent transparent transparent rgba(255,255,255,.95)}
 .wd-nav:active{transform:scale(.84)}
 /* 文字サイズ 大 モード */
 body.bigtext .choice{font-size:25px}
@@ -4148,14 +4169,19 @@ function buildRoomSlides(){
   const specialSlide=!PQ_ON?"":`<div class="room-slide pq-slide" data-n="pq" style="background:#ffe3f1">
     <div class="slide-inner">
       <div class="rmenu-clip">
+      <div class="rmenu">
       <div class="rmenu-bg" onclick="roomMenuTap('pq')"></div>
-      <div class="hv-roomlabel" onclick="roomMenuTap('pq')">WORLD</div>
-      <div class="hv-roomno" onclick="roomMenuTap('pq')" style="left:60px">プリQQ</div>
-      <div class="hv-learned">${pqlearned}<span class="unit">語</span></div>
-      <div class="gauge hv-wordsg"><div class="gfill" style="width:${Math.round(pqlearned/PRIQQ.total*100)}%"></div></div>
-      <div class="hv-roompwr">${pqrate}<span class="unit">%</span></div>
-      <div class="gauge hv-roomg"><div class="gfill" style="width:${pqrate}%"></div></div>
+      <div class="rm-world" onclick="roomMenuTap('pq')"><span class="hv-roomlabel">WORLD</span><span class="hv-roomno">プリQQ</span></div>
+      <div class="rm-blk rm-words${pqlearned>=100?" w3":""}" onclick="roomMenuTap('pq')">
+        <div class="hv-learned">${pqlearned}<span class="unit">語</span></div>
+        <div class="gauge hv-wordsg"><div class="gfill" style="width:${Math.round(pqlearned/PRIQQ.total*100)}%"></div></div>
+      </div>
+      <div class="rm-blk rm-rate${pqrate>=100?" w3":""}" onclick="roomMenuTap('pq')">
+        <div class="hv-roompwr">${pqrate}<span class="unit">%</span></div>
+        <div class="gauge hv-roomg"><div class="gfill" style="width:${pqrate}%"></div></div>
+      </div>
       <div class="pq-badge">★ SPECIAL</div>
+      </div>
       <div class="rmenu-reco"></div>
       <div class="rmenu-pwr"></div>
       </div>
@@ -4172,19 +4198,29 @@ function buildRoomSlides(){
     const big=rLast?circ("rank-b",rLast):`<div class="rank-b" style="background:rgba(0,0,0,.22);cursor:pointer" onclick="openRoomHistory(${n})">-</div>`;
     // いま何周目・その周で何マス消化したか（すごろく上の進捗チップをここへ移した）
     const lapL=boardLapSize(curLevel,n),lapC=(_board[boardKey(curLevel,n)]||{}).cleared||0;
-    const lapHTML=`<div class="hv-lap" onclick="roomMenuTap(${n})"><span class="lp-l">${Math.floor(lapC/lapL)+1}周目</span><span class="lp-v"><b>${lapC%lapL}</b><i>/</i>${lapL}</span></div>`;
+    // 学習進捗ブロック：大きな「いま何マス」＋右上に周回数・右下に「/全マス」。文字の並び順（周目→数→/全体）は読み上げ順のまま保つ
+    const lapHTML=`<div class="hv-lap"><span class="lp-l">${Math.floor(lapC/lapL)+1}周目</span><span class="lp-v"><b>${lapC%lapL}</b><i>/${lapL}</i></span></div>`;
+    const lapPct=Math.round((lapC%lapL)/lapL*100);
     return `<div class="room-slide" data-n="${n}" style="background:${roomBg(n)}">
       <div class="slide-inner">
       <div class="rmenu-clip">
+      <div class="rmenu">
       <div class="rmenu-bg" onclick="roomMenuTap(${n})"></div>
-      <div class="hv-roomlabel" onclick="roomMenuTap(${n})">WORLD</div>
-      <div class="hv-roomno" onclick="roomMenuTap(${n})">${nn}</div>
-      <div class="hv-learned">${ri.learned}<span class="unit">語</span></div>
-      <div class="gauge hv-wordsg"><div class="gfill" style="background:#00FFFF;width:${Math.round(ri.learned/ri.total*100)}%"></div></div>
-      <div class="hv-roompwr">${ri.pwr}<span class="unit">%</span></div>
-      <div class="gauge hv-roomg"><div class="gfill" style="background:#00FF37;width:${ri.pwr}%"></div></div>
-      ${lapHTML}
+      <div class="rm-world" onclick="roomMenuTap(${n})"><span class="hv-roomlabel">WORLD</span><span class="hv-roomno">${nn}</span></div>
+      <div class="rm-blk rm-lap" onclick="roomMenuTap(${n})">
+        ${lapHTML}
+        <div class="gauge hv-lapg"><div class="gfill" style="background:linear-gradient(90deg,#FF8F1F,#FFD84D);width:${lapPct}%"></div></div>
+      </div>
+      <div class="rm-blk rm-words${ri.learned>=100?" w3":""}" onclick="roomMenuTap(${n})">
+        <div class="hv-learned">${ri.learned}<span class="unit">語</span></div>
+        <div class="gauge hv-wordsg"><div class="gfill" style="background:linear-gradient(90deg,#00D9CC,#6BFFFF);width:${Math.round(ri.learned/ri.total*100)}%"></div></div>
+      </div>
+      <div class="rm-blk rm-rate${ri.pwr>=100?" w3":""}" onclick="roomMenuTap(${n})">
+        <div class="hv-roompwr">${ri.pwr}<span class="unit">%</span></div>
+        <div class="gauge hv-roomg"><div class="gfill" style="background:linear-gradient(90deg,#12D95E,#8CFF7A);width:${ri.pwr}%"></div></div>
+      </div>
       ${big}
+      </div>
       <div class="rmenu-reco"></div>
       <div class="rmenu-pwr"></div>
       </div>
@@ -9690,7 +9726,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v7.2 (2026-08-08)";
+const APP_VERSION="v7.3 (2026-08-08)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
