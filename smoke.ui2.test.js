@@ -118,7 +118,8 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
   check(`未診断のうちはダミーの動物が歩く (${runner.txt})`, !runner.img && runner.txt.length > 0);
   check('正解でカードを獲得する演出', runner.got);
   check('不正解でもカードを獲得する（メール指示 2026-08-01）', runner.gotNg && !runner.pop);
-  check(`札は白枠つき (${runner.border})`, /^2px rgb\(255, 255, 255\)/.test(runner.border));
+  // 白枠は半分の太さになった（メール指示 2026-08-08 23:50）
+  check(`札は白枠つき (${runner.border})`, /^1px rgb\(255, 255, 255\)/.test(runner.border));
   check(`札に影は付けない (${runner.shadow})`, runner.shadow === 'none'); // メール指示 2026-08-01 19:49
 
   // ===== 選択肢の間引き（残り1/4で1つ・1/8で2つ・半透明で残る） =====

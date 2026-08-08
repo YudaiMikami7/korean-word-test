@@ -124,7 +124,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check(`テストを1本終えるとプレゼントが1個届く (${after.coins}個)`, after.coins === 1);
   check(`プレゼントは毎日ボーナスの箱に入る (${after.cat})`, after.cat === 'daily');
   check('受け取る前はまだガチャはまわせない', after.spinsBefore === 0);
-  check(`テストぶんのXPはコインにくっついている (+${after.xp} XP)`, after.xp > 0);
+  // プレゼントのXPは廃止され、そのぶんは「ごはん」のプレゼントになった（メール指示 2026-08-08 23:52）
+  check(`コインにXPは付かない (+${after.xp} XP)`, after.xp === 0);
+  check('かわりに「ごはん」のプレゼントが届く', await page.evaluate(() => _presentState().queue.some(x => x.kind === 'food')));
   // プレゼントを受け取る → ガチャコイン1枚
   const claimed = await page.evaluate(() => {
     openPresent('daily');
@@ -136,7 +138,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   });
   check('プレゼントの中身がガチャコインだと分かる', claimed.hadCoinFace);
   check(`受け取るとガチャコインが1枚ふえる (${claimed.spins}枚)`, claimed.spins === 1);
-  check(`テストぶんのXPはコインと一緒にガチャへ渡る (+${claimed.q && claimed.q.xp} XP)`, claimed.q && claimed.q.xp > 0);
+  check(`コインにXPは付いてこない (+${claimed.q && claimed.q.xp} XP)`, !!claimed.q && !claimed.q.xp);
 
   // ================= ③ ガチャの見た目・景品 =================
   // ボタンはプレゼントと統合され、統合ボタンの吹き出しの中に入った（メール指示 2026-08-02 16:32）
@@ -159,10 +161,12 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     const c = {}; for (let i = 0; i < 3000; i++) { const p = rollGachaPrize(); c[p.k] = (c[p.k] || 0) + 1; }
     return { c, labs: GACHA_PRIZES.map(p => p.lab) };
   });
-  check(`景品は3種類（${prizes.labs.join(' / ')}）`, prizes.labs.length === 3
-    && prizes.labs.includes('おやすみチケット') && prizes.labs.includes('XP') && prizes.labs.includes('XP2倍チャンス'));
-  check(`3種ともちゃんと出る (チケット${prizes.c.ticket} / XP${prizes.c.xp} / 2倍${prizes.c.x2})`,
-    prizes.c.ticket > 0 && prizes.c.xp > 0 && prizes.c.x2 > 0);
+  // 「ごはん」が景品に加わり4種類になった（メール指示 2026-08-08 23:52）
+  check(`景品は4種類（${prizes.labs.join(' / ')}）`, prizes.labs.length === 4
+    && prizes.labs.includes('おやすみチケット') && prizes.labs.includes('ごはん')
+    && prizes.labs.includes('XP') && prizes.labs.includes('XP2倍チャンス'));
+  check(`4種ともちゃんと出る (チケット${prizes.c.ticket} / ごはん${prizes.c.food} / XP${prizes.c.xp} / 2倍${prizes.c.x2})`,
+    prizes.c.ticket > 0 && prizes.c.food > 0 && prizes.c.xp > 0 && prizes.c.x2 > 0);
   check('XPの当たり額はランダム', await page.evaluate(() => {
     const s = new Set(); for (let i = 0; i < 400; i++) s.add(rollGachaXp());
     return s.size >= 3 && [...s].every(v => v >= 30 && v <= 300);
@@ -179,7 +183,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check(`まわすと回数が減る (${spinT.n0} → ${spinT.n1})`, spinT.n1 === spinT.n0 - 1);
   check('景品の表示が出る', spinT.shown);
   check(`おやすみチケットが当たると1枚もらえる (${spinT.t0} → ${spinT.t1})`, spinT.t1 === spinT.t0 + 1);
-  check(`テストぶんのXPも一緒にもらえる (+${spinT.b1 - spinT.b0} XP)`, spinT.b1 > spinT.b0);
+  check(`コインにXPは付いていない (+${spinT.b1 - spinT.b0} XP)`, spinT.b1 === spinT.b0);
 
   // 景品＝XP / XP2倍
   const spinX = await page.evaluate(async () => {
@@ -255,6 +259,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     inPresent: _presentState().queue.filter(x => x.kind === 'ticket').length
   }));
 
+  // おやすみチケットが届く確率は1/3になった（メール指示 2026-08-08 23:52）。ここでは必ず当たる状態にして中身を見る
+  await page.evaluate(() => { window.__rnd = Math.random; Math.random = () => 0; });
   await page.evaluate(() => { curLevel = 'beginner'; startDaily5(); });
   await page.waitForTimeout(2600);
   await page.evaluate(async () => {
@@ -271,6 +277,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     const q = _presentState().queue.filter(x => x.kind === 'ticket');
     return { n: q.length, cat: q.length ? q[q.length - 1].cat : '', d5done: d5Done() };
   });
+  await page.evaluate(() => { if (window.__rnd) Math.random = window.__rnd; });
   check('今日の5問が完了している', tkAfter.d5done);
   check(`5問を終えるとプレゼントにおやすみチケットが入る (${tkBefore.inPresent} → ${tkAfter.n}個)`, tkAfter.n === tkBefore.inPresent + 1);
   check(`チケットは毎日ボーナスのプレゼントに入る (${tkAfter.cat})`, tkAfter.cat === 'daily');

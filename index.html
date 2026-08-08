@@ -70,7 +70,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .qsw.on{background:#00C24E}
 .qsw i{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s}
 .qsw.on i{left:20px}
-.qhome{background:rgba(0,0,0,.8);border:none;color:#fff;width:32px;height:32px;font-size:16px;cursor:pointer;flex:0 0 auto}
+/* 戻るボタンは角丸の座布団。「‹」は線を太らせて見やすくする（メール指示 2026-08-08 23:50） */
+.qhome{background:rgba(0,0,0,.8);border:none;border-radius:11px;color:#fff;width:32px;height:32px;font-size:20px;font-weight:900;
+  line-height:1;display:flex;align-items:center;justify-content:center;padding:0 3px 2px 0;cursor:pointer;flex:0 0 auto;
+  -webkit-text-stroke:1.1px #fff;text-stroke:1.1px #fff}
 .qbar .prog{letter-spacing:.5px}
 .qbar .time{color:#FFFFFF;font-variant-numeric:tabular-nums;margin-left:auto;font-weight:800;font-size:14.3px} /* カウントダウンは1段太く(700→800)・1.1倍(13→14.3px) */
 /* 進捗＝山吹色のメーターは廃止。正解するとキャラが1歩ぶん前へ進む（景色が右から左へ流れ、キャラ自身は歩いて見える）。
@@ -91,9 +94,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
    札に韓国語は書かない（答えが見えてしまうため） */
 /* 札の列はキャラと同じ列（メール指示 2026-08-02） */
 .rn-rail{position:absolute;left:0;right:0;top:2px;height:26px;pointer-events:none}
-/* 札は黄色い座布団＋白枠（メール指示 2026-08-01）。影はナシ。枠は外へ広げず、17x26pxの見た目のまま */
-.rn-slot{position:absolute;top:0;width:17px;height:26px;box-sizing:border-box;border-radius:4px;background:#F5C518;
-  border:2px solid #fff;animation:rnCardIn .28s ease both;--fly:-120px;--flyY:30px}
+/* 札は黄色い座布団＋白枠（メール指示 2026-08-01）。影はナシ。枠は外へ広げず、見た目の大きさのまま */
+/* 白枠は半分の太さ（2px→1px）、札は今までの75%の大きさ（17×26→12.75×19.5）（メール指示 2026-08-08 23:50） */
+.rn-slot{position:absolute;top:3px;width:12.75px;height:19.5px;box-sizing:border-box;border-radius:3px;background:#F5C518;
+  border:1px solid #fff;animation:rnCardIn .28s ease both;--fly:-120px;--flyY:30px}
 .rn-slot.got{animation:rnCardGot .62s cubic-bezier(.3,.9,.3,1) forwards}
 .rn-slot.gone{opacity:0;animation:none} /* 復帰・再組み立てのときは獲得アニメを流さずに消えた状態から始める */
 /* レア度が出た札は色の光をまとう（黄色い座布団＋白枠はそのまま／影は付けない。メール指示 2026-08-01） */
@@ -147,12 +151,15 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 
 /* choices */
 .choices{display:flex;flex-direction:column;gap:12px;margin-bottom:14px;touch-action:none} /* ドラッグ選択のためスクロールに奪われない */
-.choice{position:relative;background:rgba(0,0,0,.8);border:none;border-radius:0;padding:18px;font-size:21px;font-weight:700;color:#fff;
-  text-align:center;cursor:pointer;transition:background .12s,transform .08s,box-shadow .1s;min-height:60px;user-select:none;-webkit-user-select:none}
+/* 選択肢の縦幅は文字の大きさ・行数によらず一定（4つとも同じ高さ。メール指示 2026-08-08 23:50） */
+.choice{position:relative;background:rgba(0,0,0,.8);border:none;border-radius:0;padding:6px 14px;font-size:21px;font-weight:700;color:#fff;
+  text-align:center;cursor:pointer;transition:background .12s,transform .08s,box-shadow .1s;
+  height:64px;min-height:64px;max-height:64px;box-sizing:border-box;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none}
 .choice.cand{box-shadow:inset 0 0 0 3px #FFD84D,0 0 18px 3px rgba(255,216,77,.85);background:rgba(0,0,0,.68);z-index:1} /* 指が触れている候補=黄色光彩 */
 /* 日本語の語釈が長い選択肢は文字を詰めて、2行に折り返してもボタンからはみ出さないようにする */
 .choice.len-l{font-size:18px;line-height:1.3}
-.choice.len-xl{font-size:15.5px;line-height:1.28;padding:14px 12px}
+.choice.len-xl{font-size:15.5px;line-height:1.28} /* 高さは変えず字だけ詰める（縦幅は .choice で固定） */
 .chspk{position:absolute;right:6px;top:50%;transform:translateY(-50%);opacity:.8;pointer-events:none;display:flex}
 .oa-spkrow{display:flex;justify-content:center;margin:6px 0} /* 音声ボタンを正解の上に独立した列として置く */
 .oa-spk{background:rgba(0,0,0,.55);border:none;border-radius:22px;height:42px;padding:0 16px;gap:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center} /* 書き取り正解の上の音声ボタン */
@@ -187,6 +194,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
   box-shadow:0 4px 10px rgba(0,0,0,.18);
   display:flex;align-items:center;justify-content:center}
 .qr-card img{width:78%;height:78%;object-fit:contain;pointer-events:none}
+/* レア度が付いたカードは、結果画面の獲得カードと同じ色の面になる（メール指示 2026-08-08 23:50） */
+.qr-card.qr-R{background:linear-gradient(160deg,#fff,#d6e4ff)}
+.qr-card.qr-SR{background:linear-gradient(160deg,#fff,#ecd8ff)}
+.qr-card.qr-SSR{background:linear-gradient(160deg,#fff,#ffdcac)}
 
 /* unknown btn */
 .unknown{display:block;margin:0 auto;background:rgba(0,0,0,.8);border:none;color:#fff;
@@ -219,8 +230,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
   display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;letter-spacing:1px;padding:10px}
 .wcaret{display:inline-block;width:2px;height:30px;background:var(--text);margin-left:2px;animation:blink 1s steps(1) infinite;vertical-align:middle}
 @keyframes blink{50%{opacity:0}}
-/* 成績連動ヒント（先頭1音節）。ボタンではなく自動表示 */
-.whint{color:#FFFFFF;font-size:15px;font-weight:700;margin-top:12px}
+/* 成績連動ヒント（先頭1音節）。ボタンではなく自動表示。背景に埋もれないよう黒い光彩を敷く（メール指示 2026-08-08 23:50） */
+.whint{color:#FFFFFF;font-size:15px;font-weight:700;margin-top:12px;
+  text-shadow:0 0 5px rgba(0,0,0,.95),0 0 11px rgba(0,0,0,.85),0 0 20px rgba(0,0,0,.6),0 2px 4px rgba(0,0,0,.7)}
 .whint b{font-size:22px;margin-left:3px}
 /* 韓国語キーボードは画面下部に固定。PCでは中央寄せ＋最大幅でアプリ幅に揃える */
 .korean-keyboard{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:602px;
@@ -232,6 +244,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .key.wide{flex:1.5}
 .key.fn{background:var(--panel2);color:var(--mute);font-size:13px;font-weight:700}
 .key.shifton{background:var(--gray-h);color:var(--text);border:1px solid var(--line)}
+/* 追いヒント：制限時間が半分を切っても手が止まっているとき、答えの1文字目を作るキーを順に黄色くする（メール指示 2026-08-08 23:50） */
+.key.hintkey{background:#FFD84D;color:#1a1a1a;font-weight:900;box-shadow:0 0 12px 2px rgba(255,216,77,.75);animation:hintKeyIn .32s ease}
+@keyframes hintKeyIn{from{transform:scale(.86);box-shadow:none}to{transform:none}}
 /* 操作行：わからない(左) / 回答する(中央・大・緑) / ⌫(右) */
 .krow.ctrl .key{font-size:13px;font-weight:700;padding:13px 0}
 .key.send{flex:2;background:var(--green);color:#06280f;border:none;font-size:16px;font-weight:800}
@@ -690,6 +705,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* おやすみチケットのプレゼント（箱ではなく💤の札。中身が開ける前から分かるように） */
 .pm-tk{width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-size:34px;background:rgba(22,136,255,.22);border:2px solid rgba(255,255,255,.5);box-sizing:border-box}
 .pm-tk.pm-cn{background:rgba(255,196,0,.26);border-radius:50%} /* ガチャコイン（メール指示 2026-08-02） */
+/* ごはん・きせかえのプレゼント（メール指示 2026-08-08 23:52） */
+.pm-tk.pm-fd{background:rgba(245,166,35,.24);border-radius:14px}
+.pm-tk.pm-wr{background:rgba(47,111,224,.20);border-radius:14px}
 .pm-item .amt{font-size:16px}
 .pm-item .amt small{display:block;font-size:11px;font-weight:800;color:#FFE08A;margin-top:1px} /* コインに付いてくるXP */
 .pm-item.claimed .amt small{color:#aaa}
@@ -1050,10 +1068,17 @@ body.bigtext .set-d{font-size:13.5px}
 .cc-head .set-close{position:absolute;right:0;top:0;background:transparent;border:none;width:38px;height:38px;border-radius:50%;font-size:20px;font-weight:900;color:#999;cursor:pointer;line-height:1;font-family:inherit;display:flex;align-items:center;justify-content:center}
 .cc-head .set-close:active{background:rgba(0,0,0,.1)}
 .cc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:2px}
+/* 見出しで「学習」「見た目と音」「そのほか」に分ける（設定のUI見直し。メール指示 2026-08-08 23:50） */
+.cc-sec{font-size:10.5px;font-weight:900;color:#aaa;letter-spacing:.10em;margin:12px 3px 5px;display:flex;align-items:center;gap:7px}
+.cc-sec::after{content:"";flex:1 1 auto;height:2px;background:#F0F0F0;border-radius:2px}
 /* マスは「今日の5問」の朝の部／夜の部のマス(.d5-slot)と同じ作り。中身の長さで大きさが変わらないよう
-   高さ固定・1行固定にしてある */
-.cc-tile{background:#F2F2F2;border:2px solid #E3E3E3;padding:7px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;-webkit-tap-highlight-color:transparent;transition:background .15s ease,border-color .15s ease}
+   高さ固定・1行固定にしてある。オン/オフは枠の色だけでなく小さなスイッチでも分かるようにした */
+.cc-tile{background:#F2F2F2;border:2px solid #E3E3E3;padding:7px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;-webkit-tap-highlight-color:transparent;transition:background .15s ease,border-color .15s ease;height:78px;box-sizing:border-box}
 .cc-tile:active{background:#E8E8E8}
+.cc-sw{display:block;width:30px;height:15px;border-radius:999px;background:#DCDCDC;position:relative;transition:background .15s ease;margin-top:2px;flex:0 0 auto}
+.cc-sw i{position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:left .15s ease}
+.cc-tile.on .cc-sw{background:#FFC400}
+.cc-tile.on .cc-sw i{left:17px}
 .cc-txt{display:flex;flex-direction:column;min-width:0;width:100%}
 .cc-ico{flex:0 0 auto;font-size:17px;line-height:1.2}
 .cc-lab{font-size:11px;font-weight:900;color:#777;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1265,7 +1290,10 @@ body.bigtext .set-d{font-size:13.5px}
 .rc-ko,.rc-ja,.rc-foot{position:relative;z-index:1}
 .rc-imgw img{height:100%;width:auto;object-fit:contain}
 .rc-card .cg-noimg{font-size:26px}
-.rc-sym{position:absolute;top:-2px;left:-7px;font-size:21px;font-weight:900;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.15);z-index:1} /* 画像の左上角に重ねる（カードからはみ出すと切れるので寄せ量は控えめ） */
+/* 正誤の記号はカードの左上（少し内側）に、白い角丸の座布団と一緒に置く（メール指示 2026-08-08 23:50） */
+.rc-sym{position:absolute;top:5px;left:5px;z-index:3;width:21px;height:21px;border-radius:7px;background:#fff;
+  box-shadow:0 1px 3px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:900;line-height:1}
 .rc-ko{font-size:15px;font-weight:900;color:#333;white-space:nowrap;overflow:hidden;max-width:100%;text-overflow:ellipsis;margin-top:1px}
 .rc-ja{font-size:11px;font-weight:700;color:#7a6a4a;white-space:nowrap;overflow:hidden;max-width:100%;text-overflow:ellipsis;margin-top:0} /* 日本語の意味 */
 .rc-foot{display:flex;gap:6px;align-items:baseline;justify-content:center;margin-top:0}
@@ -2375,10 +2403,22 @@ body.bigtext .set-d{font-size:13.5px}
 .pt-bondnew em{display:block;font-size:10px;font-weight:800;color:#C07E99;font-style:normal;margin-top:2px}
 .pt-worry{width:100%;margin-top:6px;border:2px solid #FFD9A0;background:#FFF6E8;color:#A6600A;font-size:11.5px;font-weight:900;padding:8px;cursor:pointer;font-family:inherit}
 .pt-worry:active{background:#FFEFD6}
-.pt-tabs{display:flex;gap:5px;margin-top:8px}
-.pt-tabs button{flex:1;border:2px solid #E3E3E3;background:#FAFAFA;font-family:inherit;font-size:9.5px;font-weight:900;color:#666;padding:6px 2px;cursor:pointer;line-height:1.25}
+/* 育成の4画面タブ。どの画面にも同じものを出し、いま見ている画面のタブは黄色くする（メール指示 2026-08-08 23:50） */
+.pt-tabs{display:flex;gap:5px;margin-top:9px}
+.pt-tabs button{flex:1;border:2px solid #E3E3E3;border-radius:12px;background:#FAFAFA;font-family:inherit;font-size:9.5px;font-weight:900;color:#666;padding:6px 2px;cursor:pointer;line-height:1.25;
+  display:flex;flex-direction:column;align-items:center;gap:2px}
 .pt-tabs button b{display:block;font-size:16px;font-weight:400;margin-bottom:2px}
+.pt-tabs button img{display:block}
+.pt-tabs button.on{border-color:#FFC400;background:#FFF7E0;color:#A6600A;cursor:default}
 .pt-tabs button:active{background:#F0F0F0}
+/* 育成まわりのアイコン画像（絵文字の置きかえ） */
+.pt-ico{display:inline-block;vertical-align:-.18em;object-fit:contain}
+.pm-ring em .pt-ico{margin-right:2px;vertical-align:-.16em}
+.pm-need .pt-ico{vertical-align:-.2em}
+/* ごはんをあげるボタンは育てるメニュー／育成画面のどちらでも同じ黄色（メール指示 2026-08-08 23:50） */
+.d5-go.pm-feed{background:#FFC400;color:#191100;border-radius:14px;padding:14px;letter-spacing:.02em;
+  display:flex;align-items:center;justify-content:center;gap:7px;margin-top:9px}
+.d5-go.pm-feed:disabled{background:#EDEDED;color:#AAA;cursor:default}
 .pt-ate{margin-top:9px;border-top:2px solid #EDEDED;padding-top:7px}
 .pt-atr{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
 .pt-atr span{font-size:11px;font-weight:900;color:#4A7A2E;background:#F0F8E8;border:2px solid #D6EBC2;padding:2px 6px}
@@ -2984,7 +3024,8 @@ function roomsPlayed(){const m=secOfWord(),set=new Set();loadHistory().forEach(r
 function checkAchievements(){
   migrateRankPresents(); // 受け取っていない「テストのごほうび」はガチャ1回へ引っ越す（メール指示 2026-08-01）
   const st=_presentState();st.achv=st.achv||{};let changed=false;
-  const add=(id,title,amount,cat)=>{if(!st.achv[id]){st.achv[id]=1;st.queue.push({cat:cat||"daily",kind:"achv",title,total:amount,at:new Date().toISOString()});changed=true;}};
+  // 達成ボーナスもXPではなく「ごはん」で渡す（プレゼントのXPは廃止／メール指示 2026-08-08 23:52）
+  const add=(id,title,amount,cat)=>{if(!st.achv[id]){st.achv[id]=1;st.queue.push({cat:cat||"daily",kind:"food",title,total:xpToFood(amount),at:new Date().toISOString()});changed=true;}};
   markLaunch();
   add("daily-"+dayKey(Date.now()),"毎日起動ボーナス",50,"daily");
   const _sp=specialBonusFor(new Date());
@@ -2998,27 +3039,43 @@ function checkAchievements(){
   updatePresent();
 }
 function presentsAvailable(cat){const q=_presentState().queue;return cat?q.filter(x=>x.cat===cat).length:q.length;}
-/* 「今日の5問」を1回終えるごとに、毎日ボーナスのプレゼントとして おやすみチケット を1枚入れる（メール指示 2026-08-01） */
+/* 「今日の5問」を終えたときの おやすみカード（メール指示 2026-08-01）。
+   手に入る確率はこれまでの1/3にした（毎回1枚 → 3回に1回ぶん／メール指示 2026-08-08 23:52） */
+const REST_TICKET_RATE=1/3;
 function grantRestTicketPresent(){
+  if(Math.random()>=REST_TICKET_RATE)return;
   const st=_presentState();
   st.queue.push({cat:"daily",kind:"ticket",title:"おやすみチケット",total:0,at:new Date().toISOString()});
   _savePresent(st);
   try{updatePresent();}catch(e){}
+}
+/* プレゼントのXPは廃止（メール指示 2026-08-08 23:52）。
+   これまでXPで渡していたぶんは「ごはん」（ことばの友だちの単語の実）に読みかえる。 */
+function xpToFood(xp){return Math.max(1,Math.round((xp||0)/40));}
+/* 自動で渡していた「ごはん」はすべてプレゼントの箱へ入れる（ごはんはプレゼントとガチャからだけ／メール指示 2026-08-08 23:52） */
+function grantFoodPresent(title,n){
+  try{
+    const st=_presentState();
+    st.queue.push({cat:"daily",kind:"food",title:title||"ごはん",total:Math.max(1,Math.round(n||1)),at:new Date().toISOString()});
+    _savePresent(st);updatePresent();
+  }catch(e){}
 }
 const RANK_BONUS={S:100,A:60,B:40,C:20,D:10};
 /* テスト終了時（メール指示 2026-08-02）:
    ・テストが終わったら「プレゼント」が届き、受け取るとガチャコインが1枚もらえる（＝ガチャが1回まわせる）。
      これまでプレゼントで渡していた基本＋レインボー＋ランクぶんのXPは、そのコインにくっつけて一緒に渡す。
    ・レベルアップボーナス（XP）は廃止し、上がったレベルのぶんだけガチャコインを渡す。
-   ・PWRボーナスは毎日ボーナスの箱に統合。 */
+   ・PWRボーナスは毎日ボーナスの箱に統合。
+   ・XPのプレゼントは廃止（メール指示 2026-08-08 23:52）。かわりに「ごはん」と「きせかえ」が届く。 */
 function enqueuePresent(rank,pwrDelta){
   const st=_presentState(),at=new Date().toISOString();
   const base=30,rainbow=totalTests()*5,rankBonus=RANK_BONUS[rank]||0;
-  st.queue.push({cat:"daily",kind:"coin",title:"テストのごほうび",total:base+rainbow+rankBonus,rank:rank||"",at});
+  st.queue.push({cat:"daily",kind:"coin",title:"テストのごほうび",total:0,rank:rank||"",at}); // コインにXPは付けない
+  st.queue.push({cat:"daily",kind:"food",title:"テストのごはん",total:xpToFood(base+rainbow+rankBonus),at}); // XPだったぶんはごはんへ
   const levelUps=Math.max(0,(xpInfo().level-(state.levelBefore||1)));
   for(let i=0;i<levelUps;i++)st.queue.push({cat:"daily",kind:"coin",title:"レベルアップ",total:0,rank:"",at});
-  const pwrBonus=Math.max(0,Math.round(pwrDelta||0))*5;
-  if(pwrBonus>0)st.queue.push({cat:"daily",kind:"achv",title:"PWRが上がった！ +"+Math.round(pwrDelta)+"%",total:pwrBonus,at});
+  const pwrUp=Math.max(0,Math.round(pwrDelta||0));
+  if(pwrUp>0)st.queue.push({cat:"daily",kind:"wear",title:"PWRが上がった！ +"+pwrUp+"%",total:1,at}); // きせかえが1つ当たる
   _savePresent(st);
 }
 function updatePresent(){
@@ -3040,11 +3097,16 @@ function updatePresent(){
 }
 function _bonusRow(label,v,cls){return v>0?`<div class="pm-line"><span>${label}</span><span class="${cls||''}">+${v}</span></div>`:"";}
 let _presCat="daily";
-function _presItemLabel(r){return r.kind==="ticket"?"おやすみチケット":r.kind==="coin"?(r.title||"ガチャコイン"):r.kind==="achv"?(r.title||"達成ボーナス"):("RANK "+r.rank+" のごほうび");}
+function _presItemLabel(r){return r.kind==="ticket"?"おやすみチケット":r.kind==="coin"?(r.title||"ガチャコイン")
+  :r.kind==="food"?(r.title||"ごはん"):r.kind==="wear"?(r.title||"きせかえ")
+  :r.kind==="achv"?(r.title||"達成ボーナス"):("RANK "+r.rank+" のごほうび");}
 /* おやすみチケットはXPではなく「1枚」。中身が分かるように箱ではなく💤の札で出す（メール指示 2026-08-01）。
-   ガチャコインは🪙の札（メール指示 2026-08-02） */
-function _presItemFace(r){return r.kind==="ticket"?`<span class="pm-tk">💤</span>`:r.kind==="coin"?`<span class="pm-tk pm-cn">🪙</span>`:`<img src="icons/present.webp" alt="">`;}
-function _presItemAmt(r){return r.kind==="ticket"?"1枚":r.kind==="coin"?("コイン1枚"+(r.total>0?"<small>+"+r.total+" XP</small>":"")):("+"+r.total+" XP");}
+   ガチャコインは🪙の札（メール指示 2026-08-02）／ごはんは🍚・きせかえは👕の札（メール指示 2026-08-08 23:52） */
+function _presItemFace(r){return r.kind==="ticket"?`<span class="pm-tk">💤</span>`:r.kind==="coin"?`<span class="pm-tk pm-cn">🪙</span>`
+  :r.kind==="food"?`<span class="pm-tk pm-fd">${petIcoImg("food",30)}</span>`:r.kind==="wear"?`<span class="pm-tk pm-wr">${petIcoImg("wear",30)}</span>`
+  :`<img src="icons/present.webp" alt="">`;}
+function _presItemAmt(r){return r.kind==="ticket"?"1枚":r.kind==="coin"?("コイン1枚"+(r.total>0?"<small>+"+r.total+" XP</small>":""))
+  :r.kind==="food"?("ごはん "+r.total+"つ"):r.kind==="wear"?"1つ":("+"+r.total+" XP");}
 function openPresent(cat){if(!document.getElementById("present-modal").classList.contains("on"))pushNav("modal");
   _presCat=cat||"rank";
   const m=document.getElementById("present-modal");
@@ -3103,17 +3165,21 @@ function claimAllPresents(){
   const st=_presentState();
   const items=st.queue.filter(x=>x.cat===_presCat);
   if(!items.length)return;
-  let sum=0,tk=0;const coins=[];
-  items.forEach(r=>{ // おやすみチケットは枚数・ガチャコインは1枚ずつ（XPが付いていれば一緒に）
+  let sum=0,tk=0,food=0,wear=0;const coins=[];
+  items.forEach(r=>{ // おやすみチケットは枚数・ガチャコインは1枚ずつ・ごはんは数・きせかえは個数
     if(r.kind==="ticket")tk++;
     else if(r.kind==="coin")coins.push(r);
-    else sum+=r.total;
+    else if(r.kind==="food")food+=(r.total||1);
+    else if(r.kind==="wear")wear+=(r.total||1);
+    else sum+=r.total; // 以前のデータに残っているXPのプレゼントだけは今までどおりXPで渡す
   });
   const cat=_presCat;
   const rects=[...document.querySelectorAll("#present-modal .pm-item:not(.claimed)")].map(el=>el.getBoundingClientRect()); // 消える前に各箱の位置を記録
   st.queue=st.queue.filter(x=>x.cat!==cat);
   _savePresent(st);
   sfxClaim();addBonus(sum);if(tk)addRestTicket(tk);
+  if(food)petAddSeeds(food);
+  for(let i=0;i<wear;i++)petGrantWear();
   coins.forEach(r=>addGachaSpin(r.total,r.rank||""));
   rects.forEach((r,i)=>setTimeout(()=>flyClaimToBox(r,cat),i*90)); // 少しずつずらしてアーチで箱へ
   updatePresent();updateHomeStats(); // XP等だけ更新（WORLDスライドは再構築しない）
@@ -3128,13 +3194,16 @@ function claimPresentItem(btn){
   st.queue.splice(idx,1);
   _savePresent(st);
   sfxClaim();
-  // おやすみチケットは1枚／ガチャコインはガチャ1回ぶん（付いているXPも一緒に）／それ以外はXP
+  // おやすみチケットは1枚／ガチャコインはガチャ1回ぶん／ごはんは数ぶん／きせかえは持ちものへ1つ（メール指示 2026-08-08 23:52）
+  let got="";
   if(kind==="ticket")addRestTicket(1);
   else if(kind==="coin")addGachaSpin(total,rank);
-  else addBonus(total);
+  else if(kind==="food")petAddSeeds(total||1);
+  else if(kind==="wear"){const it=petGrantWear();got=it?it.t:"";}
+  else addBonus(total); // 以前のデータに残っているXPのプレゼント
   flyClaimToBox(btn.getBoundingClientRect(),kind==="coin"?"rank":_presCat); // ガチャコインはガチャのアイコンへ吸い込まれる
   btn.classList.add("claimed");
-  btn.querySelector(".amt").textContent="受け取り済み";
+  btn.querySelector(".amt").textContent=got?("「"+got+"」"):"受け取り済み";
   updatePresent();
   updateHomeStats(); // XP表示だけ更新（WORLDスライド再構築なし・モーダルは開いたまま）
   const title=document.querySelector("#present-modal .pm-title");
@@ -3167,11 +3236,21 @@ function xpBoostUntil(){return parseInt(localStorage.getItem(LS_XPBOOST)||"0",10
 function xpBoostActive(){return xpBoostUntil()>Date.now();}
 function xpBoostLeftMin(){return Math.max(0,Math.ceil((xpBoostUntil()-Date.now())/60000));}
 function startXpBoost(min){localStorage.setItem(LS_XPBOOST,String(Math.max(xpBoostUntil(),Date.now())+(min||30)*60000));}
+/* 景品の重み。おやすみチケットの当たる確率はこれまでの1/3（22.0% → 7.3%）にし、
+   代わりに「ごはん」（ことばの友だちの単語の実）を景品に加えた（メール指示 2026-08-08 23:52） */
 const GACHA_PRIZES=[
-  {k:"ticket",w:22,ico:"💤",lab:"おやすみチケット",col:"#1688FF",msg:"連続学習を1日ぶん守れます"},
-  {k:"xp",    w:52,ico:"⭐",lab:"XP",            col:"#FFC400",msg:"そのままXPが増えました"},
-  {k:"x2",    w:26,ico:"✕2",lab:"XP2倍チャンス",  col:"#E0433B",msg:"これから30分、もらえるXPが2倍"}
+  {k:"ticket",w:8.55,ico:"💤",lab:"おやすみチケット",col:"#1688FF",msg:"連続学習を1日ぶん守れます"},
+  {k:"food",  w:30, ico:"🍚",lab:"ごはん",         col:"#F5A623",msg:"ことばの友だちにあげられます"},
+  {k:"xp",    w:52, ico:"⭐",lab:"XP",            col:"#FFC400",msg:"そのままXPが増えました"},
+  {k:"x2",    w:26, ico:"✕2",lab:"XP2倍チャンス",  col:"#E0433B",msg:"これから30分、もらえるXPが2倍"}
 ];
+/* ごはんの当たりは小さいほど出やすい（たまに大盛り） */
+function rollGachaFood(){
+  const t=[[2,34],[3,28],[5,20],[8,12],[12,6]];
+  let tot=t.reduce((a,x)=>a+x[1],0),r=Math.random()*tot;
+  for(const x of t){if((r-=x[1])<0)return x[0];}
+  return 2;
+}
 function rollGachaPrize(){
   const tot=GACHA_PRIZES.reduce((a,p)=>a+p.w,0);let r=Math.random()*tot;
   for(const p of GACHA_PRIZES){if((r-=p.w)<0)return p;}
@@ -3228,6 +3307,7 @@ function spinGacha(){
   let amt=0;
   if(p.k==="ticket")addRestTicket(1);
   else if(p.k==="xp"){amt=rollGachaXp();addBonus(amt);}
+  else if(p.k==="food"){amt=rollGachaFood();petAddSeeds(amt);} // ごはんはガチャからも出る（メール指示 2026-08-08 23:52）
   else startXpBoost(30);
   if(tk.xp>0)addBonus(tk.xp); // テストぶんのXPは景品とは別に必ずもらえる
   const mc=document.getElementById("gc-machine");if(mc)mc.classList.add("spin");
@@ -3237,7 +3317,7 @@ function spinGacha(){
 }
 function gachaRenderResult(p,amt,tk){
   const m=document.getElementById("gacha-modal"),n=gachaSpins();
-  const val=p.k==="xp"?`+${amt} <small>XP</small>`:p.k==="ticket"?`1 <small>枚</small>`:`30 <small>分</small>`;
+  const val=p.k==="xp"?`+${amt} <small>XP</small>`:p.k==="ticket"?`1 <small>枚</small>`:p.k==="food"?`${amt} <small>つ</small>`:`30 <small>分</small>`;
   m.innerHTML=`<div class="pm-card gc-card rainbow">
     <button class="pm-close" onclick="closeGacha()">×</button>
     <div class="pm-title">ガチャ結果</div>
@@ -5541,7 +5621,11 @@ function rankFor(s){if(s===100)return"S";if(s<=50)return"D";if(s<=70)return"C";i
 /* ============================================================ 画面遷移 ============================================================ */
 /* ============ OSの「戻る」対応：モーダル/一覧・ステータス/画面遷移をhistoryに積み、バックで1段ずつ戻す ============ */
 let _fromPop=false;
-function pushNav(tag){if(_fromPop)return;try{history.pushState({tag},"");}catch(e){}}
+/* ホームで3・2・1を数えている最中にメニュー等を開いたら、数えるのをやめる（勝手にテストが始まらないように。メール指示 2026-08-08 23:50） */
+function pushNav(tag){
+  if(tag==="modal"&&_homeCdTimer){try{cancelHomeCountdown();}catch(e){}}
+  if(_fromPop)return;try{history.pushState({tag},"");}catch(e){}
+}
 window.addEventListener("popstate",()=>{
   _fromPop=true;
   try{
@@ -5992,8 +6076,12 @@ function finishDaily5(){
     your:r.userAnswer||"",correct:r.correctAnswer,status:r.answerStatus,ok:!!r.isCorrect,ko:r.korean,ja:r.japanese}));
   const nCorrect=items.filter(x=>x.ok).length;
   const all=loadD5(),prev=all[_d5.key]||{};
+  // このぶんで増えたXP（通常テストと同じ計算。XP2倍チャンス中は同じぶんをボーナスXPで足して2倍にする）
+  const _xpRaw=Math.max(0,Math.round(R.reduce((a,r)=>a+(r.score||0),0))),xpDoubled=xpBoostActive()&&_xpRaw>0;
+  if(xpDoubled)addBonus(_xpRaw);
   const rec={slot:_d5.slot,started:prev.started||new Date().toISOString(),finished:new Date().toISOString(),
-    correct:nCorrect,total:items.length,done:true,items};
+    correct:nCorrect,total:items.length,done:true,items,
+    xp:xpDoubled?_xpRaw*2:_xpRaw,xp2:xpDoubled,lvBefore:state.levelBefore||1};
   all[_d5.key]=rec;saveD5(all);
   _d5.on=false;_sgFly.d5=true; // ホームへ戻ったらカプセルはしぼんで消え、今週のミッションが登場
   grantRestTicketPresent(); // 5問を1回終えるたびに、プレゼントへ「おやすみチケット」を1枚入れる（メール指示 2026-08-01）
@@ -6020,6 +6108,9 @@ const D5_CHEER=[
   "今回はウォームアップ。まだ挽回できます🌱"
 ];
 function d5PickCheer(n){return n>=5?D5_CHEER[0]:n===4?D5_CHEER[1]:n===3?D5_CHEER[2]:n===2?D5_CHEER[3]:D5_CHEER[4];}
+/* 今日の5問のメダル（正解数→ランク）。通常の結果画面と同じメダル意匠をそのまま使う（メール指示 2026-08-08 23:50） */
+const D5_RANK=["D","D","C","B","A","S"];
+let _d5XP=null; // 直近の今日の5問で増えたXP（判定アニメのあとに知らせる）
 /* すべての結果画面（通常のテスト・今日の5問・スペシャル問題）で共通の下段4ボタン。
    ①応援する ②シェアする ③その形式ごとの一手 ④ホーム
    これから問題形式が増えても、結果画面はこの1本を呼んで並びを揃える（メール指示 2026-07-31） */
@@ -6053,7 +6144,12 @@ function d5RenderResult(rec,animate){
     </div>`;
   }).join("");
   const d=new Date(rec.finished||Date.now()),p=n=>String(n).padStart(2,"0");
-  // 通常の結果画面（.res / .res-head / .btn）と同じ骨格・同じ配色を使う
+  // 通常の結果画面と同じ上段（メダル・点数・XPメーター）をそのまま使う（メール指示 2026-08-08 23:50）。
+  // ただし出るのは正誤判定アニメーションが終わってから（.d5r-score が .shown になったとき）
+  const _xp=xpInfo(),xpGain=rec.xp||0;
+  const head=resHeadTopHTML({animate:animate,rank:D5_RANK[Math.max(0,Math.min(5,rec.correct))]||"D",
+    total:rec.correct,scoreMax:rec.total,nCorrect:rec.correct,nWrong:rec.total-rec.correct,
+    xpLevel:_xp.level,xpCur:_xp.cur,xpNext:_xp.next,xpGain:xpGain,hidePwr:true});
   document.getElementById("s-d5result").innerHTML=`<div class="res">
     <div class="res-head">
       <div style="font-size:15px;font-weight:900">${"今日の5問テスト・"+d5SlotLabel(rec.slot)}</div>
@@ -6061,8 +6157,8 @@ function d5RenderResult(rec,animate){
       <div class="d5r-phase">
         <div class="d5r-judging"${animate?"":' style="opacity:0"'}>判定中…</div>
         <div class="d5r-score${animate?"":" shown"}">
-          <div class="res-score" style="margin-top:6px"><b>${rec.correct}</b><span> / ${rec.total} 正解</span></div>
-          <div class="res-cheer">${d5PickCheer(rec.correct)}</div>
+          ${head}
+          <div class="res-cheer"><span class="rch">${d5PickCheer(rec.correct)}</span></div>
         </div>
       </div>
     </div>
@@ -6071,13 +6167,15 @@ function d5RenderResult(rec,animate){
     ${resBtns4HTML({ico:"⏱",lab:"次までの時間",act:"show('s-home');openDaily5()"},
       {homeAct:"show('s-home')"})}
   </div>`;
+  _d5XP={gain:xpGain,x2:!!rec.xp2,now:_xp,leveled:_xp.level>(rec.lvBefore||_xp.level)};
   // シェア文面はこの形式のものに差し替える（通常テストの点数・ランクとは別）
   _lastResult={total:rec.correct,rank:"",nCorrect:rec.correct,code:"",
     headline:`今日の5問テスト、${rec.correct}/${rec.total}正解でした🇰🇷`};
   show("s-d5result");
   if(animate)d5Reveal();
 }
-/* 5問ぶんの○×を1問ずつ順に判定表示 → 判定しきったらレア演出 */
+/* 5問ぶんの○×を1問ずつ順に判定表示 → 判定しきってから点数・XPの結果を出す（メール指示 2026-08-08 23:50）。
+   判定アニメのテンポは倍速（480/640/540 → 240/320/270） */
 function d5Reveal(){
   const rows=[...document.querySelectorAll("#s-d5result .d5r-row")];
   let i=0;
@@ -6086,7 +6184,8 @@ function d5Reveal(){
     if(i>=rows.length){
       const jd=document.querySelector("#s-d5result .d5r-judging");if(jd)jd.style.opacity="0";
       const sc=document.querySelector("#s-d5result .d5r-score");if(sc)sc.classList.add("shown");
-      setTimeout(d5RareBurst,480);
+      d5AfterReveal(); // 判定が終わってから、通常の結果画面と同じ点数・XPのアニメを流す
+      setTimeout(d5RareBurst,240);
       return;
     }
     const r=rows[i];
@@ -6098,10 +6197,22 @@ function d5Reveal(){
       if(mk&&mk.classList.contains("o"))sfxCorrect();
       else if(mk&&(mk.classList.contains("u")||mk.classList.contains("t")))sfxNeutral();
       else sfxIncorrect();
-      i++;setTimeout(step,540);
-    },640);
+      i++;setTimeout(step,270);
+    },320);
   };
-  setTimeout(step,480);
+  setTimeout(step,240);
+}
+/* 判定アニメのあと：点数カウントアップ・メダル・XPメーターを動かし、増えたXPを知らせる（通常の結果画面と同じ流れ） */
+function d5AfterReveal(){
+  const x=_d5XP;_d5XP=null;
+  startResultAnims(0,x?x.gain:0,x?x.now:null,"#s-d5result"); // PWRメーターは今日の5問には無いので中で読み飛ばされる
+  if(!x||x.gain<=0)return;
+  setTimeout(()=>{
+    const pops=[next=>showGainPopup({lab:x.x2?"XP GET! ✕2":"XP GET!",unit:" XP",num:x.gain,color:"#FFFF37",
+      msg:x.x2?"XP2倍チャンス中！ もらえるXPが2倍になりました":"今日の5問でXPがたまりました"},next)];
+    if(x.leveled&&x.now)pops.push(next=>showLevelUp(x.now.level,x.now.level-1,next));
+    runPopupChain(pops);
+  },900);
 }
 /* レア演出：金色のフラッシュ＋キラキラ＋「RARE」＋レア効果音 */
 function d5RareBurst(){
@@ -6193,8 +6304,27 @@ const PET_SP_BY_K={};PET_SPECIES.forEach(x=>PET_SP_BY_K[x.k]=x);
 /* Phase2 ③：ガチャ。レアリティの重み・値段・天井（10回に1回は必ず新しい友だち） */
 const PET_RARE={N:{w:60,c:"#9AA4B2"},R:{w:25,c:"#2E7BE0"},SR:{w:12,c:"#8B3FD0"},SSR:{w:3,c:"#D08A00"}};
 const PET_GACHA_COST=10,PET_PITY=10;
-/* 単語の実：学習でたまる。ガチャの元手（韓国語エネルギーとは別の通貨） */
-const PET_SEED={d5:3,test:2,snack:-1};
+/* ごはん（単語の実）：学習では増えない。プレゼントとガチャからだけ手に入る（メール指示 2026-08-08 23:52）。
+   snack:-1 は「1つ食べる」ぶんの消費なのでそのまま */
+const PET_SEED={d5:0,test:0,snack:-1};
+function petAddSeeds(n){try{const o=petState();o.seeds=Math.max(0,(o.seeds||0)+(n||0));savePet(o);}catch(e){}return n||0;}
+/* きせかえのプレゼント：まだ持っていないものを1つ渡す。全部そろっていたらごはんにかえる */
+function petGrantWear(){
+  try{
+    const o=petState(),pool=PET_ITEMS.filter(i=>!o.items[i.k]);
+    if(!pool.length){petAddSeeds(5);return null;}
+    const it=pool[Math.floor(Math.random()*pool.length)];
+    o.items[it.k]=1;savePet(o);return it;
+  }catch(e){return null;}
+}
+/* 育成まわりの絵文字は画像（SVG）にそろえる。端末ごとに絵文字の絵が変わってしまうため（メール指示 2026-08-08 23:50） */
+const PET_ICO_IMG={food:"icons/pet/food.svg",friend:"icons/pet/friend.svg",power:"icons/pet/power.svg",
+  zoo:"icons/pet/zoo.svg",gacha:"icons/pet/gacha.svg",wear:"icons/pet/wear.svg",event:"icons/pet/event.svg",pet:"icons/pet/pet.svg"};
+function petIcoImg(k,px){
+  const src=PET_ICO_IMG[k];if(!src)return "";
+  const n=px||20;
+  return `<img class="pt-ico" src="${src}" alt="" width="${n}" height="${n}" style="width:${n}px;height:${n}px">`;
+}
 /* Phase2 ④：年間イベント（その月だけ限定のものが出る／もらえる） */
 const PET_EVENTS=[
   {m:1 ,t:"お正月（설날）"       ,ico:"🎍",ko:"설날"},
@@ -6344,7 +6474,7 @@ function petDaily(){
     // 13. 何日かあいても叱らない。「おかえり」で迎えて、実を少し渡す（離脱からの復帰をとがめない）
     if(o.lastLaunch){
       const gap=Math.round((_dayFromKey(k)-_dayFromKey(o.lastLaunch))/86400000);
-      if(gap>=3){o.back={k:k,gap:gap};o.seeds=(o.seeds||0)+Math.min(30,gap*2);}
+      if(gap>=3){const fd=Math.min(30,gap*2);o.back={k:k,gap:gap,food:fd};grantFoodPresent("おかえりのごはん",fd);} // ごはんは直接わたさずプレゼントへ
     }
     o.lastLaunch=k;o.friend=(o.friend||0)+2;o.days=(o.days||0)+1;
   }
@@ -6359,7 +6489,7 @@ function petDaily(){
 function petBondCheck(o){
   PET_BONDS.forEach(b=>{
     if((o.days||0)>=b.d&&o.bond.indexOf(b.d)<0){
-      o.bond.push(b.d);o.seeds=(o.seeds||0)+b.seeds;
+      o.bond.push(b.d);grantFoodPresent(b.t+"のごはん",b.seeds); // ごはんはプレゼントの箱へ（メール指示 2026-08-08 23:52）
       if(b.item)o.items[b.item]=(o.items[b.item]||0)+1;
       o.bondNew=b.d;
     }
@@ -6456,6 +6586,13 @@ function petAlbumHTML(){
       return `<div class="pt-albi">${petArtHTML({k:x.k,act:x.act,mood:x.mood,wear:x.wear,wx:x.wx},x.lv,x.stage,true,{sp:x.sp,eq:x.eq})}<em>${p[1]}/${p[2]}</em></div>`;
     }).join("")}</div></div>`;
 }
+/* 育成の4つの画面（図鑑・ガチャ・きせかえ・イベント）へのタブ。
+   どの画面でも同じ並び・同じ見た目にして、行ったり来たりで迷わないようにする（メール指示 2026-08-08 23:50） */
+function petTabsHTML(cur){
+  const T=[["zoo","図鑑","openPetZoo()"],["gacha","ガチャ","openPetGacha()"],
+           ["wear","きせかえ","openPetWear()"],["event","イベント","openPetEvent()"]];
+  return `<div class="pt-tabs">${T.map(t=>`<button class="${cur===t[0]?"on":""}"${cur===t[0]?' aria-current="page"':` onclick="${t[2]}"`}>${petIcoImg(t[0],20)}<span>${t[1]}</span></button>`).join("")}</div>`;
+}
 function openPet(){
   const m=document.getElementById("pet-modal");if(!m)return;
   if(!m.classList.contains("on"))pushNav("modal");
@@ -6466,26 +6603,22 @@ function openPet(){
   const back=o.back&&o.back.k===day.k?o.back:null,bond=o.bondNew?PET_BONDS.find(b=>b.d===o.bondNew):null;
   if(back||bond||o.evNew){const s=petState();delete s.back;delete s.bondNew;delete s.evNew;savePet(s);} // 迎えの言葉は1回だけ
   // 育成画面はできるだけシンプルに：キャラクター・ひとこと・3つのゲージ・ボタンだけ。
-  // たべたことば／思い出アルバムは図鑑へ移した（メール指示 2026-08-08 22:26）
+  // たべたことば／思い出アルバムは図鑑へ移した（メール指示 2026-08-08 22:26）。
+  // さらに、名前まわりを1行に、次のレベルの案内はゲージの下の細字にまとめ、絵文字は画像にそろえた（メール指示 2026-08-08 23:50）
   m.innerHTML=`<div class="d5-card pt-card">
     <button class="d5-close" onclick="closePet()" aria-label="閉じる">×</button>
     <div class="pt-name">${esc(o.name)}<span>Lv.${lv}／${esc(st.name)}／いっしょに ${o.days}日</span></div>
     ${petArtHTML(day,lv,st.k)}
-    ${back?`<div class="pt-back">おかえり！ ${back.gap}日ぶりだね。まってたよ 🫧<em>단어의 열매 ＋${Math.min(30,back.gap*2)}</em></div>`:""}
-    ${bond?`<div class="pt-bondnew">🎉 ${esc(bond.t)}（${esc(bond.ko)}）ありがとう！<em>記念に「${esc((PET_ITEM_BY_K[bond.item]||{}).t||"")}」と 単語の実${bond.seeds}</em></div>`:""}
+    ${back?`<div class="pt-back">おかえり！ ${back.gap}日ぶりだね。まってたよ<em>プレゼントに ごはん ${back.food||Math.min(30,back.gap*2)}つ</em></div>`:""}
+    ${bond?`<div class="pt-bondnew">${esc(bond.t)}（${esc(bond.ko)}）ありがとう！<em>記念に「${esc((PET_ITEM_BY_K[bond.item]||{}).t||"")}」と プレゼントに ごはん${bond.seeds}つ</em></div>`:""}
     <div class="pt-line" id="pt-line"><b>${esc(ln.ko)}</b><span>${esc(ln.ja)}</span></div>
     ${ln.worry?`<button class="pt-worry" onclick="closePet();startDueReview()">わすれかけの${ln.worry}語を いっしょに 思いだす</button>`:""}
     <div class="pm-bar"><i style="width:${Math.round(((o.xp%40)/40)*100)}%"></i></div>
-    <div class="pm-st">${pmRingHTML(o.seeds||0,10,"ごはん","#FFC400")}${pmRingHTML(o.friend||0,100,"親密度","#FF6FA8","pt-friend")}${pmRingHTML(pw,500,"韓国語力","#3FA9F5")}</div>
     <div class="pt-next">${lv>=PET_MAXLV?"いまはここまで育ちました"
       :"次のレベルまで あと"+next+(nx?("／Lv."+nx.lv+"で進化"):"")}</div>
-    <button class="d5-go" style="margin-top:9px" onclick="closePet();openPetMenu();petSnack()">🌰 ごはんをあげる</button>
-    <div class="pt-tabs">
-      <button onclick="openPetZoo()"><b>📖</b>図鑑</button>
-      <button onclick="openPetGacha()"><b>🎁</b>ガチャ</button>
-      <button onclick="openPetWear()"><b>👕</b>きせかえ</button>
-      <button onclick="openPetEvent()"><b>${ev.ico}</b>イベント</button>
-    </div>
+    <div class="pm-st">${pmRingHTML(o.seeds||0,10,"ごはん","#FFC400",null,"food")}${pmRingHTML(o.friend||0,100,"親密度","#FF6FA8","pt-friend","friend")}${pmRingHTML(pw,500,"韓国語力","#3FA9F5",null,"power")}</div>
+    <button class="d5-go pm-feed" onclick="closePet();openPetMenu();petSnack()">${petIcoImg("food",20)}ごはんをあげる</button>
+    ${petTabsHTML("")}
   </div>`;
   d5AnchorBubble(null,m.querySelector(".pt-card"));
   m.onclick=e=>{if(e.target===m)closePet();};
@@ -6508,10 +6641,10 @@ function petResultHTML(res){
     <div class="pt-rrow">
       <div class="pt-rart">
         ${petArtHTML(day,lv,st.k,true)}
-        <span class="pt-food">🌰</span><!-- ①エサが飛ぶ → ②食べる（口もとで消える） -->
+        <span class="pt-food">${petIcoImg("food",19)}</span><!-- ①エサが飛ぶ → ②食べる（口もとで消える） -->
       </div>
       <div class="pt-rtx">
-        <b>韓国語エネルギー ＋${res.gain}<i>🌰＋${res.seed||0}</i></b>
+        <b>韓国語エネルギー ＋${res.gain}</b><!-- ごはんは学習では増えない（メール指示 2026-08-08 23:52） -->
         <div class="pt-rbar"><i style="width:${pct}%"></i></div><!-- ③経験値がのびる -->
         <span>${res.evolved?("✨ "+esc(st.name)+"（"+esc(st.ko)+"）に進化しました！")
           :res.up?("Lv."+res.lv0+" → Lv."+res.lv1+" に成長しました"):("Lv."+lv+"／次の成長まで あと"+petNextLvXp(o.xp))}</span>
@@ -6566,9 +6699,9 @@ function openPetZoo(){
         ${now?`<i class="pt-znow">いっしょ</i>`:""}
       </button>`;}).join("")}</div>
     <div class="pt-note">まだ会っていない子は、ガチャで来てくれます。タップするとその子と過ごせます（それまでの育ちはそのまま残ります）。</div>
-    <button class="d5-go" style="margin-top:9px" onclick="openPetGacha()">ガチャへ</button>
     ${petAteHTML(o)}
     ${petAlbumHTML()}
+    ${petTabsHTML("zoo")}
   </div>`;
   d5AnchorBubble(null,m.querySelector(".pt-card"));
 }
@@ -6625,17 +6758,17 @@ function openPetGacha(res){
   const m=document.getElementById("pet-modal");if(!m)return;
   const o=petState(),can=(o.seeds||0)>=PET_GACHA_COST,rest=PET_SPECIES.filter(s=>!o.zoo[s.k]).length;
   m.innerHTML=`<div class="d5-card pt-card">${petSubHead("友だちガチャ","친구 뽑기")}
-    <div class="pt-seedbig">🌰 単語の実 <b id="pt-seedn">${o.seeds}</b><em>1回 ${PET_GACHA_COST}／今日の5問・テストでたまります</em></div>
+    <div class="pt-seedbig">${petIcoImg("food",17)} ごはん <b id="pt-seedn">${o.seeds}</b><em>1回 ${PET_GACHA_COST}／ごはんはプレゼントとガチャで手に入ります</em></div>
     <div class="pt-ball${res?" open":""}" id="pt-ball">${res?`<span class="pt-bico" style="color:${(PET_RARE[res.rare]||{}).c||"#999"}">${res.ico}</span>`:"🥚"}</div>
     ${res?`<div class="pt-got"><i style="background:${(PET_RARE[res.rare]||{}).c||"#999"}">${res.rare}</i>
       <b>${esc(res.t)}</b>
       <span>${res.type==="sp"?"新しい友だちが来ました！ 図鑑からいっしょに過ごせます"
-        :res.type==="dup"?("もう持っていたので 単語の実 ＋"+res.back+" にかわりました")
+        :res.type==="dup"?("もう持っていたので ごはん ＋"+res.back+" にかわりました")
         :"持ちものに入りました（きせかえで つけられます）"}</span></div>`:
       `<div class="pt-note">動物・衣装・帽子・アクセサリー・背景・家具・エフェクトが出ます。あと${rest}種の友だちに会えます。${PET_PITY}回まわすと かならず新しい友だちが来ます（いま${o.pity||0}回）。</div>`}
-    <button class="d5-go" style="margin-top:9px" ${can?"":"disabled"} onclick="petDoRoll()">${can?"ガチャを回す（🌰"+PET_GACHA_COST+"）":"単語の実がたりません"}</button>
-    ${can?"":`<button class="pt-go2" onclick="closePet();openDaily5()">今日の5問で実をあつめる</button>`}
-    <button class="pt-go2" onclick="openPetZoo()">図鑑を見る</button>
+    <button class="d5-go pm-feed" ${can?"":"disabled"} onclick="petDoRoll()">${can?"ガチャを回す（ごはん"+PET_GACHA_COST+"）":"ごはんがたりません"}</button>
+    ${can?"":`<button class="pt-go2" onclick="closePet();openGiftMenu()">プレゼント・ガチャでごはんを集める</button>`}
+    ${petTabsHTML("gacha")}
   </div>`;
   d5AnchorBubble(null,m.querySelector(".pt-card"));
 }
@@ -6658,9 +6791,9 @@ function openPetWear(){
         <div class="pt-wlist">
           <button class="pt-wi${o.eq[s.k]?"":" on"}" onclick="petEquip('${s.k}','')"><span>—</span><em>なし</em></button>
           ${own.length?own.map(i=>`<button class="pt-wi${o.eq[s.k]===i.k?" on":""}" onclick="petEquip('${s.k}','${i.k}')"><span>${i.ico}</span><em>${esc(i.t)}</em></button>`).join("")
-            :`<span class="pt-wnone">ガチャでふえます</span>`}
+            :`<span class="pt-wnone">ガチャ・プレゼントでふえます</span>`}
         </div></div>`;}).join("")}
-    <button class="d5-go" style="margin-top:9px" onclick="openPetGacha()">ガチャで あたらしい服をさがす</button>
+    ${petTabsHTML("wear")}
   </div>`;
   d5AnchorBubble(null,m.querySelector(".pt-card"));
 }
@@ -6687,7 +6820,7 @@ function openPetEvent(){
     <div class="pt-bondl">${PET_BONDS.map(b=>{
       const got=o.bond.indexOf(b.d)>=0;
       return `<div class="pt-bi${got?" got":""}"><b>${b.d}日</b><em>${got?"うけとりました":"あと"+Math.max(0,b.d-(o.days||0))+"日"}</em></div>`;}).join("")}</div>
-    <button class="d5-go" style="margin-top:9px" onclick="closePet();openDaily5()">今日の5問へ</button>
+    ${petTabsHTML("event")}
   </div>`;
   d5AnchorBubble(null,m.querySelector(".pt-card"));
 }
@@ -6711,9 +6844,10 @@ function grantLapPresent(level,sec,lap){
   if(st.achv[id])return 0;
   const amount=200+(lap-1)*50;
   st.achv[id]=1;
-  st.queue.push({cat:"level",kind:"achv",title:"WORLD"+String(sec).padStart(2,"0")+" "+lap+"周達成",total:amount,at:new Date().toISOString()});
+  // 1周のごほうびもXPではなくごはんで渡す（プレゼントのXPは廃止／メール指示 2026-08-08 23:52）
+  st.queue.push({cat:"level",kind:"food",title:"WORLD"+String(sec).padStart(2,"0")+" "+lap+"周達成",total:xpToFood(amount),at:new Date().toISOString()});
   _savePresent(st);updatePresent();
-  return amount;
+  return xpToFood(amount); // 渡したごはんの数
 }
 function showLapDone(){
   const d=_lapDone;_lapDone=null;if(!d)return;
@@ -6725,7 +6859,7 @@ function showLapDone(){
     +'<div class="lap-medal">'+d.lap+'</div>'
     +'<div class="lap-title">WORLD'+nn+' <b>'+d.lap+'周</b> 達成！</div>'
     +'<div class="lap-sub">この周で <b>'+d.words+'語</b> すべてに挑戦しました'
-      +(bonus?'<br>ボーナス <b>+'+bonus+' XP</b> をプレゼントに追加':'')+'</div>'
+      +(bonus?'<br>ボーナスの <b>ごはん'+bonus+'つ</b> をプレゼントに追加':'')+'</div>'
     +'<div class="lap-btns">'
       +(nextSec?'<button class="lb-next" onclick="lapGoNext('+nextSec+')">WORLD'+nx+' へ進む</button>':'')
       +'<button class="lb-stay" onclick="closeLapDone()">'+(nextSec?'このWORLDを続ける':'閉じる')+'</button>'
@@ -6956,9 +7090,9 @@ function openPetMenu(){
 }
 function closePetMenu(){const m=document.getElementById("petmenu-modal");if(m)m.classList.remove("on");}
 /* ごはん・親密度・韓国語力は、同じ大きさの丸ゲージ3つで見せる（メール指示 2026-08-08 22:26） */
-function pmRingHTML(v,max,lab,color,id){
+function pmRingHTML(v,max,lab,color,id,ico){
   const p=Math.max(0,Math.min(100,Math.round((v/max)*100)));
-  return `<div class="pm-ring"><span style="--p:${p};--c:${color}"><b${id?` id="${id}"`:""}>${v}</b></span><em>${lab}</em></div>`;
+  return `<div class="pm-ring"><span style="--p:${p};--c:${color}"><b${id?` id="${id}"`:""}>${v}</b></span><em>${ico?petIcoImg(ico,13):""}${lab}</em></div>`;
 }
 function petMenuRender(msg,jump,need){
   const m=document.getElementById("petmenu-modal");if(!m)return;
@@ -6969,37 +7103,41 @@ function petMenuRender(msg,jump,need){
       <span class="pm-lv">Lv.<b>${lv}</b></span></div>
     ${petArtHTML(day,lv,st.k)}
     <div class="pm-bar"><i style="width:${Math.round(((o.xp%40)/40)*100)}%"></i></div>
-    <div class="pm-st">${pmRingHTML(o.seeds||0,10,"ごはん","#FFC400")}${pmRingHTML(o.friend||0,100,"親密度","#FF6FA8")}${pmRingHTML(petPower(),500,"韓国語力","#3FA9F5")}</div>
+    <div class="pm-st">${pmRingHTML(o.seeds||0,10,"ごはん","#FFC400",null,"food")}${pmRingHTML(o.friend||0,100,"親密度","#FF6FA8",null,"friend")}${pmRingHTML(petPower(),500,"韓国語力","#3FA9F5",null,"power")}</div>
     ${need?petFeedNeedHTML(o):""}
     ${msg?`<div class="pm-msg">${esc(msg)}</div>`:""}
-    <button class="d5-go pm-feed" onclick="petSnack()">🌰 ごはんをあげる</button>
+    <button class="d5-go pm-feed" onclick="petSnack()">${petIcoImg("food",20)}ごはんをあげる</button>
     <button class="d5-ghost" onclick="closePetMenu();openPet()">育成画面をひらく</button>
   </div>`;
   const el=m.querySelector(".pt-art");
   if(jump&&el&&!lessFxOn())el.classList.add("pt-jump");
   d5AnchorBubble(".sg-pet",m.querySelector(".pm-card"));
 }
-/* ごはん（単語の実）が足りないときに勧める集めかた。
- * ごはんは 今日の5問＝＋3 ／ テスト1本＝＋2 でたまるので、
- * いま挑戦できるWORLDのステップ（すごろくの現在地）を、たまりやすい順に出す（メール指示 2026-08-08 22:26） */
+/* ごはんが足りないときに勧める集めかた。
+ * ごはんは学習では増えず、プレゼントとガチャからだけ手に入る（メール指示 2026-08-08 23:52）。
+ * 受け取れるプレゼント・まわせるガチャがあればそれを先に、無ければ「プレゼントが届くテスト」を勧める。 */
 function petFeedWays(){
   const ways=[];
+  const pn=(typeof presentsAvailable==="function")?presentsAvailable("daily")+presentsAvailable("level"):0;
+  const gn=(typeof gachaSpins==="function")?gachaSpins():0;
+  if(pn>0)ways.push({ico:"food",t:"プレゼントを受け取る",s:"うけとれるプレゼントが"+pn+"個",n:"ごはん",act:"closePetMenu();openPresent('daily')"});
+  if(gn>0)ways.push({ico:"gacha",t:"ガチャをまわす",s:"まわせるコインが"+gn+"枚",n:"ごはん",act:"closePetMenu();openGacha()"});
   if(typeof d5Done==="function"&&!d5Done())
-    ways.push({ico:"🗓",t:"今日の5問をやる",s:"5問こたえるだけ",n:PET_SEED.d5||0,act:"closePetMenu();openDaily5()"});
-  _msRoomCandidates().slice(0,2).forEach(r=>{
+    ways.push({ico:"event",t:"今日の5問をやる",s:"終わるとプレゼントが届きます",n:"プレゼント",act:"closePetMenu();openDaily5()"});
+  _msRoomCandidates().slice(0,ways.length?1:2).forEach(r=>{
     const g=boardState(curLevel,r.sec).cleared+1,nn=String(r.sec).padStart(2,"0");
-    ways.push({ico:"🚩",t:"WORLD "+nn+" のステップ "+r.sec+"-"+g,
-      s:"いま挑戦できるステップ（PWR "+r.pwr+"％）",n:PET_SEED.test||0,act:"petGoStep("+r.sec+")"});
+    ways.push({ico:"zoo",t:"WORLD "+nn+" のステップ "+r.sec+"-"+g,
+      s:"1本終えるとプレゼントとガチャコイン",n:"プレゼント",act:"petGoStep("+r.sec+")"});
   });
   return ways;
 }
 function petFeedNeedHTML(o){
   const ways=petFeedWays();
-  return `<div class="pm-need">ごはんが足りません（いま 🌰<b>${(o||petState()).seeds||0}</b>）<br>ここで集められます</div>
+  return `<div class="pm-need">ごはんが足りません（いま ${petIcoImg("food",13)}<b>${(o||petState()).seeds||0}</b>）<br>ここで集められます</div>
     <div class="pm-way">${ways.map(w=>`<button onclick="${w.act}">
-      <span class="pw-ico">${w.ico}</span>
+      <span class="pw-ico">${petIcoImg(w.ico,20)}</span>
       <span class="pw-b"><span class="pw-t">${esc(w.t)}</span><span class="pw-s">${esc(w.s)}</span></span>
-      <span class="pw-n">🌰+${w.n}</span></button>`).join("")}</div>`;
+      <span class="pw-n">${esc(w.n)}</span></button>`).join("")}</div>`;
 }
 /* おすすめのステップへ移動する（そのWORLDの現在地まで運ぶ） */
 function petGoStep(sec){closePetMenu();missionTapRoom(sec);}
@@ -8211,7 +8349,7 @@ function runnerBuild(n){
   for(let i=0;i<n;i++){
     const s=document.createElement("div");
     s.className="rn-slot";s.dataset.i=i;
-    s.style.left=Math.round(_rnHead+(i+0.5)*_rnGap-8.5)+"px"; // 中心が head+(i+0.5)*gap（キャラの位置の半コマ先）
+    s.style.left=Math.round(_rnHead+(i+0.5)*_rnGap-6.375)+"px"; // 中心が head+(i+0.5)*gap（キャラの位置の半コマ先／札幅12.75pxの半分ぶん左へ）
     s.style.animationDelay=(Math.min(i,11)*0.04).toFixed(2)+"s";
     rail.appendChild(s);
   }
@@ -8255,7 +8393,25 @@ function _tick(){
   if(fill){fill.style.width=(remain/limit*100)+"%";fill.className="tfill"+(remain<=limit*0.3?" warn":"");}
   if(tt)tt.textContent=remain.toFixed(1);
   if(!answered)_maybeEliminate(remain,limit);
+  if(!answered)_maybeKeyHint(remain,limit);
   if(remain<=0){clearInterval(timer);if(!answered)submit("timeout","");}
+}
+/* 書き取りの追いヒント（メール指示 2026-08-08 23:50）
+ * ヒント（先頭1音節）が出ているのに、制限時間が半分を切っても1文字も入力が無いとき、
+ * その音節を組み立てるキーを 子音（初声）→ 母音 → パッチム の順に黄色くしていく。
+ * 指が動いた（1文字でも入力した）ら、その時点で黄色は消す。 */
+function _maybeKeyHint(remain,limit){
+  const q=state&&state.questions&&state.questions[state.idx];
+  if(!q||q.type!=="w"||!q.isHintProvided||!q.hintText)return;
+  const kbd=document.getElementById("kbd");if(!kbd)return;
+  const clear=()=>kbd.querySelectorAll(".key.hintkey").forEach(k=>k.classList.remove("hintkey"));
+  let typed="";try{typed=IME.text()||"";}catch(e){}
+  if(typed){clear();return;}
+  const d=(typeof _hDecomp==="function")?_hDecomp(q.hintText):null;
+  if(!d){clear();return;}
+  const seq=[_HCHO[d.cho],_HJUNG[d.jung],_HJONG[d.jong]].filter(Boolean);
+  const want=remain<=limit*0.15?3:remain<=limit*0.30?2:remain<=limit*0.50?1:0;
+  seq.forEach((j,i)=>{const k=kbd.querySelector('.key[data-k="'+j+'"]');if(k)k.classList.toggle("hintkey",i<want);});
 }
 /* 4択のみ：残り1/4（10秒なら2.5秒）で不正解を1つ、残り1/8（同1.25秒）で更にもう1つ半透明にして選べなくする（50/50風ヒント） */
 function _maybeEliminate(remain,limit){
@@ -8768,7 +8924,8 @@ function submit(status,userAnswer){
   if(_d5.on){d5AfterAnswer(status,userAnswer);return;} // 今日の5問：正誤音・正解音声・玉の演出・○×オーバーレイをすべて出さない（判定は結果画面でまとめて）
   if(isCorrect)sfxCorrect();else if(status==="unknown")sfxNeutral();else sfxIncorrect(); // 正解=正解音／わからない=中立音／不正解・時間切れ=不正解音
   speakKorean(q.word); // 正解・不正解・わからない・時間切れすべてで正解の韓国語音声を再生（学習のため）
-  if(isCorrect)spawnWordDrop(q.word,Math.max(0,limit-elapsed)/limit); // 正解（四択・書き取りとも）：単語玉が背景に降り積もる（速答ほど大きい）
+  // 手に入れた単語カードと同じ枚数ぶん、レア度の色のカードが背景に降り積もる（速答ほど大きい／メール指示 2026-08-08 23:50）
+  if(cardsEarned>0)spawnWordDrop(q.word,remainSec/limit,cardsEarned,cardRarity,isCorrect);
   showOverlay(status,q,userAnswer);
 }
 
@@ -8836,16 +8993,21 @@ function showOverlay(status,q,userAnswer){
    ぶつかり判定は円のまま（カードは円に収まる正方形）。丸い玉からカードに変更（メール指示 2026-08-02） */
 const QR={balls:[],raf:0,last:0,calm:0,rainTimer:0};
 let _ballLog=[]; // ホームでまだ降らせていない正解玉（テストをまたいで蓄積）
-function spawnWordDrop(word,speed){
+/* 降ってくる枚数は「その問題で手に入れた単語カードの枚数」と同じにし、色はレア度で変える（メール指示 2026-08-08 23:50） */
+function spawnWordDrop(word,speed,n,rare,keep){
   try{
     const src=(typeof WORD_IMG!=="undefined")?WORD_IMG[word.ko]:null;if(!src)return;
     const r=32+Math.round(28*Math.min(1,Math.max(0,speed==null?0.5:speed))); // 速答ほど大きい玉（直径64〜120px）
-    const bg=roomBg(curSection); // 玉のカプセル色は出題WORLDの背景色
-    _ballLog.push({src,r,bg});if(_ballLog.length>48)_ballLog.shift();
-    spawnBallRaw(src,r,bg);
+    const rr=(rare&&rare!=="N")?rare:null;
+    const bg=rr?rarityInfo(rr).col:roomBg(curSection); // 枠の色＝レア度の色（ノーマルは今までどおり出題WORLDの色）
+    // ホームに積む山は今までどおり「正解した単語を1問＝1枚」だけ（出題画面のほうは手に入れた枚数ぶん降る）
+    if(keep){_ballLog.push({src,r,bg,rare:rr});if(_ballLog.length>48)_ballLog.shift();}
+    const cnt=Math.max(1,Math.min(10,n||1));
+    spawnBallRaw(src,r,bg,"q-rain",rr); // 1枚目はすぐ降りはじめる
+    for(let i=1;i<cnt;i++)setTimeout(()=>spawnBallRaw(src,r,bg,"q-rain",rr),i*90); // 残りは少しずつずらして手に入れた枚数ぶん
   }catch(e){}
 }
-function spawnBallRaw(src,r,bg,layerId){
+function spawnBallRaw(src,r,bg,layerId,rare){
   layerId=layerId||"q-rain";
   const _bs=loadSettings(); // 玉の演出: 出題画面(q-rain)と メイン画面(home-rain/wd-rain) を別々に切替
   if(layerId==="q-rain"?(_bs.ballsQuiz===false):(_bs.ballsHome===false))return;
@@ -8856,7 +9018,7 @@ function spawnBallRaw(src,r,bg,layerId){
     const old=inLayer[0];old.el.remove();QR.balls.splice(QR.balls.indexOf(old),1);
     // 静止済みの山（約36個）は起こさず固定のまま。新しく降る玉だけが動く（計算を抑える）
   }
-  const el=document.createElement("div");el.className="qr-card";
+  const el=document.createElement("div");el.className="qr-card"+(rare&&rare!=="N"?" qr-"+rare:""); // レア度ぶんの色（メール指示 2026-08-08 23:50）
   el.style.width=el.style.height=(r*2)+"px";
   el.style.willChange="transform"; // 落下中のみGPU昇格（停止時にautoへ戻す）
   if(bg)el.style.borderColor=bg; // 枠が出題WORLDの色（カードの面は単語カードと同じ白→クリーム）
@@ -8911,7 +9073,7 @@ function homeRain(){
       qrStopRain();return;
     }
     if(i>=q.length){qrStopRain();return;}
-    const b=q[i++];spawnBallRaw(b.src,b.r,b.bg,"home-rain");
+    const b=q[i++];spawnBallRaw(b.src,b.r,b.bg,"home-rain",b.rare);
   },100);
 }
 function qrStep(ts){
@@ -9118,22 +9280,22 @@ function resultCardsHTML(R){
     const rareTag=(rare&&rare!=="N")?`<span class="rc-rareb">${rare}</span>`:"";
     return `<div class="rc-card speakable${rare?" rare-"+rare:""}" data-id="${r.wordId||0}" data-ko="${esc(r.korean)}">
       ${rareTag}
-      <div class="rc-imgw"><span class="rc-sym" style="color:${syc}">${sy[0]}</span>${img}</div>
+      <span class="rc-sym" style="color:${syc}">${sy[0]}</span><!-- 左上（少し内側）に白い角丸座布団つきで置く -->
+      <div class="rc-imgw">${img}</div>
       <div class="rc-ko">${esc(r.korean)}</div>
       <div class="rc-ja">${esc(r.japanese)}</div>
       <div class="rc-foot"><span class="rc-cards">${cardsGot}枚</span><span class="rc-delta" style="color:${memDelta>=0?'#1FAD62':'#FF6B6B'}">${memDelta>0?'+':''}${memDelta}%</span></div>
     </div>`;
   }).join("");
 }
-/* animate=true のときだけ、点数・XP・PWRを0（テスト前の値）から描いてアニメで動かす。
- * 過去の結果は動かす必要がないので、はじめから最終の値で描く。 */
-function resultViewHTML(o){
+/* 結果画面の上段（左＝メダル／右上＝点数と正誤／右下＝XP・PWRの2本のメーター）。
+ * 通常のテストと「今日の5問」で同じものを使う（メール指示 2026-08-08 23:50）。
+ *  o.scoreMax … 満点（通常=100／今日の5問=5）  o.hidePwr … PWRメーターを出さない */
+function resHeadTopHTML(o){
   const xpPct=Math.min(100,Math.round((o.xpCur/(o.xpNext||1))*100));
   const pwrGain=(o.pwrDelta==null)?"" // 過去の結果は「今回いくら上がったか」が分からないので数字は出さない
     :`<span class="res-mgain" style="color:${o.pwrDelta>=0?"#1FAD62":"#FF6B6B"}">${o.pwrDelta>0?"+":""}${o.pwrDelta}<span>%</span></span>`;
   return `
-   <div class="res">
-    <div class="res-head">
       <!-- 左＝メダル／右上＝点数と正誤／右下＝XP・PWRの2本のメーター。コメントは全体の一番下に1行（メール指示 2026-07-29） -->
       <div class="res-top">
         <div class="res-idw">
@@ -9142,17 +9304,25 @@ function resultViewHTML(o){
         <div class="res-side">
           <!-- 上の段：左＝点数／中＝正解数／右＝不正解数（メール指示 2026-07-29） -->
           <div class="res-scorerow">
-            <div class="res-score"><b id="res-score-n" data-to="${o.total}">${o.animate?0:o.total}</b><span> / 100</span></div>
+            <div class="res-score"><b id="res-score-n" data-to="${o.total}">${o.animate?0:o.total}</b><span> / ${o.scoreMax||100}</span></div>
             <div class="res-cnt" style="color:#FF3B3B">○ ${o.nCorrect}</div>
             <div class="res-cnt" style="color:#2F6FE0">× ${o.nWrong}</div>
           </div>
           <!-- メーターはステータス画面（ホームのヘッダー）と同じ見た目：黒の座布団＋右揃えラベル＋太いゲージ -->
           <div class="res-meters">
-            <div class="res-mrow"><span class="res-mlab">Lv.${o.xpLevel}</span><div class="res-mg"><div class="res-mfill" id="res-xpfill" style="background:#FFFF37;width:${o.animate?0:xpPct}%"></div></div><span class="res-mval">${o.xpCur}/${o.xpNext}</span><span class="res-mgain res-xp-gain" id="res-xp-gain" data-to="${o.xpGain}">+${o.animate?0:o.xpGain}<span> XP</span></span></div>
-            <div class="res-mrow"><span class="res-mlab">PWR</span><div class="res-mg"><div class="res-mfill" id="res-pwrfill" style="background:#00FF37;width:${o.animate?o.pwrFrom:o.pwrTo}%"></div></div><span class="res-mval">${o.pwrTo}%</span>${pwrGain}</div>
+            <div class="res-mrow"><span class="res-mlab">Lv.${o.xpLevel}</span><div class="res-mg"><div class="res-mfill" id="res-xpfill" style="background:#FFFF37;width:${o.animate?0:xpPct}%"></div></div><span class="res-mval">${o.xpCur}/${o.xpNext}</span>${o.xpGain>0?`<span class="res-mgain res-xp-gain" id="res-xp-gain" data-to="${o.xpGain}">+${o.animate?0:o.xpGain}<span> XP</span></span>`:""}</div>
+            ${o.hidePwr?"":`<div class="res-mrow"><span class="res-mlab">PWR</span><div class="res-mg"><div class="res-mfill" id="res-pwrfill" style="background:#00FF37;width:${o.animate?o.pwrFrom:o.pwrTo}%"></div></div><span class="res-mval">${o.pwrTo}%</span>${pwrGain}</div>`}
           </div>
         </div>
-      </div>
+      </div>`;
+}
+/* animate=true のときだけ、点数・XP・PWRを0（テスト前の値）から描いてアニメで動かす。
+ * 過去の結果は動かす必要がないので、はじめから最終の値で描く。 */
+function resultViewHTML(o){
+  return `
+   <div class="res">
+    <div class="res-head">
+      ${resHeadTopHTML(o)}
       <div class="res-cheer"><span class="rch">${o.cheer}</span></div>
     </div>
     ${o.typeUpd||""}
@@ -9233,25 +9403,27 @@ function finishTest(){
     if(pops.length)setTimeout(()=>runPopupChain(pops),_lapDone?2600:1500);
   });
 }
-/* 結果画面の入場アニメ：点数カウントアップ・ランクメダル・PWRフィル・獲得XP */
-function startResultAnims(pwrAfter,xpGain,xpNow){
-  const n=document.getElementById("res-score-n");
-  if(n){const to=parseInt(n.dataset.to||"0",10);let c=0;const step=Math.max(1,Math.ceil(to/28));
-    const t=setInterval(()=>{c=Math.min(to,c+step);n.textContent=c;if(c>=to)clearInterval(t);},28);}
-  const md=document.querySelector("#s-result .rank-medal");if(md){md.classList.remove("in");void md.offsetWidth;md.classList.add("in");}
-  const pf=document.getElementById("res-pwrfill");if(pf)setTimeout(()=>{pf.style.width=pwrAfter+"%";},150);
+/* 結果画面の入場アニメ：点数カウントアップ・ランクメダル・PWRフィル・獲得XP
+   root＝どの結果画面のものを動かすか（通常テスト=#s-result／今日の5問=#s-d5result。同じidが2画面にあるため必ず絞る） */
+function startResultAnims(pwrAfter,xpGain,xpNow,rootSel){
+  const root=document.querySelector(rootSel||"#s-result");if(!root)return;
+  const sn=root.querySelector("#res-score-n");
+  if(sn){const to=parseInt(sn.dataset.to||"0",10);let c=0;const step=Math.max(1,Math.ceil(to/28));
+    const t=setInterval(()=>{c=Math.min(to,c+step);sn.textContent=c;if(c>=to)clearInterval(t);},28);}
+  const md=root.querySelector(".rank-medal");if(md){md.classList.remove("in");void md.offsetWidth;md.classList.add("in");}
+  const pf=root.querySelector("#res-pwrfill");if(pf)setTimeout(()=>{pf.style.width=pwrAfter+"%";},150);
   // 「今回いくらXPが増えたか」を数字が上がる形で見せる（増えた実感が要る）
-  const xg=document.getElementById("res-xp-gain");
+  const xg=root.querySelector("#res-xp-gain");
   if(xg){const to=parseInt(xg.dataset.to||"0",10);let c=0;const step=Math.max(1,Math.ceil(to/24));
     xg.classList.add("pop");
     const t=setInterval(()=>{c=Math.min(to,c+step);xg.innerHTML="+"+c+"<span> XP</span>";if(c>=to)clearInterval(t);},32);}
-  const xf=document.getElementById("res-xpfill");
+  const xf=root.querySelector("#res-xpfill");
   if(xf&&xpNow)setTimeout(()=>{xf.style.width=Math.min(100,Math.round(xpNow.cur/xpNow.next*100))+"%";},200);
-  fitCheerLine();
+  fitCheerLine(rootSel);
 }
 /* 結果画面の一言コメントを1行に収める：入りきらないぶんだけ文字を小さくする（メール指示 2026-08-01） */
-function fitCheerLine(){
-  const el=document.querySelector("#s-result .res-cheer");if(!el)return;
+function fitCheerLine(rootSel){
+  const el=document.querySelector((rootSel||"#s-result")+" .res-cheer");if(!el)return;
   const sp=el.querySelector(".rch");if(!sp)return;
   const avail=el.clientWidth-24; // 左右のpadding(12px)ぶんを除いた実寸
   if(avail<=0)return;
@@ -9726,7 +9898,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v7.3 (2026-08-08)";
+const APP_VERSION="v7.4 (2026-08-09)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -9868,25 +10040,33 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
   const notifyOn=st.notify&&(typeof Notification!=='undefined'&&Notification.permission==='granted');
   // マス（.cc-tile）は「今日の5問」の朝の部／夜の部と同じ作り。中身の長さでマスが大きくならないよう
   // ラベル・状態の文字はどちらも短くしてある（メール指示 2026-08-02）
-  const tile=(cls,ico,lab,on,onTxt,offTxt,handler)=>`<div class="cc-tile ${cls} ${on?'on':''}" onclick="${handler}">
-    <div class="cc-ico">${ico}</div><div class="cc-txt"><div class="cc-lab">${lab}</div><div class="cc-state">${on?onTxt:offTxt}</div></div></div>`;
+  const tile=(cls,ico,lab,on,onTxt,offTxt,handler)=>`<div class="cc-tile ${cls} ${on?'on':''}" onclick="${handler}" role="switch" aria-checked="${on?'true':'false'}" aria-label="${lab}">
+    <div class="cc-ico">${ico}</div><div class="cc-txt"><div class="cc-lab">${lab}</div><div class="cc-state">${on?onTxt:offTxt}</div></div><span class="cc-sw"><i></i></span></div>`;
+  // 8つのマスを「学習」「見た目と音」に分け、そのあとに設定以外の入口（つかいかた・データ・リンク）を置く（メール指示 2026-08-08 23:50）
   m.innerHTML=`<div class="set-card cc-card">
     <div class="cc-head"><div class="cc-grab"></div><div class="set-h">設定</div><button class="set-close" onclick="closeSettings()" aria-label="閉じる">×</button></div>
+    <div class="cc-sec">学習</div>
     <div class="cc-grid">
       ${tile("k-tap","👆","進み方",st.tapAdvance,"タップ","自動","toggleSetting('tapAdvance')")}
-      ${tile("k-snd","🔊","サウンド",st.sound!==false,"オン","オフ","toggleSetting('sound')")}
       ${tile("k-slow","⏳","じっくり",st.slowTimer,"1.5倍","通常","toggleSetting('slowTimer')")}
       ${tile("k-notf","🔔","復習通知",notifyOn,"オン","要許可","toggleReminder()")}
+      ${tile("k-big","🔠","文字の大きさ",st.bigText,"大きめ","標準","toggleSetting('bigText')")}
+    </div>
+    <div class="cc-sec">見た目と音</div>
+    <div class="cc-grid">
+      ${tile("k-snd","🔊","サウンド",st.sound!==false,"オン","オフ","toggleSetting('sound')")}
+      ${tile("k-fx","✨","演出",st.lessFx,"ひかえめ","通常","toggleSetting('lessFx')")}
       ${tile("k-ball","🃏","カード ホーム",st.ballsHome!==false,"積もる","オフ","toggleSetting('ballsHome')")}
       ${tile("k-ball","🃏","カード 出題中",st.ballsQuiz!==false,"積もる","オフ","toggleSetting('ballsQuiz')")}
-      ${tile("k-big","🔠","文字の大きさ",st.bigText,"大きめ","標準","toggleSetting('bigText')")}
-      ${tile("k-fx","✨","演出",st.lessFx,"ひかえめ","通常","toggleSetting('lessFx')")}
     </div>
     <div class="cc-list">
       <div class="cc-item cc-tone"><span>🎨 WORLDの色</span><span class="tone-bar">
         <i id="tone-sw" style="background:${roomBg(curSection)}"></i>
         <input id="tone-range" type="range" min="0" max="100" step="1" value="${roomTone()}" aria-label="WORLDの色の濃さ" oninput="setRoomTone(this.value)">
         <em id="tone-lab">${roomToneLabel(roomTone())}</em></span></div>
+    </div>
+    <div class="cc-sec">そのほか</div>
+    <div class="cc-list">
       <div class="cc-item" onclick="showCoach()"><span>📖 つかいかた</span><span class="cc-arw">›</span></div>
       <div class="cc-item cc-2btn"><button onclick="exportData()">⬆ 書き出す</button><label>⬇ 読み込む<input type="file" accept="application/json" style="display:none" onchange="importData(this)"></label></div>
       ${/iPhone|iPad|iPod/.test(navigator.userAgent)&&!(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)?`<div class="cc-item cc-note">📲 Safariの共有 →「ホーム画面に追加」でアプリのように使えます</div>`:""}

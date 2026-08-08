@@ -274,7 +274,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       pwrCat: (q.find(x => /PWRが上がった/.test(x.title || '')) || {}).cat
     };
   });
-  check(`テスト後のごほうびはプレゼント（ガチャコイン） (${coin.testCoin && coin.testCoin.kind})`, coin.testCoin && coin.testCoin.kind === 'coin' && coin.testCoin.total > 0);
+  // コインに付いていたXPは廃止され、そのぶんは別立ての「ごはん」プレゼントになった（メール指示 2026-08-08 23:52）
+  check(`テスト後のごほうびはプレゼント（ガチャコイン） (${coin.testCoin && coin.testCoin.kind})`, coin.testCoin && coin.testCoin.kind === 'coin');
   check(`レベルアップは上がったぶんだけガチャコイン (${coin.lvCoins}枚)`, coin.lvCoins === 2);
   check('レベルアップのXPボーナスは廃止された', coin.lvXp === 0);
   check(`PWRボーナスは毎日ボーナスの箱へ (${coin.pwrCat})`, coin.pwrCat === 'daily');

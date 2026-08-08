@@ -107,7 +107,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check(`4-4 集めかたが2つ以上ならぶ (${need.ways.length}件)`, need.ways.length >= 2);
   check(`4-5 WORLDのステップをすすめる (${need.ways.map(w => w.t).join(' / ')})`,
     need.ways.some(w => /^WORLD \d\d のステップ \d+-\d+$/.test(w.t)));
-  check('4-6 いくつ集まるかも出ている', need.ways.every(w => /🌰\+\d+/.test(w.n)));
+  // ごはんは学習では増えずプレゼント・ガチャから届くので、数ではなく何が手に入るかを出す（メール指示 2026-08-08 23:52）
+  check(`4-6 何が手に入るかが出ている (${need.ways.map(w => w.n).join('/')})`, need.ways.every(w => /ごはん|プレゼント/.test(w.n)));
   check('4-7 すすめたステップはタップでそのWORLDへ行ける', need.ways.some(w => /petGoStep\(\d+\)/.test(w.act || '')));
   const jump = await page.evaluate(async () => {
     const b = [...document.querySelectorAll('#petmenu-modal .pm-way button')].find(x => /petGoStep/.test(x.getAttribute('onclick')));

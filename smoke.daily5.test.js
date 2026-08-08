@@ -102,7 +102,8 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   await page.waitForTimeout(400);
   check('5問目のあと結果画面へ', await page.evaluate(() => document.getElementById('s-d5result').classList.contains('on')));
   check('5問ぶんの行がある', await page.evaluate(() => document.querySelectorAll('#s-d5result .d5r-row').length === 5));
-  check('開いた直後はまだ判定されていない', await page.evaluate(() => document.querySelectorAll('#s-d5result .d5r-row.judged').length === 0));
+  // 判定アニメは倍速になった（メール指示 2026-08-08 23:50）ので、この時点では「まだ全部は判定されていない」ことを見る
+  check('開いた直後はまだ全部は判定されていない', await page.evaluate(() => document.querySelectorAll('#s-d5result .d5r-row.judged').length < 5));
   check('未判定の問題はぼかされ先読みできない', await page.evaluate(() => {
     const un = [...document.querySelectorAll('#s-d5result .d5r-row:not(.shown)')];
     return un.length >= 4 && un.every(r => getComputedStyle(r.querySelector('.d5r-mid')).filter.indexOf('blur') === 0);
@@ -115,7 +116,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   const seq2 = await page.evaluate(() => document.querySelectorAll('#s-d5result .d5r-row.judged').length);
   check(`順に判定が進む (${seq1}問 → ${seq2}問)`, seq1 >= 1 && seq1 < 5 && seq2 > seq1);
 
-  await page.waitForTimeout(5000);
+  await page.waitForTimeout(900); // 判定アニメが倍速になったぶん待ち時間も詰める（メール指示 2026-08-08 23:50）
   check('5問すべて判定される', await page.evaluate(() => document.querySelectorAll('#s-d5result .d5r-row.judged').length === 5));
   check('○×が実際の正誤と一致', await page.evaluate(() => {
     const want = [true, false, true, false, true];

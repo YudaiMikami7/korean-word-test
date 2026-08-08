@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" role="img" aria-label="ことばの友だち">
+  <ellipse cx="12" cy="14.4" rx="6.6" ry="6" fill="#F7C58A"/>
+  <ellipse cx="6.6" cy="7.6" rx="2.6" ry="3.2" transform="rotate(-18 6.6 7.6)" fill="#D9A063"/>
+  <ellipse cx="17.4" cy="7.6" rx="2.6" ry="3.2" transform="rotate(18 17.4 7.6)" fill="#D9A063"/>
+  <circle cx="9.6" cy="13.4" r="1.1" fill="#3B2A1A"/>
+  <circle cx="14.4" cy="13.4" r="1.1" fill="#3B2A1A"/>
+  <path d="M10.6 16.6a1.8 1.8 0 0 0 2.8 0" stroke="#3B2A1A" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+</svg>

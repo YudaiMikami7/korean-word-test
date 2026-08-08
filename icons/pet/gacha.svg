@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" role="img" aria-label="ガチャ">
+  <path d="M12 2.6a7.4 7.4 0 0 1 7.4 7.4H4.6A7.4 7.4 0 0 1 12 2.6Z" fill="#9ED8FF"/>
+  <circle cx="9.4" cy="7.6" r="1.5" fill="#E0433B"/>
+  <circle cx="13.6" cy="6.6" r="1.5" fill="#FFC400"/>
+  <circle cx="14.4" cy="9.2" r="1.5" fill="#2F6FE0"/>
+  <path d="M4.6 10h14.8v9.4a2 2 0 0 1-2 2H6.6a2 2 0 0 1-2-2Z" fill="#E0433B"/>
+  <rect x="9" y="14.4" width="6" height="4.4" rx="1" fill="#fff"/>
+  <circle cx="7.2" cy="12.6" r="1.2" fill="#fff"/>
+</svg>

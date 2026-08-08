@@ -61,7 +61,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
              w: Math.round(r.width * 10) / 10, h: Math.round(r.height * 10) / 10 };
   });
   check(`札は黄色い座布団 (${slot.bg})`, slot.bg === 'rgb(245, 197, 24)');
-  check(`札に白い枠がある (${slot.bw} ${slot.bc})`, parseFloat(slot.bw) >= 2 && slot.bc === 'rgb(255, 255, 255)');
+  // 白枠は半分の太さ（2px→1px）・札は75%の大きさになった（メール指示 2026-08-08 23:50）
+  check(`札に白い枠がある (${slot.bw} ${slot.bc})`, parseFloat(slot.bw) >= 1 && slot.bc === 'rgb(255, 255, 255)');
   // 影は削除（メール指示 2026-08-01 19:49）。黄色い座布団＋白枠だけ残す
   check(`札に影は付けない (${slot.sh})`, slot.sh === 'none');
   check(`枠を付けても札の大きさは変わらない (${slot.w}x${slot.h})`, slot.h > slot.w);

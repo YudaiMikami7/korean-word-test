@@ -66,12 +66,23 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   })());
 
   /* ============ 2. ガチャ（単語の実で回す・天井つき） ============ */
-  check('2-1 学習すると「単語の実」がたまる（今日の5問がいちばん多い）', await page.evaluate(() => {
+  // ごはん（単語の実）は学習では増えず、プレゼントとガチャからだけ手に入る（メール指示 2026-08-08 23:52）
+  check('2-1 学習ではごはんが増えない（プレゼント・ガチャのみ）', await page.evaluate(() => {
     localStorage.removeItem('kwt_pet_v1');
     const a = petState().seeds;
     petFeed('d5'); const b = petState().seeds;
     petFeed('test'); const c = petState().seeds;
-    return a === 0 && b === PET_SEED.d5 && (c - b) === PET_SEED.test && PET_SEED.d5 > PET_SEED.test;
+    return a === 0 && b === 0 && c === 0 && PET_SEED.d5 === 0 && PET_SEED.test === 0;
+  }));
+  check('2-1b ガチャの景品とプレゼントからごはんが手に入る', await page.evaluate(() => {
+    localStorage.removeItem('kwt_pet_v1');
+    const a = petState().seeds;
+    petAddSeeds(rollGachaFood());               // ガチャの「ごはん」
+    const b = petState().seeds;
+    localStorage.removeItem('kwt_present_v1');
+    grantFoodPresent('テスト', 4);              // プレゼントの「ごはん」
+    const q = _presentState().queue.filter(x => x.kind === 'food');
+    return a === 0 && b > 0 && q.length === 1 && q[0].total === 4;
   }));
   check('2-2 実がたりないと回せない', await page.evaluate(() => {
     localStorage.removeItem('kwt_pet_v1');
@@ -112,7 +123,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     await page.evaluate(() => petDoRoll());
     await page.waitForTimeout(900);
     const got = await page.evaluate(() => !!document.querySelector('#pet-modal .pt-got'));
-    return /単語の実/.test(t) && /ガチャを回す/.test(t) && got;
+    return /ごはん/.test(t) && /ガチャを回す/.test(t) && got; // 「単語の実」の呼び名は「ごはん」に統一（メール指示 2026-08-08 23:52）
   })());
 
   /* ============ 3. パートナー変更（育ちは子ごとに別々に残る） ============ */
@@ -190,7 +201,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     localStorage.removeItem('kwt_pet_v1');
     const r = petFeed('d5'); r.up = true; r.greet = petLevelGreet(2);
     const html = petResultHTML(r);
-    return /pt-food/.test(html) && /pt-rbar/.test(html) && /pt-lvup/.test(html) && /pt-greet/.test(html) && /🌰/.test(html);
+    // エサの絵文字は画像（SVG）に置きかえた（メール指示 2026-08-08 23:50）
+    return /pt-food/.test(html) && /pt-rbar/.test(html) && /pt-lvup/.test(html) && /pt-greet/.test(html)
+      && /icons\/pet\/food\.svg/.test(html) && !/🌰/.test(html);
   }));
   check('6-2 「演出ひかえめ」にすると動きを止める', await page.evaluate(() => {
     const s = loadSettings(); s.lessFx = true; saveSettings(s);
@@ -269,31 +282,36 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
 
   /* ============ 9. 長く育てる（30/100/365/1000日） ============ */
   check('9-1 記念は30・100・365・1000日の4つ', await page.evaluate(() => PET_BONDS.map(b => b.d).join(',') === '30,100,365,1000'));
-  check('9-2 日数を越えた時だけ、記念の品と実がもらえる（二重取りしない）', await page.evaluate(() => {
-    localStorage.removeItem('kwt_pet_v1');
+  // 記念のごはんは直接ではなくプレゼントの箱に届く（メール指示 2026-08-08 23:52）
+  check('9-2 日数を越えた時だけ、記念の品とごはんのプレゼントがもらえる（二重取りしない）', await page.evaluate(() => {
+    localStorage.removeItem('kwt_pet_v1'); localStorage.removeItem('kwt_present_v1');
     const o = petState(); o.days = 30; o.seeds = 0; o.items = {}; o.bond = [];
     petBondCheck(o); savePet(o);
-    const a = petState();
+    const a = petState(), food1 = _presentState().queue.filter(x => x.kind === 'food');
     const o2 = petState(); petBondCheck(o2); savePet(o2);
-    const b = petState();
-    return a.bond.join() === '30' && a.seeds === 20 && !!a.items.acc_ribbon && b.seeds === 20;
+    const b = petState(), food2 = _presentState().queue.filter(x => x.kind === 'food');
+    return a.bond.join() === '30' && a.seeds === 0 && !!a.items.acc_ribbon
+      && food1.length === 1 && food1[0].total === 20 && food2.length === 1 && b.seeds === 0;
   }));
   check('9-3 1000日まで育てると、4つぜんぶ受け取れている', await page.evaluate(() => {
-    localStorage.removeItem('kwt_pet_v1');
+    localStorage.removeItem('kwt_pet_v1'); localStorage.removeItem('kwt_present_v1');
     const o = petState(); o.days = 1000; petBondCheck(o); savePet(o);
-    const s = petState();
-    return s.bond.length === 4 && s.seeds === 490 && !!s.items.hat_crown;
+    const s = petState(), food = _presentState().queue.filter(x => x.kind === 'food');
+    return s.bond.length === 4 && !!s.items.hat_crown
+      && food.reduce((a, x) => a + x.total, 0) === 490;
   }));
-  check('9-4 何日かあいても叱らない。「おかえり」で迎えて実をわたす', await page.evaluate(() => {
-    localStorage.removeItem('kwt_pet_v1');
+  check('9-4 何日かあいても叱らない。「おかえり」で迎えてごはんのプレゼントをわたす', await page.evaluate(() => {
+    localStorage.removeItem('kwt_pet_v1'); localStorage.removeItem('kwt_present_v1');
     const o = petState(); petDaily();
     const p = petState();
     const d = new Date(Date.now() - 5 * 86400000);
     p.lastLaunch = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
     p.seeds = 0; delete p.day; savePet(p);
+    localStorage.removeItem('kwt_present_v1');
     petDaily();
-    const s = petState();
-    return !!s.back && s.back.gap >= 3 && s.seeds === Math.min(30, s.back.gap * 2);
+    const s = petState(), food = _presentState().queue.filter(x => x.kind === 'food');
+    return !!s.back && s.back.gap >= 3 && s.seeds === 0
+      && food.length === 1 && food[0].total === Math.min(30, s.back.gap * 2);
   }));
   check('9-5 「おかえり」は1回見せたら消える', await (async () => {
     await page.evaluate(() => openPet());

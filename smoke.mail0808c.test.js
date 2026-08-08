@@ -207,7 +207,10 @@ const near = (a, b, tol) => Math.abs(a - b) <= tol;
   check('3桁でも 正答率とランクが重ならない', wide.rate.r < wide.rank.left);
   check('3桁でも ランクはカプセルの中に収まる', wide.rank.right < wide.cap.right);
 
-  check(`R-1 版数が上がっている`, await page.evaluate(() => /^v7\.3/.test(APP_VERSION)));
+  check(`R-1 版数が上がっている`, await page.evaluate(() => {
+    const m = /^v(\d+)\.(\d+)/.exec(APP_VERSION); // v7.3以降ならよい（以後の指示でも版は上がっていく）
+    return !!m && (+m[1] > 7 || (+m[1] === 7 && +m[2] >= 3));
+  }));
   check(`R-2 JSコンソールエラーが無い (${errors.length}件)`, errors.length === 0);
   if (errors.length) console.log(errors.join('\n'));
 
