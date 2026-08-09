@@ -104,15 +104,17 @@ const near = (a, b, tol) => Math.abs(a - b) <= tol;
       sw: m.querySelectorAll('.cc-tile .cc-sw').length, tiles: tiles.length,
       same: new Set(boxes).size === 1, box: boxes[0],
       bg: cs.backgroundColor, border: cs.borderTopColor,
-      onSw: (() => { const on = tiles.find(t => t.classList.contains('on')); return on ? getComputedStyle(on.querySelector('.cc-sw')).backgroundColor : ''; })(),
+      // スイッチは2026-08-09 22:05の指示で廃止。オン/オフは枠の色で示す
+      onBorder: (() => { const on = tiles.find(t => t.classList.contains('on')); return on ? getComputedStyle(on).borderTopColor : ''; })(),
       overflow: tiles.some(t => { const l = t.querySelector('.cc-lab'); return l.scrollWidth > l.clientWidth + 1; }),
       inScreen: m.querySelector('.set-card').getBoundingClientRect().bottom <= innerHeight + 1,
     };
     closeSettings(); return r;
   });
   check(`設定が見出しで分かれている (${set.secs.join('／')})`, set.secs.length >= 2 && set.secs.includes('学習') && set.secs.includes('見た目と音'));
-  check(`全部のマスにオン/オフのスイッチがある (${set.sw}/${set.tiles})`, set.sw === set.tiles && set.tiles === 8);
-  check(`オンのスイッチは黄色 (${set.onSw})`, set.onSw === 'rgb(255, 196, 0)');
+  // ※スイッチは2026-08-09 22:05の指示で廃止（シンプル・コンパクトに）。マスは8つのまま、オンは黄色い枠で示す
+  check(`マスは8つのまま・スイッチは無し (${set.sw}/${set.tiles})`, set.sw === 0 && set.tiles === 8);
+  check(`オンのマスは黄色い枠 (${set.onBorder})`, set.onBorder === 'rgb(255, 196, 0)');
   check(`マスの大きさは全部同じ (${set.box})`, set.same);
   check(`これまでの配色は維持 (${set.bg} / ${set.border})`, set.bg === 'rgb(242, 242, 242)' && set.border === 'rgb(227, 227, 227)');
   check('ラベルがはみ出していない', !set.overflow);

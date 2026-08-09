@@ -172,7 +172,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       bigW: big ? r(big).width : 0,
       bigLeftOfSide: !!(big && side) && r(big).right <= r(side).left + 1,
       sideKids,
-      rlab: (document.querySelector('#wd-center .wd-rlab') || {}).textContent,
+      // PWRの帯は2026-08-09 22:05の指示で廃止。いまのPWRはグラフの中の文字になった
+      rlab: [...document.querySelectorAll('#wd-center .st-graphpanel svg text')].map(t => t.textContent).find(t => /^PWR /.test(t)) || '',
       graphInSide: !!(side && side.querySelector('.st-graphpanel svg')),
       stroke: +((document.querySelector('#wd-center .st-graphpanel polyline') || {}).getAttribute
         ? document.querySelector('#wd-center .st-graphpanel polyline').getAttribute('stroke-width') : 0)
@@ -190,9 +191,10 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check(`左の単語カードは並びのカードの約2倍 (${Math.round(wd.bigW)}px / ${Math.round(wd.dotW)}px)`,
     wd.bigW / wd.dotW >= 1.6);
   check('大きいカードは左・その右に情報の列', wd.bigLeftOfSide);
-  check(`右の列は上からPWR・カード枚数・グラフ (${wd.sideKids.join(' / ')})`,
-    wd.sideKids[0] === 'wd-crate' && wd.sideKids[1] === 'wd-cbar' && wd.sideKids[2] === 'st-graphpanel');
-  check(`PWR表記になっている (${wd.rlab})`, wd.rlab === 'PWR');
+  // PWRの帯は廃止し、いまのPWRはグラフの中に緑の文字で出す（メール指示 2026-08-09 22:05）
+  check(`右の列は上からカード枚数・グラフ (${wd.sideKids.join(' / ')})`,
+    wd.sideKids[0] === 'wd-cbar' && wd.sideKids[1] === 'st-graphpanel');
+  check(`PWRはグラフの中に出ている (${wd.rlab})`, /^PWR \d+%$/.test(wd.rlab));
   check('グラフは右の列の中', wd.graphInSide);
   check(`グラフの線は太いまま (${wd.stroke})`, wd.stroke >= 4);
 

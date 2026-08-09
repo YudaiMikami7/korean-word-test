@@ -100,8 +100,9 @@ const near = (a, b, tol) => Math.abs(a - b) <= tol;
   check(`カプセルは全幅の約88% (${M.cap.w.toFixed(1)}%)`, near(M.cap.w, 88, 1));
   check(`カプセルは全高の約84% (${M.cap.h.toFixed(1)}%)`, near(M.cap.h, 84, 1));
   check(`カプセルは上下中央 (上${M.cap.t.toFixed(1)}% / 下${(100 - M.cap.b).toFixed(1)}%)`, near(M.cap.t, 100 - M.cap.b, 1));
-  check(`角丸はカプセル高さの約40〜45% (${(M.capRadius / M.capH * 100).toFixed(1)}%)`,
-    M.capRadius / M.capH >= .38 && M.capRadius / M.capH <= .47);
+  // 2026-08-09 22:05の指示で「完全なカプセル」＝角丸は高さの半分以上に変更
+  check(`角丸は高さの半分以上＝完全なカプセル (${(M.capRadius / M.capH * 100).toFixed(1)}%)`,
+    M.capRadius / M.capH >= .5);
 
   /* ============ ② 並び順と横位置の比率 ============ */
   const order = [M.world, M.lap, M.words, M.rate, M.rank];
@@ -122,7 +123,8 @@ const near = (a, b, tol) => Math.abs(a - b) <= tol;
     M.bars.every(b => near(b.t, M.bars[0].t, .2)));
   check(`3本のバーは同じ高さ (${M.bars.map(b => b.h.toFixed(1)).join(' / ')}%)`,
     M.bars.every(b => near(b.h, M.bars[0].h, .2)));
-  check(`バーの高さは全高の約11% (${M.bars[0].h.toFixed(1)}%)`, M.bars[0].h >= 9 && M.bars[0].h <= 13);
+  // 2026-08-09 22:05の指示でバーは少し細くした（約11%→約8%）
+  check(`バーの高さは全高の約8% (${M.bars[0].h.toFixed(1)}%)`, M.bars[0].h >= 7 && M.bars[0].h <= 10);
   check('3本のバーは同じ角丸（カプセル形）', M.bars.every(b => b.radius === M.bars[0].radius) && /999|9999/.test(M.bars[0].radius));
   check(`バーはブロック幅の約95% (${M.bars.map(b => b.w.toFixed(1)).join(' / ')}%)`, M.bars.every(b => b.w > 0));
   check(`トラックは濃いチャコール (${M.bars[0].track})`,
@@ -136,7 +138,8 @@ const near = (a, b, tol) => Math.abs(a - b) <= tol;
   check(`「WORLD」は番号よりずっと小さい (${M.fsLabel.toFixed(0)}px / ${M.fsNo.toFixed(0)}px)`, M.fsLabel < M.fsNo * .45);
   check(`3つの数字は同じ大きさ (${M.fsLapNum.toFixed(0)} / ${M.fsWords.toFixed(0)} / ${M.fsRate.toFixed(0)}px)`,
     near(M.fsLapNum, M.fsWords, .5) && near(M.fsWords, M.fsRate, .5));
-  check(`数字は前より大きくなった（旧27px→${M.fsWords.toFixed(0)}px）`, M.fsWords >= 40);
+  // 2026-08-09 22:05の指示で「少し小さく」（43→37px）。それでも刷新前の27pxよりは大きい
+  check(`数字は刷新前より大きいまま（旧27px→${M.fsWords.toFixed(0)}px）`, M.fsWords >= 34 && M.fsWords < 42);
   check(`「2週目」は数字よりはっきり小さい (${M.fsLapLab.toFixed(0)}px / ${M.fsLapNum.toFixed(0)}px)`, M.fsLapLab < M.fsLapNum * .5);
   check(`「/12」は数字より小さく「2週目」より大きい (${M.fsLapSub.toFixed(0)}px)`,
     M.fsLapSub < M.fsLapNum * .7 && M.fsLapSub > M.fsLapLab);
@@ -145,8 +148,10 @@ const near = (a, b, tol) => Math.abs(a - b) <= tol;
 
   /* ============ ⑤ 学習進捗のまとまり ============ */
   check(`表示は「n周目 x/12」のまま (${M.lapTxt})`, /^\d+周目\d+\/\d+$/.test(M.lapTxt));
-  check('「2週目」は数字の右上', M.tLapLab.l > M.tLapNum.r && M.lapLabBottom <= M.lapSubTop + 1);
-  check('「/12」は数字の右下（同じベースライン側）', M.tLapSub.l > M.tLapNum.r);
+  // 2026-08-09 22:05の指示でステップ数を右ぞろえにしたので、「2週目」は数字の真上（右そろえ）になった
+  check('「2週目」は数字の上（右そろえ・重ならない）', M.lapLabBottom <= M.lapSubTop + 1);
+  // 右ぞろえにしたので数字の右端と「/12」の左端はぴったり接する（メール指示 2026-08-09 22:05）
+  check('「/12」は数字の右下（同じベースライン側）', M.tLapSub.l >= M.tLapNum.r - 1);
   check('「2週目」と「/12」は右そろえで縦に並ぶ', near(M.tLapLab.r, M.tLapSub.r, 1.5));
 
   /* ============ ⑥ ランクは既存のメダルのまま ============ */

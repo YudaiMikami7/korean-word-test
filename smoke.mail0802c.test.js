@@ -129,7 +129,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   const wd = await page.evaluate(() => {
     const cs = e => e ? getComputedStyle(e) : null;
     const center = document.getElementById('wd-center');
-    const crate = center.querySelector('.wd-crate');
+    // PWRの帯(.wd-crate)は2026-08-09 22:05の指示で廃止。いまのPWRはグラフの中の緑の文字になった
+    const graph = center.querySelector('.wd-graph');
     const cbar = center.querySelector('.wd-cbar');
     const chips = [...cbar.querySelectorAll('.wd-cchip')];
     const dateCell = center.querySelector('.htab tbody tr td:first-child');
@@ -146,10 +147,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       chipIcoBg: chips.length ? cs(chips[0].querySelector('.wd-cico')).backgroundColor : '',
       chipIcoBorder: chips.length ? cs(chips[0].querySelector('.wd-cico')).borderTopColor : '',
       rareSplit: chips.some(c => c.querySelector('.wd-cico.rn-SSR')),
-      crateRadius: cs(crate).borderTopLeftRadius,
-      crateBg: cs(crate).backgroundColor,
-      crateOrder: [...crate.children].map(e => e.className.split(' ')[0]),
-      gaugeH: Math.round(crate.querySelector('.wd-rg').getBoundingClientRect().height * 100) / 100,
+      noCrate: !center.querySelector('.wd-crate'),
+      graphBg: cs(graph).backgroundColor,
+      graphPwr: [...graph.querySelectorAll('svg text')].map(t => t.textContent).find(t => /^PWR /.test(t)) || '',
       date: dateCell ? dateCell.textContent.trim() : '',
       flags: dirCell ? [...dirCell.querySelectorAll('img.dicon')].map(i => i.getAttribute('src')).join(',') : '',
       histOv: cs(box).overflowY,
@@ -160,16 +160,16 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   });
   check('単語詳細はホーム画面の真ん中に入る', wd.inHome && wd.homeMenu);
   check('「初級 ROOM xx」のバー／タイトルの行は廃止', !wd.roomBar);
-  check(`韓国語は少し小さくなった (${wd.koSize}px)`, wd.koSize >= 30 && wd.koSize < 44);
+  // ※2026-08-09 22:05の指示で「文字を大きく」に変更（36→44px）
+  check(`韓国語の文字の大きさ (${wd.koSize}px)`, wd.koSize >= 30 && wd.koSize <= 46);
   check('「獲得したカード」の日本語は無い', !wd.cardsWord);
   check(`カードは黄色い座布団＋白枠のアイコン (${wd.chipIcoBg} / ${wd.chipIcoBorder})`,
     wd.chipIcoBg === 'rgb(245, 197, 24)' && wd.chipIcoBorder === 'rgb(255, 255, 255)');
   check(`レア度ごとに札が分かれている (${wd.chipN}種)`, wd.chipN === 2 && wd.rareSplit);
-  check(`PWRメーターはステータスバーと同じ黒のカプセル (${wd.crateRadius} / ${wd.crateBg})`,
-    parseFloat(wd.crateRadius) >= 100 && wd.crateBg === 'rgba(0, 0, 0, 0.8)');
-  check(`ラベル→ゲージ→数値の並び (${wd.crateOrder.join('/')})`,
-    wd.crateOrder[0] === 'wd-rlab' && wd.crateOrder[1] === 'wd-rg' && wd.crateOrder[2] === 'wd-rval');
-  check(`ゲージはステータスバーと同じ太さ (${wd.gaugeH}px)`, wd.gaugeH > 10);
+  // PWRメーターの帯は廃止し、いまのPWRは白いグラフの中に出す（メール指示 2026-08-09 22:05）
+  check('PWRメーターの帯は無くなった', wd.noCrate);
+  check(`グラフは白背景・いまのPWRはその中 (${wd.graphBg} / ${wd.graphPwr})`,
+    wd.graphBg === 'rgb(255, 255, 255)' && /^PWR \d+%$/.test(wd.graphPwr));
   check(`学習履歴に西暦を出さない (${wd.date})`, /^\d{1,2}\/\d{1,2} \d{2}:\d{2}$/.test(wd.date));
   check(`日韓の国旗は動物アイコンと同じ絵ファイル (${wd.flags})`,
     wd.flags === 'emoji/1f1f0-1f1f7.svg,emoji/1f1ef-1f1f5.svg' || wd.flags === 'emoji/1f1ef-1f1f5.svg,emoji/1f1f0-1f1f7.svg');

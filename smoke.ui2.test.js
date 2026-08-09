@@ -62,7 +62,8 @@ const near = (a, b, t) => Math.abs(a - b) <= (t || 1.5);
     parseFloat(bars.pBorder) === 0 && parseFloat(bars.tBorder) >= 1 && bars.tBorderColor === 'rgb(255, 255, 255)'); // メール指示 2026-08-02
   check('山吹色の進捗メーターは廃止されている', !bars.pfill);
   // 札の列と動物は同じ1列にしたので帯は1段ぶん（メール指示 2026-08-02）
-  check(`代わりにキャラが歩く帯がある (高さ${bars.ph.toFixed(1)}px)`, bars.char && bars.ph >= 28);
+  // 帯は2026-08-09 22:05の指示で最小の高さにした（30→22px）
+  check(`代わりにキャラが歩く帯がある (高さ${bars.ph.toFixed(1)}px)`, bars.char && bars.ph >= 20);
   check('白い地面の線は廃止（メール指示 2026-08-02）', !bars.ground);
   // 地面の線の代わりに、キャラはタイムメータの白枠の上に立つ＝帯とメータの間は空けない
   check(`帯と緑メーターの間は空けない (${bars.gap.toFixed(2)})`, near(bars.gap, 0, 0.4));

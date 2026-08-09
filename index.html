@@ -80,11 +80,12 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
    背景はナシ（空の水色ベタも廃止）。白い地面の線は廃止し、キャラはそのすぐ下のタイムメータ（白枠線つき）の上を歩く（メール指示 2026-08-02） */
 /* 単語カードの列とキャラの歩く段は分けず、同じ1列に置く（メール指示 2026-08-02）。
    カードはキャラの半コマ先に並ぶので重ならず、獲得アニメも同じ高さを真横に飛ぶ */
-.pbar{position:relative;height:30px;margin:8px 18px 0;border-radius:0;overflow:visible;box-sizing:border-box;--rp:0;
+/* 帯そのものと、その上（出題番号の行との間）のすき間は最小にする（30→22px／margin-top 8→1px。メール指示 2026-08-09 22:05） */
+.pbar{position:relative;height:22px;margin:1px 18px 0;border-radius:0;overflow:visible;box-sizing:border-box;--rp:0;
   background:transparent}
 /* 動物のほうが右へ進んでいく（カードは動かない）。left を1問ぶんずつ増やす（メール指示 2026-08-01） */
-.rn-char{position:absolute;left:14px;bottom:0;width:29px;height:29px;transform:translateX(-50%);
-  display:flex;align-items:center;justify-content:center;font-size:23px;line-height:1;
+.rn-char{position:absolute;left:14px;bottom:0;width:22px;height:22px;transform:translateX(-50%);
+  display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;
   transition:left .55s cubic-bezier(.22,.85,.3,1);
   filter:drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 2px 3px rgba(0,0,0,.35));pointer-events:none;z-index:2}
 .rn-char img{width:100%;height:100%;object-fit:contain;display:block}
@@ -93,10 +94,10 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
    正解でも不正解でもキャラのほうへ飛んできて獲得する。
    札に韓国語は書かない（答えが見えてしまうため） */
 /* 札の列はキャラと同じ列（メール指示 2026-08-02） */
-.rn-rail{position:absolute;left:0;right:0;top:2px;height:26px;pointer-events:none}
+.rn-rail{position:absolute;left:0;right:0;top:1px;height:21px;pointer-events:none}
 /* 札は黄色い座布団＋白枠（メール指示 2026-08-01）。影はナシ。枠は外へ広げず、見た目の大きさのまま */
 /* 白枠は半分の太さ（2px→1px）、札は今までの75%の大きさ（17×26→12.75×19.5）（メール指示 2026-08-08 23:50） */
-.rn-slot{position:absolute;top:3px;width:12.75px;height:19.5px;box-sizing:border-box;border-radius:3px;background:#F5C518;
+.rn-slot{position:absolute;top:1px;width:12.75px;height:19.5px;box-sizing:border-box;border-radius:3px;background:#F5C518;
   border:1px solid #fff;animation:rnCardIn .28s ease both;--fly:-120px;--flyY:30px}
 .rn-slot.got{animation:rnCardGot .62s cubic-bezier(.3,.9,.3,1) forwards}
 .rn-slot.gone{opacity:0;animation:none} /* 復帰・再組み立てのときは獲得アニメを流さずに消えた状態から始める */
@@ -356,8 +357,9 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
  * で、数字（01 / 周回 / 語数 / 正答率）を主役に、補助文字は小さく。3本のバーは同じ高さ・同じY。
  * ランクだけは新しい丸を作らず、これまでのメダル（金リング＋光沢＝.rank-b）をそのまま使う。 */
 .rmenu{--rh:138px;position:absolute;left:0;top:-23px;width:100%;height:var(--rh,138px);color:#fff}
-/* 中央の横長カプセル：全幅の88%・全高の84%・上下中央。角丸はカプセル高さの約42%、影は付けずフラットに */
-.rmenu-bg{position:absolute;left:6%;top:8%;width:88%;height:84%;background:rgba(255,255,255,.17);border-radius:calc(var(--rh,138px)*.355);cursor:pointer}
+/* 中央の横長カプセル：全幅の88%・全高の84%・上下中央。角丸は高さの半分＝左右の端が半円の「完全なカプセル」
+   （角丸を高さの.355倍にしていたので端が角丸長方形に見えていた。メール指示 2026-08-09 22:05）。影は付けずフラットに */
+.rmenu-bg{position:absolute;left:6%;top:8%;width:88%;height:84%;background:rgba(255,255,255,.17);border-radius:999px;cursor:pointer}
 /* ① WORLD番号（全幅の約10〜23%）。WORLDと番号で1つの情報ブロック＝縦の間隔はごく小さく、主役は番号 */
 .rm-world{position:absolute;left:9.3%;top:17.8%;width:14%;line-height:1;cursor:pointer;z-index:2;white-space:nowrap}
 .hv-roomlabel{display:block;font-size:calc(var(--rh,138px)*.16);font-weight:900;letter-spacing:.04em;line-height:1}
@@ -368,21 +370,23 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rm-lap{left:25.3%;width:18.9%}
 .rm-words{left:46.6%;width:15%}
 .rm-rate{left:63.9%;width:14.9%}
-.rm-blk .gauge{left:2.5%;top:63%;width:95%;height:10%;padding:calc(var(--rh,138px)*.014)}
+/* 数字とバーはひとまわり小さく（メール指示 2026-08-09 22:05）。バーは高さ10%→8.3%、角丸999pxのままなので端は半円＝完全なカプセル */
+.rm-blk .gauge{left:2.5%;top:64%;width:95%;height:8.3%;padding:calc(var(--rh,138px)*.012)}
 .rm-blk .gauge .gfill{transition:none} /* バーは伸びる動きを付けない（アニメ廃止） */
-/* ② 学習進捗：「10」を極大、右上に「2週目」、右下に「/12」でひとまとまりに見せる */
-.hv-lap{position:absolute;left:0;top:27%;width:100%;text-align:left;white-space:nowrap;cursor:pointer}
-.hv-lap .lp-v{display:flex;justify-content:space-between;align-items:baseline;font-size:calc(var(--rh,138px)*.31);font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
-.hv-lap .lp-v b{font-weight:900;min-width:1.3em;text-align:left} /* 大きい数字は行の基準サイズそのまま＝単語数・正答率と同じ高さの行。1桁でも2桁ぶんの幅を取り、「/12」との間隔が回ごとに変わらないようにする */
-.hv-lap .lp-v i{font-style:normal;font-size:calc(var(--rh,138px)*.17);opacity:.9} /* 「/12」は数字の右下（同じベースライン） */
-.hv-lap .lp-l{position:absolute;right:0;top:calc(var(--rh,138px)*-.04);font-size:calc(var(--rh,138px)*.135);font-weight:900;opacity:.95} /* 「2週目」は数字の右上 */
-/* ③ 単語数／④ 正答率：数字を極大・単位はひとまわり小さく、ブロック中央ぞろえ */
-.hv-learned,.hv-roompwr{position:absolute;left:0;top:27%;width:100%;text-align:center;white-space:nowrap;
-  font-size:calc(var(--rh,138px)*.31);font-weight:900;line-height:1;color:#FFFFFF}
-.hv-learned .unit{font-size:calc(var(--rh,138px)*.20);margin-left:calc(var(--rh,138px)*.012)}
-.hv-roompwr .unit{font-size:calc(var(--rh,138px)*.21);margin-left:calc(var(--rh,138px)*.012)}
+/* ② 学習進捗：「10」を大きく、右上に「2週目」、右下に「/12」でひとまとまりに見せる。
+   ステップ数（いま何マス／全マス）はブロックの右端ぞろえ＝「2週目」の真下に来る（メール指示 2026-08-09 22:05） */
+.hv-lap{position:absolute;left:0;top:29%;width:100%;text-align:right;white-space:nowrap;cursor:pointer}
+.hv-lap .lp-v{display:flex;justify-content:flex-end;align-items:baseline;font-size:calc(var(--rh,138px)*.27);font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+.hv-lap .lp-v b{font-weight:900;min-width:1.3em;text-align:right} /* 大きい数字は行の基準サイズそのまま＝単語数・正答率と同じ高さの行。1桁でも2桁ぶんの幅を取り、「/12」との間隔が回ごとに変わらないようにする */
+.hv-lap .lp-v i{font-style:normal;font-size:calc(var(--rh,138px)*.15);opacity:.9} /* 「/12」は数字の右下（同じベースライン） */
+.hv-lap .lp-l{position:absolute;right:0;top:calc(var(--rh,138px)*-.15);font-size:calc(var(--rh,138px)*.125);font-weight:900;opacity:.95} /* 「2週目」はステップ数の真上（右ぞろえにしたぶん重ならないよう上へ。メール指示 2026-08-09 22:05） */
+/* ③ 単語数／④ 正答率：数字を大きく・単位はひとまわり小さく、ブロック中央ぞろえ */
+.hv-learned,.hv-roompwr{position:absolute;left:0;top:29%;width:100%;text-align:center;white-space:nowrap;
+  font-size:calc(var(--rh,138px)*.27);font-weight:900;line-height:1;color:#FFFFFF}
+.hv-learned .unit{font-size:calc(var(--rh,138px)*.175);margin-left:calc(var(--rh,138px)*.012)}
+.hv-roompwr .unit{font-size:calc(var(--rh,138px)*.185);margin-left:calc(var(--rh,138px)*.012)}
 /* 3桁（100語・100%）になる回だけ数字をひとまわり落として、となりのブロックに掛からないようにする */
-.rm-blk.w3 .hv-learned,.rm-blk.w3 .hv-roompwr{font-size:calc(var(--rh,138px)*.245)}
+.rm-blk.w3 .hv-learned,.rm-blk.w3 .hv-roompwr{font-size:calc(var(--rh,138px)*.215)}
 /* ランクの下端(146)を下段バー(132+14=146)・WORLD番号の字面下端と一致させる */
 /* ※.rank-s（1つ前・2つ前のランク）はWORLDメニューから廃止し、その場所に周回表示(.hv-lap)を置いた（メール指示 2026-07-31）。
      スタイルは他の場所（過去履歴など）と同じ書式のまま残してある */
@@ -398,7 +402,8 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rank-b,.rank-s{box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 4px rgba(255,196,0,.9),0 3px 8px rgba(0,0,0,.3)}
 .rank-b::after,.rank-s::after{content:"";position:absolute;inset:3px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%);pointer-events:none}
 /* WORLDメニュー領域のクリップ：3面ローテのアニメが座布団の外にはみ出て描画されないように（座標は不変） */
-.rmenu-clip{position:absolute;inset:0;z-index:2;clip-path:inset(-12px 36px calc(100% - 104px) 36px round 49px)}
+/* クリップの角丸も座布団と同じ「完全なカプセル」に合わせる（高さ116pxの半分＝58px。メール指示 2026-08-09 22:05） */
+.rmenu-clip{position:absolute;inset:0;z-index:2;clip-path:inset(-12px 36px calc(100% - 104px) 36px round 58px)}
 /* WORLDメニュー（カプセル）の外側・左右に置く「隣のページへ」矢印。
    スライドの中ではなくhome-wrap直下に1組だけ置くフロート＝難易度・プリQQ・どのWORLDでも同じ位置に出る。
    高さは全高(138px)の約30%＝41pxの三角にし、上下中央をカプセルの中心(slide-inner基準46px→画面231px)に合わせる
@@ -1067,22 +1072,19 @@ body.bigtext .set-d{font-size:13.5px}
 .cc-head .set-h{font-size:16px;font-weight:900;color:#1a1a1a;letter-spacing:.04em}
 .cc-head .set-close{position:absolute;right:0;top:0;background:transparent;border:none;width:38px;height:38px;border-radius:50%;font-size:20px;font-weight:900;color:#999;cursor:pointer;line-height:1;font-family:inherit;display:flex;align-items:center;justify-content:center}
 .cc-head .set-close:active{background:rgba(0,0,0,.1)}
-.cc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:2px}
+/* 左右のマスは必ず同じ幅（中身が長くても片方だけ広がらないよう minmax(0,1fr) にする。メール指示 2026-08-09 22:05） */
+.cc-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;margin-top:2px}
 /* 見出しで「学習」「見た目と音」「そのほか」に分ける（設定のUI見直し。メール指示 2026-08-08 23:50） */
 .cc-sec{font-size:10.5px;font-weight:900;color:#aaa;letter-spacing:.10em;margin:12px 3px 5px;display:flex;align-items:center;gap:7px}
 .cc-sec::after{content:"";flex:1 1 auto;height:2px;background:#F0F0F0;border-radius:2px}
-/* マスは「今日の5問」の朝の部／夜の部のマス(.d5-slot)と同じ作り。中身の長さで大きさが変わらないよう
-   高さ固定・1行固定にしてある。オン/オフは枠の色だけでなく小さなスイッチでも分かるようにした */
-.cc-tile{background:#F2F2F2;border:2px solid #E3E3E3;padding:7px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;-webkit-tap-highlight-color:transparent;transition:background .15s ease,border-color .15s ease;height:78px;box-sizing:border-box}
+/* マスは縦に伸ばさず、絵・ラベル・いまの状態を1行に並べたコンパクトな作りにする。
+   スイッチは置かず、オン/オフは枠の色（黄色）と右の状態文字だけで示す（メール指示 2026-08-09 22:05） */
+.cc-tile{background:#F2F2F2;border:2px solid #E3E3E3;padding:0 7px;cursor:pointer;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:5px;text-align:left;-webkit-tap-highlight-color:transparent;transition:background .15s ease,border-color .15s ease;height:40px;box-sizing:border-box}
 .cc-tile:active{background:#E8E8E8}
-.cc-sw{display:block;width:30px;height:15px;border-radius:999px;background:#DCDCDC;position:relative;transition:background .15s ease;margin-top:2px;flex:0 0 auto}
-.cc-sw i{position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:left .15s ease}
-.cc-tile.on .cc-sw{background:#FFC400}
-.cc-tile.on .cc-sw i{left:17px}
-.cc-txt{display:flex;flex-direction:column;min-width:0;width:100%}
-.cc-ico{flex:0 0 auto;font-size:17px;line-height:1.2}
-.cc-lab{font-size:11px;font-weight:900;color:#777;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cc-state{font-size:12px;font-weight:900;color:#aaa;margin-top:1px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-txt{display:flex;flex-direction:row;align-items:baseline;justify-content:space-between;gap:4px;flex:1 1 auto;min-width:0}
+.cc-ico{flex:0 0 auto;font-size:14px;line-height:1}
+.cc-lab{font-size:10.5px;font-weight:900;color:#777;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-state{font-size:11px;font-weight:900;color:#aaa;line-height:1.2;white-space:nowrap;flex:0 0 auto}
 .cc-tile.on{border-color:#FFC400;background:#FFF7E0}
 .cc-tile.on .cc-lab{color:#777}
 .cc-tile.on .cc-state{color:#E0831A}
@@ -1361,12 +1363,14 @@ body.bigtext .set-d{font-size:13.5px}
 .back{background:rgba(0,0,0,.8);border:none;color:#fff;width:38px;height:38px;border-radius:0;font-size:18px;cursor:pointer;flex:0 0 auto}
 .back:active{background:rgba(0,0,0,.65)}
 .page-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.htab{width:100%;border-collapse:collapse;font-size:15px;background:rgba(0,0,0,.35)}
-.htab th,.htab td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
-.htab th{position:sticky;top:0;background:rgba(0,0,0,.8);color:#fff;font-size:12px;font-weight:800;white-space:nowrap}
-.htab td.ko{font-size:18px}
-.htab td:nth-child(2){font-size:16px;font-weight:700}
-.htab td.num{text-align:right;font-variant-numeric:tabular-nums}
+/* 学習履歴の表は白い背景に黒い文字・文字は大きめ。数字の列は見出しも数字と同じ右ぞろえ
+   （メール指示 2026-08-09 22:05） */
+.htab{width:100%;border-collapse:collapse;font-size:17px;background:#fff;color:#1a1a1a}
+.htab th,.htab td{padding:9px 7px;border-bottom:1px solid #E8E8E8;text-align:left}
+.htab th{position:sticky;top:0;background:#F2F2F2;color:#666;font-size:14px;font-weight:900;white-space:nowrap}
+.htab td.ko{font-size:19px}
+.htab td:nth-child(2){font-size:17px;font-weight:700}
+.htab td.num,.htab th.num{text-align:right;font-variant-numeric:tabular-nums}
 .htab tr.click{cursor:pointer}
 .htab tr.click:active{background:var(--panel)}
 .rate-bad{color:var(--blue)}.rate-mid{color:var(--gold)}.rate-good{color:var(--green)}
@@ -1412,8 +1416,8 @@ body.bigtext .set-d{font-size:13.5px}
 .bignote{background:var(--panel);border:1px solid var(--line);padding:14px;text-align:center;font-size:14px;line-height:1.8;font-weight:700;margin-bottom:12px}
 .bignote b{color:var(--green);font-size:18px}
 .bignote .improve{color:var(--green);font-weight:800}
-.wd-center .htab th,.wd-center .htab td{padding:6px 4px}
-.wd-center .htab td:first-child{font-size:11px;color:rgba(255,255,255,.65)}
+.wd-center .htab th,.wd-center .htab td{padding:8px 6px}
+.wd-center .htab td:first-child{font-size:13.5px;color:#8a8a8a}
 .dicon{width:20px;height:20px;vertical-align:-4px;margin-right:2px}
 .wd-scroll{flex:1;min-height:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none}
 .wd-scroll::-webkit-scrollbar{display:none}
@@ -1434,11 +1438,13 @@ body.bigtext .set-d{font-size:13.5px}
 .wd-more{display:none;width:100%;margin:12px 0 4px;border:none;border-radius:999px;background:rgba(0,0,0,.35);color:rgba(255,255,255,.9);
   font-family:inherit;font-size:13px;font-weight:800;letter-spacing:1px;padding:11px;cursor:pointer}
 .wd-more:active{background:rgba(0,0,0,.55)}
-/* 単語詳細（メール指示 2026-08-01）：左＝小カードの約2倍の大きい単語カード／右＝上からPWR・カードの札・グラフ。
-   単語カードの縦幅は中身によらず固定し、右のPWR・カードの札・グラフはその縦幅にぴったり収める
+/* 単語詳細（メール指示 2026-08-01）：左＝小カードの約2倍の大きい単語カード／右＝上からカードの札・グラフ
+   （PWRの帯は廃止しグラフの中へ。メール指示 2026-08-09 22:05）。
+   単語カードの縦幅は中身によらず固定し、右のカードの札・グラフはその縦幅にぴったり収める
    （＝カードの上端・下端と右列の上端・下端がそろう。メール指示 2026-08-02） */
-.wd-main{--wdcard-h:248px;display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:10px;align-items:start;margin-top:6px}
-.wd-bigcard{background:linear-gradient(160deg,#fff,#ffe9c2);color:#1a1a1a;border-radius:18px;padding:8px 6px 10px;width:100%;max-width:220px;height:var(--wdcard-h);justify-self:center;box-sizing:border-box;
+/* カードも文字もひとまわり大きく（カード248→306px高・幅220→262px。メール指示 2026-08-09 22:05） */
+.wd-main{--wdcard-h:306px;display:grid;grid-template-columns:minmax(0,.98fr) minmax(0,1.02fr);gap:10px;align-items:start;margin-top:6px}
+.wd-bigcard{background:linear-gradient(160deg,#fff,#ffe9c2);color:#1a1a1a;border-radius:18px;padding:10px 8px 12px;width:100%;max-width:262px;height:var(--wdcard-h);justify-self:center;box-sizing:border-box;
   box-shadow:0 6px 18px rgba(0,0,0,.28);text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden}
 .wd-side{display:flex;flex-direction:column;gap:8px;min-width:0;height:var(--wdcard-h);box-sizing:border-box}
 /* 持っているカードは「獲得したカード N枚」の文字ではなく、出題中の帯と同じ黄色い座布団＋白枠の札で出す。
@@ -1449,56 +1455,49 @@ body.bigtext .set-d{font-size:13.5px}
 .wd-cico.rn-R{filter:drop-shadow(0 0 4px #2F6FE0)}
 .wd-cico.rn-SR{filter:drop-shadow(0 0 5px #A05BD6)}
 .wd-cico.rn-SSR{filter:drop-shadow(0 0 7px #FFC400)}
-.wd-cchip b{font-size:17px;font-weight:900;color:#FFD86B;line-height:1}
+.wd-cchip b{font-size:20px;font-weight:900;color:#FFD86B;line-height:1}
 .wd-cchip.none .wd-cico{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.55)}
 .wd-cchip.none b{color:rgba(255,255,255,.55)}
-.wd-cimg{position:relative;width:100%;height:118px;display:flex;align-items:center;justify-content:center}
+.wd-cimg{position:relative;width:100%;height:150px;display:flex;align-items:center;justify-content:center}
 .wd-cimg .wd-img2{max-width:100%;height:100%;object-fit:contain}
 .wd-cimg .wd-img2.noimg{display:flex;align-items:center;justify-content:center;font-size:52px}
 .wd-cimg .wd-img2.sil{filter:brightness(0) opacity(.5)} /* 未獲得はシルエット（単語帳のカードと同じ。メール指示 2026-08-02） */
-/* グラフは残りの高さいっぱい＝右列の下端が単語カードの下端とそろう（メール指示 2026-08-02） */
-.wd-graph{border-radius:12px;padding:8px 6px 6px;flex:1 1 auto;min-height:0;box-sizing:border-box;display:flex;align-items:center;overflow:hidden}
+/* グラフは残りの高さいっぱい＝右列の下端が単語カードの下端とそろう（メール指示 2026-08-02）。
+   背景は白（黒の座布団はやめる）。いまのPWRはグラフの中に緑の文字で描く（メール指示 2026-08-09 22:05） */
+.wd-graph{border-radius:12px;padding:6px 5px 4px;flex:1 1 auto;min-height:0;box-sizing:border-box;display:flex;align-items:center;overflow:hidden;background:#fff}
 .wd-graph svg{height:100%;width:100%}
 /* 単語詳細 上部の並び：白い座布団＋黄色い枠線ではなく、ほかの画面と同じ「単語カード」を並べる（メール指示 2026-08-01） */
 .rp-pager{flex:0 0 auto;display:flex;gap:8px;align-items:stretch;overflow-x:auto;overflow-y:hidden;touch-action:pan-x;scrollbar-width:none;padding:8px 16px 10px}
 .rp-pager::-webkit-scrollbar{display:none}
 .wd-pagerow .rp-pager{flex:1 1 auto;min-width:0;padding:8px 6px 10px} /* 移動ボタンを両端に置いたぶん、並びは間を目いっぱい使う */
 /* カードの横幅は中身（単語の長さ）によらず固定（メール指示 2026-08-02） */
-.rp-pager .wd-dot{flex:0 0 82px;width:82px;flex-direction:column;justify-content:center;gap:1px;height:auto;
+.rp-pager .wd-dot{flex:0 0 96px;width:96px;flex-direction:column;justify-content:center;gap:1px;height:auto;
   background:linear-gradient(160deg,#fff,#ffe9c2);color:#1a1a1a;border-radius:12px;padding:5px 6px;text-shadow:none;overflow:hidden;
   box-shadow:0 3px 8px rgba(0,0,0,.25);transition:transform .18s ease,box-shadow .18s ease}
 .rp-pager .wd-dot.cur{transform:scale(1.06);box-shadow:0 0 0 3px rgba(0,0,0,.75),0 3px 10px rgba(0,0,0,.35)}
-.rp-pager .wd-dimg{height:40px;width:auto;max-width:100%;object-fit:contain;display:block;filter:drop-shadow(0 2px 5px rgba(0,0,0,.18))}
-.rp-pager .wd-dimg.noimg{height:40px;display:flex;align-items:center;justify-content:center;font-size:24px}
+.rp-pager .wd-dimg{height:48px;width:auto;max-width:100%;object-fit:contain;display:block;filter:drop-shadow(0 2px 5px rgba(0,0,0,.18))}
+.rp-pager .wd-dimg.noimg{height:48px;display:flex;align-items:center;justify-content:center;font-size:28px}
 .rp-pager .wd-dimg.sil{filter:brightness(0) opacity(.5)} /* 未獲得はシルエット（単語帳のカードと同じ） */
-.rp-pager .wd-dno{font-size:10px;font-weight:900;color:#b8862b;line-height:1;letter-spacing:.5px} /* カードの通し番号（メール指示 2026-08-02） */
-.rp-pager .wd-dk{font-size:16px;font-weight:900;white-space:nowrap;line-height:1.15;margin-top:1px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
-.rp-pager .wd-dj{font-size:11px;font-weight:800;color:#7a6a4a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;line-height:1.2}
-.wd-ko2{text-align:center;font-size:36px;font-weight:900;line-height:1.1;color:#1a1a1a} /* 韓国語は少し小さく（メール指示 2026-08-02） */
-.wd-ja2{text-align:center;font-size:22px;font-weight:800;color:#5c5142;margin-top:2px}
-/* PWR（この単語の記憶率）はホームのステータスバーと同じ形：黒のカプセル／右揃えラベル／
-   #333の溝に太いゲージ／右に数値（メール指示 2026-08-02） */
-.wd-crate{flex:0 0 auto;display:grid;grid-template-columns:auto minmax(30px,1fr) auto;align-items:center;gap:8px;background:rgba(0,0,0,.8);border-radius:999px;padding:7px 12px}
-.wd-rlab{flex:0 0 auto;text-align:right;font-size:14px;font-weight:900;color:#fff;letter-spacing:1px}
-.wd-rg{flex:1 1 auto;min-width:30px;height:19px;background:#333;border-radius:999px;padding:3px;box-sizing:border-box}
-.wd-rf{height:100%;border-radius:999px;background:#1FAD62;transition:width .6s ease}
-.wd-rf.ms-review{background:#C79A00}.wd-rf.ms-urgent{background:#E0433B}
-.wd-rval{flex:0 0 auto;font-size:20px;font-weight:900;line-height:1}
-.wd-rval i{font-style:normal;font-size:12px;margin-left:1px}
-.wd-rval{color:#fff}
-.wd-rval.ms-stable{color:#37E08A}.wd-rval.ms-review{color:#FFD84D}.wd-rval.ms-urgent{color:#FF7B72}
+.rp-pager .wd-dno{font-size:11px;font-weight:900;color:#b8862b;line-height:1;letter-spacing:.5px} /* カードの通し番号（メール指示 2026-08-02） */
+.rp-pager .wd-dk{font-size:19px;font-weight:900;white-space:nowrap;line-height:1.15;margin-top:1px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.rp-pager .wd-dj{font-size:12.5px;font-weight:800;color:#7a6a4a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;line-height:1.2}
+/* カードの中の文字も大きく（メール指示 2026-08-09 22:05） */
+.wd-ko2{text-align:center;font-size:44px;font-weight:900;line-height:1.1;color:#1a1a1a}
+.wd-ja2{text-align:center;font-size:26px;font-weight:800;color:#5c5142;margin-top:3px}
+/* ※単語詳細のPWRメーター（黒いカプセルの帯 .wd-crate）は廃止。いまのPWRは白いグラフの中に
+     緑の文字で描くようにした（メール指示 2026-08-09 22:05） */
 /* 単語詳細の最上部にあった「初級 WORLD xx」のWORLDメニューとタイトルの行は廃止（メール指示 2026-08-02）。
    単語詳細はホームの真ん中に入るので、上のWORLDメニューはホームのものがそのまま見えている */
 /* 単語詳細は器（真ん中）ごと縦にスクロールする。学習履歴は最後まで流し込み、
    その先まで引くと単語帳へ戻る（メール指示 2026-08-02） */
 .wd-center .tdetail-sec{margin:10px 0 0}
 .wd-center .tdetail-sec .h{color:rgba(255,255,255,.75)}
-.wd-histbox{border-radius:10px}
-.wd-center .htab td.num{font-size:16px;font-weight:900}
-.wd-center .htab th.num{font-size:12px}
+.wd-histbox{border-radius:10px} /* 表の中で別スクロールはさせない（overflowは触らない。メール指示 2026-08-02） */
+.wd-center .htab td.num{font-size:19px;font-weight:900}
+.wd-center .htab th.num{font-size:14px}
 /* 「学習履歴」の見出しは表の外に置かず、いちばん左（日時が並ぶ列）のラベルに収める（メール指示 2026-08-02） */
-.wd-center .htab th.hlab{font-size:11px;font-weight:900;color:#fff;white-space:nowrap;text-align:left;letter-spacing:.5px}
-/* 学習履歴：日付の見出しは省き、時間・得点・記憶率は大きく太く */
+.wd-center .htab th.hlab{font-size:13px;font-weight:900;color:#666;white-space:nowrap;text-align:left;letter-spacing:.5px}
+/* 学習履歴：日付の見出しは省き、時間・記憶率は大きく太く（得点の列は廃止。メール指示 2026-08-09 22:05） */
 /* 出題の向きは国旗で出す（韓→日／日→韓。メール指示 2026-08-01）。
    国旗は端末まかせの絵文字フォントではなく、動物アイコン等と同じ絵ファイル（emoji/*.svg）で出す（メール指示 2026-08-02） */
 .hdir-f{font-size:15px}
@@ -9474,7 +9473,8 @@ const WORD_EX={
 let _wdBack="room";
 function wdHistRows(wordId){
   const recs=loadHistory().filter(r=>r.wordId===wordId).sort((a,b)=>a.answeredAt.localeCompare(b.answeredAt));
-  const SYM={correct:["○","#FF3B3B"],incorrect:["×","#2F6FE0"],unknown:["－","rgba(255,255,255,.75)"],timeout:["△","#DFB10F"]};
+  // 表が白地になったので、薄い色（わからない・時間切れ）は濃くする（メール指示 2026-08-09 22:05）
+  const SYM={correct:["○","#FF3B3B"],incorrect:["×","#2F6FE0"],unknown:["－","#999"],timeout:["△","#C79300"]};
   return recs.map(r=>{
     const IC=c=>`<img class="dicon" src="emoji/${c}.svg" alt="">`;
     // 日韓の国旗は、端末まかせの絵文字フォントではなく動物アイコン等と同じ絵ファイルで出す（メール指示 2026-08-02）
@@ -9487,7 +9487,8 @@ function wdHistRows(wordId){
     const sy=SYM[r.answerStatus]||["－",""];
     const secs=(r.responseTimeMs!=null?r.responseTimeMs/1000:(r.responseTimeSec!=null?r.responseTimeSec:null)); // 旧データ等でms欠損でもNaNにしない
     const secTxt=secs!=null?secs.toFixed(1):"—";
-    return `<tr><td>${fmtDateNoYear(r.answeredAt)}</td><td>${dir}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}</td><td class="num">${secTxt}</td><td class="num">${r.score}</td><td class="num">${mem}</td></tr>`;
+    // 得点の列は廃止（メール指示 2026-08-09 22:05）
+    return `<tr><td>${fmtDateNoYear(r.answeredAt)}</td><td>${dir}</td><td style="color:${sy[1]};font-weight:900">${sy[0]}</td><td class="num">${secTxt}</td><td class="num">${mem}</td></tr>`;
   }).join("");
 }
 /* 単語IDから正しい所属WORLDと室内番号を求める（一覧の並び位置ではなくデータ上の所属。最近学んだ単語などどこから開いてもズレない） */
@@ -9511,7 +9512,7 @@ function wdCardIconsHTML(id){
 }
 function wdSlideHTML(id,i){
   const w=WORD_BY_ID[id],cnt=(loadCards()[id]||0);
-  const rate=Math.round(displayScore(getStat(id),Date.now())),ms=memState(rate);
+  const rate=Math.round(displayScore(getStat(id),Date.now()));
   const note=w.n?`<div class="note">⚠️ ${esc(w.n)}</div>`:"";
   // 音声マークはカードの中・絵の右上（メール指示 2026-08-02）。絵文字ではなく白いシルエット（メール指示 2026-07-29）
   const spk=`<button class="wd-spk" aria-label="発音を聞く" onclick="event.stopPropagation();speakSmart('${esc(w.ko).replace(/'/g,"")}')">${spkSvg(20)}</button>`;
@@ -9519,8 +9520,8 @@ function wdSlideHTML(id,i){
   const hasImg=(typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko]);
   const imgTag=hasImg?`<img class="wd-img2${owned?"":" sil"}" src="${WORD_IMG[w.ko]}" alt="">`:`<div class="wd-img2 noimg">🃏</div>`;
   const ex=(typeof WORD_EX!=="undefined"&&WORD_EX[w.ko])?`<div class="wd-ex"><div class="wd-ex-ko">${esc(WORD_EX[w.ko][0])}</div><div class="wd-ex-ja">${esc(WORD_EX[w.ko][1])}</div></div>`:"";
-  // 左＝小カードの約2倍の大きい単語カード／右＝上からPWR・カードの札・グラフ（メール指示 2026-08-01）
-  // PWRメーターはホームのステータスバーと同じ形（黒のカプセル＋右揃えラベル＋太い溝。メール指示 2026-08-02）
+  // 左＝大きい単語カード／右＝上からカードの札・グラフ（メール指示 2026-08-01）
+  // PWRメーターの帯は廃止し、いまのPWRは白いグラフの中に緑の文字で出す（メール指示 2026-08-09 22:05）
   return `
     <div class="wd-main">
       <div class="wd-bigcard speakable" data-id="${id}" data-ko="${esc(w.ko)}">
@@ -9529,21 +9530,16 @@ function wdSlideHTML(id,i){
         <div class="wd-ja2">${esc(w.ja)}</div>
       </div>
       <div class="wd-side">
-        <div class="wd-crate">
-          <span class="wd-rlab">PWR</span>
-          <div class="wd-rg"><div class="wd-rf ${ms.cls}" style="width:${Math.max(0,Math.min(100,rate))}%"></div></div>
-          <span class="wd-rval ${ms.cls}">${rate}<i>%</i></span>
-        </div>
         ${wdCardIconsHTML(id)}
-        <div class="st-graphpanel wd-graph">${memChart(chartPoints(Date.now(),[w]),{fs:13,padL:34})}</div>
+        <div class="st-graphpanel wd-graph">${memChart(chartPoints(Date.now(),[w]),{fs:13,padL:34,padR:16,light:true,vals:true,pwr:rate})}</div>
       </div>
     </div>
     ${ex}
     ${note}
     <div class="tdetail-sec">
       <div class="wd-histbox">
-      <table class="htab"><thead><tr><th class="hlab">学習履歴</th><th>方向</th><th>結果</th><th class="num">時間</th><th class="num">得点</th><th class="num">記憶率(%)</th></tr></thead>
-      <tbody>${wdHistRows(id)||'<tr><td colspan="6" style="color:var(--mute);text-align:center;padding:20px">履歴なし</td></tr>'}</tbody></table>
+      <table class="htab"><thead><tr><th class="hlab">学習履歴</th><th>方向</th><th>結果</th><th class="num">時間</th><th class="num">記憶率(%)</th></tr></thead>
+      <tbody>${wdHistRows(id)||'<tr><td colspan="5" style="color:#999;text-align:center;padding:20px">履歴なし</td></tr>'}</tbody></table>
       </div>
     </div>`;
 }
@@ -9775,18 +9771,29 @@ function hoursTo70(st,nowMs){
 }
 function memChart(pts,opt){
   // opt.fs / opt.padL: 小さく縮めて置く場所（単語詳細の右列など）で目盛りが読めるように大きくできる
-  const fs=(opt&&opt.fs)||8;
-  const W=320,H=180,padL=(opt&&opt.padL)||25,padB=26,padT=8,padR=4,innerW=W-padL-padR,innerH=H-padT-padB;
+  // opt.light: 白い背景に黒い文字のグラフ／opt.vals: 点ごとに数値を書く／opt.pwr: いまのPWRをグラフの中に緑の文字で出す
+  //（いずれも単語詳細ページ用。メール指示 2026-08-09 22:05。指定しなければ従来の黒背景のまま）
+  const o=opt||{},fs=o.fs||8,light=!!o.light;
+  const W=320,H=180,padL=o.padL||25,padB=26,padT=(o.pwr!=null?fs+16:8),padR=o.padR||4,innerW=W-padL-padR,innerH=H-padT-padB;
+  const cGrid=light?"rgba(0,0,0,.16)":"rgba(255,255,255,.30)",cAxis=light?"#555":"rgba(255,255,255,.85)",
+        cLbl=light?"#555":"rgba(255,255,255,.9)",cLine=light?"#12B25A":"#00E650",
+        cVal=light?"#1a1a1a":"#fff",cTh=light?"#E0A100":"#FFD84D";
   // 縦軸は常に100ではなく、表示データの最大値に合わせて自動スケール（20刻み切り上げ→目盛りが整数になる）
   const ymax=Math.min(100,Math.max(20,Math.ceil(Math.max(...pts.map(p=>p.rate),1)/20)*20));
   const x=i=>padL+innerW*(i/(pts.length-1)),y=r=>padT+innerH*(1-Math.min(r,ymax)/ymax);
   let grid="",lbl="";
-  [0,.25,.5,.75,1].forEach(f=>{const v=Math.round(ymax*f),yy=y(v);grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="rgba(255,255,255,.30)" stroke-width="1"/><text x="${padL-4}" y="${yy+3}" fill="rgba(255,255,255,.85)" font-size="${fs}" font-weight="700" text-anchor="end">${v}</text>`;});
-  pts.forEach((p,i)=>{lbl+=`<text x="${x(i)}" y="${H-padB+14}" fill="rgba(255,255,255,.9)" font-size="${fs}" font-weight="700" text-anchor="middle">${p.label}</text>`;});
+  [0,.25,.5,.75,1].forEach(f=>{const v=Math.round(ymax*f),yy=y(v);grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="${cGrid}" stroke-width="1"/><text x="${padL-4}" y="${yy+3}" fill="${cAxis}" font-size="${fs}" font-weight="700" text-anchor="end">${v}</text>`;});
+  pts.forEach((p,i)=>{lbl+=`<text x="${x(i)}" y="${H-padB+14}" fill="${cLbl}" font-size="${fs}" font-weight="700" text-anchor="middle">${p.label}</text>`;});
   const poly=pts.map(p=>`${x(p.i)},${y(p.rate)}`).join(" ");
-  let dots="";pts.forEach(p=>{dots+=`<circle cx="${x(p.i)}" cy="${y(p.rate)}" r="2.6" fill="#00E650"/>`;});
-  const th=ymax>=70?`<line x1="${padL}" y1="${y(70)}" x2="${W-padR}" y2="${y(70)}" stroke="#FFD84D" stroke-width="1.4" stroke-dasharray="3 3"/>`:""; // 70%基準線は表示範囲内のときだけ
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${th}${grid}<polyline class="grow" points="${poly}" fill="none" stroke="#00E650" stroke-width="4.2" stroke-linejoin="round" stroke-linecap="round"/>${dots}${lbl}</svg>`;
+  let dots="";pts.forEach(p=>{dots+=`<circle cx="${x(p.i)}" cy="${y(p.rate)}" r="2.6" fill="${cLine}"/>`;});
+  // 点ごとの数値は線の上に置き、上端で切れないようにグラフの中へ収める
+  let vals="";
+  if(o.vals)pts.forEach(p=>{const vy=Math.max(padT+fs-2,y(p.rate)-7);
+    vals+=`<text x="${x(p.i)}" y="${vy}" fill="${cVal}" font-size="${Math.max(7,fs-3)}" font-weight="900" text-anchor="middle">${Math.round(p.rate)}</text>`;});
+  // いまのPWRはグラフの中（左上）に緑の文字で
+  const head=o.pwr!=null?`<text x="${padL-2}" y="${fs+9}" fill="#12B25A" font-size="${fs+5}" font-weight="900">PWR ${o.pwr}%</text>`:"";
+  const th=ymax>=70?`<line x1="${padL}" y1="${y(70)}" x2="${W-padR}" y2="${y(70)}" stroke="${cTh}" stroke-width="1.4" stroke-dasharray="3 3"/>`:""; // 70%基準線は表示範囲内のときだけ
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${th}${grid}<polyline class="grow" points="${poly}" fill="none" stroke="${cLine}" stroke-width="4.2" stroke-linejoin="round" stroke-linecap="round"/>${dots}${vals}${head}${lbl}</svg>`;
 }
 
 /* PWRメータ: 左右スワイプで 全体(最左) → WORLD01..NN を移動。各スライドは遅延レンダリング */
@@ -9898,7 +9905,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v7.4 (2026-08-09)";
+const APP_VERSION="v7.5 (2026-08-09)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -10038,10 +10045,10 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
   const st=loadSettings();
   const m=document.getElementById("settings-modal");
   const notifyOn=st.notify&&(typeof Notification!=='undefined'&&Notification.permission==='granted');
-  // マス（.cc-tile）は「今日の5問」の朝の部／夜の部と同じ作り。中身の長さでマスが大きくならないよう
-  // ラベル・状態の文字はどちらも短くしてある（メール指示 2026-08-02）
+  // マス（.cc-tile）は縦に伸ばさず1行に収める。スイッチは置かず、オン/オフは枠の色と右の状態文字で示す
+  // （メール指示 2026-08-09 22:05）。ラベル・状態の文字はどちらも短くしてある（メール指示 2026-08-02）
   const tile=(cls,ico,lab,on,onTxt,offTxt,handler)=>`<div class="cc-tile ${cls} ${on?'on':''}" onclick="${handler}" role="switch" aria-checked="${on?'true':'false'}" aria-label="${lab}">
-    <div class="cc-ico">${ico}</div><div class="cc-txt"><div class="cc-lab">${lab}</div><div class="cc-state">${on?onTxt:offTxt}</div></div><span class="cc-sw"><i></i></span></div>`;
+    <div class="cc-ico">${ico}</div><div class="cc-txt"><div class="cc-lab">${lab}</div><div class="cc-state">${on?onTxt:offTxt}</div></div></div>`;
   // 8つのマスを「学習」「見た目と音」に分け、そのあとに設定以外の入口（つかいかた・データ・リンク）を置く（メール指示 2026-08-08 23:50）
   m.innerHTML=`<div class="set-card cc-card">
     <div class="cc-head"><div class="cc-grab"></div><div class="set-h">設定</div><button class="set-close" onclick="closeSettings()" aria-label="閉じる">×</button></div>

@@ -176,9 +176,10 @@ const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1.5 : tol);
   check(`右列の高さもカードと同じ (${main.sideCss} / ${main.cardCss})`, main.sideCss === main.cardCss);
   check(`右列の上端がカードの上端と揃う (${main.side.t.toFixed(1)} / ${main.card.t.toFixed(1)})`, near(main.side.t, main.card.t, 2));
   check(`右列の下端がカードの下端と揃う (${main.side.b.toFixed(1)} / ${main.card.b.toFixed(1)})`, near(main.side.b, main.card.b, 2));
-  check('右列はPWR・カードの枚数・グラフの3つ', !!main.pwr && !!main.cbar && !!main.graph);
+  // PWRの帯は2026-08-09 22:05の指示で廃止（いまのPWRはグラフの中）。右列はカードの枚数とグラフの2つ
+  check('右列はカードの枚数・グラフの2つ', !main.pwr && !!main.cbar && !!main.graph);
   check(`グラフの下端も揃う (${main.graph.b.toFixed(1)})`, near(main.graph.b, main.card.b, 2));
-  check('PWR→カードの枚数→グラフの順に縦に並ぶ', main.pwr.b <= main.cbar.t + 1 && main.cbar.b <= main.graph.t + 1);
+  check('カードの枚数→グラフの順に縦に並ぶ', main.cbar.b <= main.graph.t + 1);
 
   // 別の単語に切りかえてもカードの縦幅は変わらない（＝中身によらず固定）
   const heights = await page.evaluate(() => {

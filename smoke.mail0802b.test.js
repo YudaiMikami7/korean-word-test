@@ -260,8 +260,10 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   }
   check(`最後の問題までキャラは帯の中に居る（見切れない）（${walk.length}問ぶん）`, walk.every(w => w.inBar && w.visible));
   check('どの問でも札は獲得アニメに入る', walk.every(w => w.got));
+  // 縦のズレの許容は8px。帯を最小にした（30→22px）ぶんキャラと札の中心がほぼ同じ高さになり、
+  // 残るズレは歩くアニメの上下動（最大6px）ぶんだけ（メール指示 2026-08-09 22:05）
   check(`獲得アニメは同じ列を横に飛ぶ (例 x=${walk[0].flyX} y=${walk[0].flyY})`,
-    walk.every(w => /px$/.test(w.flyX) && /px$/.test(w.flyY) && Math.abs(parseFloat(w.flyY)) <= 4));
+    walk.every(w => /px$/.test(w.flyX) && /px$/.test(w.flyY) && Math.abs(parseFloat(w.flyY)) <= 8));
 
   // 狭い画面でもキャラが帯の中に収まる（回転・機種差の再現）
   await page.setViewportSize({ width: 320, height: 640 });

@@ -201,8 +201,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
       pagerKoJa: !!(dot && dot.querySelector('.wd-dk') && dot.querySelector('.wd-dj')) && !dot.querySelector('.wd-dn'),
       koSize: parseFloat(getComputedStyle(document.querySelector('.wd-ko2')).fontSize),
       jaSize: parseFloat(getComputedStyle(document.querySelector('.wd-ja2')).fontSize),
-      rateBar: !!document.querySelector('.wd-crate .wd-rg .wd-rf'),
-      rateLab: (document.querySelector('.wd-rlab') || {}).textContent,
+      // PWRの帯は2026-08-09 22:05の指示で廃止。いまのPWRはグラフの中の緑の文字になった
+      rateBar: !document.querySelector('.wd-crate'),
+      rateLab: [...document.querySelectorAll('#wd-center .st-graphpanel svg text')].map(t => t.textContent).find(t => /^PWR /.test(t)) || '',
       dateTh: th[0],
       stroke: (document.querySelector('#wd-center .st-graphpanel polyline') || {}).getAttribute && +document.querySelector('#wd-center .st-graphpanel polyline').getAttribute('stroke-width')
     };
@@ -214,10 +215,10 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('音声マークはカードの中・絵の右上（メール指示 2026-08-02）', wd.spkTopRight);
   check('単語詳細の音声マークはSVG', wd.spkSvg);
   check('上のページャーは韓国語＋日本語のカード', wd.pagerKoJa);
-  // 韓国語は少し小さくした（メール指示 2026-08-02）
-  check(`韓国語は少し小さく・日本語はそのまま (${wd.koSize}px / ${wd.jaSize}px)`, wd.koSize >= 30 && wd.koSize < 40 && wd.jaSize >= 20);
-  // 2026-08-01のメール指示で、右の列の見出しは「記憶率」→「PWR」表記に変更（バー＋数字で量を見せるのは従来どおり）
-  check(`PWRはラベル＋バーで量が分かる (${wd.rateLab})`, wd.rateBar && wd.rateLab === 'PWR');
+  // 2026-08-09 22:05のメール指示で「カードの文字は大きく」に変更（韓36→44px／日22→26px）
+  check(`カードの文字の大きさ (${wd.koSize}px / ${wd.jaSize}px)`, wd.koSize >= 30 && wd.koSize <= 46 && wd.jaSize >= 20);
+  // PWRの帯は廃止し、いまのPWRはグラフの中に緑の文字で出す（メール指示 2026-08-09 22:05）
+  check(`PWRはグラフの中に出ている (${wd.rateLab})`, wd.rateBar && /^PWR \d+%$/.test(wd.rateLab));
   // 日付列の見出しは空欄にしていたが、2026-08-02 14:55のメール指示で「学習履歴」の見出しをここに収めた
   check(`学習履歴の見出しは日付列のラベルに収める ("${wd.dateTh}")`, wd.dateTh === '学習履歴');
   check(`グラフの線が太い (${wd.stroke})`, wd.stroke >= 4);
