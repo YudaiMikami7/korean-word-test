@@ -128,36 +128,32 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   });
   check('5-4 押すと育成ゲームのメニューが開く', menu && menu.on);
   check(`5-5 キャラクターが出る (${menu && menu.body})`, menu && menu.art && !!menu.body);
-  check(`5-6 「ごはんをあげる」ボタンが出る (${menu && menu.feed})`, menu && /ごはんをあげる/.test(menu.feed || ''));
+  // ごはんは廃止され、主ボタンは「きせかえる」になった。育ちは1問ごとに勝手に進む（メール指示 2026-08-29）
+  check(`5-6 「きせかえる」ボタンが出る (${menu && menu.feed})`, menu && /きせかえる/.test(menu.feed || ''));
   check('5-7 奥の育成画面へも1タップで行ける', menu && menu.toPet);
 
   const fed = await page.evaluate(async () => {
-    // petState() は同じオブジェクトを返すことがあるので、数値にして控える
     const seed0 = petState().seeds, xp0 = petState().xp;
     document.querySelector('#petmenu-modal .pm-feed').click();
     await new Promise(r => setTimeout(r, 350));
     return { seed0, seed1: petState().seeds, xp0, xp1: petState().xp,
-             msg: (document.querySelector('#petmenu-modal .pm-msg') || {}).textContent || '' };
+             wear: document.getElementById('pet-modal').classList.contains('on'),
+             head: (document.querySelector('#pet-modal .pt-subh') || {}).textContent || '' };
   });
-  check(`5-8 ごはんで韓国語エネルギーが増える (${fed.xp0}→${fed.xp1})`, fed.xp1 > fed.xp0);
-  check(`5-9 ごはん（単語の実）を1つ使う (${fed.seed0}→${fed.seed1})`, fed.seed1 === fed.seed0 - 1);
-  check(`5-10 食べたことが分かる (${fed.msg.trim()})`, /エネルギー|成長|進化/.test(fed.msg));
-  // ごはんが無いときは、同じ吹き出しに「ごはんを集める」を出す（メール指示 2026-08-08 22:26）
-  const empty = await page.evaluate(async () => {
-    const o = petState(); o.seeds = 0; savePet(o);
-    petMenuRender();
-    document.querySelector('#petmenu-modal .pm-feed').click();
-    await new Promise(r => setTimeout(r, 350));
-    const m = document.getElementById('petmenu-modal');
-    return { menu: m.classList.contains('on'),
-             title: (m.querySelector('.u5-ti') || {}).textContent || '',
-             need: !!m.querySelector('.pm-need'),
-             ways: [...m.querySelectorAll('.pm-way .pw-t')].map(e => e.textContent) };
+  check(`5-8 押すときせかえ画面が開く (${fed.head})`, fed.wear && fed.head === 'きせかえ');
+  check(`5-9 ごはんは減らない (${fed.seed0}→${fed.seed1})`, fed.seed1 === fed.seed0);
+
+  // ごはんをあげなくても、1問答えるたびに勝手に育つ
+  const auto = await page.evaluate(() => {
+    const sum = () => { const z = petState().zoo; return Object.keys(z).reduce((a, k) => a + (z[k].xp || 0), 0); };
+    const before = sum(), ws = Object.values(WORD_BY_ID);
+    for (let i = 0; i < 8; i++) saveAnswer({ wordId: ws[i].id, korean: ws[i].ko, answerType: 'choice',
+      answerStatus: 'correct', isCorrect: true, userAnswer: ws[i].ja, distractorType: 'semantic_close',
+      responseTimeMs: 1500, writingErrorType: 'phonetic_spelling', answeredAt: new Date().toISOString() });
+    return { before, after: sum() };
   });
-  check(`5-11 ごはんが無いときは「ごはんを集める」を出す (${empty.title})`,
-    empty.menu && empty.need && empty.title === 'ごはんを集める');
-  check(`5-12 ごはんが集まりやすいWORLDのステップをすすめる (${empty.ways.join(' / ')})`,
-    empty.ways.some(t => /^WORLD \d\d のステップ \d+-\d+$/.test(t)));
+  check(`5-10 ごはんなしで、答えるだけで育つ (${auto.before}→${auto.after})`, auto.after > auto.before);
+  await page.evaluate(() => { closePet(); closePetMenu(); });
   await page.evaluate(() => closeDaily5());
 
   /* ============ 回帰 ============ */

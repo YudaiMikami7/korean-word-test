@@ -5,7 +5,7 @@
  * HTML/JSなど＝ネットワーク優先・失敗時キャッシュ（更新の即時反映を最優先）
  * ※ 画像を差し替えたら CACHE の版を上げること（古いキャッシュがactivateで破棄される）
  */
-const CACHE = "ktango-v3";
+const CACHE = "ktango-v4";
 
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", e => {

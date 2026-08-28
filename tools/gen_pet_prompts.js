@@ -20,8 +20,10 @@ function pick(name) {
   return eval(m[1]);
 }
 const SPECIES = pick("PET_SPECIES");
+const BASE_SP = eval("(" + ((SRC.match(/const PET_AXIS_SP=(\{[^}]*\});/) || [])[1] || "{}") + ")");   // 基本の8匹
 const STAGES = pick("PET_STAGES");
 const ITEMS = pick("PET_ITEMS");
+const GROW = STAGES.map(x => x.lv);   // 見た目の5段階が上がるレベル
 
 /* ---------- 共通の作法（シリーズ全体で絵柄をそろえるための固定句） ---------- */
 const STYLE = [
@@ -48,6 +50,14 @@ const LOOK = {
   yongi: "a small friendly baby dragon with tiny wings",
   dokkae: "a small friendly Korean dokkaebi goblin with one little horn"
 };
+/* 見た目の5段階（メール指示 2026-08-29）。1段階目は絵文字のままなので画像は作らない */
+const GROW_LOOK = [
+  "", // 1段階目＝絵文字のまま（生成しない）
+  "as a tiny baby version, oversized round head, sitting, very simple silhouette",
+  "as a small child version, standing on two legs, cheerful, slightly more detail",
+  "as a grown-up version, standing confidently, a little taller and slimmer",
+  "as a fully grown version with a soft warm aura and small decorative ornaments"
+];
 /* 進化段階の言い換え */
 const STAGE_LOOK = {
   egg: "as a smooth pastel egg with a small pattern hinting at the creature inside, no limbs",
@@ -106,6 +116,31 @@ SPECIES.forEach(s => {
   });
 });
 
+/* ---------- ①-b 本番用：基本8匹 × 見た目の5段階（pet/{種類}/g{段階}.webp）
+      1段階目は絵文字をそのまま使うので、作るのは2段階目以降（メール指示 2026-08-29） ---------- */
+const grow = [];
+Object.keys(BASE_SP).forEach(axis => {
+  const k = BASE_SP[axis];
+  const s = SPECIES.find(x => x.k === k);
+  if (!s) return;
+  GROW_LOOK.forEach((look, i) => {
+    if (!look) return;
+    grow.push({
+      file: "pet/" + k + "/g" + (i + 1) + ".webp",
+      species: k, name: s.name, step: i + 1, fromLevel: GROW[i],
+      emoji: s.ico[1],
+      prompt: line([
+        "Cute mascot character sticker",
+        LOOK[k] || s.ja,
+        look,
+        "keep the same character identity and colors across all five growth steps",
+        "neutral happy expression",
+        STYLE
+      ])
+    });
+  });
+});
+
 /* ---------- ②差分用：種類 × 表情/季節（Phase3で使う） ---------- */
 const variants = [];
 SPECIES.forEach(s => {
@@ -147,16 +182,17 @@ const items = ITEMS.map(i => ({
 }));
 
 const out = {
-  generatedFrom: "index.html (PET_SPECIES / PET_STAGES / PET_ITEMS)",
+  generatedFrom: "index.html (PET_SPECIES / PET_STAGES / PET_ITEMS / PET_AXIS_SP / PET_GROW)",
   style: STYLE,
   note: "透過が市松柄ベイクになっていたら _sandbox/word_dechecker.py と同じ手順で真の透過へ変換してから置くこと",
-  counts: { main: main.length, variants: variants.length, scenes: scenes.length, items: items.length },
-  main, variants, scenes, items
+  counts: { main: main.length, grow: grow.length, variants: variants.length, scenes: scenes.length, items: items.length },
+  main, grow, variants, scenes, items
 };
 const dest = path.join(ROOT, "docs", "pet-image-prompts.json");
 fs.writeFileSync(dest, JSON.stringify(out, null, 2), "utf8");
 console.log("wrote " + path.relative(ROOT, dest));
 console.log("  本番（種類×段階）: " + main.length + " 枚");
+console.log("  育ち（基本8匹×2〜5段階）: " + grow.length + " 枚");
 console.log("  差分（表情・季節）: " + variants.length + " 枚");
 console.log("  背景・家具       : " + scenes.length + " 枚");
 console.log("  装備アイコン     : " + items.length + " 枚");

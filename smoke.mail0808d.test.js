@@ -7,14 +7,14 @@
  *  ④四択の縦幅は文字の大きさで変わらない
  *  ⑤書き取りのヒントに黒光彩／制限時間が半分を切っても入力が無ければ1文字目のキーを順に黄色く
  *  ⑥結果画面のカードの正誤記号は左上（少し内側）に白い角丸座布団つき
- *  ⑦育成画面をよりシンプルに（ごはんボタンの色を統一・絵文字は画像）
+ *  ⑦育成画面をよりシンプルに（主ボタンの色を統一・絵文字は画像）
  *  ⑧ホームのカウントダウン中にメニュー等を開いたら数えるのをやめる
  *  ⑨設定画面のUI見直し
  *  ⑩今日の5問の結果画面も通常結果画面のベース＋XP表示（先に判定アニメ・判定は倍速）
  * 指示（23:52）:
  *  ⑪ガチャなどでおやすみカードが出る確率を1/3に
- *  ⑫ごはんはプレゼントとガチャからだけ（自動では増えない）
- *  ⑬プレゼントのXPは廃止し、ごはん・きせかえが当たる
+ *  ⑫ごはんは廃止（メール指示 2026-08-29 で「きせかえ」に置きかえ）
+ *  ⑬プレゼントのXPは廃止し、きせかえが当たる
  */
 const { chromium } = require('playwright');
 const path = require('path');
@@ -47,22 +47,23 @@ const near = (a, b, tol) => Math.abs(a - b) <= tol;
   const rest = await page.evaluate(() => {
     const tot = GACHA_PRIZES.reduce((a, p) => a + p.w, 0);
     const tk = GACHA_PRIZES.find(p => p.k === 'ticket');
-    return { p: tk.w / tot, rate: REST_TICKET_RATE, food: !!GACHA_PRIZES.find(p => p.k === 'food') };
+    return { p: tk.w / tot, rate: REST_TICKET_RATE, wear: !!GACHA_PRIZES.find(p => p.k === 'wear') };
   });
   check(`ガチャのおやすみカードは元の1/3の確率 (${(rest.p * 100).toFixed(2)}%)`, near(rest.p, 0.22 / 3, 0.002));
   check(`今日の5問のおやすみカードも1/3 (${rest.rate.toFixed(3)})`, near(rest.rate, 1 / 3, 0.001));
-  check('ガチャの景品に「ごはん」が入っている', rest.food);
+  // ごはんは廃止され、景品は「きせかえ」に置きかわった（メール指示 2026-08-29）
+  check('ガチャの景品に「きせかえ」が入っている', rest.wear);
 
-  // ================= ⑫ ごはんは学習では増えない =================
+  // ================= ⑫ ごはんは廃止（増えも減りもしない） =================
   const seed = await page.evaluate(() => {
     const before = petState().seeds || 0;
     petFeed('test'); petFeed('d5');
     const after = petState().seeds || 0;
     return { before, after, cfg: [PET_SEED.d5, PET_SEED.test] };
   });
-  check(`テスト・今日の5問ではごはんが増えない (${seed.before}→${seed.after})`, seed.after === seed.before && seed.cfg[0] === 0 && seed.cfg[1] === 0);
+  check(`テスト・今日の5問でごはんは動かない (${seed.before}→${seed.after})`, seed.after === seed.before && seed.cfg[0] === 0 && seed.cfg[1] === 0);
 
-  // ================= ⑬ プレゼントはXP廃止・ごはん/きせかえ =================
+  // ================= ⑬ プレゼントはXP廃止・届くのはきせかえ =================
   const pres = await page.evaluate(() => {
     localStorage.removeItem('kwt_present_v1');
     state = { levelBefore: xpInfo().level };
@@ -71,26 +72,26 @@ const near = (a, b, tol) => Math.abs(a - b) <= tol;
     return { kinds: q.map(x => x.kind), xpItems: q.filter(x => x.kind !== 'coin' && x.kind !== 'food' && x.kind !== 'wear' && x.kind !== 'ticket').length };
   });
   check(`テスト後のプレゼントにXPのものが無い (${pres.kinds.join('/')})`, pres.xpItems === 0);
-  check('ごはんのプレゼントが入る', pres.kinds.includes('food'));
-  check('PWRが上がるときはきせかえが入る', pres.kinds.includes('wear'));
+  check('きせかえのプレゼントが入る', pres.kinds.includes('wear'));
+  check('ごはんのプレゼントはもう作られない', !pres.kinds.includes('food'));
   const claim = await page.evaluate(() => {
     const s0 = petState().seeds || 0, i0 = Object.keys(petState().items || {}).length, xp0 = loadBonus();
     openPresent('daily'); claimAllPresents();
     const r = { seeds: (petState().seeds || 0) - s0, items: Object.keys(petState().items || {}).length - i0, bonus: loadBonus() - xp0, spins: gachaSpins() };
     closePresent(); return r;
   });
-  check(`受け取るとごはんが増える (+${claim.seeds})`, claim.seeds > 0);
+  check(`受け取ってもごはんは増えない (+${claim.seeds})`, claim.seeds === 0);
   check(`受け取るときせかえが増える (+${claim.items})`, claim.items > 0);
   check(`受け取ってもボーナスXPは増えない (+${claim.bonus})`, claim.bonus === 0);
   check(`ガチャコインは今までどおりもらえる (${claim.spins}枚)`, claim.spins > 0);
-  // 達成ボーナス・1周のごほうびもごはんになっている
+  // 達成ボーナス・1周のごほうびもきせかえになっている
   const achv = await page.evaluate(() => {
     localStorage.removeItem('kwt_present_v1');
     checkAchievements();
     grantLapPresent('beginner', 1, 1);
     return _presentState().queue.map(x => x.kind);
   });
-  check(`達成・周回のごほうびもごはん (${[...new Set(achv)].join('/')})`, achv.length > 0 && achv.every(k => k === 'food'));
+  check(`達成・周回のごほうびもきせかえ (${[...new Set(achv)].join('/')})`, achv.length > 0 && achv.every(k => k === 'wear'));
 
   // ================= ⑨ 設定のUI =================
   const set = await page.evaluate(() => {
@@ -144,9 +145,9 @@ const near = (a, b, tol) => Math.abs(a - b) <= tol;
     closePet();
     return { c1, c2, tabs: tabs.length, imgs, ringIco, subs, feedText: feed1.textContent.trim() };
   });
-  check(`ごはんボタンの色が育成画面と育てるメニューで同じ (${pet.c1} / ${pet.c2})`, pet.c1 === pet.c2 && pet.c1 === 'rgb(255, 196, 0)');
+  check(`きせかえボタンの色が育成画面と育てるメニューで同じ (${pet.c1} / ${pet.c2})`, pet.c1 === pet.c2 && pet.c1 === 'rgb(255, 196, 0)');
   check(`育成画面の絵文字が画像になっている (${pet.imgs}枚)`, pet.imgs >= 5 && pet.ringIco === 3);
-  check(`ごはんボタンに絵文字が残っていない (${pet.feedText})`, !/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(pet.feedText));
+  check(`きせかえボタンに絵文字が残っていない (${pet.feedText})`, !/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(pet.feedText));
   check(`4画面すべてに同じタブが出る`, pet.subs.every(s => s.n === 4) && pet.subs.length === 4);
   check(`いま見ている画面のタブが選択状態 (${pet.subs.map(s => s.on).join('/')})`,
     pet.subs.every((s, i) => s.on === ['図鑑', 'ガチャ', 'きせかえ', 'イベント'][i]));

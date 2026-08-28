@@ -49,7 +49,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check(`11-1 今日の出来事が20パターン（いま${pet.acts}）`, pet.acts === 20);
   check(`11-2 気分6種・衣装7種（いま${pet.moods}／${pet.wears}）`, pet.moods === 6 && pet.wears === 7);
   // Phase2（2026-08-06 23:54 の指示）で大人・伝説を開放したので Lv1〜40・6段階になった
-  check(`11-3 Lv1〜40・6段階進化（いま${pet.maxlv}／${pet.stages}段階）`, pet.maxlv === 40 && pet.stages === 6);
+  // 段階は5つになった（見た目の5段階＝成長の段階／メール指示 2026-08-29）
+  check(`11-3 Lv1〜40・5段階成長（いま${pet.maxlv}／${pet.stages}段階）`, pet.maxlv === 40 && pet.stages === 5);
   check('11-4 その日だけの1枚（出来事×気分×衣装×天気）が組み立てられる',
     /pt-body/.test(pet.art) && /pt-act/.test(pet.art) && /pt-wx/.test(pet.art) && /pt-wear/.test(pet.art));
   check('11-5 毎日起動で親密度がつく', pet.friend >= 2);
@@ -93,14 +94,13 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     await page.evaluate(() => closePet());
     return has && on;
   })());
-  // 育成画面の主ボタンは「ごはんをあげる」に変わり、押すと育てるメニューでその場で食べさせられる
-  // （ごはんが無ければ集めかたを出す。メール指示 2026-08-08 22:26）
-  check('11-13 育成画面から1タップでごはんをあげられる', await (async () => {
+  // ごはんは廃止され、主ボタンは「きせかえる」になった（メール指示 2026-08-29）
+  check('11-13 育成画面から1タップできせかえに行ける', await (async () => {
     await page.evaluate(() => openPet());
     await page.waitForTimeout(300);
     const t = await page.evaluate(() => (document.querySelector('#pet-modal .d5-go') || {}).textContent || '');
     await page.evaluate(() => closePet());
-    return /ごはんをあげる/.test(t);
+    return /きせかえる/.test(t);
   })());
 
   /* ============ 12. 通しで遊ぶ（ことばの友だちの成長） ============ */
@@ -117,8 +117,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     await page.waitForSelector('#s-d5result.on', { timeout: 20000 }).catch(() => {});
     await page.waitForTimeout(600);
     return await page.evaluate(() => {
+      // 帯は文字を減らしてレベルだけの1行になった（メール指示 2026-08-29）
       const pt = document.querySelector('#s-d5result .pt-res');
-      return !!pt && /韓国語エネルギー/.test(pt.textContent);
+      return !!pt && /Lv\./.test(pt.textContent);
     });
   })());
 

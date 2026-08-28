@@ -77,56 +77,36 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   });
   check(`2-1 育てるメニューも白地 (${pm.bg})`, pm.bg === 'rgb(255, 255, 255)');
   check(`2-2 小さな英字(FRIEND)は無い (${pm.kicks}個)`, pm.kicks === 0);
-  check(`2-3 状態は3つの丸ゲージ (${pm.rings.join('/')})`, pm.rings.join('/') === 'ごはん/親密度/韓国語力');
+  // ごはんは廃止され、丸ゲージは「きせかえ」に置きかわった（メール指示 2026-08-29）
+  check(`2-3 状態は3つの丸ゲージ (${pm.rings.join('/')})`, pm.rings.join('/') === 'きせかえ/親密度/韓国語力');
   check('2-4 丸ゲージは円グラフで描いている', pm.ringGrad);
   check('2-5 キャラクターと伸び具合のバーはそのまま', pm.art && pm.bar);
   check('2-6 前の横並びチップ(.pt-st)はもう使っていない', !pm.oldSt);
-  check(`2-7 ごはんをあげるボタンがある (${(pm.feed || '').trim()})`, /ごはんをあげる/.test(pm.feed || ''));
+  check(`2-7 きせかえるボタンがある (${(pm.feed || '').trim()})`, /きせかえる/.test(pm.feed || ''));
   check('2-8 吹き出しが画面に収まっている', pm.fit);
 
-  /* ============ ④ ごはんが無いとき＝「ごはんを集める」 ============ */
+  /* ============ ④ ごはんの廃止：あげる導線が消え、答えるだけで育つ（メール指示 2026-08-29） ============ */
   const need = await page.evaluate(async () => {
-    const o = petState(); o.seeds = 0; savePet(o);
     petMenuRender();
     document.querySelector('#petmenu-modal .pm-feed').click();
     await new Promise(r => setTimeout(r, 350));
-    const m = document.getElementById('petmenu-modal');
     return {
-      on: m.classList.contains('on'),
-      title: (m.querySelector('.u5-ti') || {}).textContent || '',
-      need: (m.querySelector('.pm-need') || {}).textContent || '',
-      ways: [...m.querySelectorAll('.pm-way button')].map(b => ({
-        t: b.querySelector('.pw-t').textContent, s: b.querySelector('.pw-s').textContent,
-        n: b.querySelector('.pw-n').textContent, act: b.getAttribute('onclick')
-      }))
+      wear: document.getElementById('pet-modal').classList.contains('on'),
+      head: (document.querySelector('#pet-modal .pt-subh') || {}).textContent || '',
+      noNeed: !document.querySelector('.pm-need'),
+      snack: typeof petSnack
     };
   });
-  check('4-1 吹き出しは閉じず、その場で出る', need.on);
-  check(`4-2 見出しが「ごはんを集める」 (${need.title})`, need.title === 'ごはんを集める');
-  check(`4-3 足りないことを知らせる (${need.need.slice(0, 20)})`, /ごはんが足りません/.test(need.need));
-  check(`4-4 集めかたが2つ以上ならぶ (${need.ways.length}件)`, need.ways.length >= 2);
-  check(`4-5 WORLDのステップをすすめる (${need.ways.map(w => w.t).join(' / ')})`,
-    need.ways.some(w => /^WORLD \d\d のステップ \d+-\d+$/.test(w.t)));
-  // ごはんは学習では増えずプレゼント・ガチャから届くので、数ではなく何が手に入るかを出す（メール指示 2026-08-08 23:52）
-  check(`4-6 何が手に入るかが出ている (${need.ways.map(w => w.n).join('/')})`, need.ways.every(w => /ごはん|プレゼント/.test(w.n)));
-  check('4-7 すすめたステップはタップでそのWORLDへ行ける', need.ways.some(w => /petGoStep\(\d+\)/.test(w.act || '')));
-  const jump = await page.evaluate(async () => {
-    const b = [...document.querySelectorAll('#petmenu-modal .pm-way button')].find(x => /petGoStep/.test(x.getAttribute('onclick')));
-    const sec = Number((b.getAttribute('onclick').match(/petGoStep\((\d+)\)/) || [])[1]);
-    b.click();
-    await new Promise(r => setTimeout(r, 700));
-    return { sec, cur: curSection, menu: document.getElementById('petmenu-modal').classList.contains('on'), home: document.getElementById('s-home').classList.contains('on') };
-  });
-  check(`4-8 押すとそのWORLDへ移動する (WORLD${jump.sec} → 現在${jump.cur})`, !jump.menu && jump.home);
-  check('4-9 ごはんがあるときは、そのまま食べさせられる', await page.evaluate(async () => {
-    const o = petState(); o.seeds = 3; savePet(o);
-    openPetMenu(); petMenuRender();
-    const x0 = petState().xp;
-    document.querySelector('#petmenu-modal .pm-feed').click();
-    await new Promise(r => setTimeout(r, 300));
-    const ok = petState().xp > x0 && petState().seeds === 2 && !document.querySelector('#petmenu-modal .pm-need');
-    closePetMenu();
-    return ok;
+  check(`4-1 主ボタンはきせかえ画面へ (${need.head})`, need.wear && need.head === 'きせかえ');
+  check('4-2 「ごはんを集める」の案内はもう出ない', need.noNeed);
+  check('4-3 ごはんをあげる仕組みが無い', need.snack === 'undefined');
+  check('4-4 答えるだけで勝手に育つ', await page.evaluate(() => {
+    const sum = () => { const z = petState().zoo; return Object.keys(z).reduce((a, k) => a + (z[k].xp || 0), 0); };
+    const before = sum(), ws = Object.values(WORD_BY_ID);
+    for (let i = 0; i < 8; i++) saveAnswer({ wordId: ws[i].id, korean: ws[i].ko, answerType: 'choice',
+      answerStatus: 'correct', isCorrect: true, userAnswer: ws[i].ja, distractorType: 'semantic_close',
+      responseTimeMs: 1500, writingErrorType: 'phonetic_spelling', answeredAt: new Date().toISOString() });
+    const after = sum(); closePet(); closePetMenu(); return after > before;
   }));
 
   /* ============ ③ 育成画面はシンプルに ============ */

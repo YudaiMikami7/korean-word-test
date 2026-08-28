@@ -124,9 +124,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check(`テストを1本終えるとプレゼントが1個届く (${after.coins}個)`, after.coins === 1);
   check(`プレゼントは毎日ボーナスの箱に入る (${after.cat})`, after.cat === 'daily');
   check('受け取る前はまだガチャはまわせない', after.spinsBefore === 0);
-  // プレゼントのXPは廃止され、そのぶんは「ごはん」のプレゼントになった（メール指示 2026-08-08 23:52）
+  // プレゼントのXPは廃止され、そのぶんは「きせかえ」のプレゼントになった（ごはんは廃止／メール指示 2026-08-29）
   check(`コインにXPは付かない (+${after.xp} XP)`, after.xp === 0);
-  check('かわりに「ごはん」のプレゼントが届く', await page.evaluate(() => _presentState().queue.some(x => x.kind === 'food')));
+  check('かわりに「きせかえ」のプレゼントが届く', await page.evaluate(() => _presentState().queue.some(x => x.kind === 'wear')));
   // プレゼントを受け取る → ガチャコイン1枚
   const claimed = await page.evaluate(() => {
     openPresent('daily');
@@ -161,12 +161,12 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     const c = {}; for (let i = 0; i < 3000; i++) { const p = rollGachaPrize(); c[p.k] = (c[p.k] || 0) + 1; }
     return { c, labs: GACHA_PRIZES.map(p => p.lab) };
   });
-  // 「ごはん」が景品に加わり4種類になった（メール指示 2026-08-08 23:52）
+  // 「きせかえ」が景品に加わり4種類になった（ごはんから置きかえ／メール指示 2026-08-29）
   check(`景品は4種類（${prizes.labs.join(' / ')}）`, prizes.labs.length === 4
-    && prizes.labs.includes('おやすみチケット') && prizes.labs.includes('ごはん')
+    && prizes.labs.includes('おやすみチケット') && prizes.labs.includes('きせかえ')
     && prizes.labs.includes('XP') && prizes.labs.includes('XP2倍チャンス'));
-  check(`4種ともちゃんと出る (チケット${prizes.c.ticket} / ごはん${prizes.c.food} / XP${prizes.c.xp} / 2倍${prizes.c.x2})`,
-    prizes.c.ticket > 0 && prizes.c.food > 0 && prizes.c.xp > 0 && prizes.c.x2 > 0);
+  check(`4種ともちゃんと出る (チケット${prizes.c.ticket} / きせかえ${prizes.c.wear} / XP${prizes.c.xp} / 2倍${prizes.c.x2})`,
+    prizes.c.ticket > 0 && prizes.c.wear > 0 && prizes.c.xp > 0 && prizes.c.x2 > 0);
   check('XPの当たり額はランダム', await page.evaluate(() => {
     const s = new Set(); for (let i = 0; i < 400; i++) s.add(rollGachaXp());
     return s.size >= 3 && [...s].every(v => v >= 30 && v <= 300);
