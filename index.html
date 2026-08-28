@@ -713,9 +713,20 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* きせかえのプレゼント（メール指示 2026-08-29） */
 .pm-tk.pm-fd{background:rgba(245,166,35,.24);border-radius:14px}
 .pm-tk.pm-wr{background:rgba(47,111,224,.20);border-radius:14px}
+.pm-tk.pm-eg{background:rgba(255,196,0,.24);border-radius:50%} /* たまごのプレゼント（メール指示 2026-08-29） */
 .pm-item .amt{font-size:16px}
 .pm-item .amt small{display:block;font-size:11px;font-weight:800;color:#FFE08A;margin-top:1px} /* コインに付いてくるXP */
 .pm-item.claimed .amt small{color:#aaa}
+/* 結果からホームに戻り、学習の演出が終わったあとに出る「つぎの問題まで」のカウントダウン（メール指示 2026-08-29）。
+   設定・ミッション・プレゼント・単語帳など、ほかの画面に行くと消え、ホームに戻ると10秒から数えなおす */
+.nqcd{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 5px);transform:translateX(-50%);z-index:360;
+  display:flex;align-items:center;gap:10px;background:rgba(26,26,26,.92);color:#fff;border-radius:24px;
+  padding:9px 10px 9px 17px;box-shadow:0 8px 22px rgba(0,0,0,.32);font-size:14px;font-weight:800;white-space:nowrap;
+  opacity:0;transition:opacity .25s ease;max-width:calc(100vw - 24px)}
+.nqcd.on{opacity:1}
+.nqcd b{margin:0 2px;font-size:19px;font-weight:900;color:#FFD84D;font-variant-numeric:tabular-nums}
+.nqcd button{border:none;border-radius:18px;background:#fff;color:#1a1a1a;font-family:inherit;font-size:13px;font-weight:900;padding:7px 15px;cursor:pointer}
+.nqcd button:active{background:#ddd}
 /* --- ガチャ（メール指示 2026-08-01）。プレゼントのモーダルと同じトーン --- */
 #gacha-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
 #gacha-modal.on{display:flex}
@@ -3059,6 +3070,20 @@ function grantWearPresent(title,n){
     _savePresent(st);updatePresent();
   }catch(e){}
 }
+/* たまごのプレゼント（メール指示 2026-08-29）。
+   ことばの友だちは最初から8匹いるのではなく、プレゼントで届いた「たまご」が学習でそだって生まれる。
+   基本の8匹がぜんぶ生まれたあとは、9匹目・10匹目（りゅう・トッケビ）もたまにたまごから出る。 */
+const EGG_RATE_TEST=0.5, EGG_RATE_D5=1/3;
+function eggWanted(){try{const o=petState();return PET_EGG_SP.some(k=>!o.zoo[k]);}catch(e){return false;}}
+function grantEggPresent(rate){
+  try{
+    if(!eggWanted())return;
+    if(Math.random()>=(rate==null?EGG_RATE_TEST:rate))return;
+    const st=_presentState();
+    st.queue.push({cat:"daily",kind:"egg",title:"たまご",total:1,at:new Date().toISOString()});
+    _savePresent(st);updatePresent();
+  }catch(e){}
+}
 const RANK_BONUS={S:100,A:60,B:40,C:20,D:10};
 /* テスト終了時（メール指示 2026-08-02）:
    ・テストが終わったら「プレゼント」が届き、受け取るとガチャコインが1枚もらえる（＝ガチャが1回まわせる）。
@@ -3076,6 +3101,7 @@ function enqueuePresent(rank,pwrDelta){
   const pwrUp=Math.max(0,Math.round(pwrDelta||0));
   if(pwrUp>0)st.queue.push({cat:"daily",kind:"wear",title:"PWRが上がった！ +"+pwrUp+"%",total:1,at}); // きせかえが1つ当たる
   _savePresent(st);
+  grantEggPresent(EGG_RATE_TEST); // まだ生まれていない友だちがいれば、たまにたまごも届く（メール指示 2026-08-29）
 }
 function updatePresent(){
   let total=0;
@@ -3097,14 +3123,16 @@ function updatePresent(){
 function _bonusRow(label,v,cls){return v>0?`<div class="pm-line"><span>${label}</span><span class="${cls||''}">+${v}</span></div>`:"";}
 let _presCat="daily";
 function _presItemLabel(r){return r.kind==="ticket"?"おやすみチケット":r.kind==="coin"?(r.title||"ガチャコイン")
+  :r.kind==="egg"?"たまご"
   :r.kind==="food"?(r.title||"ごはん"):r.kind==="wear"?(r.title||"きせかえ")
   :r.kind==="achv"?(r.title||"達成ボーナス"):("RANK "+r.rank+" のごほうび");}
 /* おやすみチケットはXPではなく「1枚」。中身が分かるように箱ではなく💤の札で出す（メール指示 2026-08-01）。
    ガチャコインは🪙の札（メール指示 2026-08-02）／ごはんは🍚・きせかえは👕の札（メール指示 2026-08-08 23:52） */
 function _presItemFace(r){return r.kind==="ticket"?`<span class="pm-tk">💤</span>`:r.kind==="coin"?`<span class="pm-tk pm-cn">🪙</span>`
+  :r.kind==="egg"?`<span class="pm-tk pm-eg">🥚</span>`
   :r.kind==="food"?`<span class="pm-tk pm-fd">${petIcoImg("food",30)}</span>`:r.kind==="wear"?`<span class="pm-tk pm-wr">${petIcoImg("wear",30)}</span>`
   :`<img src="icons/present.webp" alt="">`;}
-function _presItemAmt(r){return r.kind==="ticket"?"1枚":r.kind==="coin"?("コイン1枚"+(r.total>0?"<small>+"+r.total+" XP</small>":""))
+function _presItemAmt(r){return r.kind==="egg"?"1つ":r.kind==="ticket"?"1枚":r.kind==="coin"?("コイン1枚"+(r.total>0?"<small>+"+r.total+" XP</small>":""))
   :r.kind==="food"?("ごはん "+r.total+"つ"):r.kind==="wear"?"1つ":("+"+r.total+" XP");}
 function openPresent(cat){if(!document.getElementById("present-modal").classList.contains("on"))pushNav("modal");
   _presCat=cat||"rank";
@@ -3164,9 +3192,10 @@ function claimAllPresents(){
   const st=_presentState();
   const items=st.queue.filter(x=>x.cat===_presCat);
   if(!items.length)return;
-  let sum=0,tk=0,food=0,wear=0;const coins=[];
-  items.forEach(r=>{ // おやすみチケットは枚数・ガチャコインは1枚ずつ・ごはんは数・きせかえは個数
-    if(r.kind==="ticket")tk++;
+  let sum=0,tk=0,food=0,wear=0,egg=0;const coins=[];
+  items.forEach(r=>{ // おやすみチケットは枚数・ガチャコインは1枚ずつ・ごはんは数・きせかえは個数・たまごは個数
+    if(r.kind==="egg")egg+=(r.total||1);
+    else if(r.kind==="ticket")tk++;
     else if(r.kind==="coin")coins.push(r);
     else if(r.kind==="food")food+=(r.total||1);
     else if(r.kind==="wear")wear+=(r.total||1);
@@ -3179,6 +3208,7 @@ function claimAllPresents(){
   sfxClaim();addBonus(sum);if(tk)addRestTicket(tk);
   if(food)petAddSeeds(food);
   for(let i=0;i<wear;i++)petGrantWear();
+  if(egg){let got=0;for(let i=0;i<egg;i++){if(petGrantEgg())got++;}if(got)setTimeout(()=>petEggShow(got),640);} // たまごが届いたことを知らせる
   coins.forEach(r=>addGachaSpin(r.total,r.rank||""));
   rects.forEach((r,i)=>setTimeout(()=>flyClaimToBox(r,cat),i*90)); // 少しずつずらしてアーチで箱へ
   updatePresent();updateHomeStats(); // XP等だけ更新（WORLDスライドは再構築しない）
@@ -3198,6 +3228,7 @@ function claimPresentItem(btn){
   if(kind==="ticket")addRestTicket(1);
   else if(kind==="coin")addGachaSpin(total,rank);
   else if(kind==="food")petAddSeeds(total||1);
+  else if(kind==="egg"){const e=petGrantEgg();got=e?"たまご":"";if(e)setTimeout(()=>petEggShow(1),520);}
   else if(kind==="wear"){const it=petGrantWear();got=it?it.t:"";}
   else addBonus(total); // 以前のデータに残っているXPのプレゼント
   flyClaimToBox(btn.getBoundingClientRect(),kind==="coin"?"rank":_presCat); // ガチャコインはガチャのアイコンへ吸い込まれる
@@ -3651,6 +3682,65 @@ function _homeCleanupCd(){
   const btn=document.querySelector(".start-button");if(btn)btn.classList.remove("as-back");
 }
 function cancelHomeCountdown(){if(!_counting)return;_homeCleanupCd();stopSpeak();} // ポップアップなしで即ホームへ
+
+/* ============================================================ つぎの問題まで10秒（メール指示 2026-08-29）
+ * 結果画面からホームに戻り、学習の演出（プレゼント→CLEAR→新しいステップ）が終わったら、
+ * 「10秒後につぎの問題がはじまります」と出して、いま開いているWORLDの一番進んでいるマスを自動で始める。
+ * ・中止ボタンでいつでも止められる。
+ * ・設定・今週のミッション・プレゼント・単語帳など、ほかの画面に行くとカウントダウンは消え、
+ *   ホームに戻ってきたら10秒から数えなおす（リセット）。 */
+const NQ_SEC=10;
+let _nqAfterQuiz=false,_nqArmed=false,_nqIv=null,_nqPoll=null,_nqLeft=0;
+/* いまカウントダウンを進めてよい状態か（ホームにいて、ほかの画面・演出が出ていないか） */
+function nqBusy(){
+  try{
+    const home=document.getElementById("s-home");
+    if(!home||!home.classList.contains("on"))return true;
+    if(_listMode||_statusMode||_wdId!=null)return true;        // 単語帳・ステータス・単語詳細
+    if(_counting||(_d5&&_d5.on)||_gearActive)return true;      // すでに開始・出題中
+    if(document.querySelector('[id$="-modal"].on'))return true; // 設定・ミッション・プレゼント・図鑑などのモーダル
+    if(document.querySelector(".d5auto,.lvup,.streak-cel,.rest-ask,.appconfirm,.a2hs,#coach,#a2hs,.pbub,.stepnote,.sg-clear,.sg-adv,.sg-pirin,.sg-fade,.tr-pop"))return true; // 演出中
+    const sp=document.getElementById("spov");
+    if(sp&&sp.classList.contains("on"))return true;
+  }catch(e){return true;}
+  return false;
+}
+function nqArm(){
+  if(_nqArmed)return;
+  _nqArmed=true;
+  if(_nqPoll)clearInterval(_nqPoll);
+  _nqPoll=setInterval(()=>{
+    if(!_nqArmed){clearInterval(_nqPoll);_nqPoll=null;return;}
+    if(nqBusy()){if(_nqIv)nqStopBar();return;} // ほかの画面へ行ったら消す（戻ってきたら数えなおし）
+    if(!_nqIv)nqStartBar();
+  },400);
+}
+/* 完全にやめる（中止ボタン・つぎの問題の開始） */
+function nqDisarm(){_nqArmed=false;nqStopBar();if(_nqPoll){clearInterval(_nqPoll);_nqPoll=null;}}
+function nqStopBar(){
+  if(_nqIv){clearInterval(_nqIv);_nqIv=null;}
+  const el=document.getElementById("nqcd");if(el)el.remove();
+}
+function nqStartBar(){
+  nqStopBar();
+  _nqLeft=NQ_SEC;
+  const el=document.createElement("div");el.className="nqcd";el.id="nqcd";
+  el.innerHTML=`<span>あと<b id="nq-sec">${NQ_SEC}</b>秒で つぎの問題が はじまります</span>
+    <button onclick="nqCancel()">中止</button>`;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add("on"));
+  _nqIv=setInterval(()=>{
+    if(nqBusy()){nqStopBar();return;}
+    _nqLeft--;
+    const n=document.getElementById("nq-sec");if(n)n.textContent=Math.max(0,_nqLeft);
+    if(_nqLeft<=0){nqDisarm();nqGo();}
+  },1000);
+}
+/* いま開いているWORLDの、一番進んでいるマス（＝つぎに挑戦するマス）から始める */
+function nqGo(){
+  try{if(nqBusy())return;onStartBtn();}catch(e){}
+}
+function nqCancel(){nqDisarm();}
 
 /* WORLD番号の丸ページャー：左右にWORLDを並べ、選択中を中央に。切替中だけ表示し復習どき/カウントダウンは一時的にフェードで隠す */
 let _pagerT=null;
@@ -4499,7 +4589,7 @@ function renderHome(){
   startRailFlip(); // リール7ボタンのアイコン⇄ラベル入替（ランダム）
   if(!_homeNotice)_homeNotice=loadPendingNotice(); // 結果画面のまま閉じていた場合はここで拾う（メール指示 2026-08-01）
   if(_homeNotice){clearPendingNotice();showHomeNotice(_homeNotice);_homeNotice=null;}
-  else if(typeof petEvoPending==="function"&&petEvoPending())setTimeout(petEvoShow,420); // 進化はホームに戻ってから全画面で（次の起動まで残る）
+  else setTimeout(()=>{try{petHomePopups();}catch(e){}},420); // 誕生・進化はホームに戻ってから全画面で（次の起動まで残る）
 }
 /* 「復習どき」タップ：期限が来ている単語だけで復習テストを開始（優先度順に12語） */
 function startDueReview(){
@@ -4523,7 +4613,7 @@ function showHomeNotice(n){
   // 連続日数アップは豪華演出。閉じたあとに「1マス進んだ」演出へつなぐ＝どの回でも必ず進んだことが見える（メール指示 2026-07-31）
   if(n.type==="streak"){_stepAfterCel=true;showStreakCelebration(loginStreak());return;}
   // プレゼント→新ステップ→（初回だけ）タイプ診断の紹介、の順に流す
-  showPresentBubble(()=>showStepAdvance(()=>{if(n.first)showFirstIntro();}));
+  showPresentBubble(()=>showStepAdvance(()=>{if(n.first)showFirstIntro();else nqArm();})); // 演出のあと、つぎの問題まで10秒（メール指示 2026-08-29）
 }
 /* ①プレゼントのアイコンから白い吹き出しを出す（全画面の黒ポップアップは廃止） */
 function showPresentBubble(done){
@@ -4733,7 +4823,7 @@ let _stepAfterCel=false; // 連続日数の演出を閉じたあとに「1マス
 function closeStreakCel(openCal){
   const ov=document.querySelector(".streak-cel");if(ov){if(ov._auto)clearTimeout(ov._auto);ov.classList.remove("on");setTimeout(()=>ov.remove(),300);}
   if(openCal)setTimeout(()=>openCalendar(0),320);
-  if(_stepAfterCel){_stepAfterCel=false;if(!openCal)setTimeout(showStepAdvance,380);}
+  if(_stepAfterCel){_stepAfterCel=false;if(!openCal)setTimeout(()=>showStepAdvance(nqArm),380);}
 }
 /* 中央から大きいプレゼントを出し、リールのプレゼントアイコンへ吸い込ませる */
 function flyPresentToRail(){
@@ -5662,6 +5752,7 @@ let _fromPop=false;
 /* ホームで3・2・1を数えている最中にメニュー等を開いたら、数えるのをやめる（勝手にテストが始まらないように。メール指示 2026-08-08 23:50） */
 function pushNav(tag){
   if(tag==="modal"&&_homeCdTimer){try{cancelHomeCountdown();}catch(e){}}
+  try{if(_nqIv)nqStopBar();}catch(e){} // ほかの画面・ポップアップへ行ったらカウントダウンはリセット
   if(_fromPop)return;try{history.pushState({tag},"");}catch(e){}
 }
 window.addEventListener("popstate",()=>{
@@ -5710,6 +5801,7 @@ function show(id){
     else if(QR.balls.some(b=>b.layer==="home-rain")&&!QR.raf){QR.active="home-rain";QR.calm=0;QR.last=0;QR.raf=requestAnimationFrame(qrStep);} // 途中で離脱した玉を着地させる
   }
   if(id==="s-home"){renderHome();playHomeBtnFly();} // 今日の5問を終えた直後は、カプセルが入れかわる演出を出す
+  if(id==="s-home"&&_nqAfterQuiz){_nqAfterQuiz=false;setTimeout(nqArm,1400);} // 今日の5問のあとも、つぎの問題まで10秒（メール指示 2026-08-29）
 }
 
 /* ============================================================ テスト進行 ============================================================ */
@@ -6047,6 +6139,17 @@ function startDaily5(){
  * 見た目・中身は「今日の5問」の吹き出し(d5RenderModal)と同じものを、同じくボタンの上に出す。 */
 const LS_D5AUTO="kwt_d5auto_v1";
 const D5_AUTO_SEC=10; // 触らなければ始まるまでの秒数（2.6秒は短すぎるとのご指摘で10秒に）
+let _d5AutoSession=false; // この起動でもう自動スタートの案内を出したか（メール指示 2026-08-29）
+/* その枠を「中断した」＝自動スタートを見送った、または始めたが最後までやらなかった。
+   この場合だけ、開き直したときにもう一度カウントダウンから出す（メール指示 2026-08-29） */
+const LS_D5SKIP="kwt_d5skip_v1";
+function markD5Skipped(){try{localStorage.setItem(LS_D5SKIP,d5Key(Date.now()));}catch(e){}}
+function d5Skipped(k){
+  try{
+    if(localStorage.getItem(LS_D5SKIP)===k)return true;
+    const r=d5Rec();return !!(r&&!r.done); // 始めたけれど、やり切っていない
+  }catch(e){return false;}
+}
 function maybeAutoDaily5(){
   try{
     if(document.querySelector(".rest-ask")){setTimeout(maybeAutoDaily5,800);return;} // おやすみチケットの確認を先に済ませる（メール指示 2026-08-01）
@@ -6058,7 +6161,14 @@ function maybeAutoDaily5(){
     if(!home||!home.classList.contains("on"))return;                // ホーム以外では割り込まない
     if(d5Done())return;                                             // その枠はもうやり切った
     const k=d5Key(Date.now());
-    if(localStorage.getItem(LS_D5AUTO)===k)return;                  // その枠はもう自動で出した
+    // 中断したまま画面を閉じ、もう一度開いたとき：その枠がまだ残っていれば、
+    // 通常のポップアップでもう一度カウントダウンから始める（メール指示 2026-08-29）。
+    // 中断していないのに出したりはしない／同じ起動のうちに何度も出したりもしない
+    if(localStorage.getItem(LS_D5AUTO)===k){
+      if(_d5AutoSession||!d5Skipped(k))return;
+      _d5AutoSession=true;openDaily5();return;
+    }
+    _d5AutoSession=true;
     localStorage.setItem(LS_D5AUTO,k);
     showAutoD5Splash();
   }catch(e){}
@@ -6094,6 +6204,15 @@ function closeAutoD5(go){
   if(!document.querySelector(".d5auto"))return;
   _killAutoD5();
   if(go&&!d5Done())startDaily5();
+  else{markD5Skipped();homeToast("今日の5問を中断しました");} // 開き直すと、もう一度カウントダウンから始まります（メール指示 2026-08-29）
+}
+/* ホーム中央に一度だけ出す小さな知らせ（「新しいステップに進みました」と同じ見た目） */
+function homeToast(text){
+  const wrap=document.getElementById("homewrap");if(!wrap)return;
+  document.querySelectorAll(".stepnote").forEach(e=>e.remove());
+  const el=document.createElement("div");el.className="stepnote";el.textContent=text;
+  wrap.appendChild(el);
+  setTimeout(()=>{el.classList.add("out");setTimeout(()=>el.remove(),420);},1800);
 }
 /* ---- 回答後（正誤は出さず、選んだ選択肢だけ光らせて次へ） ---- */
 function d5AfterAnswer(status,userAnswer){
@@ -6124,6 +6243,8 @@ function finishDaily5(){
   all[_d5.key]=rec;saveD5(all);
   _d5.on=false;_sgFly.d5=true; // ホームへ戻ったらカプセルはしぼんで消え、今週のミッションが登場
   grantRestTicketPresent(); // 5問を1回終えるたびに、プレゼントへ「おやすみチケット」を1枚入れる（メール指示 2026-08-01）
+  grantEggPresent(EGG_RATE_D5); // まだ生まれていない友だちがいれば、たまにたまごも届く（メール指示 2026-08-29）
+  _nqAfterQuiz=true; // ホームに戻って演出が終わったら、つぎの問題までのカウントダウンを出す
   _petRes=petFeed("d5");   // ことばの友だち：韓国語エネルギーを食べて育つ（学習直後に見せる）
   updateDiagnosis(); // タイプ診断だけ更新（ランク／プレゼントは通常テスト専用）
   if(typeof track==="function")track("daily5_complete",{slot:rec.slot,correct:nCorrect});
@@ -6346,6 +6467,14 @@ const PET_SP_BY_K={};PET_SPECIES.forEach(x=>PET_SP_BY_K[x.k]=x);
    何をもとに育っているかは画面には出さない（メール指示 2026-08-29）。りゅう・トッケビはガチャで会う子のまま */
 const PET_AXIS_SP={F:"gomdol",U:"ppyong",M:"yaong",C:"yeoubi",P:"kkomi",S:"dungsil",Q:"mong",D:"byeol"};
 const PET_BASE_SP=Object.keys(PET_AXIS_SP).map(k=>PET_AXIS_SP[k]);
+/* たまご（メール指示 2026-08-29）。
+   はじめから8匹そろっているのではなく、プレゼントで届いた「たまご」を学習でそだてると生まれる。
+   基本の8匹が生まれたあとは、9匹目・10匹目（りゅう・トッケビ）もたまにたまごから出る。
+   生まれてからの育ち方は、これまでどおり1匹ずつちがう条件（回答のクセの4つのものさし×左右）にひもづく。 */
+const PET_EXTRA_SP=["yongi","dokkae"];               // 9匹目・10匹目
+const PET_EGG_SP=PET_BASE_SP.concat(PET_EXTRA_SP);   // たまごから生まれうる子
+const PET_EGG_XP=60;                                 // 生まれるまでにためる育ち
+const PET_EGG_EXTRA_RATE=0.35;                       // 基本8匹がそろったあと、9匹目・10匹目のたまごが出る割合
 /* 段階が上がるレベル（PET_STAGES と同じもの。画像を作る道具から読めるように定数にしてある） */
 const PET_GROW=PET_STAGES.map(x=>x.lv);
 function petGrowStep(lv){return PET_STAGES.indexOf(petStage(lv||1))+1;}
@@ -6364,6 +6493,24 @@ const PET_GACHA_COST=10,PET_PITY=10; // 元手は親密度（学習していれ�
    petAddSeeds だけ残してある（受け取っても、育ちには使わない） */
 const PET_SEED={d5:0,test:0};
 function petAddSeeds(n){try{const o=petState();o.seeds=Math.max(0,(o.seeds||0)+(n||0));savePet(o);}catch(e){}return n||0;}
+/* たまごのプレゼント：まだ生まれていない子を1つ、たまごとして渡す。
+   だれのたまごかは生まれるまで分からない（図鑑にも「？？？」のまま並ぶ） */
+function petGrantEgg(){
+  try{
+    const o=petState();
+    let pool=PET_BASE_SP.filter(k=>!o.zoo[k]);
+    if(!pool.length){ // 基本の8匹がそろったあとは、9匹目・10匹目がたまに出る
+      const ex=PET_EXTRA_SP.filter(k=>!o.zoo[k]);
+      if(ex.length&&Math.random()<PET_EGG_EXTRA_RATE)pool=ex;
+    }
+    if(!pool.length){o.friend=(o.friend||0)+10;savePet(o);return null;} // もう出る子がいなければ親密度にかえる
+    const k=pool[Math.floor(Math.random()*pool.length)];
+    o.zoo[k]={xp:0,friend:0,got:appDayKey(),egg:1,ex:0};
+    savePet(o);
+    return PET_SP_BY_K[k];
+  }catch(e){return null;}
+}
+function petEggCount(o){try{return Object.keys((o||petState()).zoo||{}).filter(k=>PET_SP_BY_K[k]&&(o||petState()).zoo[k].egg).length;}catch(e){return 0;}}
 /* きせかえのプレゼント：まだ持っていないものを1つ渡す。全部そろっていたら親密度にかえる */
 function petGrantWear(){
   try{
@@ -6462,8 +6609,10 @@ function petWearCount(o){try{return Object.keys((o||petState()).items||{}).filte
 const PET_AXIS_BASE=1,PET_AXIS_MAX=12;
 function petZooAdd(o,k,gain){
   if(!PET_SP_BY_K[k]||!(gain>0))return;
-  if(!o.zoo[k])o.zoo[k]={xp:0,friend:0,got:appDayKey()}; // まだ会っていない子は、育ちはじめた日から仲間になる
-  const z=o.zoo[k],lv0=petLevel(z.xp);
+  const z=o.zoo[k];
+  if(!z)return; // たまごが届いていない子は、まだ育たない（勝手に増えない／メール指示 2026-08-29）
+  if(z.egg)return; // たまごは petEggGrow でまとめてそだてる（どの問題でも そだつ）
+  const lv0=petLevel(z.xp);
   z.xp=Math.min(PET_MAXLV*40,(z.xp||0)+gain);
   const lv1=petLevel(z.xp);
   if(k===o.sp){ // いま連れている子は手もとの数もそろえる。すがたが変わるなら進化を予約
@@ -6471,21 +6620,36 @@ function petZooAdd(o,k,gain){
     if(petStage(lv1).k!==petStage(lv0).k)o.evoPend={sp:k,stage:petStage(lv1).k,lv:lv1};
   }
 }
+/* たまごは、どの問題を答えてもそだつ（＝やればやるほど生まれる）。
+   1匹ずつちがう条件がかかるのは、生まれたあとの育ちのほう（メール指示 2026-08-29） */
+function petEggGrow(o,gain){
+  if(!(gain>0))return;
+  Object.keys(o.zoo||{}).forEach(k=>{
+    const z=o.zoo[k];
+    if(!z||!z.egg||!PET_SP_BY_K[k])return;
+    z.ex=Math.min(PET_EGG_XP,(z.ex||0)+gain);
+    if(z.ex>=PET_EGG_XP){delete z.egg;delete z.ex;z.xp=0;z.born=appDayKey();o.hatchPend={sp:k};}
+  });
+}
 function petAxisGain(){
   try{
     const d=computeDiagnosis(),o=petState();
     if(!o.ax||typeof o.ax!=="object")o.ax={};
+    let eggGain=0;
     AXES.forEach((ax,i)=>{
       const a=d.axes[i],cur=(a&&a.score!=null)?a.score:50;
       const prev=(typeof o.ax[ax.no]==="number")?o.ax[ax.no]:cur;
       o.ax[ax.no]=cur;
-      petZooAdd(o,PET_AXIS_SP[cur>=50?ax.L:ax.R],Math.min(PET_AXIS_MAX,PET_AXIS_BASE+Math.round(Math.abs(cur-prev))));
+      const g=Math.min(PET_AXIS_MAX,PET_AXIS_BASE+Math.round(Math.abs(cur-prev)));
+      eggGain+=g;
+      petZooAdd(o,PET_AXIS_SP[cur>=50?ax.L:ax.R],g);
     });
+    petEggGrow(o,eggGain); // たまごは4つのものさしぶんをまとめて受け取る
     o.friend=(o.friend||0)+1; // いっしょに1問こなすたび、少しなかよくなる（友だちガチャの元手）
     savePet(o);
   }catch(e){}
 }
-function petHave(o){o=o||petState();return Object.keys(o.zoo||{}).filter(k=>PET_SP_BY_K[k]);}
+function petHave(o){o=o||petState();return Object.keys(o.zoo||{}).filter(k=>PET_SP_BY_K[k]&&!o.zoo[k].egg);} // たまごはまだ数に入れない
 function petLevel(xp){return Math.max(1,Math.min(PET_MAXLV,1+Math.floor((xp||0)/40)));}
 function petStage(lv){let s=PET_STAGES[0];PET_STAGES.forEach(x=>{if(lv>=x.lv)s=x;});return s;}
 function petNextLvXp(xp){const lv=petLevel(xp);return lv>=PET_MAXLV?0:(lv*40)-(xp||0);}
@@ -6757,7 +6921,60 @@ function petEvoShow(){
   m.onclick=e=>{if(e.target===m)closePetEvo();};
   return true;
 }
-function closePetEvo(){const m=document.getElementById("petevo-modal");if(m){m.classList.remove("on");m.innerHTML="";}openPet();}
+function closePetEvo(){const m=document.getElementById("petevo-modal");if(m){m.classList.remove("on");m.innerHTML="";}
+  if(petHomePopups())return; // 続けて出すもの（誕生）があればそちらへ
+  openPet();}
+/* ⑥たまごが届いた（プレゼントを受け取った瞬間に出す。進化と同じ全画面の見た目にそろえる） */
+function petEggShow(n){
+  const m=document.getElementById("petevo-modal");if(!m)return false;
+  const o=petState(),eggs=petEggCount(o);
+  m.classList.add("on");pushNav("modal");
+  m.innerHTML=`<div class="pv-in${lessFxOn()?" less":""}">
+    <div class="pv-h">알！ たまご</div>
+    <div class="pv-row"><span class="pv-new">🥚</span></div>
+    <div class="pv-name">たまごが ${n>1?n+"つ ":""}とどきました<em>いま そだてているたまご ${eggs}つ</em></div>
+    <div class="pv-msg">学習すると すこしずつ そだち、いつか 生まれます。</div>
+    <button class="d5-go" onclick="closePetEgg()">わかった</button>
+  </div>`;
+  m.onclick=e=>{if(e.target===m)closePetEgg();};
+  return true;
+}
+function closePetEgg(){const m=document.getElementById("petevo-modal");if(m){m.classList.remove("on");m.innerHTML="";}}
+/* ⑦生まれた（ホームに戻ってから全画面で1度だけ。進化と同じ流れ） */
+function petHatchPending(){const o=petState();return o.hatchPend||null;}
+function petHatchShow(){
+  const p=petHatchPending();if(!p)return false;
+  const o=petState();delete o.hatchPend;
+  if(!o.zoo[p.sp])o.zoo[p.sp]={xp:0,friend:0,got:appDayKey()};
+  savePet(o);
+  const m=document.getElementById("petevo-modal");if(!m)return false;
+  const sp=PET_SP_BY_K[p.sp]||PET_SPECIES[0];
+  m.classList.add("on");pushNav("modal");
+  m.innerHTML=`<div class="pv-in${lessFxOn()?" less":""}">
+    <div class="pv-h">탄생！ たんじょう</div>
+    <div class="pv-row">
+      <span class="pv-old">🥚</span>
+      <span class="pv-arrow">▶</span>
+      <span class="pv-new">${petStepFace(sp,1)}</span>
+    </div>
+    <div class="pv-name">${esc(sp.name)}<em>${esc(sp.ja)}／${esc(sp.rare)}</em></div>
+    <div class="pv-msg">たまごから 生まれました。図鑑から いっしょに 過ごせます。</div>
+    <button class="d5-go" onclick="closePetHatch()">見にいく</button>
+  </div>`;
+  m.onclick=e=>{if(e.target===m)closePetHatch();};
+  return true;
+}
+function closePetHatch(){const m=document.getElementById("petevo-modal");if(m){m.classList.remove("on");m.innerHTML="";}
+  if(petHomePopups())return;
+  openPet();openPetZoo();}
+/* ホームに戻ったときに出すもの（誕生 → 進化 の順で1つずつ） */
+function petHomePopups(){
+  try{
+    if(petHatchPending())return petHatchShow();
+    if(petEvoPending())return petEvoShow();
+  }catch(e){}
+  return false;
+}
 
 /* ------------------------------------------------------------ 図鑑（どの子がいるか・だれと過ごすか） */
 function petSubHead(title,ko){
@@ -6771,14 +6988,15 @@ function openPetZoo(){
   m.innerHTML=`<div class="d5-card pt-card">${petSubHead("図鑑","도감")}
     <div class="pt-zoon">${petHave(o).length} / ${PET_SPECIES.length} 種</div>
     <div class="pt-zoo">${PET_SPECIES.map(s=>{
-      const z=o.zoo[s.k],have=!!z,lv=have?petLevel(z.xp):0,now=o.sp===s.k;
+      const z=o.zoo[s.k],egg=!!(z&&z.egg),have=!!z&&!egg,lv=have?petLevel(z.xp):0,now=o.sp===s.k;
+      // たまごのうちは、だれのたまごかは分からないまま「あと何％で生まれるか」だけ見せる（メール指示 2026-08-29）
       return `<button class="pt-zi${have?"":" no"}${now?" now":""}" ${have?`onclick="petSwitch('${s.k}')"`:"disabled"}>
-        <span class="pt-zico">${have?petGrowEmo(s):"？"}</span>
-        <b>${have?esc(s.name):"？？？"}</b>
-        <em>${have?("Lv."+lv+"／親密度"+(z.friend||0)):esc(s.ja)+"・"+s.rare}</em>
+        <span class="pt-zico">${egg?"🥚":have?petGrowEmo(s):"？"}</span>
+        <b>${have?esc(s.name):egg?"たまご":"？？？"}</b>
+        <em>${have?("Lv."+lv+"／親密度"+(z.friend||0)):egg?("あと"+Math.max(1,PET_EGG_XP-(z.ex||0))+"で生まれる"):esc(s.ja)+"・"+s.rare}</em>
         ${now?`<i class="pt-znow">いっしょ</i>`:""}
       </button>`;}).join("")}</div>
-    <div class="pt-note">まだ会っていない子は、ガチャで来てくれます。タップするとその子と過ごせます（それまでの育ちはそのまま残ります）。</div>
+    <div class="pt-note">たまごはプレゼントで届き、学習していると生まれます。まだ会っていない子は、ガチャでも来てくれます。タップするとその子と過ごせます（それまでの育ちはそのまま残ります）。</div>
     ${petAteHTML(o)}
     ${petAlbumHTML()}
     ${petTabsHTML("zoo")}
@@ -6787,7 +7005,7 @@ function openPetZoo(){
 }
 /* いっしょに過ごす子を変える。育ちは子ごとに別々に残る */
 function petSwitch(k){
-  const o=petState();if(!o.zoo[k]||o.sp===k){openPetZoo();return;}
+  const o=petState();if(!o.zoo[k]||o.zoo[k].egg||o.sp===k){openPetZoo();return;}
   o.zoo[o.sp]=Object.assign(o.zoo[o.sp]||{},{xp:o.xp,friend:o.friend});
   o.sp=k;o.xp=o.zoo[k].xp||0;o.friend=o.zoo[k].friend||0;
   o.name=(PET_SP_BY_K[k]||PET_SPECIES[0]).name;
@@ -6814,7 +7032,7 @@ function petRoll(){
   if((o.friend||0)<PET_GACHA_COST)return null;
   o.friend-=PET_GACHA_COST;o.pity=(o.pity||0)+1;
   const rnd=_d5Rng(_d5Hash("kwt-petgacha|"+getUserId()+"|"+o.pity+"|"+(o.days||0)+"|"+(o.friend||0)));
-  const pity=o.pity>=PET_PITY&&PET_SPECIES.some(s=>!o.zoo[s.k]); // 天井：10回目は必ず新しい友だち
+  const pity=o.pity>=PET_PITY&&PET_SPECIES.some(s=>!o.zoo[s.k]); // 天井：10回目は必ず新しい友だち（たまご中の子は出ない）
   let hit=null;
   for(let i=0;i<24&&!hit;i++){
     const rare=pity?(PET_SPECIES.filter(s=>!o.zoo[s.k])[0]||{}).rare||"N":petRarePick(rnd);
@@ -9952,7 +10170,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v7.6 (2026-08-29)";
+const APP_VERSION="v7.7 (2026-08-29)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
