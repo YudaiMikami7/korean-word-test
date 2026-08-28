@@ -872,6 +872,27 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .cm-nav{display:flex;gap:10px;margin-top:10px}
 .cm-nav button{flex:1 1 0;border:none;border-radius:999px;padding:12px;font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;background:#1a1a1a;color:#fff}
 .cm-nav button.ghost{flex:0 0 auto;padding:12px 18px;background:#eee;color:#555}
+/* 使い方ガイドの最後：ホーム画面への追加を、実際の画面の絵（GUI）付きポップアップで案内する（メール指示 2026-08-28）。
+   色・角丸・ボタンはコーチマーク（.cm-tip）とそろえる */
+.a2hs{position:fixed;inset:0;z-index:660;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px}
+.a2hs-card{width:100%;max-width:360px;background:rgba(255,255,255,.98);color:#1a1a1a;border-radius:16px;padding:18px 18px 14px;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.a2hs-h{font-size:18px;font-weight:900;line-height:1.35;text-wrap:balance}
+.a2hs-sub{font-size:12.5px;font-weight:800;color:#555;line-height:1.6;margin-top:6px;text-wrap:balance}
+/* 手順の絵：ブラウザのバーとメニュー行を模した図。押す場所だけ黄色い枠で囲う（コーチマークの切り抜きと同じ意味づけ） */
+.a2hs-fig{margin-top:12px;background:#F4F4F4;border-radius:12px;padding:10px}
+.a2hs-step{display:flex;align-items:center;gap:10px}
+.a2hs-step+.a2hs-step{margin-top:8px}
+.a2hs-no{flex:0 0 20px;width:20px;height:20px;border-radius:50%;background:#1a1a1a;color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.a2hs-ui{flex:1 1 0;min-width:0;display:flex;align-items:center;gap:8px;background:#fff;border-radius:9px;padding:7px 9px;font-size:12px;font-weight:800;color:#333;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.a2hs-ui .dim{color:#bbb}
+.a2hs-ui .txt{flex:1 1 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.a2hs-ico{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;font-size:14px;font-weight:900;line-height:1}
+.a2hs-ico.hi{border:2px solid #FFD84D;background:rgba(255,216,77,.28)}
+.a2hs-ico.wide{width:auto;min-width:24px;padding:0 8px;font-size:12px} /* 「追加」のような文字のボタンは横に伸ばす */
+.a2hs-cap{font-size:11.5px;font-weight:800;color:#777;margin-top:8px;line-height:1.5;text-wrap:balance}
+.a2hs-nav{display:flex;gap:10px;margin-top:12px}
+.a2hs-nav button{flex:1 1 0;border:none;border-radius:999px;padding:12px;font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;background:#1a1a1a;color:#fff}
+.a2hs-nav button.ghost{flex:0 0 auto;padding:12px 18px;background:#eee;color:#555}
 /* その日はじめて開いたときの「今日の5問」自動スタート
    見た目は「今日の5問」の吹き出し(.d5-card／朝の部・夜の部の2マス)をそのまま使い、同じようにボタンの上から出す。
    触らなければ D5_AUTO_SEC 秒で始まり、「戻る」で中断できる（中断してももう一度タッチすれば始められる） */
@@ -3339,7 +3360,7 @@ function gachaRenderResult(p,amt,tk){
 const LS_RESTASK="kwt_restask_v1";
 function maybeRestAsk(){
   try{
-    if(document.getElementById("coach")||document.getElementById("resume-ask"))return false;
+    if(document.getElementById("coach")||document.getElementById("a2hs")||document.getElementById("resume-ask"))return false;
     const home=document.getElementById("s-home");
     if(!home||!home.classList.contains("on"))return false;
     if(restTickets()<=0)return false;
@@ -4153,10 +4174,54 @@ function coachPaint(){
   tip.style.setProperty("--ax",Math.round(Math.min(Math.max(cx-tr.left,26),Math.max(26,tr.width-26)))+"px");
 }
 function coachNext(){
-  if(_coachIdx>=_coachSteps.length-1){closeCoach();return;}
+  if(_coachIdx>=_coachSteps.length-1){closeCoach(true);return;} // 最後まで見た人にだけ、続けてホーム画面への追加を案内する
   _coachIdx++;coachPaint();
 }
-function closeCoach(){const el=document.getElementById("coach");if(el)el.remove();_pagerHold=false;try{hideRoomPager();}catch(e){}maybeAutoDaily5();} // ガイドを閉じたら、そのまま今日の5問へ
+function closeCoach(fin){
+  const el=document.getElementById("coach");if(el)el.remove();
+  _pagerHold=false;try{hideRoomPager();}catch(e){}
+  if(fin&&maybeAddHome())return;  // 追加の案内を出したときは、それを閉じてから今日の5問へ
+  maybeAutoDaily5();              // ガイドを閉じたら、そのまま今日の5問へ
+}
+/* 使い方ガイドの最後：ホーム画面に追加すると次から1タップで開けることを、
+   実際に押す場所の絵（GUI）を添えたポップアップで案内する（メール指示 2026-08-28）。
+   追加できない端末・すでにアプリとして開いている場合は出さない。出すのは初回の1度だけ */
+const LS_A2HS="kwt_a2hs_v1";
+function maybeAddHome(){
+  try{if(localStorage.getItem(LS_A2HS))return false;}catch(e){}
+  if(!installAvailable())return false;
+  try{localStorage.setItem(LS_A2HS,"1");}catch(e){}
+  showAddHome();
+  return true;
+}
+function showAddHome(){
+  if(document.getElementById("a2hs"))return;
+  const ios=/iPhone|iPad|iPod/.test(navigator.userAgent);
+  // iOSは共有シートからの手動追加しかできないので手順の絵を出す。Androidはボタンでそのまま追加できる
+  const fig=ios?`
+    <div class="a2hs-step"><span class="a2hs-no">1</span><span class="a2hs-ui"><span class="txt dim">k-tango.com</span><span class="a2hs-ico hi">&#x2191;</span></span></div>
+    <div class="a2hs-step"><span class="a2hs-no">2</span><span class="a2hs-ui"><span class="txt">ホーム画面に追加</span><span class="a2hs-ico hi">&#x229E;</span></span></div>
+    <div class="a2hs-step"><span class="a2hs-no">3</span><span class="a2hs-ui"><span class="txt dim">ホーム画面に追加</span><span class="a2hs-ico hi wide">追加</span></span></div>`:`
+    <div class="a2hs-step"><span class="a2hs-no">1</span><span class="a2hs-ui"><span class="txt dim">k-tango.com</span><span class="a2hs-ico hi">&#x22EE;</span></span></div>
+    <div class="a2hs-step"><span class="a2hs-no">2</span><span class="a2hs-ui"><span class="txt">ホーム画面に追加</span><span class="a2hs-ico hi">&#x229E;</span></span></div>`;
+  const cap=ios?"Safariの下（または上）の共有ボタンから追加できます":"下の「追加する」でそのまま追加できます";
+  const btns=ios?`<button id="a2hs-ok">わかった</button>`
+                :`<button class="ghost" id="a2hs-later">あとで</button><button id="a2hs-go">追加する</button>`;
+  const el=document.createElement("div");el.className="a2hs";el.id="a2hs";
+  el.innerHTML=`<div class="a2hs-card">
+      <div class="a2hs-h">ホーム画面に追加すると、つづけやすい</div>
+      <div class="a2hs-sub">アプリのように1タップで開けます。毎日の5問がとぎれません</div>
+      <div class="a2hs-fig">${fig}</div>
+      <div class="a2hs-cap">${cap}</div>
+      <div class="a2hs-nav">${btns}</div>
+    </div>`;
+  document.body.appendChild(el);
+  const ok=el.querySelector("#a2hs-ok");if(ok)ok.onclick=()=>closeAddHome();
+  const later=el.querySelector("#a2hs-later");if(later)later.onclick=()=>closeAddHome();
+  const go=el.querySelector("#a2hs-go");if(go)go.onclick=()=>{closeAddHome();try{promptInstall();}catch(e){}};
+  el.onclick=e=>{if(e.target===el)closeAddHome();};
+}
+function closeAddHome(){const el=document.getElementById("a2hs");if(el)el.remove();maybeAutoDaily5();} // 閉じたら、ガイドのときと同じく今日の5問へ
 function maybeCoach(){
   if(localStorage.getItem("kwt_coach_v1"))return;
   localStorage.setItem("kwt_coach_v1","1");
@@ -6012,6 +6077,7 @@ function maybeAutoDaily5(){
   try{
     if(document.querySelector(".rest-ask")){setTimeout(maybeAutoDaily5,800);return;} // おやすみチケットの確認を先に済ませる（メール指示 2026-08-01）
     if(document.getElementById("coach"))return;                    // 使い方ガイドの表示中（閉じたときに改めて呼ばれる）
+    if(document.getElementById("a2hs"))return;                     // ホーム画面への追加を案内している最中（閉じたときに改めて呼ばれる）
     if(document.getElementById("resume-ask"))return;               // 前回の途中の復帰をたずねている最中
     if(_d5.on||_gearActive)return;
     const home=document.getElementById("s-home");
