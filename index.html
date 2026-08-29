@@ -525,6 +525,8 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
   box-shadow:0 10px 26px rgba(0,0,0,.28);white-space:nowrap;pointer-events:none;
   animation:pbubin .42s cubic-bezier(.34,1.6,.5,1) both}
 .pbub::after{content:"";position:absolute;right:-9px;top:50%;margin-top:-8px;border:8px solid transparent;border-left-color:#fff;border-right:0}
+/* 左に置けず右側に出したときは、矢印も反対向きにする（メール指示 2026-08-29 22:45） */
+.pbub.right::after{right:auto;left:-9px;border-left:0;border-left-color:transparent;border-right-color:#fff;border-right-width:8px;border-right-style:solid}
 .pbub.out{opacity:0;transform:scale(.9);transition:opacity .35s ease,transform .35s ease}
 @keyframes pbubin{from{opacity:0;transform:scale(.55) translateX(20px)}to{opacity:1;transform:scale(1) translateX(0)}}
 .stepnote{position:absolute;left:50%;top:206px;transform:translateX(-50%);z-index:20;background:#fff;color:#1a1a1a;
@@ -727,6 +729,12 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .nqcd b{margin:0 2px;font-size:19px;font-weight:900;color:#FFD84D;font-variant-numeric:tabular-nums}
 .nqcd button{border:none;border-radius:18px;background:#fff;color:#1a1a1a;font-family:inherit;font-size:13px;font-weight:900;padding:7px 15px;cursor:pointer}
 .nqcd button:active{background:#ddd}
+/* ホームでは、WORLDのページャー（丸い番号の帯）のすぐ下に出す（メール指示 2026-08-29 22:45）。
+   home-wrap のなかに入れるので、ホームと同じ拡大率でいっしょに縮む */
+.nqcd.at-pager{position:absolute;left:50%;right:auto;top:346px;bottom:auto;transform:translateX(-50%);z-index:24;
+  font-size:22px;padding:12px 14px 12px 24px;border-radius:34px;gap:14px}
+.nqcd.at-pager b{font-size:29px}
+.nqcd.at-pager button{font-size:20px;padding:10px 22px;border-radius:26px}
 /* --- ガチャ（メール指示 2026-08-01）。プレゼントのモーダルと同じトーン --- */
 #gacha-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
 #gacha-modal.on{display:flex}
@@ -2371,6 +2379,38 @@ body.bigtext .set-d{font-size:13.5px}
 .pt-card{width:268px}
 .pt-name{font-size:16px;font-weight:900;color:#1a1a1a;margin-top:3px;line-height:1.25}
 .pt-name span{display:block;font-size:10.5px;font-weight:800;color:#999;margin-top:1px}
+/* 育てるの基本画面＝草むらの広場（メール指示 2026-08-29 22:45）。
+   いる子が自由に歩きまわり、まだ生まれていないたまごも置いてある。
+   動きの元気さは PWR（韓国語力）で変わる（--sp が小さいほど速く、--hop が大きいほどよく跳ねる） */
+.pt-field{position:relative;height:196px;margin:8px 0 0;border-radius:16px;overflow:hidden;cursor:pointer;
+  background:linear-gradient(180deg,#BFE8FF 0%,#D9F0FF 34%,#CFEBAF 44%,#8FCB6B 100%);--hop:8px;--sp:1.1}
+.pt-field.e0{--hop:0px;--sp:2.2}
+.pt-field.e1{--hop:4px;--sp:1.5}
+.pt-field.e2{--hop:8px;--sp:1.1}
+.pt-field.e3{--hop:13px;--sp:.8}
+.pt-field .pf-sun{position:absolute;left:8px;top:6px;font-size:18px}
+.pt-field .pf-tuft{position:absolute;bottom:0;font-size:15px;opacity:.75;pointer-events:none}
+.pt-field .pt-an{position:absolute;width:0;height:0;z-index:3;animation:ptDrift calc(var(--d) * var(--sp)) ease-in-out var(--dl) infinite alternate}
+.pt-field .pt-an i{position:absolute;left:0;top:0;display:block;font-style:normal;font-size:var(--fs,30px);line-height:1;
+  transform:translate(-50%,-50%);cursor:pointer;filter:drop-shadow(0 3px 3px rgba(0,0,0,.25));
+  animation:ptHop calc(var(--h) * var(--sp)) ease-in-out infinite}
+.pt-field .pt-an i img{width:1em;height:1em;object-fit:contain;display:block}
+.pt-field .pt-an.me i{filter:drop-shadow(0 0 7px rgba(255,255,255,.95)) drop-shadow(0 3px 3px rgba(0,0,0,.25))}
+.pt-field .pt-egg{position:absolute;z-index:2;font-size:21px;line-height:1;transform:translate(-50%,-50%);
+  filter:drop-shadow(0 3px 3px rgba(0,0,0,.22));animation:ptEggWob 2.6s ease-in-out infinite}
+@keyframes ptDrift{from{transform:translateX(0)}to{transform:translateX(var(--w))}}
+@keyframes ptHop{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,calc(-50% - var(--hop)))}}
+@keyframes ptEggWob{0%,100%{transform:translate(-50%,-50%) rotate(-6deg)}50%{transform:translate(-50%,-50%) rotate(6deg)}}
+.pt-field.less .pt-an,.pt-field.less .pt-an i,.pt-field.less .pt-egg{animation:none}
+/* ひとことは動物から出る吹き出し（メール指示 2026-08-29 22:45） */
+.pt-field .pt-say{position:absolute;z-index:5;transform:translate(-50%,-100%);background:#fff;color:#1a1a1a;
+  border-radius:14px;padding:7px 11px;box-shadow:0 6px 16px rgba(0,0,0,.25);text-align:center;max-width:82%;
+  animation:pbubin .4s cubic-bezier(.34,1.6,.5,1) both;pointer-events:none}
+.pt-field .pt-say b{display:block;font-size:14px;font-weight:900;line-height:1.3}
+.pt-field .pt-say span{display:block;font-size:11px;font-weight:800;color:#666;margin-top:2px;line-height:1.35}
+.pt-field .pt-say::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-7px;border:7px solid transparent;border-top-color:#fff;border-bottom:0}
+.pt-field .pf-foot{position:absolute;left:0;right:0;bottom:0;z-index:4;background:rgba(255,255,255,.86);
+  font-size:10.5px;font-weight:900;color:#555;padding:3px 5px}
 .pt-art{position:relative;height:120px;margin:8px 0 0;border:3px solid #E3E3E3;overflow:hidden;cursor:pointer}
 .pt-art.sm{height:54px;border-width:2px;cursor:default}
 .pt-art .pt-body{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%);font-size:52px;line-height:1}
@@ -3326,7 +3366,7 @@ function spinGacha(){
   if(!o.q.length){gachaRenderIdle();return;}
   _gachaBusy=true;
   const tk=o.q.shift();saveGacha(o);
-  const p=rollGachaPrize();
+  let p=rollGachaPrize(); // きせかえが出たときに文言を差しかえるので const にしない（メール指示 2026-08-29 22:45）
   let amt=0;
   if(p.k==="ticket")addRestTicket(1);
   else if(p.k==="xp"){amt=rollGachaXp();addBonus(amt);}
@@ -3727,7 +3767,9 @@ function nqStartBar(){
   const el=document.createElement("div");el.className="nqcd";el.id="nqcd";
   el.innerHTML=`<span>あと<b id="nq-sec">${NQ_SEC}</b>秒で つぎの問題が はじまります</span>
     <button onclick="nqCancel()">中止</button>`;
-  document.body.appendChild(el);
+  // ページャーのすぐ下に置く（メール指示 2026-08-29 22:45）。home-wrap が無いときだけ画面下の固定表示に戻す
+  const hw=document.getElementById("homewrap");
+  if(hw){el.classList.add("at-pager");hw.appendChild(el);}else document.body.appendChild(el);
   requestAnimationFrame(()=>el.classList.add("on"));
   _nqIv=setInterval(()=>{
     if(nqBusy()){nqStopBar();return;}
@@ -3741,6 +3783,42 @@ function nqGo(){
   try{if(nqBusy())return;onStartBtn();}catch(e){}
 }
 function nqCancel(){nqDisarm();}
+
+/* ============================================================ 結果画面：あと10秒でホームに戻る（メール指示 2026-08-29 22:45）
+ * 結果を見たまま止まってしまわないように、結果画面でも10秒の字幕を出して自動でホームへ戻す。
+ * ・中止ボタンでいつでも止められる。
+ * ・結果画面から離れたら消える（もう一度結果画面に来たら10秒から数えなおす）。 */
+const RH_SEC=10;
+let _rhIv=null,_rhLeft=0;
+function rhBusy(){
+  try{
+    const r=document.getElementById("s-result");
+    if(!r||!r.classList.contains("on"))return true;
+    if(document.querySelector(".appconfirm,.lvup,.streak-cel,#coach,#a2hs"))return true; // ほかの案内が出ている間は待つ
+  }catch(e){return true;}
+  return false;
+}
+function rhArm(){
+  rhDisarm();
+  if(rhBusy())return;
+  const el=document.createElement("div");el.className="nqcd";el.id="rhcd";
+  el.innerHTML=`<span>あと<b id="rh-sec">${RH_SEC}</b>秒で ホーム画面に もどります</span>
+    <button onclick="rhCancel()">中止</button>`;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add("on"));
+  _rhLeft=RH_SEC;
+  _rhIv=setInterval(()=>{
+    if(rhBusy()){rhDisarm();return;}
+    _rhLeft--;
+    const n=document.getElementById("rh-sec");if(n)n.textContent=Math.max(0,_rhLeft);
+    if(_rhLeft<=0){rhDisarm();try{resultGoHome();}catch(e){}}
+  },1000);
+}
+function rhDisarm(){
+  if(_rhIv){clearInterval(_rhIv);_rhIv=null;}
+  const el=document.getElementById("rhcd");if(el)el.remove();
+}
+function rhCancel(){rhDisarm();}
 
 /* WORLD番号の丸ページャー：左右にWORLDを並べ、選択中を中央に。切替中だけ表示し復習どき/カウントダウンは一時的にフェードで隠す */
 let _pagerT=null;
@@ -4575,6 +4653,7 @@ function renderHome(){
   if(!_bootRained){bootBallLog();if(_ballLog.length)homeRain();initRoomHint();setTimeout(maybeRestAsk,300);setTimeout(maybeResume,600);setTimeout(()=>{if(!document.getElementById("resume-ask")&&!document.querySelector(".rest-ask"))maybeCoach();},900);setTimeout(maybeAutoDaily5,1500);setTimeout(maybeBackupNag,2600);} // 起動時：過去7日の正解玉を一斉降下＋WORLDスワイプのヒント＋（連続が途切れていれば）おやすみチケット＋初回コーチ＋今日の5問の自動スタート＋バックアップ提案
   applyHomeBg();
   scaleHome();
+  if(_preCenterPend)sgPreCenterLast(); // 戻ってきた瞬間から「さっきまでやっていたマス」が中央（メール指示 2026-08-29 22:45）
   const _fb=document.getElementById("home-fbtn"); // 今日の5問／ミッション／育成ゲームはスライドではなくホーム直下のフロート（作り直すと演出が飛ぶので初回だけ）
   if(_fb&&!_fb.firstChild)_fb.innerHTML=sgGiftHTML()+sgD5HTML(); // プレゼント・ガチャの統合ボタンは今日の5問のすぐ上
   updateD5Btn(); // 今日の5問：残り回数バッジ／消化済みのグレーアウト
@@ -4613,7 +4692,8 @@ function showHomeNotice(n){
   // 連続日数アップは豪華演出。閉じたあとに「1マス進んだ」演出へつなぐ＝どの回でも必ず進んだことが見える（メール指示 2026-07-31）
   if(n.type==="streak"){_stepAfterCel=true;showStreakCelebration(loginStreak());return;}
   // プレゼント→新ステップ→（初回だけ）タイプ診断の紹介、の順に流す
-  showPresentBubble(()=>showStepAdvance(()=>{if(n.first)showFirstIntro();else nqArm();})); // 演出のあと、つぎの問題まで10秒（メール指示 2026-08-29）
+  // 「プレゼントが届きました」はCLEARの演出のあとに出す（メール指示 2026-08-29 22:45）
+  showStepAdvance(()=>showPresentBubble(()=>{if(n.first)showFirstIntro();else nqArm();})); // 演出のあと、つぎの問題まで10秒（メール指示 2026-08-29）
 }
 /* ①プレゼントのアイコンから白い吹き出しを出す（全画面の黒ポップアップは廃止） */
 function showPresentBubble(done){
@@ -4625,9 +4705,13 @@ function showPresentBubble(done){
   el.textContent=presentsAvailable(cat)>0?"🎁 プレゼントが届きました":"🎰 ガチャが回せます";
   document.body.appendChild(el);
   if(target){
-    const r=target.getBoundingClientRect();
-    el.style.top=Math.round(r.top+r.height/2-el.offsetHeight/2)+"px";
-    el.style.left=Math.round(Math.max(8,r.left-el.offsetWidth-14))+"px";
+    // 位置ズレの直し（メール指示 2026-08-29 22:45）。
+    // 左に入りきらないときは右側に出して矢印も右向きに直し、上下も画面の外へ出ないようにおさめる
+    const r=target.getBoundingClientRect(),w=el.offsetWidth,h=el.offsetHeight,GAP=14,M=8;
+    const left=r.left-w-GAP;
+    if(left<M){el.classList.add("right");el.style.left=Math.round(Math.min(window.innerWidth-w-M,r.right+GAP))+"px";}
+    else el.style.left=Math.round(left)+"px";
+    el.style.top=Math.round(Math.max(M,Math.min(window.innerHeight-h-M,r.top+r.height/2-h/2)))+"px";
     target.classList.remove("suck");void target.offsetWidth;target.classList.add("suck");
   }else{el.style.top="200px";el.style.left="20px";}
   updatePresent(); // 受け取り待ちの数バッジを更新
@@ -5801,6 +5885,7 @@ function show(id){
     else if(QR.balls.some(b=>b.layer==="home-rain")&&!QR.raf){QR.active="home-rain";QR.calm=0;QR.last=0;QR.raf=requestAnimationFrame(qrStep);} // 途中で離脱した玉を着地させる
   }
   if(id==="s-home"){renderHome();playHomeBtnFly();} // 今日の5問を終えた直後は、カプセルが入れかわる演出を出す
+  if(id==="s-result")setTimeout(rhArm,600); else rhDisarm(); // 結果画面は10秒でホームへ（メール指示 2026-08-29 22:45）
   if(id==="s-home"&&_nqAfterQuiz){_nqAfterQuiz=false;setTimeout(nqArm,1400);} // 今日の5問のあとも、つぎの問題まで10秒（メール指示 2026-08-29）
 }
 
@@ -6692,9 +6777,7 @@ function petWorry(){
 function petLine(d){
   const pw=petPower(),w=petTodayWords(),o=petState(),sp=petSp(o);
   if(pw<20)return{ko:"안녕!",ja:"やあ！"};
-  // 8. 忘れかけの単語があると心配する（学習へ戻す合図）
-  const wo=petWorry();
-  if(wo.length>=3)return{ko:wo[0].ko+"… 잊어버릴 것 같아.",ja:"「"+wo[0].ko+"」を わすれそう…！ いっしょに 思いだそう？",worry:wo.length};
+  // 「わすれかけの語を思いだす」呼びかけは出さない（メール指示 2026-08-29 22:45）
   if(!w.length)return pw<100?{ko:"안녕! 공부하자!",ja:"やあ！ べんきょうしよう！"}
     :{ko:"오늘도 같이 공부할까?",ja:"きょうも いっしょに べんきょうする？"};
   const a=w[0],b=w[1]||w[0];
@@ -6779,7 +6862,7 @@ function petTap(){
   const o=petState(),k=appDayKey();
   if(o.taps.k!==k)o.taps={k:k,n:0};
   if(o.taps.n<5){o.taps.n++;o.friend=(o.friend||0)+1;savePet(o);}
-  const el=document.querySelector("#pet-modal .pt-art");
+  const el=document.querySelector("#pet-modal .pt-an.me i,#pet-modal .pt-art");
   if(el&&!lessFxOn()){el.classList.remove("pt-jump");void el.offsetWidth;el.classList.add("pt-jump");}
   const l=document.getElementById("pt-line");
   if(l){const p=petLine();l.innerHTML=`<b>${esc(p.ko)}</b><span>${esc(p.ja)}</span>`;}
@@ -6830,6 +6913,37 @@ function petArtHTML(day,lv,stageK,small,opt){
     <span class="pt-act">${a.ico} ${esc(a.t)}</span>
   </div>`;
 }
+/* PWR（覚えた単語数）に応じた元気（メール指示 2026-08-29 22:45）。0=ねむそう〜3=元気いっぱい */
+function petEnergyLv(){const pw=petPower();return pw>=300?3:pw>=120?2:pw>=30?1:0;}
+const PET_ENERGY_LABEL=["ねむそう","ぼちぼち","元気","元気いっぱい"];
+/* 育てるの基本画面。草むらに、いる子が自由に歩きまわり、まだ生まれていないたまごも置いてある。
+   ぐるぐる位置が変わると落ち着かないので、置き場所はその日ぶんで固定する（同じ日は何度開いても同じ） */
+function petFieldHTML(){
+  const o=petState(),day=petDaily(),en=petEnergyLv(),less=lessFxOn();
+  const wx=PET_WEATHER[day.wx%PET_WEATHER.length];
+  const bgIt=(o.eq||{}).bg?PET_ITEM_BY_K[o.eq.bg]:null;
+  const rnd=_d5Rng(_d5Hash("kwt-petfield|"+getUserId()+"|"+day.k));
+  const have=petHave(o),eggs=Object.keys(o.zoo||{}).filter(k=>o.zoo[k]&&o.zoo[k].egg&&PET_SP_BY_K[k]);
+  const tufts=Array.from({length:9},(_,i)=>
+    `<span class="pf-tuft" style="left:${Math.round(4+i*11+rnd()*5)}%;bottom:${Math.round(rnd()*40)}%">🌿</span>`).join("");
+  let sayX=50,sayY=34; // 吹き出しは、いっしょにいる子の頭の上から出す
+  const ans=have.map(k=>{
+    const sp=PET_SP_BY_K[k],z=o.zoo[k]||{},lv=petLevel(z.xp),step=petGrowStep(lv),me=o.sp===k;
+    const x=10+Math.round(rnd()*70),y=48+Math.round(rnd()*38); // 草むら（下半分）のなかを歩く
+    const w=(rnd()<.5?-1:1)*(12+Math.round(rnd()*26));
+    if(me){sayX=Math.max(24,Math.min(76,x));sayY=Math.max(20,y-14);}
+    return `<div class="pt-an${me?" me":""}" data-k="${k}" style="left:${x}%;top:${y}%;--w:${w}px;--d:${(3.2+rnd()*2.6).toFixed(2)}s;--dl:${(rnd()*1.6).toFixed(2)}s;--h:${(1.1+rnd()*.8).toFixed(2)}s;--fs:${me?34:26}px">
+      <i onclick="event.stopPropagation();${me?"petTap()":"petSwitch('"+k+"')"}">${petStepFace(sp,step)}</i></div>`;
+  }).join("");
+  const egs=eggs.map(()=>`<span class="pt-egg" style="left:${8+Math.round(rnd()*76)}%;top:${64+Math.round(rnd()*24)}%">🥚</span>`).join("");
+  const ln=petLine();
+  const say=`<div class="pt-say" id="pt-line" style="left:${sayX}%;top:${sayY}%"><b>${esc(ln.ko)}</b><span>${esc(ln.ja)}</span></div>`;
+  return `<div class="pt-field e${en}${less?" less":""}" onclick="petTap()"${bgIt&&bgIt.bg?` style="background:${bgIt.bg}"`:""}>
+    <span class="pf-sun">${wx.ico}</span>
+    ${tufts}${egs}${ans}${say}
+    <div class="pf-foot">${have.length}匹が おさんぽ中${eggs.length?"／たまご "+eggs.length+"つ":""}　元気：${PET_ENERGY_LABEL[en]}（PWR ${petPower()}語）</div>
+  </div>`;
+}
 function petAlbumHTML(){
   const o=petState(),a=o.album.slice(-30).reverse();
   if(a.length<2)return "";
@@ -6855,21 +6969,19 @@ function openPet(){
   const nx=PET_STAGES.find(x=>x.lv>lv),ev=petEventNow();
   const back=o.back&&o.back.k===day.k?o.back:null,bond=o.bondNew?PET_BONDS.find(b=>b.d===o.bondNew):null;
   if(back||bond||o.evNew){const s=petState();delete s.back;delete s.bondNew;delete s.evNew;savePet(s);} // 迎えの言葉は1回だけ
-  // 育成画面はできるだけシンプルに：キャラクター・ひとこと・3つのゲージ・ボタンだけ。
+  // 育成画面はできるだけシンプルに：草むらの広場・ひとことの吹き出し・きせかえボタンだけ。
+  // 3つのパラメータ（きせかえ／親密度／韓国語力）とわすれかけの呼びかけは外した（メール指示 2026-08-29 22:45）。
   // たべたことば／思い出アルバムは図鑑へ移した（メール指示 2026-08-08 22:26）。
   // さらに、名前まわりを1行に、次のレベルの案内はゲージの下の細字にまとめ、絵文字は画像にそろえた（メール指示 2026-08-08 23:50）
   m.innerHTML=`<div class="d5-card pt-card">
     <button class="d5-close" onclick="closePet()" aria-label="閉じる">×</button>
     <div class="pt-name">${esc(o.name)}<span>Lv.${lv}／${esc(st.name)}（すがた ${petGrowStep(lv)}/${PET_STAGES.length}）／いっしょに ${o.days}日</span></div>
-    ${petArtHTML(day,lv,st.k)}
+    ${petFieldHTML()}
     ${back?`<div class="pt-back">おかえり！ ${back.gap}日ぶりだね。まってたよ<em>プレゼントに きせかえ 1つ</em></div>`:""}
     ${bond?`<div class="pt-bondnew">${esc(bond.t)}（${esc(bond.ko)}）ありがとう！<em>記念に「${esc((PET_ITEM_BY_K[bond.item]||{}).t||"")}」が とどきました</em></div>`:""}
-    <div class="pt-line" id="pt-line"><b>${esc(ln.ko)}</b><span>${esc(ln.ja)}</span></div>
-    ${ln.worry?`<button class="pt-worry" onclick="closePet();startDueReview()">わすれかけの${ln.worry}語を いっしょに 思いだす</button>`:""}
     <div class="pm-bar"><i style="width:${Math.round(((o.xp%40)/40)*100)}%"></i></div>
     <div class="pt-next">${lv>=PET_MAXLV?"いまはここまで育ちました"
       :"次のレベルまで あと"+next+(nx?("／Lv."+nx.lv+"で進化"):"")}</div>
-    <div class="pm-st">${pmRingHTML(petWearCount(o),PET_ITEMS.length,"きせかえ","#FFC400",null,"wear")}${pmRingHTML(o.friend||0,100,"親密度","#FF6FA8","pt-friend","friend")}${pmRingHTML(pw,500,"韓国語力","#3FA9F5",null,"power")}</div>
     <button class="d5-go pm-feed" onclick="openPetWear()">${petIcoImg("wear",20)}きせかえる</button>
     ${petTabsHTML("")}
   </div>`;
@@ -6990,18 +7102,27 @@ function openPetZoo(){
     <div class="pt-zoo">${PET_SPECIES.map(s=>{
       const z=o.zoo[s.k],egg=!!(z&&z.egg),have=!!z&&!egg,lv=have?petLevel(z.xp):0,now=o.sp===s.k;
       // たまごのうちは、だれのたまごかは分からないまま「あと何％で生まれるか」だけ見せる（メール指示 2026-08-29）
-      return `<button class="pt-zi${have?"":" no"}${now?" now":""}" ${have?`onclick="petSwitch('${s.k}')"`:"disabled"}>
+      return `<button class="pt-zi${have?"":" no"}${now?" now":""}" ${have?`onclick="petSwitchWear('${s.k}')"`:"disabled"}>
         <span class="pt-zico">${egg?"🥚":have?petGrowEmo(s):"？"}</span>
         <b>${have?esc(s.name):egg?"たまご":"？？？"}</b>
         <em>${have?("Lv."+lv+"／親密度"+(z.friend||0)):egg?("あと"+Math.max(1,PET_EGG_XP-(z.ex||0))+"で生まれる"):esc(s.ja)+"・"+s.rare}</em>
         ${now?`<i class="pt-znow">いっしょ</i>`:""}
       </button>`;}).join("")}</div>
-    <div class="pt-note">たまごはプレゼントで届き、学習していると生まれます。まだ会っていない子は、ガチャでも来てくれます。タップするとその子と過ごせます（それまでの育ちはそのまま残ります）。</div>
-    ${petAteHTML(o)}
-    ${petAlbumHTML()}
-    ${petTabsHTML("zoo")}
+    <div class="pt-note">たまごはプレゼントで届き、学習していると生まれます。まだ会っていない子は、ガチャでも来てくれます。タップすると、その子といっしょに過ごしながら きせかえができます（それまでの育ちはそのまま残ります）。</div>
   </div>`;
   d5AnchorBubble(null,m.querySelector(".pt-card"));
+}
+/* 図鑑で動物をタップ＝その子に切りかえて、そのまま きせかえの画面へ（メール指示 2026-08-29 22:45） */
+function petSwitchWear(k){
+  const o=petState();
+  if(!o.zoo[k]||o.zoo[k].egg)return;
+  if(o.sp!==k){
+    o.zoo[o.sp]=Object.assign(o.zoo[o.sp]||{},{xp:o.xp,friend:o.friend});
+    o.sp=k;o.xp=o.zoo[k].xp||0;o.friend=o.zoo[k].friend||0;
+    o.name=(PET_SP_BY_K[k]||PET_SPECIES[0]).name;
+    savePet(o);
+  }
+  openPetWear();
 }
 /* いっしょに過ごす子を変える。育ちは子ごとに別々に残る */
 function petSwitch(k){
@@ -7736,6 +7857,19 @@ function sgCenterTile(tile,smooth){
   sc._sgHome=top;
   sgApplyDepth(sc);sgSyncHome(sc);
   return top;
+}
+/* テストから帰ってきたとき、いまやったマスを「画面が出る前」に真ん中へ置いておく（メール指示 2026-08-29 22:45）。
+   これをやらないと、次のマスが中央の状態から前のマスへスクロールし直す動きが見えてしまう。
+   マスはあとから描かれることがあるので、見つかるまで数回だけ様子を見る。 */
+let _preCenterPend=false;
+function sgPreCenterLast(tries){
+  const bt=_lastBoardTile;
+  if(!bt||!_preCenterPend){_preCenterPend=false;return;}
+  const sl=document.querySelector('.room-slide[data-n="'+bt.sec+'"]');
+  const from=sl&&sl.querySelector('.sg-tile[aria-label="マス'+bt.gidx+'"]');
+  if(from){_preCenterPend=false;sgCenterTile(from);return;}
+  if((tries||0)>=12)return; // 見つからないまま長く粘らない（ふつうの表示にもどす）
+  setTimeout(()=>sgPreCenterLast((tries||0)+1),60);
 }
 function sgScrollToCurrent(n,smooth){
   const sc=document.querySelector(`.room-slide[data-n="${n}"] .sg-scroll`);if(!sc)return;
@@ -9607,6 +9741,7 @@ function finishTest(){
   if(_boardTile){ // すごろく: このマスをクリア（1周ぶん終われば次の周が伸びる）
     const _bt=_boardTile,_L=boardLapSize(_bt.level,_bt.sec),_before=boardState(_bt.level,_bt.sec).cleared;
     boardClear(_bt,rank,total);_lastBoardTile={..._bt};_boardTile=null;
+    _preCenterPend=true; // ホームに戻った時点で、いまやったマスが真ん中にある状態にしておく（メール指示 2026-08-29 22:45）
     const _after=boardState(_bt.level,_bt.sec).cleared;
     if(_after>_before&&_after%_L===0)_lapDone={level:_bt.level,sec:_bt.sec,lap:_after/_L,size:_L,
       words:((LEVEL_SECTIONS[_bt.level]||{})[_bt.sec]||[]).length}; // 1周達成
