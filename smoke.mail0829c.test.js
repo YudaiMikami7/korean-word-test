@@ -113,22 +113,20 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('回したあとも操作できる状態', gacha.busy === false);
   await page.evaluate(() => closeGacha());
 
-  // ---- 6) そだてるの詳細（図鑑） ----
+  // ---- 6) 図鑑は廃止し、広場だけになった（メール指示 2026-08-31） ----
   await page.evaluate(() => { const o = petState(); o.ate = ['사랑', '하늘']; savePet(o); openPetZoo(); });
   await page.waitForTimeout(300);
   const zoo = await page.evaluate(() => {
     const m = document.getElementById('pet-modal');
     return { ate: m.textContent.includes('たべたことば'), alb: m.textContent.includes('思い出アルバム'),
-      tabs: !!m.querySelector('.pt-tabs'), wearBtn: m.textContent.includes('きせかえ') && !!m.querySelector('.pt-tabs'),
-      click: (m.querySelector('.pt-zi:not(.no)') || {}).outerHTML || '' };
+      tabs: !!m.querySelector('.pt-tabs'), zooList: !!m.querySelector('.pt-zoo'),
+      field: !!m.querySelector('.pt-field') };
   });
   check('詳細に「たべたことば」は無い', !zoo.ate);
   check('詳細に「思い出アルバム」は無い', !zoo.alb);
   check('ガチャ・イベント・きせかえのタブは無い', !zoo.tabs);
-  check('動物のタップは きせかえへ', zoo.click.includes('petSwitchWear'));
-  await page.evaluate(() => { const b = document.querySelector('#pet-modal .pt-zi:not(.no)'); if (b) b.click(); });
-  await page.waitForTimeout(300);
-  check('タップすると きせかえ画面に移る', await page.evaluate(() => document.getElementById('pet-modal').textContent.includes('꾸미기')));
+  check('図鑑は廃止された', !zoo.zooList);
+  check('図鑑を開こうとしても広場になる', zoo.field);
 
   // ---- 7) 育てる基本画面 ----
   await page.evaluate(() => openPet());

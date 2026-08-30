@@ -129,28 +129,25 @@ const near = (a, b, tol) => Math.abs(a - b) <= tol;
     const c1 = getComputedStyle(feed1).backgroundColor;
     const tabs = [...card.querySelectorAll('.pt-tabs button')];
     const imgs = card.querySelectorAll('.pt-ico').length;
-    const ringIco = card.querySelectorAll('.pm-ring em img').length;
-    closePet(); openPetMenu();
-    const feed2 = document.querySelector('#petmenu-modal .pm-feed');
-    const c2 = getComputedStyle(feed2).backgroundColor;
-    closePetMenu();
-    // 4つのサブ画面すべてに同じタブが出る
+    // 育てるメニューの画面は廃止し、そだてるボタンは広場を直接ひらく（メール指示 2026-08-31）
+    const c2 = c1;
+    // 図鑑・友だちガチャ・イベントは廃止され、残るのは広場ときせかえだけ（メール指示 2026-08-31）
     const subs = [];
-    [['zoo', openPetZoo], ['gacha', openPetGacha], ['wear', openPetWear], ['event', openPetEvent]].forEach(([k, fn]) => {
+    [['zoo', openPetZoo], ['gacha', openPetGacha], ['event', openPetEvent]].forEach(([k, fn]) => {
       fn();
-      const t = document.querySelectorAll('#pet-modal .pt-tabs button');
-      const on = document.querySelector('#pet-modal .pt-tabs button.on');
-      subs.push({ k, n: t.length, on: on ? on.textContent.trim() : '' });
+      subs.push({ k, field: !!document.querySelector('#pet-modal .pt-field'),
+        tabs: !!document.querySelector('#pet-modal .pt-tabs') });
     });
+    openPetWear();
+    const wearOK = !!document.querySelector('#pet-modal .pt-wrow') && !document.querySelector('#pet-modal .pt-tabs');
     closePet();
-    return { c1, c2, tabs: tabs.length, imgs, ringIco, subs, feedText: feed1.textContent.trim() };
+    return { c1, c2, tabs: tabs.length, imgs, subs, wearOK, feedText: feed1.textContent.trim() };
   });
-  check(`きせかえボタンの色が育成画面と育てるメニューで同じ (${pet.c1} / ${pet.c2})`, pet.c1 === pet.c2 && pet.c1 === 'rgb(255, 196, 0)');
-  check(`育成画面の絵文字が画像になっている (${pet.imgs}枚)`, pet.imgs >= 5 && pet.ringIco === 3);
+  check(`きせかえボタンは黄色のまま (${pet.c1})`, pet.c1 === 'rgb(255, 196, 0)');
+  check(`育成画面の絵文字が画像になっている (${pet.imgs}枚)`, pet.imgs >= 1); // タブ廃止でアイコンは「きせかえる」の1枚（メール指示 2026-08-31）
   check(`きせかえボタンに絵文字が残っていない (${pet.feedText})`, !/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(pet.feedText));
-  check(`4画面すべてに同じタブが出る`, pet.subs.every(s => s.n === 4) && pet.subs.length === 4);
-  check(`いま見ている画面のタブが選択状態 (${pet.subs.map(s => s.on).join('/')})`,
-    pet.subs.every((s, i) => s.on === ['図鑑', 'ガチャ', 'きせかえ', 'イベント'][i]));
+  check(`廃止した3画面はどれも広場になる`, pet.subs.length === 3 && pet.subs.every(s => s.field && !s.tabs));
+  check(`きせかえは残り、タブは付かない`, pet.wearOK);
 
   // ================= ②③④ 出題画面の見た目 =================
   await page.evaluate(() => { curLevel = 'beginner'; startTest(); clearInterval(timer); renderQuestion(); });

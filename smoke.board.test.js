@@ -294,8 +294,8 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
   check(`ランクは58px・メダル風 (${look.w} / ${look.fs})`, look.w === '58px' && look.fs === '41px' && look.ring);
   check(`マス番号が大きい (${look.numFs})`, look.numFs === '32px'); // 「周-マス」の2つ組みになったぶん一段小さく（メール指示 2026-08-02）
   check('左のアイコン列は廃止された', look.railGone);
-  // ことばの友だちを追加（メール指示 2026-08-06 の続き）／今日のボーナスは廃止（メール指示 2026-08-08）
-  check(`カレンダー等はメニューの中にある (${look.menuCaps.join('|')})`, look.menuCaps.join('|') === 'カレンダー|WORLD一覧|スペシャルモード|ことばの友だち');
+  // 「ことばの友だち」はメニューから廃止し、ホームの「そだてる」ボタンだけに一本化（メール指示 2026-08-31）
+  check(`カレンダー等はメニューの中にある (${look.menuCaps.join('|')})`, look.menuCaps.join('|') === 'カレンダー|WORLD一覧|スペシャルモード');
   check('設定はヘッダー右の角丸ボタンへ移った（左のレールには無い）', look.hdSet);
   // プレゼントとガチャは1つのボタンに統合し、中身は吹き出しの2ボタンになった（メール指示 2026-08-02 16:32）
   check(`統合ボタンの中はプレゼントとガチャの2つ (${look.labels.join('|')})`, look.labels.join('|') === 'プレゼント|ガチャ');
@@ -397,7 +397,7 @@ function check(name, cond) { results.push({ name, ok: !!cond }); console.log(`${
     document.querySelectorAll('.cardget,.streak-cel').forEach(o => o.remove());
     return res;
   }));
-  check(`ルームメニューに周回と位置が出る (${lap.chip})`, /1周目11\/12/.test(lap.chip));
+  check(`ルームメニューに周回と位置が出る (${lap.chip})`, /111周目\/12/.test(lap.chip)); // 「11」＋右に「1周目」「/12」（メール指示 2026-08-31）
   check('1周クリアで到達演出が出る', lap.shown && /1周.*達成/.test(lap.txt));
   check('周回達成のごほうびが届く', lap.present);
   check('次のROOMへ進む導線がある', lap.next);

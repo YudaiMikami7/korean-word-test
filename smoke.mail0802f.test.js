@@ -99,10 +99,10 @@ const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1.5 : tol);
     };
   });
   check('メニューボタンで吹き出しが出る', menu.on);
-  // ことばの友だちを追加（メール指示 2026-08-06 の続き）／今日のボーナスは廃止（メール指示 2026-08-08）
-  check(`吹き出しの中は4つ (${menu.labels.join(' / ')})`, menu.n === 4);
-  check('カレンダー・WORLD一覧・スペシャルモード・ことばの友だちが選べる',
-    menu.labels.join(',') === 'カレンダー,WORLD一覧,スペシャルモード,🐶ことばの友だち');
+  // 「ことばの友だち」はメニューから廃止し、ホームの「そだてる」ボタンに一本化（メール指示 2026-08-31）
+  check(`吹き出しの中は3つ (${menu.labels.join(' / ')})`, menu.n === 3);
+  check('カレンダー・WORLD一覧・スペシャルモードが選べる',
+    menu.labels.join(',') === 'カレンダー,WORLD一覧,スペシャルモード');
   check('どれもアイコン＋文字', menu.icons.every(Boolean));
   check('カプセルが縦に3つ並ぶ', menu.vertical && menu.sameX && menu.capsule.every(Boolean));
   check('吹き出しはメニューボタンから出ている', menu.nearBtn);

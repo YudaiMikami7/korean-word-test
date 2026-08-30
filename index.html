@@ -276,8 +276,8 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
   transition:background-color .5s ease;
   font-family:"LINESeedJP","LINESeedKR","Hiragino Kaku Gothic ProN",sans-serif}
 /* バー：暗いトラック＋内側に角丸フィル（見本準拠） */
-.home-wrap .gauge,.dash-head .gauge{position:absolute;background:#333333;border-radius:999px;padding:3px;box-sizing:border-box;z-index:2}
-.home-wrap .gfill,.dash-head .gfill{height:100%;border-radius:999px;transition:width .5s ease;width:0}
+.home-wrap .gauge,.dash-head .gauge,.rmcap .gauge{position:absolute;background:#333333;border-radius:999px;padding:3px;box-sizing:border-box;z-index:2}
+.home-wrap .gfill,.dash-head .gfill,.rmcap .gfill{height:100%;border-radius:999px;transition:width .5s ease;width:0}
 /* ステータスバーのPWRメータ：一定スピードの繰り返しドレイン演出は廃止し、いまの実PWRをそのまま表示して
    忘却モデルどおりの本当のスピードで減らす（メール指示 2026-08-02）。幅はJS(updatePwrFine)が0.3秒ごとに更新する */
 #hv-pwrfill{transition:none}
@@ -371,17 +371,19 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 .rm-words{left:46.6%;width:15%}
 .rm-rate{left:63.9%;width:14.9%}
 /* 数字とバーはひとまわり小さく（メール指示 2026-08-09 22:05）。バーは高さ10%→8.3%、角丸999pxのままなので端は半円＝完全なカプセル */
-.rm-blk .gauge{left:2.5%;top:64%;width:95%;height:8.3%;padding:calc(var(--rh,138px)*.012)}
+.rm-blk .gauge{left:2.5%;top:64%;width:95%;height:8.3%;padding:calc(var(--rh,138px)*.019)}
 .rm-blk .gauge .gfill{transition:none} /* バーは伸びる動きを付けない（アニメ廃止） */
 /* ② 学習進捗：「10」を大きく、右上に「2週目」、右下に「/12」でひとまとまりに見せる。
    ステップ数（いま何マス／全マス）はブロックの右端ぞろえ＝「2週目」の真下に来る（メール指示 2026-08-09 22:05） */
-.hv-lap{position:absolute;left:0;top:29%;width:100%;text-align:right;white-space:nowrap;cursor:pointer}
-.hv-lap .lp-v{display:flex;justify-content:flex-end;align-items:baseline;font-size:calc(var(--rh,138px)*.27);font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
-.hv-lap .lp-v b{font-weight:900;min-width:1.3em;text-align:right} /* 大きい数字は行の基準サイズそのまま＝単語数・正答率と同じ高さの行。1桁でも2桁ぶんの幅を取り、「/12」との間隔が回ごとに変わらないようにする */
-.hv-lap .lp-v i{font-style:normal;font-size:calc(var(--rh,138px)*.15);opacity:.9} /* 「/12」は数字の右下（同じベースライン） */
-.hv-lap .lp-l{position:absolute;right:0;top:calc(var(--rh,138px)*-.15);font-size:calc(var(--rh,138px)*.125);font-weight:900;opacity:.95} /* 「2週目」はステップ数の真上（右ぞろえにしたぶん重ならないよう上へ。メール指示 2026-08-09 22:05） */
+.hv-lap{position:absolute;left:0;top:auto;bottom:39%;width:100%;white-space:nowrap;cursor:pointer;
+  display:flex;align-items:flex-end;justify-content:flex-end;gap:calc(var(--rh,138px)*.03)}
+.hv-lap .lp-n{font-size:calc(var(--rh,138px)*.27);font-weight:900;font-variant-numeric:tabular-nums;line-height:1;min-width:1.3em;text-align:right}
+/* 周回表示はマス数の右側に2段（上＝何周目・下＝/全マス）で縦に積む（メール指示 2026-08-31） */
+.hv-lap .lp-r{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;line-height:1.05}
+.hv-lap .lp-r i{font-style:normal;font-weight:900;font-size:calc(var(--rh,138px)*.125);opacity:.95}
+.hv-lap .lp-r i.lp-d{font-size:calc(var(--rh,138px)*.13);opacity:.9}
 /* ③ 単語数／④ 正答率：数字を大きく・単位はひとまわり小さく、ブロック中央ぞろえ */
-.hv-learned,.hv-roompwr{position:absolute;left:0;top:29%;width:100%;text-align:center;white-space:nowrap;
+.hv-learned,.hv-roompwr{position:absolute;left:0;top:auto;bottom:39%;width:100%;text-align:center;white-space:nowrap;
   font-size:calc(var(--rh,138px)*.27);font-weight:900;line-height:1;color:#FFFFFF}
 .hv-learned .unit{font-size:calc(var(--rh,138px)*.175);margin-left:calc(var(--rh,138px)*.012)}
 .hv-roompwr .unit{font-size:calc(var(--rh,138px)*.185);margin-left:calc(var(--rh,138px)*.012)}
@@ -404,6 +406,18 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* WORLDメニュー領域のクリップ：3面ローテのアニメが座布団の外にはみ出て描画されないように（座標は不変） */
 /* クリップの角丸も座布団と同じ「完全なカプセル」に合わせる（高さ116pxの半分＝58px。メール指示 2026-08-09 22:05） */
 .rmenu-clip{position:absolute;inset:0;z-index:2;clip-path:inset(-12px 36px calc(100% - 104px) 36px round 58px)}
+/* WORLD一覧：ホームのWORLDメニューと同じカプセルを縦に並べる（メール指示 2026-08-31）。
+   .rmenu は幅いっぱい・--rh の高さで組み立てられるので、器の幅と --rh だけ与えれば同じ絵になる */
+.rmcap-card{max-height:82vh;display:flex;flex-direction:column}
+.rmcap-list{flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:9px;padding:2px 0 4px}
+.rmcap{position:relative;width:100%;height:92px;border:none;border-radius:999px;padding:0;overflow:hidden;cursor:pointer;
+  font-family:inherit;-webkit-tap-highlight-color:transparent;flex:0 0 auto}
+.rmcap:active{transform:scale(.99)}
+.rmcap.cur{box-shadow:0 0 0 3px #1a1a1a}
+.rmcap .rmenu{--rh:92px;position:absolute;left:0;top:0;height:92px}
+.rmcap .rmenu-bg{cursor:default}
+.rmcap .rm-world,.rmcap .rm-blk,.rmcap .hv-lap{cursor:default}
+.rmcap .rank-b{cursor:default}
 /* WORLDメニュー（カプセル）の外側・左右に置く「隣のページへ」矢印。
    スライドの中ではなくhome-wrap直下に1組だけ置くフロート＝難易度・プリQQ・どのWORLDでも同じ位置に出る。
    高さは全高(138px)の約30%＝41pxの三角にし、上下中央をカプセルの中心(slide-inner基準46px→画面231px)に合わせる
@@ -732,7 +746,7 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* ホームでは、WORLDのページャー（丸い番号の帯）のすぐ下に出す（メール指示 2026-08-29 22:45）。
    home-wrap のなかに入れるので、ホームと同じ拡大率でいっしょに縮む */
 .nqcd.at-pager{position:absolute;left:50%;right:auto;top:346px;bottom:auto;transform:translateX(-50%);z-index:24;
-  font-size:22px;padding:12px 14px 12px 24px;border-radius:34px;gap:14px}
+  font-size:22px;padding:12px 30px 12px 40px;border-radius:34px;gap:20px}
 .nqcd.at-pager b{font-size:29px}
 .nqcd.at-pager button{font-size:20px;padding:10px 22px;border-radius:26px}
 /* --- ガチャ（メール指示 2026-08-01）。プレゼントのモーダルと同じトーン --- */
@@ -833,6 +847,12 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
   color:var(--rc,#B8862B);opacity:.2;pointer-events:none;font-style:normal}
 .rc-card.rare-R,.rc-card.rare-SR,.rc-card.rare-SSR,.cg-card.rare-R,.cg-card.rare-SR,.cg-card.rare-SSR{box-shadow:0 0 0 2px var(--rc) inset,0 6px 16px rgba(0,0,0,.4)}
 .cg-card.rare-SSR{animation:cgslam .5s cubic-bezier(.2,1.5,.4,1) forwards,cgSSR 1.2s ease-in-out .5s infinite}
+/* 最初のカード表示は、そのテストのランク色で枠を付ける（結果画面右上のメダルと同じ色。メール指示 2026-08-31） */
+.cardget.by-rank .cg-card{border:3px solid var(--rankc);box-shadow:0 6px 16px rgba(0,0,0,.4)}
+.cardget.by-rank .cg-card.rare-SSR{animation:cgslam .5s cubic-bezier(.2,1.5,.4,1) forwards} /* 金色の光は枠の色が濁るので出さない */
+.cardget.by-rank .cg-ko{color:var(--rankc)}
+.cg-rk{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 7px;margin-left:8px;
+  border-radius:999px;color:#fff;font-size:15px;font-weight:900;vertical-align:middle;box-shadow:0 2px 8px rgba(0,0,0,.4)}
 @keyframes cgSSR{0%,100%{filter:none}50%{filter:drop-shadow(0 0 10px #ffc400)}}
 .wd-rare{width:100%;display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin-top:3px} /* 枚数と音声マークの下の段に折り返す */
 .wd-rare i{font-style:normal;font-size:10px;font-weight:900;color:#fff;background:var(--rc,#B8862B);padding:1px 5px}
@@ -1113,18 +1133,19 @@ body.bigtext .set-d{font-size:13.5px}
 .cc-head .set-close{position:absolute;right:0;top:0;background:transparent;border:none;width:38px;height:38px;border-radius:50%;font-size:20px;font-weight:900;color:#999;cursor:pointer;line-height:1;font-family:inherit;display:flex;align-items:center;justify-content:center}
 .cc-head .set-close:active{background:rgba(0,0,0,.1)}
 /* 左右のマスは必ず同じ幅（中身が長くても片方だけ広がらないよう minmax(0,1fr) にする。メール指示 2026-08-09 22:05） */
-.cc-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;margin-top:2px}
+.cc-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:2px}
 /* 見出しで「学習」「見た目と音」「そのほか」に分ける（設定のUI見直し。メール指示 2026-08-08 23:50） */
 .cc-sec{font-size:10.5px;font-weight:900;color:#aaa;letter-spacing:.10em;margin:12px 3px 5px;display:flex;align-items:center;gap:7px}
 .cc-sec::after{content:"";flex:1 1 auto;height:2px;background:#F0F0F0;border-radius:2px}
 /* マスは縦に伸ばさず、絵・ラベル・いまの状態を1行に並べたコンパクトな作りにする。
    スイッチは置かず、オン/オフは枠の色（黄色）と右の状態文字だけで示す（メール指示 2026-08-09 22:05） */
-.cc-tile{background:#F2F2F2;border:2px solid #E3E3E3;padding:0 7px;cursor:pointer;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:5px;text-align:left;-webkit-tap-highlight-color:transparent;transition:background .15s ease,border-color .15s ease;height:40px;box-sizing:border-box}
+.cc-tile{background:#F2F2F2;border:2px solid #E3E3E3;padding:0 11px;cursor:pointer;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;text-align:left;-webkit-tap-highlight-color:transparent;transition:background .15s ease,border-color .15s ease;height:58px;box-sizing:border-box}
 .cc-tile:active{background:#E8E8E8}
-.cc-txt{display:flex;flex-direction:row;align-items:baseline;justify-content:space-between;gap:4px;flex:1 1 auto;min-width:0}
-.cc-ico{flex:0 0 auto;font-size:14px;line-height:1}
-.cc-lab{font-size:10.5px;font-weight:900;color:#777;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cc-state{font-size:11px;font-weight:900;color:#aaa;line-height:1.2;white-space:nowrap;flex:0 0 auto}
+/* マスを大きくしたので、ラベルと状態は横並びでなく上下に置く（メール指示 2026-08-31） */
+.cc-txt{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;flex:1 1 auto;min-width:0}
+.cc-ico{flex:0 0 auto;font-size:20px;line-height:1}
+.cc-lab{font-size:13.5px;font-weight:900;color:#777;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-state{font-size:14px;font-weight:900;color:#aaa;line-height:1.2;white-space:nowrap;flex:0 0 auto}
 .cc-tile.on{border-color:#FFC400;background:#FFF7E0}
 .cc-tile.on .cc-lab{color:#777}
 .cc-tile.on .cc-state{color:#E0831A}
@@ -1379,6 +1400,9 @@ body.bigtext .set-d{font-size:13.5px}
 .res-sess{margin-top:8px;font-size:12.5px;color:var(--faint);font-weight:700}
 .res-sess b{color:var(--text)}
 .btn.dark{background:rgba(0,0,0,.8);color:#fff}
+/* 設定の応援ボタンは結果画面のボタンと同じ角丸の黒背景にそろえる（メール指示 2026-08-31） */
+.btn.donate-r{border-radius:10px;background:#111;color:#fff;padding:15px;font-size:15px;font-weight:900}
+.btn.donate-r:active{background:#2a2a2a}
 .btn.dark:active{background:rgba(0,0,0,.65)}
 .res-listwrap{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;margin:10px 0;border:none;border-radius:0;-webkit-overflow-scrolling:touch} /* カードグリッドの上下とも境界線は無し（カード上の黒線を撤去）。左右幅は固定＝横スクロールさせない */
 /* ※出題表(.rtab)は「過去の結果」専用UIの廃止にあわせて削除（メール指示 2026-08-08 22:26） */
@@ -2377,12 +2401,15 @@ body.bigtext .set-d{font-size:13.5px}
 #pet-modal{position:fixed;inset:0;z-index:400;display:none;background:rgba(0,0,0,.34)}
 #pet-modal.on{display:block}
 .pt-card{width:268px}
+/* 広場だけの画面はカードごと大きくして、草むらを広く見せる（メール指示 2026-08-31） */
+.pt-plaza{width:340px}
+.pt-plaza .pt-field{height:390px}
 .pt-name{font-size:16px;font-weight:900;color:#1a1a1a;margin-top:3px;line-height:1.25}
 .pt-name span{display:block;font-size:10.5px;font-weight:800;color:#999;margin-top:1px}
 /* 育てるの基本画面＝草むらの広場（メール指示 2026-08-29 22:45）。
    いる子が自由に歩きまわり、まだ生まれていないたまごも置いてある。
    動きの元気さは PWR（韓国語力）で変わる（--sp が小さいほど速く、--hop が大きいほどよく跳ねる） */
-.pt-field{position:relative;height:196px;margin:8px 0 0;border-radius:16px;overflow:hidden;cursor:pointer;
+.pt-field{position:relative;height:240px;margin:8px 0 0;border-radius:16px;overflow:hidden;cursor:pointer;
   background:linear-gradient(180deg,#BFE8FF 0%,#D9F0FF 34%,#CFEBAF 44%,#8FCB6B 100%);--hop:8px;--sp:1.1}
 .pt-field.e0{--hop:0px;--sp:2.2}
 .pt-field.e1{--hop:4px;--sp:1.5}
@@ -2660,7 +2687,6 @@ body.bigtext .set-d{font-size:13.5px}
     <button class="hm-cap" onclick="closeHomeMenu();openCalendar()"><img src="icons/calendar.webp" alt=""><span>カレンダー</span></button>
     <button class="hm-cap" onclick="closeHomeMenu();openRoomMap()"><img src="icons/map.webp" alt=""><span>WORLD一覧</span></button>
     <button class="hm-cap" onclick="closeHomeMenu();openSpecial()"><img src="images-thumb/0731.webp" alt=""><span>スペシャルモード</span></button>
-    <button class="hm-cap" onclick="closeHomeMenu();openPet()"><span class="hm-emo" aria-hidden="true">🐶</span><span>ことばの友だち</span></button>
   </div>
 </div>
 <!-- プレゼント／ガチャを1つにまとめたボタンの吹き出し（単語帳ボタンと同じ見た目のボタン2つを横並び。メール指示 2026-08-02） -->
@@ -3279,6 +3305,8 @@ function claimPresentItem(btn){
   const title=document.querySelector("#present-modal .pm-title");
   const n=presentsAvailable(_presCat);
   if(title)title.textContent=PRES_LABEL[_presCat]+(n>0?`が ${n} 個`:" 完了！");
+  // ひとつ残らず受け取ったら、箱へ飛んでいく演出のあとに「空っぽ」の画面へ切りかえる（メール指示 2026-08-31）
+  if(n<=0){const cat=_presCat;setTimeout(()=>{const m=document.getElementById("present-modal");if(m&&m.classList.contains("on"))openPresent(cat);},900);}
 }
 /* ============================================================ ガチャ（メール指示 2026-08-01）
  * テストのごほうびはプレゼントではなくガチャ。テストを1本終えるたびにまわせる回数が1増える。
@@ -3378,6 +3406,13 @@ function spinGacha(){
   try{sfxClaim();}catch(e){}
   setTimeout(()=>{gachaRenderResult(p,amt,tk);_gachaBusy=false;},1150);
 }
+/* 結果画面からの「もう1回まわす」は、一度ガチャ画面（マシン）に戻してから回す。
+   そうしないと gc-machine がないまま回るので、まわる演出が見えない（メール指示 2026-08-31） */
+function spinGachaAgain(){
+  if(_gachaBusy)return;
+  gachaRenderIdle();                    // ガチャ画面へ戻す
+  requestAnimationFrame(()=>setTimeout(spinGacha,240)); // マシンが見えてから回しはじめる
+}
 function gachaRenderResult(p,amt,tk){
   const m=document.getElementById("gacha-modal"),n=gachaSpins();
   const val=p.k==="xp"?`+${amt} <small>XP</small>`:p.k==="ticket"?`1 <small>枚</small>`:p.k==="wear"?`1 <small>つ</small>`:`30 <small>分</small>`;
@@ -3393,7 +3428,7 @@ function gachaRenderResult(p,amt,tk){
     ${tk&&tk.xp>0?`<div class="gc-extra">テストのごほうび <b>+${tk.xp} XP</b>${tk.rank?`（RANK ${esc(tk.rank)}）`:""}</div>`:""}
     ${_gachaBoostLine()}
     <div class="gc-count">🪙 ガチャコイン <b>${n}</b> 枚</div>
-    ${n>0?`<button class="pm-btn gc-go" onclick="spinGacha()">もう1回まわす</button>`:""}
+    ${n>0?`<button class="pm-btn gc-go" onclick="spinGachaAgain()">もう1回まわす</button>`:""}
   </div>`;
   updatePresent();updateHomeStats();
   const sp=m.querySelector(".gc-prize");if(sp){sp.classList.remove("in");void sp.offsetWidth;sp.classList.add("in");}
@@ -3653,29 +3688,49 @@ function openRoomHistory(n){if(!document.getElementById("history-modal").classLi
 }
 function closeRoomHistory(){const m=document.getElementById("history-modal");if(m)m.classList.remove("on");}
 /* WORLD一覧マップ：全WORLDの進捗を俯瞰し、タップでそのWORLDへジャンプ */
+/* WORLD一覧：ホーム画面のWORLDメニューと同じデザインのカプセルを、上下に並べる（メール指示 2026-08-31）。
+   カプセルの中身（WORLD番号・周回・語数・正答率・ランク）はホームと同じ組み立てを使う。 */
+function roomCapsuleHTML(n,board){
+  const nn=String(n).padStart(2,"0"),ri=roomInfoFor(n);
+  const rk=(ri.recent||[]).slice(-1)[0]||null;
+  const lapL=boardLapSize(curLevel,n),lapC=(board[boardKey(curLevel,n)]||{}).cleared||0;
+  const lapPct=Math.round((lapC%lapL)/lapL*100);
+  return `<button class="rmcap${n===curSection?" cur":""}" onclick="jumpRoom(${n})" aria-label="WORLD ${nn}" style="background:${roomBg(n)}">
+    <div class="rmenu">
+      <div class="rmenu-bg"></div>
+      <div class="rm-world"><span class="hv-roomlabel">WORLD</span><span class="hv-roomno">${nn}</span></div>
+      <div class="rm-blk rm-lap">
+        <div class="hv-lap"><b class="lp-n">${lapC%lapL}</b><span class="lp-r"><i class="lp-l">${Math.floor(lapC/lapL)+1}周目</i><i class="lp-d">/${lapL}</i></span></div>
+        <div class="gauge hv-lapg"><div class="gfill" style="background:linear-gradient(90deg,#FF8F1F,#FFD84D);width:${lapPct}%"></div></div>
+      </div>
+      <div class="rm-blk rm-words${ri.learned>=100?" w3":""}">
+        <div class="hv-learned">${ri.learned}<span class="unit">語</span></div>
+        <div class="gauge hv-wordsg"><div class="gfill" style="background:linear-gradient(90deg,#00D9CC,#6BFFFF);width:${Math.round(ri.learned/ri.total*100)}%"></div></div>
+      </div>
+      <div class="rm-blk rm-rate${ri.pwr>=100?" w3":""}">
+        <div class="hv-roompwr">${ri.pwr}<span class="unit">%</span></div>
+        <div class="gauge hv-roomg"><div class="gfill" style="background:linear-gradient(90deg,#12D95E,#8CFF7A);width:${ri.pwr}%"></div></div>
+      </div>
+      <div class="rank-b" style="background:${rk?(RANK_COLORS[rk]||"#555"):"rgba(0,0,0,.22)"}">${rk||"-"}</div>
+    </div>
+  </button>`;
+}
 function openRoomMap(){
   if(!document.getElementById("map-modal").classList.contains("on"))pushNav("modal");
-  const N=LEVEL_INFO[curLevel].count,secs=loadSections();
-  const cells=Array.from({length:N},(_,k)=>{
-    const n=k+1,ri=roomInfoFor(n);
-    const rec=secs[curLevel+"-"+String(n).padStart(2,"0")]||{};
-    const rk=(rec.recentRanks||[]).slice(-1)[0]||null;
-    return `<button class="rm-cell${n===curSection?" cur":""}" onclick="jumpRoom(${n})">
-      <span class="rm-no">${String(n).padStart(2,"0")}</span>
-      <span class="rm-rank" style="background:${rk?(RANK_COLORS[rk]||"#555"):"rgba(0,0,0,.15)"}">${rk||"−"}</span>
-      <span class="rm-pwr">${ri.pwr}%</span><span class="rm-learn">${ri.learned}/${ri.total}語</span>
-    </button>`;
-  }).join("");
+  const N=LEVEL_INFO[curLevel].count,board=loadBoard();
+  const cells=Array.from({length:N},(_,k)=>roomCapsuleHTML(k+1,board)).join("");
   const m=document.getElementById("map-modal");
-  m.innerHTML=`<div class="hist-card"><button class="hist-close" onclick="closeRoomMap()" aria-label="閉じる">×</button>
+  m.innerHTML=`<div class="hist-card rmcap-card"><button class="hist-close" onclick="closeRoomMap()" aria-label="閉じる">×</button>
     <div class="hist-h">WORLD一覧</div>
     <div class="rm-lv">
       <button class="rm-lvbtn ${curLevel==="beginner"?"on":""}" onclick="mapSwitchLevel('beginner')">初級</button>
       <button class="rm-lvbtn ${curLevel==="middle"?"on":""}" onclick="mapSwitchLevel('middle')">中級</button>
     </div>
-    <div class="rm-grid">${PQ_ON?`<button class="rm-special" onclick="closeRoomMap();openPriQQ()">✨ SPECIAL WORLD プリQQ ✨</button>`:""}${cells}</div></div>`;
+    <div class="rmcap-list">${PQ_ON?`<button class="rm-special" onclick="closeRoomMap();openPriQQ()">✨ SPECIAL WORLD プリQQ ✨</button>`:""}${cells}</div></div>`;
   m.classList.add("on");
   m.onclick=e=>{if(e.target===m)closeRoomMap();};
+  // 選択中のWORLDが見えるところまで送る
+  requestAnimationFrame(()=>{const c=m.querySelector(".rmcap.cur");if(c&&c.scrollIntoView)c.scrollIntoView({block:"center"});});
 }
 function closeRoomMap(){document.getElementById("map-modal").classList.remove("on");}
 function jumpRoom(n){
@@ -3691,6 +3746,7 @@ const PQ_ON=false, PQ_OFF=PQ_ON?1:0;
 let _onSpecial=false; // 特別WORLD プリQQ のスライドが選択中か
 function onStartBtn(){ // 特別WORLD選択中はプリQQ／それ以外は現在のすごろくのマス
   if(_counting){cancelHomeCountdown();return;} // カウントダウン中は「戻る」化：ポップアップなしで即キャンセル
+  _preCenterPend=false;
   if(!_onSpecial)_boardTile={level:curLevel,sec:curSection,gidx:boardState(curLevel,curSection).cleared+1};
   homeCountdown(()=>{_cdSkip=true;_onSpecial?startPriQQ():startTest();}); // ホームのまま3・2・1→終わってからクイズへ遷移
 }
@@ -3734,6 +3790,7 @@ let _nqAfterQuiz=false,_nqArmed=false,_nqIv=null,_nqPoll=null,_nqLeft=0;
 /* いまカウントダウンを進めてよい状態か（ホームにいて、ほかの画面・演出が出ていないか） */
 function nqBusy(){
   try{
+    if(document.hidden)return true; // 他のアプリを見ている・閉じている間は進めない（メール指示 2026-08-31）
     const home=document.getElementById("s-home");
     if(!home||!home.classList.contains("on"))return true;
     if(_listMode||_statusMode||_wdId!=null)return true;        // 単語帳・ステータス・単語詳細
@@ -3782,24 +3839,52 @@ function nqStartBar(){
 function nqGo(){
   try{if(nqBusy())return;onStartBtn();}catch(e){}
 }
-function nqCancel(){nqDisarm();}
+function nqCancel(){nqDisarm();nqTouch();}
+/* ホームで何もしていない時間が10秒続いたら、テスト直後でなくてもカウントダウンを始める。
+   画面に触ったらいったん消して、また10秒さわらなければ出てくる（メール指示 2026-08-31） */
+const NQ_IDLE_MS=10000;
+let _nqLastAct=Date.now();
+function nqTouch(){_nqLastAct=Date.now();if(_nqArmed)nqDisarm();} // 操作したら一旦引っこめる
+["pointerdown","keydown","wheel","touchstart"].forEach(ev=>document.addEventListener(ev,nqTouch,{passive:true,capture:true}));
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){nqStopBar();rhDisarm();try{cancelHomeCountdown();}catch(e){}try{d5StopCountdown();}catch(e){}} // 他アプリ・閉じたら止める
+  else{_nqLastAct=Date.now();const r=document.getElementById("s-result");if(r&&r.classList.contains("on"))rhArm();} // 戻ってきたら数えなおし
+});
+setInterval(()=>{
+  if(_nqArmed||_nqIv)return;
+  if(Date.now()-_nqLastAct<NQ_IDLE_MS)return;
+  try{if(nqBusy())return;}catch(e){return;}
+  nqArm();
+},1000);
 
 /* ============================================================ 結果画面：あと10秒でホームに戻る（メール指示 2026-08-29 22:45）
  * 結果を見たまま止まってしまわないように、結果画面でも10秒の字幕を出して自動でホームへ戻す。
  * ・中止ボタンでいつでも止められる。
  * ・結果画面から離れたら消える（もう一度結果画面に来たら10秒から数えなおす）。 */
 const RH_SEC=10;
-let _rhIv=null,_rhLeft=0;
+let _rhIv=null,_rhLeft=0,_rhPoll=null;
 function rhBusy(){
   try{
+    if(document.hidden)return true; // 他のアプリを見ている・閉じている間は進めない（メール指示 2026-08-31）
     const r=document.getElementById("s-result");
     if(!r||!r.classList.contains("on"))return true;
-    if(document.querySelector(".appconfirm,.lvup,.streak-cel,#coach,#a2hs"))return true; // ほかの案内が出ている間は待つ
+    // カード獲得演出・XP/PWR/レベルアップなどのポップアップが出ている間は数えはじめない（メール指示 2026-08-31）
+    if(document.querySelector(".appconfirm,.lvup,.gainpop,.cardget,.lapdone,.streak-cel,.rest-ask,.d5auto,#coach,#a2hs"))return true;
   }catch(e){return true;}
   return false;
 }
+/* 結果画面に入ったら見張りをはじめ、ポップアップが全部閉じてから字幕を出す（メール指示 2026-08-31） */
 function rhArm(){
   rhDisarm();
+  if(_rhPoll)clearInterval(_rhPoll);
+  _rhPoll=setInterval(()=>{
+    const r=document.getElementById("s-result");
+    if(!r||!r.classList.contains("on")){clearInterval(_rhPoll);_rhPoll=null;return;} // 結果画面を離れたらやめる
+    if(rhBusy())return;                                   // まだポップアップが出ている
+    clearInterval(_rhPoll);_rhPoll=null;rhStartBar();
+  },300);
+}
+function rhStartBar(){
   if(rhBusy())return;
   const el=document.createElement("div");el.className="nqcd";el.id="rhcd";
   el.innerHTML=`<span>あと<b id="rh-sec">${RH_SEC}</b>秒で ホーム画面に もどります</span>
@@ -3815,6 +3900,7 @@ function rhArm(){
   },1000);
 }
 function rhDisarm(){
+  if(_rhPoll){clearInterval(_rhPoll);_rhPoll=null;}
   if(_rhIv){clearInterval(_rhIv);_rhIv=null;}
   const el=document.getElementById("rhcd");if(el)el.remove();
 }
@@ -4261,7 +4347,9 @@ function coachRectOf(st){
   box.width=box.right-box.left;box.height=box.bottom-box.top;
   return box;
 }
-function showCoach(){
+let _coachFromSettings=false; // 設定からひらいたか（最後に追加手順を出すかの判定用）
+function showCoach(fromSettings){
+  _coachFromSettings=!!fromSettings;
   if(document.getElementById("coach"))return;
   try{closeSettings();}catch(e){}                       // 設定から開いたときはシートを閉じて実画面を見せる
   const home=document.getElementById("s-home");
@@ -4320,6 +4408,8 @@ function coachNext(){
 function closeCoach(fin){
   const el=document.getElementById("coach");if(el)el.remove();
   _pagerHold=false;try{hideRoomPager();}catch(e){}
+  // 設定からひらいた「つかいかた」は、最後まで見たら毎回ウェブアプリの追加手順を出す（メール指示 2026-08-31）
+  if(fin&&_coachFromSettings){_coachFromSettings=false;showAddHome();return;}
   if(fin&&maybeAddHome())return;  // 追加の案内を出したときは、それを閉じてから今日の5問へ
   maybeAutoDaily5();              // ガイドを閉じたら、そのまま今日の5問へ
 }
@@ -4441,13 +4531,17 @@ function buildRoomSlides(){
   const el=document.getElementById("hv-rooms");if(!el)return;
   const count=LEVEL_INFO[curLevel].count;
   // 先頭(WORLD01の左)に難易度切替スライド
-  const levelSlide=`<div class="room-slide level-slide" data-n="0" style="background:${LEVEL_SLIDE_BG}">
+  // 単語詳細のあいだは、難易度スライドの場所にも「前の単語」を出す（左へスクロールしたときに見えるように）
+  const levelSlide=(_listMode&&_wdId!=null)
+    ?`<div class="room-slide" data-n="0" style="background:${roomBg(curSection)}"><div class="slide-inner">${curSection===1?wdNeighborHTML(-1):`<div class="slide-list wb-list"></div>`}</div></div>`
+    :`<div class="room-slide level-slide" data-n="0" style="background:${LEVEL_SLIDE_BG}">
     <div class="lv-pick">
       <div class="lv-cap">LEVEL</div>
       <button class="lvbtn ${curLevel==="beginner"?"on":""}" onclick="switchLevel('beginner')">初級</button>
       <button class="lvbtn ${curLevel==="middle"?"on":""}" onclick="switchLevel('middle')">中級</button>
     </div>
   </div>`;
+
   // WORLD01の左（難易度スライドの右）に特別WORLD プリQQ。通常WORLDのレイアウトを流用しプリティー化
   // ※PQ_ON=false のあいだは組み立てない（メール指示 2026-08-02）
   const pqrate=PQ_ON&&PRIQQ.total?Math.round(PRIQQ.learned/PRIQQ.total*100):0;
@@ -4485,7 +4579,7 @@ function buildRoomSlides(){
     // いま何周目・その周で何マス消化したか（すごろく上の進捗チップをここへ移した）
     const lapL=boardLapSize(curLevel,n),lapC=(_board[boardKey(curLevel,n)]||{}).cleared||0;
     // 学習進捗ブロック：大きな「いま何マス」＋右上に周回数・右下に「/全マス」。文字の並び順（周目→数→/全体）は読み上げ順のまま保つ
-    const lapHTML=`<div class="hv-lap"><span class="lp-l">${Math.floor(lapC/lapL)+1}周目</span><span class="lp-v"><b>${lapC%lapL}</b><i>/${lapL}</i></span></div>`;
+    const lapHTML=`<div class="hv-lap"><b class="lp-n">${lapC%lapL}</b><span class="lp-r"><i class="lp-l">${Math.floor(lapC/lapL)+1}周目</i><i class="lp-d">/${lapL}</i></span></div>`;
     const lapPct=Math.round((lapC%lapL)/lapL*100);
     return `<div class="room-slide" data-n="${n}" style="background:${roomBg(n)}">
       <div class="slide-inner">
@@ -4510,7 +4604,10 @@ function buildRoomSlides(){
       <div class="rmenu-reco"></div>
       <div class="rmenu-pwr"></div>
       </div>
-      ${_listMode?((_wdId!=null&&n===curSection)?wdCenterHTML(_wdId) /* 単語詳細も真ん中だけ差し替え（メール指示 2026-08-02） */
+      ${_listMode?(_wdId!=null
+          /* 単語詳細のあいだは、左右のスライドにWORLDではなく「前後の単語」を並べる。
+             こうすると横スクロールがそのまま前後の単語めくりになる（メール指示 2026-08-31） */
+          ?(Math.abs(n-curSection)<=1?wdNeighborHTML(n-curSection):`<div class="slide-list wb-list"></div>`)
           :(Math.abs(n-curSection)<=1?roomListHTML(n):`<div class="slide-list wb-list" data-lazy="${n}"></div>`))
         :(Math.abs(n-curSection)<=1?sgBoardHTML(n):`<div class="sg-wrap" data-sglazy="${n}"></div>`)} <!-- すごろくは近傍3WORLDだけ実描画（全WORLD分を持つとページが落ちる） -->
       </div>
@@ -4590,7 +4687,8 @@ function buildRoomSlides(){
       const idx=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count+PQ_OFF);
       const onSp=PQ_ON&&idx===1;_onSpecial=onSp;
       document.getElementById("homewrap").classList.toggle("pq-active",onSp);
-      applyBgAll(idx===0?LEVEL_SLIDE_BG:(onSp?"#ffe3f1":roomBg(idx-PQ_OFF)));
+      // 単語詳細のあいだは同じWORLDの中を移動しているだけなので、背景は変えない（メール指示 2026-08-31）
+      if(!(_wdId!=null&&_listMode))applyBgAll(idx===0?LEVEL_SLIDE_BG:(onSp?"#ffe3f1":roomBg(idx-PQ_OFF)));
       syncRoomArrows(); // 両端では進めない側の三角を消す
       maybeDismissRoomHint(idx); // 隣のWORLDへ動けた＝スワイプのヒントはもう要らない
       if(idx>=1)showRoomPager(); // WORLD切替中は丸ページャーを表示（難易度スライドは除く）
@@ -4598,7 +4696,13 @@ function buildRoomSlides(){
       clearTimeout(_roomScrollT);
       _roomScrollT=setTimeout(()=>{
         const i=Math.min(Math.max(Math.round(el.scrollLeft/602),0),LEVEL_INFO[curLevel].count+PQ_OFF);
-        if(i>=1+PQ_OFF){const n=i-PQ_OFF;if(n!==curSection){curSection=n;applyHomeBg();saveLastRoom();if(_wdId!=null)closeWordDetail();attachHomeRain();fillNearbyRoomLists();fillNearbyBoards();}} // 玉の山も新WORLDへ移す＋近傍の単語帳/すごろくを実描画（別WORLDへ移ったら単語詳細は閉じる）
+        // 単語詳細のあいだは、横スクロールで前後の単語へ移る（WORLDは変えない。メール指示 2026-08-31）
+        if(_wdId!=null&&_listMode){
+          const d=(i-PQ_OFF)-curSection;
+          if(d!==0&&!wdNav(d>0?1:-1))el.scrollLeft=(curSection+PQ_OFF)*602; // 端まで来ていたら元の位置へ戻す
+          return;
+        }
+        if(i>=1+PQ_OFF){const n=i-PQ_OFF;if(n!==curSection){curSection=n;applyHomeBg();saveLastRoom();attachHomeRain();fillNearbyRoomLists();fillNearbyBoards();}} // 玉の山も新WORLDへ移す＋近傍の単語帳/すごろくを実描画
       },120);
     });
   }
@@ -4720,6 +4824,7 @@ function showPresentBubble(done){
 /* ②いまクリアしたマスの「CLEAR」＋ランクバッジ → 次のマスへ進む → 「新しいステップに進みました」 */
 function showStepAdvance(done){
   const bt=_lastBoardTile;
+  _preCenterPend=false; // ここから先は演出が中央を決める（メール指示 2026-08-31）
   let wait=0;
   if(bt){
     const sl=document.querySelector('.room-slide[data-n="'+bt.sec+'"]')||document;
@@ -5885,7 +5990,7 @@ function show(id){
     else if(QR.balls.some(b=>b.layer==="home-rain")&&!QR.raf){QR.active="home-rain";QR.calm=0;QR.last=0;QR.raf=requestAnimationFrame(qrStep);} // 途中で離脱した玉を着地させる
   }
   if(id==="s-home"){renderHome();playHomeBtnFly();} // 今日の5問を終えた直後は、カプセルが入れかわる演出を出す
-  if(id==="s-result")setTimeout(rhArm,600); else rhDisarm(); // 結果画面は10秒でホームへ（メール指示 2026-08-29 22:45）
+  if(id==="s-result")setTimeout(rhArm,300); else rhDisarm(); // 結果画面は10秒でホームへ（メール指示 2026-08-29 22:45）
   if(id==="s-home"&&_nqAfterQuiz){_nqAfterQuiz=false;setTimeout(nqArm,1400);} // 今日の5問のあとも、つぎの問題まで10秒（メール指示 2026-08-29）
 }
 
@@ -6372,7 +6477,7 @@ function resBtns4HTML(third,extra){
 }
 let _petRes=null;  // 直前のことばの友だちの成長（結果画面で1度だけ出す）
 function d5RenderResult(rec,animate){
-  const petHTML=_petRes?petResultHTML(_petRes):"";_petRes=null;
+  _petRes=null; // 今日の5問の結果には、ことばの友だちのことは出さない（メール指示 2026-08-31）
   const SYM={correct:["○","o"],incorrect:["×","x"],unknown:["－","u"],timeout:["△","t"]};
   // 1行＝出題（韓国語なら韓国語）＋その下に答え。まちがえたときだけ自分の回答を足す（メール指示 2026-07-31）
   const rows=rec.items.map((it,i)=>{
@@ -6408,7 +6513,6 @@ function d5RenderResult(rec,animate){
       </div>
     </div>
     <div class="d5r-list">${rows}</div>
-    ${petHTML}
     ${resBtns4HTML({ico:"⏱",lab:"次までの時間",act:"show('s-home');openDaily5()"},
       {homeAct:"show('s-home')"})}
   </div>`;
@@ -6774,25 +6878,23 @@ function petWorry(){
   return out;
 }
 /* 7. 吹き出し。話せる語数がふえるほど、ひとことが長くなる（最初は안녕だけ） */
+/* ひとことは短く。カッコ書きはやめて、単語はそのまま置く（メール指示 2026-08-31） */
 function petLine(d){
   const pw=petPower(),w=petTodayWords(),o=petState(),sp=petSp(o);
   if(pw<20)return{ko:"안녕!",ja:"やあ！"};
-  // 「わすれかけの語を思いだす」呼びかけは出さない（メール指示 2026-08-29 22:45）
-  if(!w.length)return pw<100?{ko:"안녕! 공부하자!",ja:"やあ！ べんきょうしよう！"}
-    :{ko:"오늘도 같이 공부할까?",ja:"きょうも いっしょに べんきょうする？"};
-  const a=w[0],b=w[1]||w[0];
-  if(a===sp.like)return{ko:sp.like+"! 제일 좋아하는 말이야!",ja:sp.like+"！ いちばん すきな ことば！"}; // 好物の単語
-  if(pw<100)return{ko:"오늘 "+a+" 배웠어!",ja:"きょう「"+a+"」を おぼえたよ！"};
-  if(pw<500)return{ko:"오늘 "+a+"하고 "+b+" 배웠어! 맛있었어!",ja:"きょうは「"+a+"」と「"+b+"」を たべたよ！ おいしかった！"};
-  return{ko:"오늘 "+a+" 배웠어. 내일도 같이 공부하자!",ja:"きょうは「"+a+"」を おぼえたね。あしたも いっしょに！"};
+  if(!w.length)return{ko:"공부하자!",ja:"べんきょうしよう！"};
+  const a=w[0];
+  if(a===sp.like)return{ko:a+"! 좋아!",ja:a+" すき！"}; // 好物の単語
+  if(pw<100)return{ko:a+" 배웠어!",ja:a+" おぼえた！"};
+  if(pw<500)return{ko:a+" 맛있어!",ja:a+" おいしい！"};
+  return{ko:a+" 좋았어!",ja:a+" よかった！"};
 }
 /* 7. レベルが上がったときの韓国語のあいさつ（語彙がふえるほど長い） */
 function petLevelGreet(lv){
   const pw=petPower();
   if(pw<50) return{ko:"고마워!",ja:"ありがとう！"};
   if(pw<200)return{ko:"레벨 "+lv+"! 고마워!",ja:"レベル"+lv+"！ ありがとう！"};
-  if(pw<600)return{ko:"레벨 "+lv+"이 됐어! 같이 커 줘서 고마워!",ja:"レベル"+lv+"に なったよ！ いっしょに いてくれて ありがとう！"};
-  return{ko:"레벨 "+lv+"! 네 덕분에 한국어가 늘었어. 내일도 부탁해!",ja:"レベル"+lv+"！ あなたのおかげで 韓国語が うまくなったよ。あしたも よろしく！"};
+  return{ko:"레벨 "+lv+"! 신난다!",ja:"レベル"+lv+"！ うれしい！"};
 }
 /* その日だけの1枚（出来事×気分×衣装×天気×背景）。同じ人・同じ日なら何度開いても同じ */
 function petDaily(){
@@ -6941,7 +7043,7 @@ function petFieldHTML(){
   return `<div class="pt-field e${en}${less?" less":""}" onclick="petTap()"${bgIt&&bgIt.bg?` style="background:${bgIt.bg}"`:""}>
     <span class="pf-sun">${wx.ico}</span>
     ${tufts}${egs}${ans}${say}
-    <div class="pf-foot">${have.length}匹が おさんぽ中${eggs.length?"／たまご "+eggs.length+"つ":""}　元気：${PET_ENERGY_LABEL[en]}（PWR ${petPower()}語）</div>
+    <div class="pf-foot">${have.length}匹 おさんぽ中${eggs.length?"／たまご "+eggs.length+"つ":""}　元気 ${PET_ENERGY_LABEL[en]}</div>
   </div>`;
 }
 function petAlbumHTML(){
@@ -6953,37 +7055,28 @@ function petAlbumHTML(){
       return `<div class="pt-albi">${petArtHTML({k:x.k,act:x.act,mood:x.mood,wear:x.wear,wx:x.wx},x.lv,x.stage,true,{sp:x.sp,eq:x.eq})}<em>${p[1]}/${p[2]}</em></div>`;
     }).join("")}</div></div>`;
 }
-/* 育成の4つの画面（図鑑・ガチャ・きせかえ・イベント）へのタブ。
-   どの画面でも同じ並び・同じ見た目にして、行ったり来たりで迷わないようにする（メール指示 2026-08-08 23:50） */
-function petTabsHTML(cur){
-  const T=[["zoo","図鑑","openPetZoo()"],["gacha","ガチャ","openPetGacha()"],
-           ["wear","きせかえ","openPetWear()"],["event","イベント","openPetEvent()"]];
-  return `<div class="pt-tabs">${T.map(t=>`<button class="${cur===t[0]?"on":""}"${cur===t[0]?' aria-current="page"':` onclick="${t[2]}"`}>${petIcoImg(t[0],20)}<span>${t[1]}</span></button>`).join("")}</div>`;
-}
+/* 図鑑・友だちガチャ・イベントの3画面と、育成画面の下にあった5つのボタン群は廃止した（メール指示 2026-08-31）。
+   残るのは「広場」と「きせかえ」だけ。動物の切りかえは広場でその子をタップして行う。 */
+function petTabsHTML(cur){return "";}
+/* 表示用の名前はカッコ書きを落として短くする（メール指示 2026-08-31） */
+function petPlainName(nm){return String(nm||"").replace(/[（(][^）)]*[）)]/g,"").trim()||String(nm||"");}
 function openPet(){
   const m=document.getElementById("pet-modal");if(!m)return;
   if(!m.classList.contains("on"))pushNav("modal");
   m.classList.add("on");
-  const day=petDaily(),o=petState(),lv=petLevel(o.xp),st=petStage(lv),ln=petLine(),pw=petPower();
-  const next=petNextLvXp(o.xp);
-  const nx=PET_STAGES.find(x=>x.lv>lv),ev=petEventNow();
-  const back=o.back&&o.back.k===day.k?o.back:null,bond=o.bondNew?PET_BONDS.find(b=>b.d===o.bondNew):null;
-  if(back||bond||o.evNew){const s=petState();delete s.back;delete s.bondNew;delete s.evNew;savePet(s);} // 迎えの言葉は1回だけ
-  // 育成画面はできるだけシンプルに：草むらの広場・ひとことの吹き出し・きせかえボタンだけ。
-  // 3つのパラメータ（きせかえ／親密度／韓国語力）とわすれかけの呼びかけは外した（メール指示 2026-08-29 22:45）。
-  // たべたことば／思い出アルバムは図鑑へ移した（メール指示 2026-08-08 22:26）。
-  // さらに、名前まわりを1行に、次のレベルの案内はゲージの下の細字にまとめ、絵文字は画像にそろえた（メール指示 2026-08-08 23:50）
-  m.innerHTML=`<div class="d5-card pt-card">
+  const o=petState(),lv=petLevel(o.xp),st=petStage(lv);
+  const back=o.back&&o.back.k===petDaily().k?o.back:null,bond=o.bondNew?PET_BONDS.find(b=>b.d===o.bondNew):null;
+  if(back||bond||o.evNew){const s2=petState();delete s2.back;delete s2.bondNew;delete s2.evNew;savePet(s2);} // 迎えの言葉は1回だけ
+  // 育てるの画面は「動物たちが歩きまわる広場」だけにした（メール指示 2026-08-31）。
+  // 図鑑・友だちガチャ・イベントの3画面と、下に並んでいた5つのボタン群は廃止。
+  // きせかえだけは広場の下に1つ残し、動物の切りかえは広場でその子をタップして行う。
+  m.innerHTML=`<div class="d5-card pt-card pt-plaza">
     <button class="d5-close" onclick="closePet()" aria-label="閉じる">×</button>
-    <div class="pt-name">${esc(o.name)}<span>Lv.${lv}／${esc(st.name)}（すがた ${petGrowStep(lv)}/${PET_STAGES.length}）／いっしょに ${o.days}日</span></div>
+    <div class="pt-name">${esc(petPlainName(o.name))}<span>Lv.${lv}／${esc(st.name)}／いっしょに ${o.days}日</span></div>
     ${petFieldHTML()}
-    ${back?`<div class="pt-back">おかえり！ ${back.gap}日ぶりだね。まってたよ<em>プレゼントに きせかえ 1つ</em></div>`:""}
-    ${bond?`<div class="pt-bondnew">${esc(bond.t)}（${esc(bond.ko)}）ありがとう！<em>記念に「${esc((PET_ITEM_BY_K[bond.item]||{}).t||"")}」が とどきました</em></div>`:""}
-    <div class="pm-bar"><i style="width:${Math.round(((o.xp%40)/40)*100)}%"></i></div>
-    <div class="pt-next">${lv>=PET_MAXLV?"いまはここまで育ちました"
-      :"次のレベルまで あと"+next+(nx?("／Lv."+nx.lv+"で進化"):"")}</div>
+    ${back?`<div class="pt-back">おかえり！ ${back.gap}日ぶりだね<em>プレゼントに きせかえ 1つ</em></div>`:""}
+    ${bond?`<div class="pt-bondnew">${esc(bond.t)}ありがとう！<em>「${esc((PET_ITEM_BY_K[bond.item]||{}).t||"")}」が とどきました</em></div>`:""}
     <button class="d5-go pm-feed" onclick="openPetWear()">${petIcoImg("wear",20)}きせかえる</button>
-    ${petTabsHTML("")}
   </div>`;
   d5AnchorBubble(null,m.querySelector(".pt-card"));
   m.onclick=e=>{if(e.target===m)closePet();};
@@ -7026,7 +7119,7 @@ function petEvoShow(){
       <span class="pv-arrow">▶</span>
       <span class="pv-new">${petStepFace(sp,si+1)}</span>
     </div>
-    <div class="pv-name">${esc(sp.name)}<em>${esc(st.name)}（${esc(st.ko)}）／ Lv.${p.lv}</em></div>
+    <div class="pv-name">${esc(sp.name)}<em>${esc(st.name)}／Lv.${p.lv}</em></div>
     <div class="pv-msg">たくさん学んで、すがたが変わりました。</div>
     <button class="d5-go" onclick="closePetEvo()">見にいく</button>
   </div>`;
@@ -7069,8 +7162,8 @@ function petHatchShow(){
       <span class="pv-arrow">▶</span>
       <span class="pv-new">${petStepFace(sp,1)}</span>
     </div>
-    <div class="pv-name">${esc(sp.name)}<em>${esc(sp.ja)}／${esc(sp.rare)}</em></div>
-    <div class="pv-msg">たまごから 生まれました。図鑑から いっしょに 過ごせます。</div>
+    <div class="pv-name">${esc(sp.name)}<em>${esc(sp.ja)}</em></div>
+    <div class="pv-msg">たまごから 生まれました。広場で いっしょに 過ごせます。</div>
     <button class="d5-go" onclick="closePetHatch()">見にいく</button>
   </div>`;
   m.onclick=e=>{if(e.target===m)closePetHatch();};
@@ -7078,7 +7171,7 @@ function petHatchShow(){
 }
 function closePetHatch(){const m=document.getElementById("petevo-modal");if(m){m.classList.remove("on");m.innerHTML="";}
   if(petHomePopups())return;
-  openPet();openPetZoo();}
+  openPet();}
 /* ホームに戻ったときに出すもの（誕生 → 進化 の順で1つずつ） */
 function petHomePopups(){
   try{
@@ -7094,7 +7187,10 @@ function petSubHead(title,ko){
     <button class="pt-back2" onclick="openPet()" aria-label="友だちにもどる">‹</button>
     <div class="pt-ko">${esc(ko)}</div><div class="pt-subh">${esc(title)}</div>`;
 }
-function openPetZoo(){
+/* 図鑑は廃止（メール指示 2026-08-31）。広場で動物をタップして切りかえる方式に一本化したので、
+   古い呼び出しが残っていても広場へ流す。 */
+function openPetZoo(){return openPet();}
+function _openPetZooOld(){
   const m=document.getElementById("pet-modal");if(!m)return;
   const o=petState();
   m.innerHTML=`<div class="d5-card pt-card">${petSubHead("図鑑","도감")}
@@ -7126,7 +7222,7 @@ function petSwitchWear(k){
 }
 /* いっしょに過ごす子を変える。育ちは子ごとに別々に残る */
 function petSwitch(k){
-  const o=petState();if(!o.zoo[k]||o.zoo[k].egg||o.sp===k){openPetZoo();return;}
+  const o=petState();if(!o.zoo[k]||o.zoo[k].egg||o.sp===k){openPet();return;} // 図鑑は廃止したので広場へ（メール指示 2026-08-31）
   o.zoo[o.sp]=Object.assign(o.zoo[o.sp]||{},{xp:o.xp,friend:o.friend});
   o.sp=k;o.xp=o.zoo[k].xp||0;o.friend=o.zoo[k].friend||0;
   o.name=(PET_SP_BY_K[k]||PET_SPECIES[0]).name;
@@ -7173,7 +7269,9 @@ function petRoll(){
   savePet(o);
   return hit;
 }
-function openPetGacha(res){
+/* 友だちガチャは廃止（メール指示 2026-08-31）。友だちはプレゼントのたまごから生まれる方式のみ。 */
+function openPetGacha(res){return openPet();}
+function _openPetGachaOld(res){
   const m=document.getElementById("pet-modal");if(!m)return;
   const o=petState(),can=(o.friend||0)>=PET_GACHA_COST,rest=PET_SPECIES.filter(s=>!o.zoo[s.k]).length;
   m.innerHTML=`<div class="d5-card pt-card">${petSubHead("友だちガチャ","친구 뽑기")}
@@ -7224,7 +7322,9 @@ function petEquip(slot,k){
 }
 
 /* ------------------------------------------------------------ イベント（その月だけのもの・年間カレンダー） */
-function openPetEvent(){
+/* イベント画面は廃止（メール指示 2026-08-31）。 */
+function openPetEvent(){return openPet();}
+function _openPetEventOld(){
   const m=document.getElementById("pet-modal");if(!m)return;
   const o=petState(),ev=petEventNow(),mo=ev.m;
   const lim=PET_ITEMS.filter(i=>i.ev===mo);
@@ -7496,7 +7596,8 @@ function petFaceIco(o){
   catch(e){return "🐶";}
 }
 function sgPetHTML(){
-  return '<button class="sg-fbtn sg-pet" id="sg-pet" onclick="openPetMenu()" aria-label="育成ゲーム">'
+  // 育てるメニューの画面は廃止し、そのまま広場（草むら）をひらく（メール指示 2026-08-31）
+  return '<button class="sg-fbtn sg-pet" id="sg-pet" onclick="openPet()" aria-label="ことばの友だち">'
     +'<i>'+petFaceIco()+'</i><b>そだてる</b></button>';
 }
 function updatePetBtn(){const i=document.querySelector(".sg-pet i");if(i)i.textContent=petFaceIco();}
@@ -7867,12 +7968,18 @@ function sgPreCenterLast(tries){
   if(!bt||!_preCenterPend){_preCenterPend=false;return;}
   const sl=document.querySelector('.room-slide[data-n="'+bt.sec+'"]');
   const from=sl&&sl.querySelector('.sg-tile[aria-label="マス'+bt.gidx+'"]');
-  if(from){_preCenterPend=false;sgCenterTile(from);return;}
+  if(from){sgCenterTile(from);return;} // 旗はshowStepAdvance（次のマスへ進む演出）が引き取ってから落とす
   if((tries||0)>=12)return; // 見つからないまま長く粘らない（ふつうの表示にもどす）
   setTimeout(()=>sgPreCenterLast((tries||0)+1),60);
 }
 function sgScrollToCurrent(n,smooth){
   const sc=document.querySelector(`.room-slide[data-n="${n}"] .sg-scroll`);if(!sc)return;
+  // 結果からホームに戻った直後だけは、次のマスではなく「いまやったマス」を中央にする。
+  // buildRoomSlidesのrAFがここを呼ぶので、そちらで上書きされないよう入口でそろえる（メール指示 2026-08-31）
+  if(_preCenterPend&&_lastBoardTile&&_lastBoardTile.sec===n){
+    const from=sc.querySelector('.sg-tile[aria-label="マス'+_lastBoardTile.gidx+'"]');
+    if(from){sgCenterTile(from);return;}
+  }
   const top=sgHomeTop(sc);
   if(smooth&&sc.scrollTo)sc.scrollTo({top,behavior:"smooth"});else sc.scrollTop=top;
   sgApplyDepth(sc);sgSyncHome(sc);
@@ -9323,7 +9430,7 @@ function submit(status,userAnswer){
   if(isCorrect)sfxCorrect();else if(status==="unknown")sfxNeutral();else sfxIncorrect(); // 正解=正解音／わからない=中立音／不正解・時間切れ=不正解音
   speakKorean(q.word); // 正解・不正解・わからない・時間切れすべてで正解の韓国語音声を再生（学習のため）
   // 手に入れた単語カードと同じ枚数ぶん、レア度の色のカードが背景に降り積もる（速答ほど大きい／メール指示 2026-08-08 23:50）
-  if(cardsEarned>0)spawnWordDrop(q.word,remainSec/limit,cardsEarned,cardRarity,isCorrect);
+  if(cardsEarned>0&&isCorrect)spawnWordDrop(q.word,remainSec/limit,cardsEarned,cardRarity,isCorrect); // 不正解のときはカードを降らせない（メール指示 2026-08-31）
   showOverlay(status,q,userAnswer);
 }
 
@@ -9800,7 +9907,7 @@ function finishTest(){
     if(pwrDelta>0)pops.push(next=>showGainPopup({lab:"PWR UP!",unit:" %",num:pwrDelta,color:"#00FF37",msg:"このWORLDのPWRが上がりました"},next));
     if(xpLeveled)pops.push(next=>showLevelUp(xpNow.level,xpLvBefore,next)); // レベルが上がったらその場で知らせる
     if(pops.length)setTimeout(()=>runPopupChain(pops),_lapDone?2600:1500);
-  });
+  },rank);
 }
 /* 結果画面の入場アニメ：点数カウントアップ・ランクメダル・PWRフィル・獲得XP
    root＝どの結果画面のものを動かすか（通常テスト=#s-result／今日の5問=#s-d5result。同じidが2画面にあるため必ず絞る） */
@@ -9830,10 +9937,13 @@ function fitCheerLine(rootSel){
   while(s>8&&sp.getBoundingClientRect().width>avail){s-=0.5;sp.style.fontSize=s+"px";}
 }
 /* 出題された単語を「カード獲得」演出で1枚ずつ回転表示（結果表示の手前・タップでスキップ） */
-function showCardGetSequence(words,done){
+function showCardGetSequence(words,done,rank){
   const old=document.querySelector(".cardget");if(old)old.remove();
   const ov=document.createElement("div");ov.className="cardget";
-  ov.innerHTML=`<div class="cg-title">獲得した単語カード</div><div class="cg-grid">${words.map((w,i)=>{
+  // 枠線などの色は、結果画面右上のランクメダルと同じ色にそろえる（メール指示 2026-08-31）
+  const rc=rank?(RANK_COLORS[rank]||"#555"):"";
+  if(rc){ov.style.setProperty("--rankc",rc);ov.classList.add("by-rank");}
+  ov.innerHTML=`<div class="cg-title">獲得した単語カード${rank?` <b class="cg-rk" style="background:${rc}">${esc(rank)}</b>`:""}</div><div class="cg-grid">${words.map((w,i)=>{
     const img=(typeof WORD_IMG!=="undefined"&&WORD_IMG[w.ko])?`<img src="${WORD_IMG[w.ko]}" alt="">`:`<div class="cg-noimg">🃏</div>`;
     const tag=(w.rare&&w.rare!=="N")?`<span class="cg-rare">${w.rare}</span>`:""; // レア度が出たカードは枠の色とラベルで分かる
     return `<div class="cg-card${w.rare?" rare-"+w.rare:""}" style="animation-delay:${(i*0.08).toFixed(2)}s">${tag}${img}<div class="cg-ko">${esc(w.ko)}</div></div>`;
@@ -9987,11 +10097,19 @@ function wdCenterHTML(id){
     <button class="wd-more" onclick="closeWordDetail()">↑ さらに下へ引くと単語帳へもどる</button>
   </div>`;
 }
+/* いま見ている単語から d 個ずれた単語の詳細。端まで来ていたら空のスライドを返す（メール指示 2026-08-31） */
+function wdNeighborHTML(d){
+  const ids=sectionIds(),i=ids.indexOf(_wdId);
+  const j=i+d;
+  if(i<0||j<0||j>=ids.length)return `<div class="slide-list wb-list"></div>`;
+  return wdCenterHTML(ids[j]);
+}
 function wdNav(d){ // 前後の単語へ（同じWORLDの並び順）
   const ids=sectionIds(),i=ids.indexOf(_wdId);
-  if(i<0)return;
-  const j=i+d;if(j<0||j>=ids.length)return;
+  if(i<0)return false;
+  const j=i+d;if(j<0||j>=ids.length)return false;
   renderWordDetail(ids[j],_wdBack);
+  return true;
 }
 /* 単語詳細の上に並ぶ単語カード（番号＋絵＋韓国語＋日本語。タップでその単語へ） */
 function wdPagerHTML(ids,idx){
@@ -10305,7 +10423,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v7.7 (2026-08-29)";
+const APP_VERSION="v7.9 (2026-08-31)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
@@ -10474,10 +10592,10 @@ function openSettings(){if(!document.getElementById("settings-modal").classList.
     </div>
     <div class="cc-sec">そのほか</div>
     <div class="cc-list">
-      <div class="cc-item" onclick="showCoach()"><span>📖 つかいかた</span><span class="cc-arw">›</span></div>
+      <div class="cc-item" onclick="closeSettings();showCoach(true)"><span>📖 つかいかた</span><span class="cc-arw">›</span></div>
       <div class="cc-item cc-2btn"><button onclick="exportData()">⬆ 書き出す</button><label>⬇ 読み込む<input type="file" accept="application/json" style="display:none" onchange="importData(this)"></label></div>
       ${/iPhone|iPad|iPod/.test(navigator.userAgent)&&!(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)?`<div class="cc-item cc-note">📲 Safariの共有 →「ホーム画面に追加」でアプリのように使えます</div>`:""}
-      ${MONETIZE.donateUrl?`<div class="cc-item" style="justify-content:center">${donateBtnHTML('btn dark full')}</div>`:""}
+      ${MONETIZE.donateUrl?`<div class="cc-item" style="justify-content:center">${donateBtnHTML('btn donate-r full')}</div>`:""}
     </div>
     <div class="cc-links"><a href="learn/">単語帳一覧</a><a href="about.html">このアプリについて</a><a href="privacy.html">プライバシー</a></div>
   </div>`;

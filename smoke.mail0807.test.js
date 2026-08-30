@@ -54,15 +54,13 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check('1-4 どの子にも段階ぶんの姿と、好きな韓国語がある', zoo.icoOK && zoo.likeOK);
   check('1-5 さいしょは1種だけ（멍이）といっしょ', zoo.firstHave === 1 && zoo.first === 'mong');
 
-  check('1-6 図鑑：未入手は「？？？」で、入手ずみだけ選べる', await (async () => {
+  // 図鑑は廃止（メール指示 2026-08-31）。開こうとしても広場になる
+  check('1-6 図鑑は廃止され、広場になる', await (async () => {
     await page.evaluate(() => openPetZoo());
     await page.waitForTimeout(300);
     return await page.evaluate(() => {
       const m = document.getElementById('pet-modal');
-      const cells = [...m.querySelectorAll('.pt-zi')];
-      const q = cells.filter(c => /？？？/.test(c.textContent)).length;
-      const dis = cells.filter(c => c.disabled).length;
-      return cells.length === 10 && q === 9 && dis === 9 && !!m.querySelector('.pt-zi.now');
+      return !m.querySelector('.pt-zoo') && !!m.querySelector('.pt-field');
     });
   })());
 
@@ -119,14 +117,14 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     const before = petState().friend, r = petRoll();
     return !!r && r.type === 'dup' && petState().friend > before - PET_GACHA_COST;
   }));
-  check('2-7 ガチャ画面が開き、親密度と回すボタンが出る', await (async () => {
+  // 友だちガチャの画面は廃止（メール指示 2026-08-31）。友だちはプレゼントのたまごから生まれる
+  check('2-7 友だちガチャ画面は廃止され、広場になる', await (async () => {
     await page.evaluate(() => { localStorage.removeItem('kwt_pet_v1'); const o = petState(); o.friend = 50; savePet(o); openPetGacha(); });
     await page.waitForTimeout(300);
-    const t = await page.evaluate(() => document.getElementById('pet-modal').textContent);
-    await page.evaluate(() => petDoRoll());
-    await page.waitForTimeout(900);
-    const got = await page.evaluate(() => !!document.querySelector('#pet-modal .pt-got'));
-    return /親密度/.test(t) && !/ごはん/.test(t) && /ガチャを回す/.test(t) && got;
+    return await page.evaluate(() => {
+      const m = document.getElementById('pet-modal');
+      return !m.querySelector('.pt-ball') && !/ガチャを回す/.test(m.textContent) && !!m.querySelector('.pt-field');
+    });
   })());
 
   /* ============ 3. パートナー変更（育ちは子ごとに別々に残る） ============ */
@@ -222,12 +220,13 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     return petState().ate.length === 50 && petState().ate[0] === '말10';
   }));
   // たべたことばは、育成画面の簡素化で図鑑へ移した（メール指示 2026-08-08 22:26）
-  check('7-2 食べた単語が図鑑にならぶ', await (async () => {
+  // 図鑑ごと廃止したので「たべたことば」はどこにも出さない（メール指示 2026-08-31）
+  check('7-2 たべたことばの一覧は出さない', await (async () => {
     await page.evaluate(() => { openPet(); openPetZoo(); });
     await page.waitForTimeout(300);
-    const t = await page.evaluate(() => (document.querySelector('#pet-modal .pt-ate') || {}).textContent || '');
+    const has = await page.evaluate(() => !!document.querySelector('#pet-modal .pt-ate'));
     await page.evaluate(() => closePet());
-    return /たべたことば/.test(t) && /말59/.test(t);
+    return !has;
   })());
   check('7-3 レベルアップすると韓国語であいさつする（語彙がふえるほど長くなる）', await page.evaluate(() => {
     const a = petLevelGreet(3);
@@ -272,15 +271,16 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     petDaily(); petDaily();
     return before === 1 && lim.some(i => i.k === got[0]) && Object.keys(petState().items).length === 1;
   }));
-  check('8-3 イベント画面に、今月・年間カレンダー・記念が出る', await (async () => {
+  // イベント画面は廃止（メール指示 2026-08-31）
+  check('8-3 イベント画面は廃止され、広場になる', await (async () => {
     await page.evaluate(() => openPetEvent());
     await page.waitForTimeout(300);
     const r = await page.evaluate(() => {
       const m = document.getElementById('pet-modal');
-      return { t: m.textContent, cal: m.querySelectorAll('.pt-evcal span').length, on: m.querySelectorAll('.pt-evcal span.on').length, bond: m.querySelectorAll('.pt-bi').length };
+      return { cal: m.querySelectorAll('.pt-evcal span').length, field: !!m.querySelector('.pt-field') };
     });
     await page.evaluate(() => closePet());
-    return r.cal === 12 && r.on === 1 && r.bond === 4 && /イベント/.test(r.t);
+    return r.cal === 0 && r.field;
   })());
 
   /* ============ 9. 長く育てる（30/100/365/1000日） ============ */
@@ -358,7 +358,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   }));
 
   /* ============ 11. 通しで遊ぶ ============ */
-  check('11-1 5問→結果に成長カード→ホームで進化の全画面', await (async () => {
+  check('11-1 5問→結果に動物は出さない→ホームで進化の全画面', await (async () => {
     await page.evaluate(() => {
       localStorage.removeItem('kwt_daily5_v1'); localStorage.removeItem('kwt_pet_v1'); localStorage.removeItem('kwt_stats_v1');
       const o = petState(); o.xp = 39 + 40 * 3; savePet(o); // つぎの1回で「子ども」(Lv.5)へ進化する手前
@@ -370,9 +370,10 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
       await page.waitForTimeout(1100);
     }
     await page.waitForTimeout(1300);
+    // 今日の5問の結果には動物のことは出さない。育ち自体は裏で進む（メール指示 2026-08-31）
     const res = await page.evaluate(() => {
       const pt = document.querySelector('#s-d5result .pt-res');
-      return !!pt && /Lv\./.test(pt.textContent) && !!pt.querySelector('.pt-art') && !!petEvoPending();
+      return !pt && !!petEvoPending();
     });
     await page.evaluate(() => { show('s-home'); renderHome(); });
     await page.waitForTimeout(1200);
@@ -380,12 +381,17 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     await page.evaluate(() => { closePetEvo(); closePet(); });
     return res && evo;
   })());
-  check('11-2 育成画面から図鑑・ガチャ・きせかえ・イベントへ行ける', await (async () => {
+  // 下に並んでいた5つのボタン群は廃止し、広場と「きせかえる」だけにした（メール指示 2026-08-31）
+  check('11-2 育成画面は広場ときせかえるボタンだけ', await (async () => {
     await page.evaluate(() => openPet());
     await page.waitForTimeout(300);
-    const t = await page.evaluate(() => (document.querySelector('#pet-modal .pt-tabs') || {}).textContent || '');
+    const r = await page.evaluate(() => {
+      const m = document.getElementById('pet-modal');
+      return { tabs: !!m.querySelector('.pt-tabs'), field: !!m.querySelector('.pt-field'),
+        btns: m.querySelectorAll('button').length };
+    });
     await page.evaluate(() => closePet());
-    return /図鑑/.test(t) && /ガチャ/.test(t) && /きせかえ/.test(t) && /イベント/.test(t);
+    return !r.tabs && r.field && r.btns === 2; // ×と「きせかえる」の2つだけ
   })());
   check('11-3 どの画面からも「‹」で友だちの画面に戻れる', await (async () => {
     await page.evaluate(() => { openPet(); openPetZoo(); });

@@ -172,12 +172,13 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check('R-2 統合ポップアップから今日の5問を始められる', play.has && play.quiz && play.n === 5);
   await page.evaluate(() => { quitTest(); show('s-home'); });
   await page.waitForTimeout(600);
-  check('R-3 ハンバーガーメニューの中身はそのまま', await page.evaluate(async () => {
+  // 「ことばの友だち」はメニューから廃止（メール指示 2026-08-31）
+  check('R-3 ハンバーガーメニューは3つ', await page.evaluate(async () => {
     openHomeMenu();
     await new Promise(r => setTimeout(r, 300));
     const labs = [...document.querySelectorAll('#menu-modal .hm-cap')].map(b => b.textContent.trim());
     closeHomeMenu();
-    return labs.length === 4 && /ことばの友だち/.test(labs[3]);
+    return labs.length === 3 && !labs.some(l => /ことばの友だち/.test(l));
   }));
   check('R-4 JSコンソールエラーが無い', errors.length === 0, errors.join(' | '));
 

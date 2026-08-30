@@ -67,8 +67,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     for (let i = 0; i < 12; i++) { const r = petFeed('test'); if (r.evolved) evolved = true; }
     return r1.gain === 30 && petLevel(petState().xp) > lv1 && evolved;
   }));
-  check('11-9 通常テスト・育成メニューのごはんでも育つ（今日の5問がいちばん多い）', await page.evaluate(() =>
-    PET_GAIN.d5 > PET_GAIN.test && PET_GAIN.test > PET_GAIN.snack && PET_GAIN.snack > 0));
+  // ごはんは廃止済み。今日の5問がいちばん多く育つことだけ確かめる（メール指示 2026-08-31）
+  check('11-9 学習で育つ（今日の5問がいちばん多い）', await page.evaluate(() =>
+    PET_GAIN.d5 > PET_GAIN.test && PET_GAIN.test > 0));
   check('11-10 思い出アルバムは最新30日まで', await page.evaluate(() => {
     const o = petState(); o.album = Array.from({ length: 45 }, (_, i) => ({ k: '2026-1-' + (i + 1), act: 0, mood: 0, wear: 0, wx: 0, lv: 1, stage: 'egg' }));
     savePet(o);
@@ -80,19 +81,25 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     for (let i = 0; i < 9; i++) petTap();
     return petState().friend - a === 5;
   }));
-  check('11-12 ハンバーガーメニューから開ける', await (async () => {
+  // 入口はハンバーガーではなく、ホーム左下の「そだてる」ボタン1つに一本化した（メール指示 2026-08-31）
+  check('11-12 ホームの「そだてる」から広場をひらける', await (async () => {
     await page.evaluate(() => { show('s-home'); openHomeMenu(); });
     await page.waitForTimeout(400);
-    const has = await page.evaluate(() => [...document.querySelectorAll('#menu-modal .hm-cap')].some(b => /ことばの友だち/.test(b.textContent)));
-    await page.evaluate(() => { closeHomeMenu(); openPet(); });
+    const gone = await page.evaluate(() => ![...document.querySelectorAll('#menu-modal .hm-cap')].some(b => /ことばの友だち/.test(b.textContent)));
+    await page.evaluate(() => { closeHomeMenu(); });
+    await page.waitForTimeout(200);
+    const opensPlaza = await page.evaluate(() => {
+      const b = document.querySelector('.sg-pet');
+      return !!b && /openPet\(\)/.test(b.getAttribute('onclick') || '');
+    });
+    await page.evaluate(() => openPet());
     await page.waitForTimeout(400);
     const on = await page.evaluate(() => {
       const m = document.getElementById('pet-modal');
-      // 「단어 친구」の見出しは育成画面の簡素化で廃止（メール指示 2026-08-08 22:26）
-      return m.classList.contains('on') && !!m.querySelector('.pt-art') && !!m.querySelector('.pt-line') && !!m.querySelector('.pt-name');
+      return m.classList.contains('on') && !!m.querySelector('.pt-field') && !!m.querySelector('.pt-name');
     });
     await page.evaluate(() => closePet());
-    return has && on;
+    return gone && opensPlaza && on;
   })());
   // ごはんは廃止され、主ボタンは「きせかえる」になった（メール指示 2026-08-29）
   check('11-13 育成画面から1タップできせかえに行ける', await (async () => {
@@ -104,7 +111,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   })());
 
   /* ============ 12. 通しで遊ぶ（ことばの友だちの成長） ============ */
-  check('12-1 5問を最後までやると、結果画面にことばの友だちの成長が出る', await (async () => {
+  check('12-1 5問を最後までやっても、結果画面に動物は出さない', await (async () => {
     await page.evaluate(() => { localStorage.removeItem('kwt_daily5_v1'); localStorage.removeItem('kwt_pet_v1'); });
     await page.evaluate(() => { startDaily5(); });
     // カウントダウンの終わりを待ってから答える（時間で決め打ちすると取りこぼす）
@@ -117,9 +124,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     await page.waitForSelector('#s-d5result.on', { timeout: 20000 }).catch(() => {});
     await page.waitForTimeout(600);
     return await page.evaluate(() => {
-      // 帯は文字を減らしてレベルだけの1行になった（メール指示 2026-08-29）
+      // 動物のことは書かない（メール指示 2026-08-31）
       const pt = document.querySelector('#s-d5result .pt-res');
-      return !!pt && /Lv\./.test(pt.textContent);
+      return !pt && document.getElementById('s-d5result').classList.contains('on');
     });
   })());
 

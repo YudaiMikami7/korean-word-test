@@ -115,7 +115,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   const pet = await page.evaluate(() => {
     const c = document.querySelector('#pet-modal .pt-card');
     return {
-      art: !!c.querySelector('.pt-art'), line: !!c.querySelector('.pt-line'),
+      art: !!c.querySelector('.pt-field'), line: !!c.querySelector('.pt-say'), // 広場と吹き出し（メール指示 2026-08-31）
       rings: c.querySelectorAll('.pm-ring').length,
       album: !!c.querySelector('.pt-alb'), ate: !!c.querySelector('.pt-ate'),
       oldSt: !!c.querySelector('.pt-st'), oldBar: !!c.querySelector('.pt-bar'),
@@ -125,21 +125,23 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
       chars: c.textContent.replace(/\s/g, '').length
     };
   });
-  check('3-1 キャラクターとひとことは残っている', pet.art && pet.line);
-  check(`3-2 状態は育てるメニューと同じ3つの丸ゲージ (${pet.rings}個)`, pet.rings === 3);
+  check('3-1 広場とひとことは残っている', pet.art && pet.line);
+  // 丸ゲージ（きせかえ／親密度／韓国語力）は育てるメニューごと廃止（メール指示 2026-08-31）
+  check(`3-2 丸ゲージは廃止された (${pet.rings}個)`, pet.rings === 0);
   check('3-3 思い出アルバムは育成画面から外した', !pet.album);
   check('3-4 たべたことばも育成画面から外した', !pet.ate);
   check('3-5 古い横並びチップ・細バーはもう無い', !pet.oldSt && !pet.oldBar);
   check('3-6 「단어 친구」の飾り見出しは外した', !pet.ko);
   check(`3-7 大きなボタンは1つだけ (${pet.go}個)`, pet.go === 1);
-  check(`3-8 図鑑・ガチャ・きせかえ・イベントへは行ける (${pet.tabs}個)`, pet.tabs === 4);
+  check(`3-8 下のボタン群は廃止された (${pet.tabs}個)`, pet.tabs === 0); // メール指示 2026-08-31
   check(`3-9 画面の文字数がしぼれている (${pet.chars}字)`, pet.chars <= 220);
-  check('3-10 たべたことば・思い出アルバムは図鑑で見られる', await page.evaluate(async () => {
+  // 図鑑は廃止したので、たべたことば・思い出アルバムはどこにも出さない（メール指示 2026-08-31）
+  check('3-10 図鑑は廃止され、広場になる', await page.evaluate(async () => {
     const o = petState(); o.ate = ['말1', '말2']; savePet(o);
     openPetZoo();
     await new Promise(r => setTimeout(r, 250));
     const c = document.querySelector('#pet-modal .pt-card');
-    const ok = !!c.querySelector('.pt-ate');
+    const ok = !c.querySelector('.pt-ate') && !!c.querySelector('.pt-field');
     closePet();
     return ok;
   }));

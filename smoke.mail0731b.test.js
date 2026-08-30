@@ -5,7 +5,7 @@
  *     いまやったマスで「CLEAR」がはじけ、ランクバッジがアニメーションで付く
  *  ② 「最近学んだ単語」の帯と単語帳の黄色いカードは、絵がはみ出さない縦長カード（結果画面と同じ作り）
  *  ③ 単語帳を開いたら「今日のトレンド」ボタンが消える
- *  ④ ルームメニューのランクは直近1つだけ。空いた場所に「n周目 x/12」が出る
+ *  ④ ルームメニューのランクは直近1つだけ。空いた場所にマス数＋右に「n周目」「/12」が出る
  */
 const { chromium } = require('playwright');
 const path = require('path');
@@ -54,7 +54,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   }, normalRoom);
   check('ルームメニューの小さいランク円（1つ前・2つ前）は無くなった', menu.smalls === 0);
   check(`直近のランクだけ残っている (${menu.big})`, menu.big === 'S');
-  check(`空いた場所に「n周目 x/12」が出る (${menu.lapTxt})`, menu.lapTxt === `1周目5/${menu.lapSize}`);
+  // 周回表示はマス数の右に2段（上=周目・下=/全マス）へ並べ替えた（メール指示 2026-08-31）
+  check(`空いた場所にマス数＋周回が出る (${menu.lapTxt})`, menu.lapTxt === `51周目/${menu.lapSize}`);
   check('周回表示はルームメニューの中にある', menu.inMenu);
   check('すごろく側の進捗チップは無くなった（重複表示なし）', menu.chipGone);
   check('周回表示はすごろくの器の外にある', menu.outsideBoard);
