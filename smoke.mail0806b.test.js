@@ -101,13 +101,16 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     await page.evaluate(() => closePet());
     return gone && opensPlaza && on;
   })());
-  // ごはんは廃止され、主ボタンは「きせかえる」になった（メール指示 2026-08-29）
-  check('11-13 育成画面から1タップできせかえに行ける', await (async () => {
+  // きせかえ機能は廃止（メール指示 2026-09-03）。広場だけが残る
+  check('11-13 育成画面はきせかえのボタンを持たない', await (async () => {
     await page.evaluate(() => openPet());
     await page.waitForTimeout(300);
-    const t = await page.evaluate(() => (document.querySelector('#pet-modal .d5-go') || {}).textContent || '');
+    const r = await page.evaluate(() => ({
+      field: !!document.querySelector('#pet-modal .pt-field'),
+      wear: !!document.querySelector('#pet-modal .d5-go')
+    }));
     await page.evaluate(() => closePet());
-    return /きせかえる/.test(t);
+    return r.field && !r.wear;
   })());
 
   /* ============ 12. 通しで遊ぶ（ことばの友だちの成長） ============ */

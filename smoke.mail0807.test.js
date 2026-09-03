@@ -162,11 +162,12 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     const html = petArtHTML(petDaily(), 1, 'egg');
     return /👑/.test(html) && /F6E2C3/.test(html) && /✨/.test(html) && /👘/.test(html) && /🏅/.test(html) && /🏠/.test(html);
   }));
-  check('4-3 きせかえ画面に6つの場所がならぶ', await (async () => {
+  // きせかえ画面は廃止（メール指示 2026-09-03）。開こうとしても広場になる
+  check('4-3 きせかえ画面は廃止され広場になる', await (async () => {
     await page.evaluate(() => openPetWear());
     await page.waitForTimeout(300);
-    const t = await page.evaluate(() => document.getElementById('pet-modal').textContent);
-    return /ぼうし/.test(t) && /アクセサリー/.test(t) && /衣装/.test(t) && /背景/.test(t) && /家具/.test(t) && /エフェクト/.test(t);
+    return await page.evaluate(() => !!document.querySelector('#pet-modal .pt-field')
+      && !document.querySelector('#pet-modal .pt-wrow'));
   })());
 
   /* ============ 5. 進化（大人・伝説まで／全画面で見せる） ============ */
@@ -382,7 +383,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     return res && evo;
   })());
   // 下に並んでいた5つのボタン群は廃止し、広場と「きせかえる」だけにした（メール指示 2026-08-31）
-  check('11-2 育成画面は広場ときせかえるボタンだけ', await (async () => {
+  check('11-2 育成画面は広場だけ（ボタンは閉じるのみ）', await (async () => {
     await page.evaluate(() => openPet());
     await page.waitForTimeout(300);
     const r = await page.evaluate(() => {
@@ -391,7 +392,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
         btns: m.querySelectorAll('button').length };
     });
     await page.evaluate(() => closePet());
-    return !r.tabs && r.field && r.btns === 2; // ×と「きせかえる」の2つだけ
+    return !r.tabs && r.field && r.btns === 1; // ×だけ（きせかえるは廃止／メール指示 2026-09-03）
   })());
   check('11-3 どの画面からも「‹」で友だちの画面に戻れる', await (async () => {
     await page.evaluate(() => { openPet(); openPetZoo(); });

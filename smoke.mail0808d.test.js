@@ -44,15 +44,16 @@ const near = (a, b, tol) => Math.abs(a - b) <= tol;
   await clearFx();
 
   // ================= ⑪ おやすみカードの確率は1/3 =================
-  const rest = await page.evaluate(() => {
-    const tot = GACHA_PRIZES.reduce((a, p) => a + p.w, 0);
-    const tk = GACHA_PRIZES.find(p => p.k === 'ticket');
-    return { p: tk.w / tot, rate: REST_TICKET_RATE, wear: !!GACHA_PRIZES.find(p => p.k === 'wear') };
-  });
-  check(`ガチャのおやすみカードは元の1/3の確率 (${(rest.p * 100).toFixed(2)}%)`, near(rest.p, 0.22 / 3, 0.002));
-  check(`今日の5問のおやすみカードも1/3 (${rest.rate.toFixed(3)})`, near(rest.rate, 1 / 3, 0.001));
-  // ごはんは廃止され、景品は「きせかえ」に置きかわった（メール指示 2026-08-29）
-  check('ガチャの景品に「きせかえ」が入っている', rest.wear);
+  // ガチャはキャラクター獲得中心になり、景品の抽選表そのものが無くなった（メール指示 2026-09-03）。
+  // おやすみカードはガチャの当たりではなく「会っていない子がいないとき」の代わりになった。
+  const rest = await page.evaluate(() => ({
+    rate: REST_TICKET_RATE,
+    noTable: typeof GACHA_PRIZES === 'undefined',
+    draw: typeof gachaDrawOne === 'function'
+  }));
+  check(`今日の5問のおやすみカードは1/3 (${rest.rate.toFixed(3)})`, near(rest.rate, 1 / 3, 0.001));
+  check('ガチャの景品抽選表は廃止', rest.noTable);
+  check('ガチャは1回＝動物1匹の抽選になった', rest.draw);
 
   // ================= ⑫ ごはんは廃止（増えも減りもしない） =================
   const seed = await page.evaluate(() => {
@@ -125,8 +126,9 @@ const near = (a, b, tol) => Math.abs(a - b) <= tol;
   const pet = await page.evaluate(() => {
     openPet();
     const card = document.querySelector('#pet-modal .pt-card');
+    // きせかえ機能は廃止したので、広場に「きせかえる」ボタンは無い（メール指示 2026-09-03）
     const feed1 = card.querySelector('.pm-feed');
-    const c1 = getComputedStyle(feed1).backgroundColor;
+    const c1 = feed1 ? getComputedStyle(feed1).backgroundColor : '';
     const tabs = [...card.querySelectorAll('.pt-tabs button')];
     const imgs = card.querySelectorAll('.pt-ico').length;
     // 育てるメニューの画面は廃止し、そだてるボタンは広場を直接ひらく（メール指示 2026-08-31）
@@ -139,15 +141,13 @@ const near = (a, b, tol) => Math.abs(a - b) <= tol;
         tabs: !!document.querySelector('#pet-modal .pt-tabs') });
     });
     openPetWear();
-    const wearOK = !!document.querySelector('#pet-modal .pt-wrow') && !document.querySelector('#pet-modal .pt-tabs');
+    const wearGone = !document.querySelector('#pet-modal .pt-wrow') && !!document.querySelector('#pet-modal .pt-field');
     closePet();
-    return { c1, c2, tabs: tabs.length, imgs, subs, wearOK, feedText: feed1.textContent.trim() };
+    return { c1, c2, tabs: tabs.length, imgs, subs, wearGone, hasFeed: !!feed1 };
   });
-  check(`きせかえボタンは黄色のまま (${pet.c1})`, pet.c1 === 'rgb(255, 196, 0)');
-  check(`育成画面の絵文字が画像になっている (${pet.imgs}枚)`, pet.imgs >= 1); // タブ廃止でアイコンは「きせかえる」の1枚（メール指示 2026-08-31）
-  check(`きせかえボタンに絵文字が残っていない (${pet.feedText})`, !/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(pet.feedText));
+  check('広場に「きせかえる」ボタンは無い', !pet.hasFeed);
   check(`廃止した3画面はどれも広場になる`, pet.subs.length === 3 && pet.subs.every(s => s.field && !s.tabs));
-  check(`きせかえは残り、タブは付かない`, pet.wearOK);
+  check(`きせかえ画面も広場になる`, pet.wearGone);
 
   // ================= ②③④ 出題画面の見た目 =================
   await page.evaluate(() => { curLevel = 'beginner'; startTest(); clearInterval(timer); renderQuestion(); });

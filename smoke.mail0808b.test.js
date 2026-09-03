@@ -77,12 +77,12 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   });
   check(`2-1 育てるメニューも白地 (${pm.bg})`, pm.bg === 'rgb(255, 255, 255)');
   check(`2-2 小さな英字(FRIEND)は無い (${pm.kicks}個)`, pm.kicks === 0);
-  // ごはんは廃止され、丸ゲージは「きせかえ」に置きかわった（メール指示 2026-08-29）
-  check(`2-3 状態は3つの丸ゲージ (${pm.rings.join('/')})`, pm.rings.join('/') === 'きせかえ/親密度/韓国語力');
+  // きせかえ機能の廃止で、丸ゲージは「もちもの」になった（メール指示 2026-09-03）
+  check(`2-3 状態は3つの丸ゲージ (${pm.rings.join('/')})`, pm.rings.join('/') === 'もちもの/親密度/韓国語力');
   check('2-4 丸ゲージは円グラフで描いている', pm.ringGrad);
   check('2-5 キャラクターと伸び具合のバーはそのまま', pm.art && pm.bar);
   check('2-6 前の横並びチップ(.pt-st)はもう使っていない', !pm.oldSt);
-  check(`2-7 きせかえるボタンがある (${(pm.feed || '').trim()})`, /きせかえる/.test(pm.feed || ''));
+  check(`2-7 主ボタンは広場をひらく (${(pm.feed || '').trim()})`, /広場/.test(pm.feed || ''));
   check('2-8 吹き出しが画面に収まっている', pm.fit);
 
   /* ============ ④ ごはんの廃止：あげる導線が消え、答えるだけで育つ（メール指示 2026-08-29） ============ */
@@ -97,7 +97,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
       snack: typeof petSnack
     };
   });
-  check(`4-1 主ボタンはきせかえ画面へ (${need.head})`, need.wear && need.head === 'きせかえ');
+  check('4-1 主ボタンは広場へ', need.wear && need.head === '');
   check('4-2 「ごはんを集める」の案内はもう出ない', need.noNeed);
   check('4-3 ごはんをあげる仕組みが無い', need.snack === 'undefined');
   check('4-4 答えるだけで勝手に育つ', await page.evaluate(() => {
@@ -132,7 +132,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check('3-4 たべたことばも育成画面から外した', !pet.ate);
   check('3-5 古い横並びチップ・細バーはもう無い', !pet.oldSt && !pet.oldBar);
   check('3-6 「단어 친구」の飾り見出しは外した', !pet.ko);
-  check(`3-7 大きなボタンは1つだけ (${pet.go}個)`, pet.go === 1);
+  // きせかえるボタンが無くなり、広場には大きなボタンが残らない（メール指示 2026-09-03）
+  check(`3-7 大きなボタンは無い (${pet.go}個)`, pet.go === 0);
   check(`3-8 下のボタン群は廃止された (${pet.tabs}個)`, pet.tabs === 0); // メール指示 2026-08-31
   check(`3-9 画面の文字数がしぼれている (${pet.chars}字)`, pet.chars <= 220);
   // 図鑑は廃止したので、たべたことば・思い出アルバムはどこにも出さない（メール指示 2026-08-31）

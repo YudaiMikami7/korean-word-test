@@ -201,7 +201,7 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   check('4-14 ホームに戻れる', await page.evaluate(() => !document.getElementById('homewrap').classList.contains('listmode')));
 
   /* ---------- 8. ガチャのアニメーションを現実に忠実に ---------- */
-  await page.evaluate(() => { addGachaSpin(50, 'A'); addGachaSpin(50, 'A'); openGacha(); });
+  await page.evaluate(() => { addGachaSpin('A'); addGachaSpin('A'); openGacha(); });
   await page.waitForTimeout(600);
   check('8-1 ガチャ画面が開く', await page.evaluate(() => document.getElementById('gacha-modal').classList.contains('on')));
   check('8-2 絵文字の🎰スロットは廃止', await page.evaluate(() => !document.querySelector('#gacha-modal .gc-cap')));

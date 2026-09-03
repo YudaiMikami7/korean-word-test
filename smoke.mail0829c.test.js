@@ -93,9 +93,6 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   const gacha = await page.evaluate(async () => {
     const o = gachaState(); o.q = [{ xp: 0 }, { xp: 0 }, { xp: 0 }]; saveGacha(o);
     openGacha();
-    // きせかえが必ず当たる状態にして、2回続けて回せるか見る
-    const roll = window.rollGachaPrize;
-    window.rollGachaPrize = () => GACHA_PRIZES.find(p => p.k === 'wear') || GACHA_PRIZES[0];
     const before = gachaSpins();
     spinGacha();
     await new Promise(r => setTimeout(r, 1500));
@@ -104,10 +101,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     if (again) document.querySelector('#gacha-modal .gc-go').click();
     await new Promise(r => setTimeout(r, 1500));
     const after = gachaSpins();
-    window.rollGachaPrize = roll;
     return { before, mid, after, again, busy: _gachaBusy };
   });
-  check('きせかえが当たっても止まらない', gacha.mid === gacha.before - 1);
+  check('まわすと途中で止まらない', gacha.mid === gacha.before - 1);
   check('「もう1回まわす」ボタンが出る', gacha.again);
   check('「もう1回まわす」が効く', gacha.after === gacha.mid - 1);
   check('回したあとも操作できる状態', gacha.busy === false);
@@ -150,7 +146,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('ひとことは動物からの吹き出し', pet.say);
   check('3つのパラメータは無い', !pet.rings);
   check('わすれかけの呼びかけは無い', !pet.worry);
-  check('着せ替えは育成画面から使える', pet.wear);
+  // きせかえ機能は廃止（メール指示 2026-09-03）
+  check('きせかえのボタンは出ない', !pet.wear);
   // たまごも草むらに置かれる
   await page.evaluate(() => { petGrantEgg(); openPet(); });
   await page.waitForTimeout(200);

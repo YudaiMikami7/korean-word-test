@@ -112,7 +112,8 @@ const IOS = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/
   });
   check('ごはんの表示が無い', noFood.food === false);
   check('ごはんをあげる仕組みが無い', noFood.snack === 'undefined');
-  check('きせかえに置きかわっている', noFood.wear === true);
+  // きせかえ機能そのものが廃止になったので、画面に「きせかえ」の文字は出ない（メール指示 2026-09-03）
+  check('きせかえの画面・ボタンも無い', noFood.wear === false);
   check('育ち方がMBTI連動だとは書かない', noFood.mbti === false);
 
   /* 結果画面が縦に伸びていない（今日の5問を1本通す） */

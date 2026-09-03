@@ -157,57 +157,67 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   check('ガチャのモーダルが開く', await page.evaluate(() => document.getElementById('gacha-modal').classList.contains('on')));
   check('「まわす」ボタンがある', await page.evaluate(() => !!document.querySelector('#gacha-modal .gc-go')));
 
-  const prizes = await page.evaluate(() => {
-    const c = {}; for (let i = 0; i < 3000; i++) { const p = rollGachaPrize(); c[p.k] = (c[p.k] || 0) + 1; }
-    return { c, labs: GACHA_PRIZES.map(p => p.lab) };
-  });
-  // 「きせかえ」が景品に加わり4種類になった（ごはんから置きかえ／メール指示 2026-08-29）
-  check(`景品は4種類（${prizes.labs.join(' / ')}）`, prizes.labs.length === 4
-    && prizes.labs.includes('おやすみチケット') && prizes.labs.includes('きせかえ')
-    && prizes.labs.includes('XP') && prizes.labs.includes('XP2倍チャンス'));
-  check(`4種ともちゃんと出る (チケット${prizes.c.ticket} / きせかえ${prizes.c.wear} / XP${prizes.c.xp} / 2倍${prizes.c.x2})`,
-    prizes.c.ticket > 0 && prizes.c.wear > 0 && prizes.c.xp > 0 && prizes.c.x2 > 0);
-  check('XPの当たり額はランダム', await page.evaluate(() => {
-    const s = new Set(); for (let i = 0; i < 400; i++) s.add(rollGachaXp());
-    return s.size >= 3 && [...s].every(v => v >= 30 && v <= 300);
-  }));
-
-  // まわす（景品＝おやすみチケットに固定）
+  // ガチャは「新しい動物・キャラクターを獲得する」機能になった（メール指示 2026-09-03）
   const spinT = await page.evaluate(async () => {
-    _prizeOrig = rollGachaPrize; rollGachaPrize = () => GACHA_PRIZES.find(p => p.k === 'ticket');
-    const b0 = loadBonus(), t0 = restTickets(), n0 = gachaSpins();
+    const o = petState(); o.zoo = { [o.sp]: { xp: 0, friend: 0 } }; savePet(o); // まだ会っていない子がいる状態
+    const b0 = loadBonus(), n0 = gachaSpins(), h0 = petHave().length;
     spinGacha();
     await new Promise(r => setTimeout(r, 1400));
-    return { n0, n1: gachaSpins(), t0, t1: restTickets(), b0, b1: loadBonus(), shown: !!document.querySelector('#gacha-modal .gc-prize') };
+    return { n0, n1: gachaSpins(), h0, h1: petHave().length, b0, b1: loadBonus(),
+      shown: !!document.querySelector('#gacha-modal .gc-prize'),
+      lab: (document.querySelector('#gacha-modal .gc-plab') || {}).textContent || '' };
   });
   check(`まわすと回数が減る (${spinT.n0} → ${spinT.n1})`, spinT.n1 === spinT.n0 - 1);
   check('景品の表示が出る', spinT.shown);
-  check(`おやすみチケットが当たると1枚もらえる (${spinT.t0} → ${spinT.t1})`, spinT.t1 === spinT.t0 + 1);
-  check(`コインにXPは付いていない (+${spinT.b1 - spinT.b0} XP)`, spinT.b1 === spinT.b0);
+  check(`ガチャで新しい動物がなかまになる (${spinT.h0} → ${spinT.h1}匹 / ${spinT.lab})`, spinT.h1 === spinT.h0 + 1);
+  check(`ガチャからXPは出ない (+${spinT.b1 - spinT.b0} XP)`, spinT.b1 === spinT.b0);
 
-  // 景品＝XP / XP2倍
-  const spinX = await page.evaluate(async () => {
-    addGachaSpin(0, 'B'); rollGachaPrize = () => GACHA_PRIZES.find(p => p.k === 'xp');
-    const b0 = loadBonus(); spinGacha(); await new Promise(r => setTimeout(r, 1400));
-    const b1 = loadBonus();
-    addGachaSpin(0, 'B'); rollGachaPrize = () => GACHA_PRIZES.find(p => p.k === 'x2');
-    localStorage.removeItem(LS_XPBOOST);
-    const on0 = xpBoostActive(); spinGacha(); await new Promise(r => setTimeout(r, 1400));
-    const on1 = xpBoostActive(), left = xpBoostLeftMin();
-    rollGachaPrize = _prizeOrig;
-    return { b0, b1, on0, on1, left, x2badge: getComputedStyle(document.getElementById('rr-x2')).display };
+  // 会っていない子がいなくなったら、代わりにおやすみチケット（XPは出さない）
+  const spinT2 = await page.evaluate(async () => {
+    const o = petState(); PET_SPECIES.forEach(sp => { if (!o.zoo[sp.k]) o.zoo[sp.k] = { xp: 0, friend: 0 }; }); savePet(o);
+    addGachaSpin('B');
+    const t0 = restTickets(), b0 = loadBonus();
+    spinGacha(); await new Promise(r => setTimeout(r, 1400));
+    return { t0, t1: restTickets(), b0, b1: loadBonus() };
   });
-  check(`XPが当たるとXPが増える (+${spinX.b1 - spinX.b0} XP)`, spinX.b1 > spinX.b0);
-  check(`XP2倍チャンスが当たると30分ぶん有効になる (残り${spinX.left}分)`, !spinX.on0 && spinX.on1 && spinX.left > 25 && spinX.left <= 30);
-  check('XP2倍チャンス中はホームのガチャに✕2の札が出る', spinX.x2badge !== 'none');
+  check(`全員そろっていればおやすみチケット (${spinT2.t0} → ${spinT2.t1})`, spinT2.t1 === spinT2.t0 + 1);
+  check(`そのときもXPは出ない (+${spinT2.b1 - spinT2.b0} XP)`, spinT2.b1 === spinT2.b0);
+
+  // テストぶんのXPはコインを受け取った時点で渡る（ガチャからは出ない）
+  check('コインを受け取った時点でテストぶんのXPが入る', await page.evaluate(() => {
+    const st = _presentState();
+    st.queue.push({ cat: 'rank', kind: 'coin', rank: 'B', total: 50, at: new Date().toISOString() });
+    _savePresent(st);
+    const b0 = loadBonus(), n0 = gachaSpins();
+    openPresent('rank'); claimAllPresents();
+    return loadBonus() === b0 + 50 && gachaSpins() === n0 + 1;
+  }));
+  await page.evaluate(() => { closePresent && closePresent(); document.querySelectorAll('.lvup,.pbub').forEach(o => o.remove()); });
+
+  // まとめて回す（メール指示 2026-09-03）
+  const bulk = await page.evaluate(async () => {
+    const o = gachaState(); o.q = [{ xp: 0 }, { xp: 0 }, { xp: 0 }]; saveGacha(o);
+    gachaRenderIdle();
+    const btn = !!document.querySelector('#gacha-modal .gc-all');
+    const n0 = gachaSpins();
+    spinGachaAll();
+    await new Promise(r => setTimeout(r, 1500));
+    return { btn, n0, n1: gachaSpins(), rows: document.querySelectorAll('#gacha-modal .gc-li').length };
+  });
+  check('コインが2枚以上あると「まとめて回す」が出る', bulk.btn);
+  check(`まとめて回すと持っているぶん全部まわる (${bulk.n0} → ${bulk.n1})`, bulk.n1 === 0);
+  check(`まとめた結果が一覧で出る (${bulk.rows}件)`, bulk.rows === bulk.n0);
 
   check('受け取っていない旧「テストのごほうび」はガチャ回数へ引っ越す', await page.evaluate(() => {
     const st = _presentState();
     st.queue.push({ cat: 'rank', kind: 'test', rank: 'A', total: 190, at: new Date().toISOString() });
     _savePresent(st);
-    const n0 = gachaSpins();
+    const n0 = gachaSpins(), b0 = loadBonus(), d0 = presentsAvailable('daily');
     migrateRankPresents();
-    return gachaSpins() === n0 + 1 && presentsAvailable('rank') === 0 && gachaState().q.slice(-1)[0].xp === 190;
+    // XPはコインに乗せず、ふつうのプレゼントへ積み直す（起動と同時に配らない／メール指示 2026-09-03）
+    return gachaSpins() === n0 + 1 && presentsAvailable('rank') === 0
+      && gachaState().q.slice(-1)[0].xp === 0 && loadBonus() === b0
+      && presentsAvailable('daily') === d0 + 1;
   }));
 
   // ================= ④ XP2倍チャンス中のテスト =================

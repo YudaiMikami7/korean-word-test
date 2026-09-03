@@ -726,6 +726,16 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* おやすみチケットのプレゼント（箱ではなく💤の札。中身が開ける前から分かるように） */
 .pm-tk{width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-size:34px;background:rgba(22,136,255,.22);border:2px solid rgba(255,255,255,.5);box-sizing:border-box}
 .pm-tk.pm-cn{background:rgba(255,196,0,.26);border-radius:50%} /* ガチャコイン（メール指示 2026-08-02） */
+/* まとめて回したときの結果一覧（メール指示 2026-09-03） */
+.gc-list{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:8px 0 4px;max-height:190px;overflow-y:auto}
+.gc-li{display:flex;flex-direction:column;align-items:center;gap:2px;width:66px;padding:6px 3px;
+  background:rgba(255,255,255,.1);border:2px solid var(--pc,#888);border-radius:12px}
+.gc-li span{font-size:24px;line-height:1}
+.gc-li span img{width:1em;height:1em;object-fit:contain;display:block}
+.gc-li b{font-size:9.5px;font-weight:900;line-height:1.2;text-align:center;word-break:break-all}
+/* 「まとめて回す」は「まわす」の下に、白地の控えめなボタンで並べる */
+.gc-all{margin-top:6px;background:#fff;color:#1a1a1a;border:2px solid rgba(0,0,0,.85);font-size:16px;padding:11px}
+.gc-all:active{background:#eee}
 /* きせかえのプレゼント（メール指示 2026-08-29） */
 .pm-tk.pm-fd{background:rgba(245,166,35,.24);border-radius:14px}
 .pm-tk.pm-wr{background:rgba(47,111,224,.20);border-radius:14px}
@@ -746,9 +756,12 @@ button{font-family:inherit;touch-action:manipulation} /* タップ遅延(300ms)�
 /* ホームでは、WORLDのページャー（丸い番号の帯）のすぐ下に出す（メール指示 2026-08-29 22:45）。
    home-wrap のなかに入れるので、ホームと同じ拡大率でいっしょに縮む */
 .nqcd.at-pager{position:absolute;left:50%;right:auto;top:346px;bottom:auto;transform:translateX(-50%);z-index:24;
-  font-size:22px;padding:12px 30px 12px 40px;border-radius:34px;gap:20px}
-.nqcd.at-pager b{font-size:29px}
-.nqcd.at-pager button{font-size:20px;padding:10px 22px;border-radius:26px}
+  font-size:19px;padding:11px 18px 11px 26px;border-radius:34px;gap:14px;
+  width:max-content;max-width:586px} /* 座布団を左右に広げて文字が見切れないようにした（メール指示 2026-09-03）。
+    ホームの中（602px基準）に置くので、画面幅ではなくホームの幅に合わせて上限を取る */
+.nqcd.at-pager span{flex:0 1 auto;min-width:0}
+.nqcd.at-pager b{font-size:25px}
+.nqcd.at-pager button{font-size:17px;padding:9px 17px;border-radius:26px;flex:0 0 auto}
 /* --- ガチャ（メール指示 2026-08-01）。プレゼントのモーダルと同じトーン --- */
 #gacha-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
 #gacha-modal.on{display:flex}
@@ -1429,11 +1442,12 @@ body.bigtext .set-d{font-size:13.5px}
 .page-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 /* 学習履歴の表は白い背景に黒い文字・文字は大きめ。数字の列は見出しも数字と同じ右ぞろえ
    （メール指示 2026-08-09 22:05） */
-.htab{width:100%;border-collapse:collapse;font-size:17px;background:#fff;color:#1a1a1a}
-.htab th,.htab td{padding:9px 7px;border-bottom:1px solid #E8E8E8;text-align:left}
-.htab th{position:sticky;top:0;background:#F2F2F2;color:#666;font-size:14px;font-weight:900;white-space:nowrap}
-.htab td.ko{font-size:19px}
-.htab td:nth-child(2){font-size:17px;font-weight:700}
+/* 学習履歴の文字は全体的に少し大きく（メール指示 2026-09-03） */
+.htab{width:100%;border-collapse:collapse;font-size:19px;background:#fff;color:#1a1a1a}
+.htab th,.htab td{padding:10px 7px;border-bottom:1px solid #E8E8E8;text-align:left}
+.htab th{position:sticky;top:0;background:#F2F2F2;color:#666;font-size:15.5px;font-weight:900;white-space:nowrap}
+.htab td.ko{font-size:21px}
+.htab td:nth-child(2){font-size:19px;font-weight:700}
 .htab td.num,.htab th.num{text-align:right;font-variant-numeric:tabular-nums}
 .htab tr.click{cursor:pointer}
 .htab tr.click:active{background:var(--panel)}
@@ -1557,16 +1571,16 @@ body.bigtext .set-d{font-size:13.5px}
 .wd-center .tdetail-sec{margin:10px 0 0}
 .wd-center .tdetail-sec .h{color:rgba(255,255,255,.75)}
 .wd-histbox{border-radius:10px} /* 表の中で別スクロールはさせない（overflowは触らない。メール指示 2026-08-02） */
-.wd-center .htab td.num{font-size:19px;font-weight:900}
-.wd-center .htab th.num{font-size:14px}
+.wd-center .htab td.num{font-size:21px;font-weight:900}
+.wd-center .htab th.num{font-size:15.5px}
 /* 「学習履歴」の見出しは表の外に置かず、いちばん左（日時が並ぶ列）のラベルに収める（メール指示 2026-08-02） */
-.wd-center .htab th.hlab{font-size:13px;font-weight:900;color:#666;white-space:nowrap;text-align:left;letter-spacing:.5px}
+.wd-center .htab th.hlab{font-size:14.5px;font-weight:900;color:#666;white-space:nowrap;text-align:left;letter-spacing:.5px}
 /* 学習履歴：日付の見出しは省き、時間・記憶率は大きく太く（得点の列は廃止。メール指示 2026-08-09 22:05） */
 /* 出題の向きは国旗で出す（韓→日／日→韓。メール指示 2026-08-01）。
    国旗は端末まかせの絵文字フォントではなく、動物アイコン等と同じ絵ファイル（emoji/*.svg）で出す（メール指示 2026-08-02） */
-.hdir-f{font-size:15px}
-.hdir-f .dicon{width:17px;height:17px;vertical-align:-3px;margin:0}
-.hdir{font-size:13px;font-weight:900;white-space:nowrap}
+.hdir-f{font-size:16.5px}
+.hdir-f .dicon{width:19px;height:19px;vertical-align:-3px;margin:0}
+.hdir{font-size:14.5px;font-weight:900;white-space:nowrap}
 .hdir i{font-style:normal;margin:0 2px;opacity:.7}
 /* 音声ボタンはカードの中・絵の右上に重ねる（メール指示 2026-08-02） */
 .wd-spk{position:absolute;right:0;top:0;z-index:2;background:rgba(0,0,0,.45);border:none;border-radius:50%;width:34px;height:34px;font-size:18px;cursor:pointer;color:#fff;display:inline-flex;align-items:center;justify-content:center;padding:0}
@@ -2409,12 +2423,13 @@ body.bigtext .set-d{font-size:13.5px}
 /* 育てるの基本画面＝草むらの広場（メール指示 2026-08-29 22:45）。
    いる子が自由に歩きまわり、まだ生まれていないたまごも置いてある。
    動きの元気さは PWR（韓国語力）で変わる（--sp が小さいほど速く、--hop が大きいほどよく跳ねる） */
+/* 動きは全体的に大きく・速くした（--sp が小さいほど速い。メール指示 2026-09-03） */
 .pt-field{position:relative;height:240px;margin:8px 0 0;border-radius:16px;overflow:hidden;cursor:pointer;
-  background:linear-gradient(180deg,#BFE8FF 0%,#D9F0FF 34%,#CFEBAF 44%,#8FCB6B 100%);--hop:8px;--sp:1.1}
-.pt-field.e0{--hop:0px;--sp:2.2}
-.pt-field.e1{--hop:4px;--sp:1.5}
-.pt-field.e2{--hop:8px;--sp:1.1}
-.pt-field.e3{--hop:13px;--sp:.8}
+  background:linear-gradient(180deg,#BFE8FF 0%,#D9F0FF 34%,#CFEBAF 44%,#8FCB6B 100%);--hop:11px;--sp:.85}
+.pt-field.e0{--hop:5px;--sp:1.5}
+.pt-field.e1{--hop:8px;--sp:1.1}
+.pt-field.e2{--hop:11px;--sp:.85}
+.pt-field.e3{--hop:16px;--sp:.6}
 .pt-field .pf-sun{position:absolute;left:8px;top:6px;font-size:18px}
 .pt-field .pf-tuft{position:absolute;bottom:0;font-size:15px;opacity:.75;pointer-events:none}
 .pt-field .pt-an{position:absolute;width:0;height:0;z-index:3;animation:ptDrift calc(var(--d) * var(--sp)) ease-in-out var(--dl) infinite alternate}
@@ -2422,14 +2437,31 @@ body.bigtext .set-d{font-size:13.5px}
   transform:translate(-50%,-50%);cursor:pointer;filter:drop-shadow(0 3px 3px rgba(0,0,0,.25));
   animation:ptHop calc(var(--h) * var(--sp)) ease-in-out infinite}
 .pt-field .pt-an i img{width:1em;height:1em;object-fit:contain;display:block}
+/* 動物の名前は足もとの札に出す（メール指示 2026-09-03） */
+.pt-field .pt-an .pt-nm{position:absolute;left:0;top:calc(var(--fs,30px) * .62);transform:translateX(-50%);
+  background:rgba(255,255,255,.9);color:#333;border-radius:9px;padding:1px 6px;font-style:normal;
+  font-size:9.5px;font-weight:900;white-space:nowrap;pointer-events:none;box-shadow:0 2px 5px rgba(0,0,0,.16)}
+.pt-field .pt-an.me .pt-nm{background:#FFF0B8;color:#7a5400}
 .pt-field .pt-an.me i{filter:drop-shadow(0 0 7px rgba(255,255,255,.95)) drop-shadow(0 3px 3px rgba(0,0,0,.25))}
 .pt-field .pt-egg{position:absolute;z-index:2;font-size:21px;line-height:1;transform:translate(-50%,-50%);
   filter:drop-shadow(0 3px 3px rgba(0,0,0,.22));animation:ptEggWob 2.6s ease-in-out infinite}
-@keyframes ptDrift{from{transform:translateX(0)}to{transform:translateX(var(--w))}}
+/* 横だけでなく縦にも歩く（広場ぜんたいを使って動き回る／メール指示 2026-09-03） */
+@keyframes ptDrift{from{transform:translate(0,0)}to{transform:translate(var(--w),var(--v,0px))}}
 @keyframes ptHop{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,calc(-50% - var(--hop)))}}
 @keyframes ptEggWob{0%,100%{transform:translate(-50%,-50%) rotate(-6deg)}50%{transform:translate(-50%,-50%) rotate(6deg)}}
 .pt-field.less .pt-an,.pt-field.less .pt-an i,.pt-field.less .pt-egg{animation:none}
-/* ひとことは動物から出る吹き出し（メール指示 2026-08-29 22:45） */
+.pt-field.less .pt-say{animation:none}
+/* ひとことは動物から出る吹き出し（メール指示 2026-08-29 22:45）。
+   いまいっしょにいる子の中に入れて、その子が歩くと吹き出しもついていくようにした（メール指示 2026-09-03） */
+.pt-field .pt-an .pt-say{position:absolute;left:0;top:calc(var(--fs,30px) * -.72);z-index:6;
+  width:max-content;max-width:172px}
+/* 広場のはしにいる子の吹き出しは、画面の外に出ないように寄せる */
+.pt-field .pt-an .pt-say.l{transform:translate(-18%,-100%)}
+.pt-field .pt-an .pt-say.l::after{left:18%}
+.pt-field .pt-an .pt-say.r{transform:translate(-82%,-100%)}
+.pt-field .pt-an .pt-say.r::after{left:82%}
+.pt-field .pt-an .pt-say .pt-sayn{position:static;display:block;font-style:normal;font-size:10px;font-weight:900;
+  color:#E08A00;line-height:1.2;margin-bottom:1px;transform:none;animation:none;background:none;padding:0;box-shadow:none}
 .pt-field .pt-say{position:absolute;z-index:5;transform:translate(-50%,-100%);background:#fff;color:#1a1a1a;
   border-radius:14px;padding:7px 11px;box-shadow:0 6px 16px rgba(0,0,0,.25);text-align:center;max-width:82%;
   animation:pbubin .4s cubic-bezier(.34,1.6,.5,1) both;pointer-events:none}
@@ -3271,11 +3303,12 @@ function claimAllPresents(){
   const rects=[...document.querySelectorAll("#present-modal .pm-item:not(.claimed)")].map(el=>el.getBoundingClientRect()); // 消える前に各箱の位置を記録
   st.queue=st.queue.filter(x=>x.cat!==cat);
   _savePresent(st);
+  coins.forEach(r=>{sum+=Math.max(0,Math.round(r.total||0));}); // コインに付いていたテストぶんのXPは受け取った時点で渡す
   sfxClaim();addBonus(sum);if(tk)addRestTicket(tk);
   if(food)petAddSeeds(food);
   for(let i=0;i<wear;i++)petGrantWear();
   if(egg){let got=0;for(let i=0;i<egg;i++){if(petGrantEgg())got++;}if(got)setTimeout(()=>petEggShow(got),640);} // たまごが届いたことを知らせる
-  coins.forEach(r=>addGachaSpin(r.total,r.rank||""));
+  coins.forEach(r=>addGachaSpin(r.rank||""));
   rects.forEach((r,i)=>setTimeout(()=>flyClaimToBox(r,cat),i*90)); // 少しずつずらしてアーチで箱へ
   updatePresent();updateHomeStats(); // XP等だけ更新（WORLDスライドは再構築しない）
   openPresent(cat); // 空になったカードに切替（モーダルは開いたまま）
@@ -3292,7 +3325,7 @@ function claimPresentItem(btn){
   // おやすみチケットは1枚／ガチャコインはガチャ1回ぶん／きせかえは持ちものへ1つ（食べもののぶんは以前のデータのみ）
   let got="";
   if(kind==="ticket")addRestTicket(1);
-  else if(kind==="coin")addGachaSpin(total,rank);
+  else if(kind==="coin"){if(total>0)addBonus(total);addGachaSpin(rank);} // テストぶんのXPはここで渡す（メール指示 2026-09-03）
   else if(kind==="food")petAddSeeds(total||1);
   else if(kind==="egg"){const e=petGrantEgg();got=e?"たまご":"";if(e)setTimeout(()=>petEggShow(1),520);}
   else if(kind==="wear"){const it=petGrantWear();got=it?it.t:"";}
@@ -3315,44 +3348,59 @@ function claimPresentItem(btn){
 function gachaState(){const o=_lsJSON(LS_GACHA,()=>({}));if(!Array.isArray(o.q))o.q=[];return o;}
 function saveGacha(o){_lsSetJSON(LS_GACHA,o);}
 function gachaSpins(){return gachaState().q.length;}
-function addGachaSpin(xp,rank){
+/* ガチャコインを1枚ふやす。XPはもう持たせない
+   （XPは学習・テストでもらうもの、ガチャは動物をもらうもの／メール指示 2026-09-03） */
+function addGachaSpin(rank){
   const o=gachaState();
-  o.q.push({xp:Math.max(0,Math.round(xp||0)),rank:rank||"",at:new Date().toISOString()});
+  o.q.push({xp:0,rank:rank||"",at:new Date().toISOString()});
   if(o.q.length>60)o.q.splice(0,o.q.length-60); // ためこみすぎの上限
   saveGacha(o);
   return o.q.length;
 }
-/* 旧データの引っ越し: 受け取っていない「テストのごほうび」のプレゼントは、同じ数だけガチャ1回に置きかえる */
+/* 旧データの引っ越し: 受け取っていない「テストのごほうび」のプレゼントは、同じ数だけガチャ1回に置きかえる。
+   くっついていたXPは、起動と同時に配るとポップアップがぶつかるので、
+   ふつうのプレゼントに積み直して本人が受け取れるようにする（メール指示 2026-09-03） */
 function migrateRankPresents(){
   const st=_presentState(),rank=st.queue.filter(x=>x.cat==="rank");
   if(!rank.length)return;
-  st.queue=st.queue.filter(x=>x.cat!=="rank");_savePresent(st);
-  rank.forEach(r=>addGachaSpin(r.total,r.rank||""));
+  st.queue=st.queue.filter(x=>x.cat!=="rank");
+  rank.forEach(r=>{if(r.total>0)st.queue.push({cat:"daily",title:"テストのごほうび",total:r.total,at:r.at||new Date().toISOString()});});
+  _savePresent(st);
+  rank.forEach(r=>addGachaSpin(r.rank||""));
 }
 /* ---- XP2倍チャンス（30分） ---- */
 function xpBoostUntil(){return parseInt(localStorage.getItem(LS_XPBOOST)||"0",10)||0;}
 function xpBoostActive(){return xpBoostUntil()>Date.now();}
 function xpBoostLeftMin(){return Math.max(0,Math.ceil((xpBoostUntil()-Date.now())/60000));}
 function startXpBoost(min){localStorage.setItem(LS_XPBOOST,String(Math.max(xpBoostUntil(),Date.now())+(min||30)*60000));}
-/* 景品の重み。おやすみチケットの当たる確率はこれまでの1/3（22.0% → 7.3%）にし、
-   代わりに「きせかえ」を景品に加えた（ごはんは廃止／メール指示 2026-08-29） */
-const GACHA_PRIZES=[
-  {k:"ticket",w:8.55,ico:"💤",lab:"おやすみチケット",col:"#1688FF",msg:"連続学習を1日ぶん守れます"},
-  {k:"wear",  w:30, ico:"👕",lab:"きせかえ",       col:"#F5A623",msg:"ことばの友だちに着せられます"},
-  {k:"xp",    w:52, ico:"⭐",lab:"XP",            col:"#FFC400",msg:"そのままXPが増えました"},
-  {k:"x2",    w:26, ico:"✕2",lab:"XP2倍チャンス",  col:"#E0433B",msg:"これから30分、もらえるXPが2倍"}
-];
-function rollGachaPrize(){
-  const tot=GACHA_PRIZES.reduce((a,p)=>a+p.w,0);let r=Math.random()*tot;
-  for(const p of GACHA_PRIZES){if((r-=p.w)<0)return p;}
-  return GACHA_PRIZES[0];
+/* ガチャの景品は「新しい動物・キャラクター」ひとすじにした（メール指示 2026-09-03）。
+   XP・XP2倍・きせかえは景品から外している（XPは学習とテストで、服などはプレゼントで受け取る）。
+   ★確率・レアリティ・追加ラインナップは未確定のため決めうちにせず、
+     まだ会っていない子のなかから等確率で1匹選ぶだけにしてある。
+     動物を増やしたいときは PET_SPECIES に足すだけでガチャの対象になる（＝あとから追加できる作り）。 */
+function gachaNewPetPool(){
+  try{const o=petState();return PET_SPECIES.filter(sp=>!o.zoo[sp.k]);}catch(e){return [];}
 }
-/* XPの当たりは小さいほど出やすい（大当たりはたまに） */
-function rollGachaXp(){
-  const t=[[30,30],[50,25],[80,20],[120,13],[200,8],[300,4]];
-  let tot=t.reduce((a,x)=>a+x[1],0),r=Math.random()*tot;
-  for(const x of t){if((r-=x[1])<0)return x[0];}
-  return 30;
+/* まだ会っていない子を1匹なかまにする。もういなければ null */
+function gachaGrantPet(){
+  const pool=gachaNewPetPool();
+  if(!pool.length)return null;
+  const sp=pool[Math.floor(Math.random()*pool.length)];
+  try{
+    const o=petState();
+    o.zoo[sp.k]={xp:0,friend:0,got:appDayKey(),ex:0};
+    savePet(o);
+  }catch(e){return null;}
+  return sp;
+}
+/* 1回ぶんの結果。新しい子がいなければ、代わりにおやすみチケットを渡す（XPは出さない） */
+function gachaDrawOne(){
+  const sp=gachaGrantPet();
+  if(sp)return {k:"pet",ico:petGrowEmo(sp),lab:petPlainName(sp.name),col:"#2E7BE0",
+    msg:"新しい ことばの友だちが なかまに なりました",sp:sp};
+  addRestTicket(1);
+  return {k:"ticket",ico:"💤",lab:"おやすみチケット",col:"#1688FF",
+    msg:"まだ会っていない子が いないので おやすみチケット"};
 }
 /* カプセルトイ販売機の絵（メール指示 2026-08-02 19:24） */
 function gcMachineHTML(ready){
@@ -3381,11 +3429,12 @@ function gachaRenderIdle(){
   m.innerHTML=`<div class="pm-card gc-card${n>0?" rainbow":""}">
     <button class="pm-close" onclick="closeGacha()">×</button>
     <div class="pm-title">ガチャ</div>
-    <div class="pm-sub">${n>0?"ガチャコインでまわせます":"テストのプレゼントでガチャコインがもらえます"}</div>
+    <div class="pm-sub">${n>0?"ガチャコインで 新しい ことばの友だちに 会えます":"テストのプレゼントでガチャコインがもらえます"}</div>
     ${gcMachineHTML(n>0)}
     ${_gachaBoostLine()}
     <div class="gc-count">🪙 ガチャコイン <b>${n}</b> 枚</div>
     ${n>0?`<button class="pm-btn gc-go" onclick="spinGacha()">まわす</button>`:""}
+    ${n>1?`<button class="pm-btn gc-all" onclick="spinGachaAll()">まとめて ${n}回 まわす</button>`:""}
   </div>`;
 }
 function spinGacha(){
@@ -3394,17 +3443,41 @@ function spinGacha(){
   if(!o.q.length){gachaRenderIdle();return;}
   _gachaBusy=true;
   const tk=o.q.shift();saveGacha(o);
-  let p=rollGachaPrize(); // きせかえが出たときに文言を差しかえるので const にしない（メール指示 2026-08-29 22:45）
-  let amt=0;
-  if(p.k==="ticket")addRestTicket(1);
-  else if(p.k==="xp"){amt=rollGachaXp();addBonus(amt);}
-  else if(p.k==="wear"){const it=petGrantWear();amt=1;p=Object.assign({},p,{msg:it?("「"+it.t+"」が とどきました"):p.msg});} // きせかえはガチャからも出る（メール指示 2026-08-29）
-  else startXpBoost(30);
-  if(tk.xp>0)addBonus(tk.xp); // テストぶんのXPは景品とは別に必ずもらえる
+  const p=gachaDrawOne(); // 出るのは新しい動物（いなければおやすみチケット／メール指示 2026-09-03）
   const mc=document.getElementById("gc-machine");if(mc)mc.classList.add("spin");
-  const go=document.querySelector("#gacha-modal .gc-go");if(go)go.disabled=true;
+  document.querySelectorAll("#gacha-modal .pm-btn").forEach(b=>b.disabled=true);
   try{sfxClaim();}catch(e){}
-  setTimeout(()=>{gachaRenderResult(p,amt,tk);_gachaBusy=false;},1150);
+  setTimeout(()=>{gachaRenderResult(p,1,tk);_gachaBusy=false;},1150);
+}
+/* 「まとめて回す」（メール指示 2026-09-03）。
+   持っているガチャコインぶんを一度に回して、出た子をまとめて見せる。 */
+function spinGachaAll(){
+  if(_gachaBusy)return;
+  const o=gachaState(),n=o.q.length;
+  if(!n){gachaRenderIdle();return;}
+  _gachaBusy=true;
+  o.q=[];saveGacha(o);
+  const got=[];
+  for(let i=0;i<n;i++)got.push(gachaDrawOne());
+  const mc=document.getElementById("gc-machine");if(mc)mc.classList.add("spin");
+  document.querySelectorAll("#gacha-modal .pm-btn").forEach(b=>b.disabled=true);
+  try{sfxClaim();}catch(e){}
+  setTimeout(()=>{gachaRenderMulti(got);_gachaBusy=false;},1150);
+}
+/* まとめて回した結果の一覧 */
+function gachaRenderMulti(got){
+  const m=document.getElementById("gacha-modal"),n=gachaSpins();
+  const pets=got.filter(x=>x.k==="pet"),tks=got.length-pets.length;
+  m.innerHTML=`<div class="pm-card gc-card rainbow">
+    <button class="pm-close" onclick="closeGacha()">×</button>
+    <div class="pm-title">ガチャ結果</div>
+    <div class="pm-sub">${got.length}回 まわしました</div>
+    <div class="gc-list">${got.map(x=>`<div class="gc-li" style="--pc:${x.col}"><span>${x.ico}</span><b>${esc(x.lab)}</b></div>`).join("")}</div>
+    <div class="gc-extra">${pets.length?`新しい友だち <b>${pets.length}</b>匹`:"新しい友だちは いませんでした"}${tks?`／おやすみチケット <b>${tks}</b>枚`:""}</div>
+    <div class="gc-count">🪙 ガチャコイン <b>${n}</b> 枚</div>
+    ${n>0?`<button class="pm-btn gc-go" onclick="spinGachaAgain()">もう1回まわす</button>`:""}
+  </div>`;
+  updatePresent();updateHomeStats();
 }
 /* 結果画面からの「もう1回まわす」は、一度ガチャ画面（マシン）に戻してから回す。
    そうしないと gc-machine がないまま回るので、まわる演出が見えない（メール指示 2026-08-31） */
@@ -3415,7 +3488,7 @@ function spinGachaAgain(){
 }
 function gachaRenderResult(p,amt,tk){
   const m=document.getElementById("gacha-modal"),n=gachaSpins();
-  const val=p.k==="xp"?`+${amt} <small>XP</small>`:p.k==="ticket"?`1 <small>枚</small>`:p.k==="wear"?`1 <small>つ</small>`:`30 <small>分</small>`;
+  const val=p.k==="pet"?`1 <small>匹</small>`:`1 <small>枚</small>`;
   m.innerHTML=`<div class="pm-card gc-card rainbow">
     <button class="pm-close" onclick="closeGacha()">×</button>
     <div class="pm-title">ガチャ結果</div>
@@ -3425,7 +3498,6 @@ function gachaRenderResult(p,amt,tk){
       <div class="gc-pval">${val}</div>
       <div class="gc-pmsg">${esc(p.msg)}</div>
     </div>
-    ${tk&&tk.xp>0?`<div class="gc-extra">テストのごほうび <b>+${tk.xp} XP</b>${tk.rank?`（RANK ${esc(tk.rank)}）`:""}</div>`:""}
     ${_gachaBoostLine()}
     <div class="gc-count">🪙 ガチャコイン <b>${n}</b> 枚</div>
     ${n>0?`<button class="pm-btn gc-go" onclick="spinGachaAgain()">もう1回まわす</button>`:""}
@@ -7028,21 +7100,26 @@ function petFieldHTML(){
   const have=petHave(o),eggs=Object.keys(o.zoo||{}).filter(k=>o.zoo[k]&&o.zoo[k].egg&&PET_SP_BY_K[k]);
   const tufts=Array.from({length:9},(_,i)=>
     `<span class="pf-tuft" style="left:${Math.round(4+i*11+rnd()*5)}%;bottom:${Math.round(rnd()*40)}%">🌿</span>`).join("");
-  let sayX=50,sayY=34; // 吹き出しは、いっしょにいる子の頭の上から出す
-  const ans=have.map(k=>{
+  // 動物が一か所にかたまらないよう、広場を頭数ぶんの縦じまに分けて1匹ずつ入れ、
+  // 上下も段ちがいに散らす。歩く幅も広くとって、よく動き回るようにした（メール指示 2026-09-03）
+  const ln=petLine(),n=have.length;
+  const band=n>0?76/n:76;
+  const ans=have.map((k,i)=>{
     const sp=PET_SP_BY_K[k],z=o.zoo[k]||{},lv=petLevel(z.xp),step=petGrowStep(lv),me=o.sp===k;
-    const x=10+Math.round(rnd()*70),y=48+Math.round(rnd()*38); // 草むら（下半分）のなかを歩く
-    const w=(rnd()<.5?-1:1)*(12+Math.round(rnd()*26));
-    if(me){sayX=Math.max(24,Math.min(76,x));sayY=Math.max(20,y-14);}
-    return `<div class="pt-an${me?" me":""}" data-k="${k}" style="left:${x}%;top:${y}%;--w:${w}px;--d:${(3.2+rnd()*2.6).toFixed(2)}s;--dl:${(rnd()*1.6).toFixed(2)}s;--h:${(1.1+rnd()*.8).toFixed(2)}s;--fs:${me?34:26}px">
-      <i onclick="event.stopPropagation();${me?"petTap()":"petSwitch('"+k+"')"}">${petStepFace(sp,step)}</i></div>`;
+    const x=Math.round(12+band*i+rnd()*band*0.6);      // 横は帯ごとに1匹（かたまらない）
+    const y=Math.round(30+(i%3)*17+rnd()*13);          // 縦も段ちがいに散らす（広場ぜんたいを使う）
+    const w=(rnd()<.5?-1:1)*(38+Math.round(rnd()*44)); // 横に歩く幅（これまでの約3倍）
+    const v=(rnd()<.5?-1:1)*(12+Math.round(rnd()*20)); // 縦にも歩く
+    const edge=x<32?" l":(x>68?" r":""); // はしの子は吹き出しを内側へ寄せる
+    const say=me?`<div class="pt-say${edge}" id="pt-line"><em class="pt-sayn">${esc(petPlainName((PET_SP_BY_K[k]||{}).name||o.name))}</em><b>${esc(ln.ko)}</b><span>${esc(ln.ja)}</span></div>`:"";
+    return `<div class="pt-an${me?" me":""}" data-k="${k}" style="left:${x}%;top:${y}%;--w:${w}px;--v:${v}px;--d:${(2.2+rnd()*1.8).toFixed(2)}s;--dl:${(rnd()*1.4).toFixed(2)}s;--h:${(.8+rnd()*.6).toFixed(2)}s;--fs:${me?34:26}px">
+      <i onclick="event.stopPropagation();${me?"petTap()":"petSwitch('"+k+"')"}">${petStepFace(sp,step)}</i>
+      <em class="pt-nm">${esc(petPlainName((PET_SP_BY_K[k]||{}).name||""))}</em>${say}</div>`;
   }).join("");
-  const egs=eggs.map(()=>`<span class="pt-egg" style="left:${8+Math.round(rnd()*76)}%;top:${64+Math.round(rnd()*24)}%">🥚</span>`).join("");
-  const ln=petLine();
-  const say=`<div class="pt-say" id="pt-line" style="left:${sayX}%;top:${sayY}%"><b>${esc(ln.ko)}</b><span>${esc(ln.ja)}</span></div>`;
+  const egs=eggs.map(()=>`<span class="pt-egg" style="left:${8+Math.round(rnd()*76)}%;top:${66+Math.round(rnd()*22)}%">🥚</span>`).join("");
   return `<div class="pt-field e${en}${less?" less":""}" onclick="petTap()"${bgIt&&bgIt.bg?` style="background:${bgIt.bg}"`:""}>
     <span class="pf-sun">${wx.ico}</span>
-    ${tufts}${egs}${ans}${say}
+    ${tufts}${egs}${ans}
     <div class="pf-foot">${have.length}匹 おさんぽ中${eggs.length?"／たまご "+eggs.length+"つ":""}　元気 ${PET_ENERGY_LABEL[en]}</div>
   </div>`;
 }
@@ -7076,7 +7153,6 @@ function openPet(){
     ${petFieldHTML()}
     ${back?`<div class="pt-back">おかえり！ ${back.gap}日ぶりだね<em>プレゼントに きせかえ 1つ</em></div>`:""}
     ${bond?`<div class="pt-bondnew">${esc(bond.t)}ありがとう！<em>「${esc((PET_ITEM_BY_K[bond.item]||{}).t||"")}」が とどきました</em></div>`:""}
-    <button class="d5-go pm-feed" onclick="openPetWear()">${petIcoImg("wear",20)}きせかえる</button>
   </div>`;
   d5AnchorBubble(null,m.querySelector(".pt-card"));
   m.onclick=e=>{if(e.target===m)closePet();};
@@ -7106,6 +7182,7 @@ function petResultHTML(res){
 /* ⑤進化：ホームに戻ったあとに全画面で1度だけ見せる（学習の流れを止めないため結果画面では出さない） */
 function petEvoPending(){const o=petState();return o.evoPend||null;}
 function petEvoShow(){
+  if(!petPopOK())return false; // 出題中には出さない（保留のまま残す／メール指示 2026-09-03）
   const p=petEvoPending();if(!p)return false;
   const o=petState();delete o.evoPend;savePet(o);
   const m=document.getElementById("petevo-modal");if(!m)return false;
@@ -7130,7 +7207,13 @@ function closePetEvo(){const m=document.getElementById("petevo-modal");if(m){m.c
   if(petHomePopups())return; // 続けて出すもの（誕生）があればそちらへ
   openPet();}
 /* ⑥たまごが届いた（プレゼントを受け取った瞬間に出す。進化と同じ全画面の見た目にそろえる） */
-function petEggShow(n){
+function petEggShow(n,_try){
+  // 出題が始まっていたら重ねない。ホームに戻るまで待ってから出す（メール指示 2026-09-03）
+  if(!petPopOK()){
+    const t=(_try||0)+1;
+    if(t<=80)setTimeout(()=>petEggShow(n,t),1500);
+    return;
+  }
   const m=document.getElementById("petevo-modal");if(!m)return false;
   const o=petState(),eggs=petEggCount(o);
   m.classList.add("on");pushNav("modal");
@@ -7148,6 +7231,7 @@ function closePetEgg(){const m=document.getElementById("petevo-modal");if(m){m.c
 /* ⑦生まれた（ホームに戻ってから全画面で1度だけ。進化と同じ流れ） */
 function petHatchPending(){const o=petState();return o.hatchPend||null;}
 function petHatchShow(){
+  if(!petPopOK())return false; // 出題中には出さない（保留のまま残す／メール指示 2026-09-03）
   const p=petHatchPending();if(!p)return false;
   const o=petState();delete o.hatchPend;
   if(!o.zoo[p.sp])o.zoo[p.sp]={xp:0,friend:0,got:appDayKey()};
@@ -7171,10 +7255,27 @@ function petHatchShow(){
 }
 function closePetHatch(){const m=document.getElementById("petevo-modal");if(m){m.classList.remove("on");m.innerHTML="";}
   if(petHomePopups())return;
-  openPet();}
+  if(petPopOK())openPet();}
+/* いま動物のポップアップを出してよい画面か（メール指示 2026-09-03）。
+   出題中・3-2-1のカウントダウン中・結果画面などでは出さず、待ちのしるしは残したままにする。
+   （誕生・進化は保留フラグで残るので、次にホームへ戻ったときに出る） */
+function petPopOK(){
+  try{
+    if(document.hidden)return false;
+    const q=document.getElementById("s-quiz");
+    if(q&&q.classList.contains("on"))return false;              // 出題中
+    if(typeof _counting!=="undefined"&&_counting)return false;   // スタート後の 3・2・1
+    if(typeof _gearActive!=="undefined"&&_gearActive)return false;
+    const home=document.getElementById("s-home");
+    if(!home||!home.classList.contains("on"))return false;       // 結果画面など、ホーム以外
+    if(typeof _listMode!=="undefined"&&_listMode)return false;    // 単語帳・単語詳細
+    return true;
+  }catch(e){return false;}
+}
 /* ホームに戻ったときに出すもの（誕生 → 進化 の順で1つずつ） */
 function petHomePopups(){
   try{
+    if(!petPopOK())return false; // 出題中などでは出さない（保留のまま次のホームで出る）
     if(petHatchPending())return petHatchShow();
     if(petEvoPending())return petEvoShow();
   }catch(e){}
@@ -7218,7 +7319,7 @@ function petSwitchWear(k){
     o.name=(PET_SP_BY_K[k]||PET_SPECIES[0]).name;
     savePet(o);
   }
-  openPetWear();
+  openPet();
 }
 /* いっしょに過ごす子を変える。育ちは子ごとに別々に残る */
 function petSwitch(k){
@@ -7296,8 +7397,11 @@ function petDoRoll(){
   setTimeout(()=>openPetGacha(r),lessFxOn()?0:620);
 }
 
-/* ------------------------------------------------------------ きせかえ（つける場所ごとに、持っているものから選ぶ） */
-function openPetWear(){
+/* ------------------------------------------------------------ きせかえは廃止（メール指示 2026-09-03）。
+   服・アクセサリーなどはプレゼントでもらう「もちもの」として残るが、着せかえる画面は出さない。
+   古い呼び出しが残っていても広場へ流す。 */
+function openPetWear(){return openPet();}
+function _openPetWearOld(){
   const m=document.getElementById("pet-modal");if(!m)return;
   const o=petState(),day=petDaily(),lv=petLevel(o.xp),st=petStage(lv);
   m.innerHTML=`<div class="d5-card pt-card">${petSubHead("きせかえ","꾸미기")}
@@ -7623,10 +7727,9 @@ function petMenuRender(msg,jump){
       <span class="pm-lv">Lv.<b>${lv}</b></span></div>
     ${petArtHTML(day,lv,st.k)}
     <div class="pm-bar"><i style="width:${Math.round(((o.xp%40)/40)*100)}%"></i></div>
-    <div class="pm-st">${pmRingHTML(petWearCount(o),PET_ITEMS.length,"きせかえ","#FFC400",null,"wear")}${pmRingHTML(o.friend||0,100,"親密度","#FF6FA8",null,"friend")}${pmRingHTML(petPower(),500,"韓国語力","#3FA9F5",null,"power")}</div>
+    <div class="pm-st">${pmRingHTML(petWearCount(o),PET_ITEMS.length,"もちもの","#FFC400",null,"wear")}${pmRingHTML(o.friend||0,100,"親密度","#FF6FA8",null,"friend")}${pmRingHTML(petPower(),500,"韓国語力","#3FA9F5",null,"power")}</div>
     ${msg?`<div class="pm-msg">${esc(msg)}</div>`:""}
-    <button class="d5-go pm-feed" onclick="closePetMenu();openPet();openPetWear()">${petIcoImg("wear",20)}きせかえる</button>
-    <button class="d5-ghost" onclick="closePetMenu();openPet()">育成画面をひらく</button>
+    <button class="d5-go pm-feed" onclick="closePetMenu();openPet()">${petIcoImg("pet",20)}広場をひらく</button>
   </div>`;
   const el=m.querySelector(".pt-art");
   if(jump&&el&&!lessFxOn())el.classList.add("pt-jump");
@@ -9982,7 +10085,8 @@ const WORD_EX={
 /* 単語詳細: カード型（上=No./記憶率/枚数、中央=大イラスト、下=韓日→履歴）。左右スワイプで前後の単語へ */
 let _wdBack="room";
 function wdHistRows(wordId){
-  const recs=loadHistory().filter(r=>r.wordId===wordId).sort((a,b)=>a.answeredAt.localeCompare(b.answeredAt));
+  // 最新の履歴が一番上に来る降順（メール指示 2026-09-03）
+  const recs=loadHistory().filter(r=>r.wordId===wordId).sort((a,b)=>b.answeredAt.localeCompare(a.answeredAt));
   // 表が白地になったので、薄い色（わからない・時間切れ）は濃くする（メール指示 2026-08-09 22:05）
   const SYM={correct:["○","#FF3B3B"],incorrect:["×","#2F6FE0"],unknown:["－","#999"],timeout:["△","#C79300"]};
   return recs.map(r=>{
@@ -10423,7 +10527,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v7.9 (2026-08-31)";
+const APP_VERSION="v8.0 (2026-09-03)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映

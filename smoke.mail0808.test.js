@@ -128,19 +128,18 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
   });
   check('5-4 押すと育成ゲームのメニューが開く', menu && menu.on);
   check(`5-5 キャラクターが出る (${menu && menu.body})`, menu && menu.art && !!menu.body);
-  // ごはんは廃止され、主ボタンは「きせかえる」になった。育ちは1問ごとに勝手に進む（メール指示 2026-08-29）
-  check(`5-6 「きせかえる」ボタンが出る (${menu && menu.feed})`, menu && /きせかえる/.test(menu.feed || ''));
-  check('5-7 奥の育成画面へも1タップで行ける', menu && menu.toPet);
+  // きせかえは廃止され、主ボタンは広場を開くだけになった（メール指示 2026-09-03）
+  check(`5-6 主ボタンは「広場をひらく」 (${menu && menu.feed})`, menu && /広場/.test(menu.feed || ''));
+  check('5-7 きせかえのボタンは無い', menu && !/きせかえ/.test(menu.feed || ''));
 
   const fed = await page.evaluate(async () => {
-    const seed0 = petState().seeds, xp0 = petState().xp;
     document.querySelector('#petmenu-modal .pm-feed').click();
     await new Promise(r => setTimeout(r, 350));
-    return { seed0, seed1: petState().seeds, xp0, xp1: petState().xp,
-             wear: document.getElementById('pet-modal').classList.contains('on'),
+    return { plaza: document.getElementById('pet-modal').classList.contains('on'),
+             field: !!document.querySelector('#pet-modal .pt-field'),
              head: (document.querySelector('#pet-modal .pt-subh') || {}).textContent || '' };
   });
-  check(`5-8 押すときせかえ画面が開く (${fed.head})`, fed.wear && fed.head === 'きせかえ');
+  check(`5-8 押すと広場が開く (${fed.head})`, fed.plaza && fed.field);
   check(`5-9 ごはんは減らない (${fed.seed0}→${fed.seed1})`, fed.seed1 === fed.seed0);
 
   // ごはんをあげなくても、1問答えるたびに勝手に育つ
