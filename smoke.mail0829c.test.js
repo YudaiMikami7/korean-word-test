@@ -132,7 +132,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     return {
       field: !!f,
       animals: m.querySelectorAll('.pt-field .pt-an').length,
-      moving: !!f && getComputedStyle(m.querySelector('.pt-field .pt-an')).animationName === 'ptDrift',
+      // うごきはCSSアニメ(ptDrift)からJSの歩き(petYardStart)に変わった（メール指示 2026-09-03）
+      moving: !!f && _pfTimer !== null && getComputedStyle(m.querySelector('.pt-field .pt-an')).transitionProperty.indexOf('left') >= 0,
       say: !!m.querySelector('.pt-field .pt-say#pt-line'),
       rings: !!m.querySelector('.pm-st'),
       worry: !!m.querySelector('.pt-worry'),

@@ -121,7 +121,9 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').split(path.sep).j
     if (!c) return null;
     return {
       on: document.getElementById('petmenu-modal').classList.contains('on'),
-      art: !!c.querySelector('.pt-art'), body: (c.querySelector('.pt-art .pt-body') || {}).textContent,
+      // キャラクターは絵ファイルで出るようになった（メール指示 2026-09-03）ので、絵か文字かどちらかがあればOK
+      art: !!c.querySelector('.pt-art'),
+      body: (() => { const e = c.querySelector('.pt-art .pt-body'); if (!e) return ''; return e.querySelector('img') ? e.querySelector('img').getAttribute('src') : e.textContent; })(),
       feed: (c.querySelector('.pm-feed') || {}).textContent,
       toPet: [...c.querySelectorAll('button')].some(b => /育成画面/.test(b.textContent))
     };

@@ -115,11 +115,11 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
     openPet();
     await new Promise(r => setTimeout(r, 350));
     const ans = [...document.querySelectorAll('#pet-modal .pt-an')];
-    const st = ans.map(a => ({
-      x: parseFloat(a.style.left), y: parseFloat(a.style.top),
-      w: Math.abs(parseFloat(a.style.getPropertyValue('--w'))),
-      v: Math.abs(parseFloat(a.style.getPropertyValue('--v')))
-    }));
+    const st = ans.map(a => ({ x: parseFloat(a.style.left), y: parseFloat(a.style.top) }));
+    // 歩き方は「数秒あるいて数秒止まる」に変わったので、時間をおいて位置の変化を見る（メール指示 2026-09-03 23:06）
+    await new Promise(r => setTimeout(r, 6000));
+    const st2 = ans.map(a => ({ x: parseFloat(a.style.left), y: parseFloat(a.style.top) }));
+    st.forEach((s, i) => { s.w = Math.abs(st2[i].x - s.x); s.v = Math.abs(st2[i].y - s.y); });
     const me = document.querySelector('#pet-modal .pt-an.me');
     const say = document.querySelector('#pet-modal .pt-say');
     const r = { n: ans.length, st, names: [...document.querySelectorAll('#pet-modal .pt-nm')].length,
@@ -133,8 +133,8 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   const xs = field.st.map(s => s.x), ys = field.st.map(s => s.y);
   check(`横に広く散らばっている (${Math.min(...xs)}%〜${Math.max(...xs)}%)`, Math.max(...xs) - Math.min(...xs) >= 40);
   check(`縦にも散らばっている (${Math.min(...ys)}%〜${Math.max(...ys)}%)`, Math.max(...ys) - Math.min(...ys) >= 15);
-  check('横に大きく歩く（38px以上）', field.st.every(s => s.w >= 38));
-  check('縦にも歩く', field.st.every(s => s.v >= 12));
+  check('横に歩いて位置が変わる', field.st.some(s => s.w >= 3));
+  check('縦にも歩く', field.st.some(s => s.v >= 2));
   check('吹き出しは動物の中にあり、いっしょに動く', field.sayInAnimal);
   check('吹き出しに名前が出ている', field.sayName);
 

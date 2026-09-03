@@ -2432,10 +2432,15 @@ body.bigtext .set-d{font-size:13.5px}
 .pt-field.e3{--hop:16px;--sp:.6}
 .pt-field .pf-sun{position:absolute;left:8px;top:6px;font-size:18px}
 .pt-field .pf-tuft{position:absolute;bottom:0;font-size:15px;opacity:.75;pointer-events:none}
-.pt-field .pt-an{position:absolute;width:0;height:0;z-index:3;animation:ptDrift calc(var(--d) * var(--sp)) ease-in-out var(--dl) infinite alternate}
+/* 歩き方は「数秒あるいて数秒休む」の繰り返し。行き先はJS(petYardStart)が決め、
+   left/top をなめらかに動かす。--mv がその1歩にかける時間（メール指示 2026-09-03） */
+.pt-field .pt-an{position:absolute;width:0;height:0;z-index:3;transition:left var(--mv,2s) linear,top var(--mv,2s) linear}
 .pt-field .pt-an i{position:absolute;left:0;top:0;display:block;font-style:normal;font-size:var(--fs,30px);line-height:1;
-  transform:translate(-50%,-50%);cursor:pointer;filter:drop-shadow(0 3px 3px rgba(0,0,0,.25));
-  animation:ptHop calc(var(--h) * var(--sp)) ease-in-out infinite}
+  transform:translate(-50%,-50%);cursor:pointer;filter:drop-shadow(0 3px 3px rgba(0,0,0,.25))}
+/* 跳ねるのは歩いているあいだだけ。止まっているあいだは立ち止まる */
+.pt-field .pt-an.walk i{animation:ptHop calc(var(--h) * var(--sp)) ease-in-out infinite}
+/* 進む向きに体を向ける（左へ行くときは反転） */
+.pt-field .pt-an.flip i img{transform:scaleX(-1)}
 .pt-field .pt-an i img{width:1em;height:1em;object-fit:contain;display:block}
 /* 動物の名前は足もとの札に出す（メール指示 2026-09-03） */
 .pt-field .pt-an .pt-nm{position:absolute;left:0;top:calc(var(--fs,30px) * .62);transform:translateX(-50%);
@@ -2445,21 +2450,23 @@ body.bigtext .set-d{font-size:13.5px}
 .pt-field .pt-an.me i{filter:drop-shadow(0 0 7px rgba(255,255,255,.95)) drop-shadow(0 3px 3px rgba(0,0,0,.25))}
 .pt-field .pt-egg{position:absolute;z-index:2;font-size:21px;line-height:1;transform:translate(-50%,-50%);
   filter:drop-shadow(0 3px 3px rgba(0,0,0,.22));animation:ptEggWob 2.6s ease-in-out infinite}
-/* 横だけでなく縦にも歩く（広場ぜんたいを使って動き回る／メール指示 2026-09-03） */
-@keyframes ptDrift{from{transform:translate(0,0)}to{transform:translate(var(--w),var(--v,0px))}}
 @keyframes ptHop{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,calc(-50% - var(--hop)))}}
 @keyframes ptEggWob{0%,100%{transform:translate(-50%,-50%) rotate(-6deg)}50%{transform:translate(-50%,-50%) rotate(6deg)}}
 .pt-field.less .pt-an,.pt-field.less .pt-an i,.pt-field.less .pt-egg{animation:none}
 .pt-field.less .pt-say{animation:none}
 /* ひとことは動物から出る吹き出し（メール指示 2026-08-29 22:45）。
    いまいっしょにいる子の中に入れて、その子が歩くと吹き出しもついていくようにした（メール指示 2026-09-03） */
-.pt-field .pt-an .pt-say{position:absolute;left:0;top:calc(var(--fs,30px) * -.72);z-index:6;
-  width:max-content;max-width:172px}
-/* 広場のはしにいる子の吹き出しは、画面の外に出ないように寄せる */
-.pt-field .pt-an .pt-say.l{transform:translate(-18%,-100%)}
-.pt-field .pt-an .pt-say.l::after{left:18%}
-.pt-field .pt-an .pt-say.r{transform:translate(-82%,-100%)}
-.pt-field .pt-an .pt-say.r::after{left:82%}
+/* 吹き出しは動物の真上に出し、矢印が動物の真ん中にぴったり合うようにする（メール指示 2026-09-03）。
+   広場のはしではみ出すぶんだけ吹き出しを --sx 横へずらし、矢印は同じぶん逆へ戻す＝矢印は動物の中心のまま */
+.pt-field .pt-an .pt-say{position:absolute;left:0;top:calc(var(--fs,30px) * -.58);z-index:6;
+  width:max-content;max-width:172px;transform:translate(calc(-50% + var(--sx,0px)),-100%);
+  animation:ptsayin .3s cubic-bezier(.34,1.6,.5,1) both}
+.pt-field .pt-an .pt-say::after{left:calc(50% - var(--sx,0px))}
+.pt-field.less .pt-an .pt-say{animation:none}
+/* 出てくるアニメでも、動物の真ん中に矢印を合わせた位置をくずさない（メール指示 2026-09-03） */
+@keyframes ptsayin{
+  from{opacity:0;transform:translate(calc(-50% + var(--sx,0px)),-100%) scale(.6)}
+  to{opacity:1;transform:translate(calc(-50% + var(--sx,0px)),-100%) scale(1)}}
 .pt-field .pt-an .pt-say .pt-sayn{position:static;display:block;font-style:normal;font-size:10px;font-weight:900;
   color:#E08A00;line-height:1.2;margin-bottom:1px;transform:none;animation:none;background:none;padding:0;box-shadow:none}
 .pt-field .pt-say{position:absolute;z-index:5;transform:translate(-50%,-100%);background:#fff;color:#1a1a1a;
@@ -2468,6 +2475,28 @@ body.bigtext .set-d{font-size:13.5px}
 .pt-field .pt-say b{display:block;font-size:14px;font-weight:900;line-height:1.3}
 .pt-field .pt-say span{display:block;font-size:11px;font-weight:800;color:#666;margin-top:2px;line-height:1.35}
 .pt-field .pt-say::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-7px;border:7px solid transparent;border-top-color:#fff;border-bottom:0}
+/* 動物をタッチすると出るメーター（メール指示 2026-09-03） */
+.pt-mt{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9;width:82%;max-width:250px;
+  background:#fff;border-radius:16px;padding:11px 13px 12px;box-shadow:0 10px 26px rgba(0,0,0,.3);text-align:left;cursor:default;
+  animation:ptmtin .28s cubic-bezier(.34,1.6,.5,1) both}
+@keyframes ptmtin{from{opacity:0;transform:translate(-50%,-50%) scale(.82)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.pt-mt .pt-mtx{position:absolute;right:5px;top:4px;width:22px;height:22px;border:0;background:none;font-size:16px;
+  font-weight:900;color:#aaa;cursor:pointer;line-height:1}
+.pt-mt .pt-mth{display:flex;align-items:center;gap:7px;font-size:26px;line-height:1;margin-bottom:7px;padding-right:20px}
+.pt-mt .pt-mth b{font-size:13.5px;font-weight:900;color:#1a1a1a}
+.pt-mt .pt-mth em{font-style:normal;font-size:10.5px;font-weight:800;color:#999;margin-left:auto;white-space:nowrap}
+.pt-mtr{display:flex;align-items:center;gap:6px;margin-top:5px}
+.pt-mtr em{font-style:normal;font-size:10px;font-weight:900;color:#666;width:52px;flex:none}
+.pt-mtr i{flex:1;height:8px;border-radius:5px;background:#EDEFF2;overflow:hidden}
+.pt-mtr i b{display:block;height:100%;border-radius:5px;transition:width .4s ease}
+.pt-mtr span{font-size:9.5px;font-weight:800;color:#999;white-space:nowrap;max-width:88px;overflow:hidden;text-overflow:ellipsis}
+.pt-mtnow{margin-top:9px;font-size:10.5px;font-weight:900;color:#E08A00;text-align:center}
+.pt-mtsw{margin-top:9px;width:100%;border:0;border-radius:11px;background:#1a1a1a;color:#fff;
+  font-size:11.5px;font-weight:900;padding:8px 0;cursor:pointer}
+/* すれちがった子どうしのおしゃべり（メール指示 2026-09-03） */
+.pt-field .pt-an .pt-say.pt-talk{max-width:132px;padding:5px 9px}
+.pt-field .pt-an .pt-say.pt-talk b{font-size:12.5px}
+.pt-field .pt-an .pt-say.pt-talk span{font-size:10px}
 .pt-field .pf-foot{position:absolute;left:0;right:0;bottom:0;z-index:4;background:rgba(255,255,255,.86);
   font-size:10.5px;font-weight:900;color:#555;padding:3px 5px}
 .pt-art{position:relative;height:120px;margin:8px 0 0;border:3px solid #E3E3E3;overflow:hidden;cursor:pointer}
@@ -2605,6 +2634,9 @@ body.bigtext .set-d{font-size:13.5px}
 .pv-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px}
 .pv-old{font-size:34px;opacity:.45}
 .pv-face{width:1em;height:1em;vertical-align:-.12em;object-fit:contain}
+/* 絵で描かれた絵文字（emoji/pet/*.svg）。文字の絵文字と同じ大きさで置きかえる（メール指示 2026-09-03） */
+.emo{width:1em;height:1em;vertical-align:-.12em;object-fit:contain;display:inline-block}
+.pt-art .pt-body .emo,.pt-field .pt-egg .emo{display:block}
 .pv-arrow{font-size:13px;color:#CCC;font-weight:900}
 .pv-new{font-size:52px;animation:pvNew 1.1s cubic-bezier(.2,1.5,.4,1) both}
 @keyframes pvNew{0%{transform:scale(.3);filter:brightness(3);opacity:0}55%{filter:brightness(2.4)}100%{transform:scale(1);filter:none;opacity:1}}
@@ -5022,6 +5054,14 @@ function spotStart(){
   if(here){here.classList.remove("spot");void here.offsetWidth;here.classList.add("spot");}
   if(typeof sgScrollToCurrent==="function")try{sgScrollToCurrent(curSection);}catch(e){}
 }
+/* ポップアップは数秒で自動的に消える。消えるまでの時間と後始末は1か所にまとめる（メール指示 2026-09-03） */
+const POPUP_AUTO_SEC=3.5;
+function popAutoClose(ov,close,sec){
+  if(!ov||typeof close!=="function")return null;
+  if(ov._auto)clearTimeout(ov._auto);
+  ov._auto=setTimeout(()=>{try{close();}catch(e){}},Math.round((sec||POPUP_AUTO_SEC)*1000));
+  return ov._auto;
+}
 /* 連続学習日数アップの豪華演出：大きな日数カウントアップ＋炎、カレンダー導線 */
 function showStreakCelebration(streak){
   const old=document.querySelector(".streak-cel");if(old)old.remove();
@@ -5038,7 +5078,7 @@ function showStreakCelebration(streak){
   requestAnimationFrame(()=>ov.classList.add("on"));
   const el=ov.querySelector("#sc-count");let c=0;const step=Math.max(1,Math.ceil(streak/18));
   const t=setInterval(()=>{c=Math.min(streak,c+step);el.textContent=c;if(c>=streak)clearInterval(t);},45); // カウントアップ
-  ov._auto=setTimeout(()=>closeStreakCel(false),7000); // 放置時の安全オートクローズ
+  popAutoClose(ov,()=>closeStreakCel(false)); // 連続学習継続中のポップアップも数秒で消える（メール指示 2026-09-03）
 }
 /* レベルアップの演出：いつ上がったのか分かるように、上がった瞬間だけ全面で知らせる */
 function showLevelUp(level,fromLevel,done){
@@ -5057,7 +5097,7 @@ function showLevelUp(level,fromLevel,done){
   requestAnimationFrame(()=>ov.classList.add("on"));
   const el=ov.querySelector("#lu-count");let c=from;
   const t=setInterval(()=>{c++;el.textContent=c;if(c>=level){clearInterval(t);try{sfxClaim();}catch(e){}}},220); // 数字が上がるところを見せる
-  ov._auto=setTimeout(()=>closeLevelUp(),6000);
+  popAutoClose(ov,()=>closeLevelUp());
 }
 /* 増えたものだけを順番に見せる（XP → PWR → レベルアップ）（メール指示 2026-08-01） */
 function runPopupChain(list){let i=0;const next=()=>{const f=list[i++];if(f)f(next);};next();}
@@ -5076,7 +5116,7 @@ function showGainPopup(o,done){
   requestAnimationFrame(()=>ov.classList.add("on"));
   const el=ov.querySelector("#gp-count");let c=0;const step=Math.max(1,Math.ceil(o.num/22));
   const t=setInterval(()=>{c=Math.min(o.num,c+step);el.textContent=c;if(c>=o.num){clearInterval(t);try{sfxClaim();}catch(e){}}},34); // 数字が上がるところを見せる
-  ov._auto=setTimeout(()=>closeLevelUp(),4200);
+  popAutoClose(ov,()=>closeLevelUp());
 }
 /* drop=true のときは、後ろに控えているポップアップごと取り消す（別の全面表示に切り替わるとき） */
 function closeLevelUp(drop){const ov=document.querySelector(".lvup");if(ov){if(ov._auto)clearTimeout(ov._auto);const d=drop?null:ov._done;ov._done=null;ov.classList.remove("on");setTimeout(()=>{ov.remove();d&&d();},300);}}
@@ -5611,6 +5651,8 @@ const MEMORY_CONFIG={
   choiceIncorrectDelta:-15, writingIncorrectDelta:-6, unknownDelta:-18, timeoutDelta:-18,
   hintMultiplier:0.5,
   actualIncorrect:25, actualIncorrectWriting:45, actualUnknown:10, actualTimeout:15,
+  // 忘れていくスピードを半分にする（＝記憶がもつ時間を2倍にのばす／メール指示 2026-09-03）
+  forgetSlowFactor:2.0,
   lapseGraceMultiplier:0.6, lapseGraceStreak:2, // 直前まで連続正解できていた語の「うっかり1回」は減点を弱める
   fastChoiceSec:5, fastWritingSec:10
 };
@@ -5667,7 +5709,7 @@ function effectiveStability(st,nowMs){
   const C=MEMORY_CONFIG;
   const Su=clampN(st.stabilityHours||C.initialStabilityHours,C.minStabilityHours,C.maxStabilityHours);
   const Dw=clampN(st.wordDifficulty||C.defaultWordDifficulty,C.minWordDifficulty,C.maxWordDifficulty);
-  return Math.max(1,Su*accuracyBonus(st.wordId,nowMs)*dailyConsolidationBonus(st,nowMs)/Dw);
+  return Math.max(1,Su*accuracyBonus(st.wordId,nowMs)*dailyConsolidationBonus(st,nowMs)*C.forgetSlowFactor/Dw);
 }
 /* 現在の推定記憶率（初正解前は形成スコアの減衰、初正解後は忘却曲線） */
 function displayMemoryScore(st,nowMs){
@@ -5676,7 +5718,7 @@ function displayMemoryScore(st,nowMs){
   const t=(nowMs-new Date(st.lastReviewedAt).getTime())/3600000;
   if(!st.hasEverCorrect){
     const Dw=clampN(st.wordDifficulty||C.defaultWordDifficulty,C.minWordDifficulty,C.maxWordDifficulty);
-    return (st.formingScore||0)*Math.exp(-(t*Dw)/C.initialFormingStabilityHours);
+    return (st.formingScore||0)*Math.exp(-(t*Dw)/(C.initialFormingStabilityHours*C.forgetSlowFactor));
   }
   return (st.memoryScore||0)*Math.exp(-t/effectiveStability(st,nowMs));
 }
@@ -6741,11 +6783,22 @@ const PET_GROW=PET_STAGES.map(x=>x.lv);
 function petGrowStep(lv){return PET_STAGES.indexOf(petStage(lv||1))+1;}
 function petGrowSrc(spK,step){return petImgSrc(spK,step);}
 function petGrowEmo(sp){return (sp&&sp.ico&&(sp.ico[1]||sp.ico[0]))||"🐶";}
+/* 動物は端末まかせの文字の絵文字ではなく、16タイプ診断のキャラクター(characters/*.svg)と同じ
+   「絵で描かれた絵文字」の絵ファイルで出す（emoji/pet/*.svg／メール指示 2026-09-03）。
+   絵ファイルが無い組み合わせだけは、これまでどおり文字の絵文字にもどす */
+function emoCode(e){return Array.from(String(e||"")).map(c=>c.codePointAt(0).toString(16)).filter(h=>h!=="fe0f").join("-");}
+function emoImgSrc(e){const c=emoCode(e);return c?"emoji/pet/"+c+".svg":"";}
+function emoImg(e,cls){
+  const src=emoImgSrc(e);if(!src)return "";
+  return `<img class="emo${cls?" "+cls:""}" src="${src}" alt="${esc(e)}" onerror="this.replaceWith(document.createTextNode('${e}'))">`;
+}
+/* 画像の読み込みに失敗したときの差しかえ用（文字ではなく絵ファイルにもどす） */
+function petEmoNode(e){const d=document.createElement("span");d.innerHTML=emoImg(e,"pv-face");return d.firstChild||document.createTextNode(e);}
 /* その段階の顔。用意した絵があればそれを、無ければ絵文字にもどる */
 function petStepFace(sp,step){
   const emo=petGrowEmo(sp);
-  if(step<2)return emo;
-  return `<img class="pv-face" src="${petGrowSrc(sp.k,step)}" alt="" onerror="this.replaceWith(document.createTextNode('${emo}'))">`;
+  if(step<2)return emoImg(emo,"pv-face");
+  return `<img class="pv-face" src="${petGrowSrc(sp.k,step)}" alt="" onerror="this.replaceWith(petEmoNode('${emo}'))">`;
 }
 /* Phase2 ③：ガチャ。レアリティの重み・値段・天井（10回に1回は必ず新しい友だち） */
 const PET_RARE={N:{w:60,c:"#9AA4B2"},R:{w:25,c:"#2E7BE0"},SR:{w:12,c:"#8B3FD0"},SSR:{w:3,c:"#D08A00"}};
@@ -7039,7 +7092,7 @@ function petTap(){
   const el=document.querySelector("#pet-modal .pt-an.me i,#pet-modal .pt-art");
   if(el&&!lessFxOn()){el.classList.remove("pt-jump");void el.offsetWidth;el.classList.add("pt-jump");}
   const l=document.getElementById("pt-line");
-  if(l){const p=petLine();l.innerHTML=`<b>${esc(p.ko)}</b><span>${esc(p.ja)}</span>`;}
+  if(l){const p=petLine();l.innerHTML=`<b>${esc(p.ko)}</b><span>${esc(p.ja)}</span>`;petSayFit(l);}
   const f=document.getElementById("pt-friend"); // 親密度の丸ゲージ（数字とリングの両方を更新する）
   if(f){const v=petState().friend||0;f.textContent=v;
     const sp=f.parentNode;if(sp&&sp.style)sp.style.setProperty("--p",Math.max(0,Math.min(100,Math.round(v))));}
@@ -7076,7 +7129,7 @@ function petArtHTML(day,lv,stageK,small,opt){
   return `<div class="pt-art${small?" sm":""}${si>=4?" pt-aura":""}" style="background:${bgIt&&bgIt.bg?bgIt.bg:wx.bg}" onclick="${small?"":"petTap()"}">
     <span class="pt-wx">${wx.ico}</span>
     ${img}
-    <span class="pt-body">${body}</span>
+    <span class="pt-body">${emoImg(body)}</span>
     <span class="pt-wear">${hat?hat.ico:we.ico}</span>
     ${cos?`<span class="pt-cos">${cos.ico}</span>`:""}
     ${acc?`<span class="pt-acc">${acc.ico}</span>`:""}
@@ -7103,25 +7156,135 @@ function petFieldHTML(){
   // 動物が一か所にかたまらないよう、広場を頭数ぶんの縦じまに分けて1匹ずつ入れ、
   // 上下も段ちがいに散らす。歩く幅も広くとって、よく動き回るようにした（メール指示 2026-09-03）
   const ln=petLine(),n=have.length;
-  const band=n>0?76/n:76;
+  const band=PF_X1-PF_X0;
   const ans=have.map((k,i)=>{
     const sp=PET_SP_BY_K[k],z=o.zoo[k]||{},lv=petLevel(z.xp),step=petGrowStep(lv),me=o.sp===k;
-    const x=Math.round(12+band*i+rnd()*band*0.6);      // 横は帯ごとに1匹（かたまらない）
-    const y=Math.round(30+(i%3)*17+rnd()*13);          // 縦も段ちがいに散らす（広場ぜんたいを使う）
-    const w=(rnd()<.5?-1:1)*(38+Math.round(rnd()*44)); // 横に歩く幅（これまでの約3倍）
-    const v=(rnd()<.5?-1:1)*(12+Math.round(rnd()*20)); // 縦にも歩く
-    const edge=x<32?" l":(x>68?" r":""); // はしの子は吹き出しを内側へ寄せる
-    const say=me?`<div class="pt-say${edge}" id="pt-line"><em class="pt-sayn">${esc(petPlainName((PET_SP_BY_K[k]||{}).name||o.name))}</em><b>${esc(ln.ko)}</b><span>${esc(ln.ja)}</span></div>`:"";
-    return `<div class="pt-an${me?" me":""}" data-k="${k}" style="left:${x}%;top:${y}%;--w:${w}px;--v:${v}px;--d:${(2.2+rnd()*1.8).toFixed(2)}s;--dl:${(rnd()*1.4).toFixed(2)}s;--h:${(.8+rnd()*.6).toFixed(2)}s;--fs:${me?34:26}px">
-      <i onclick="event.stopPropagation();${me?"petTap()":"petSwitch('"+k+"')"}">${petStepFace(sp,step)}</i>
+    const w=n>0?band/n:band;
+    const x=Math.round(PF_X0+w*i+rnd()*w*0.6);         // 横は帯ごとに1匹（かたまらない）
+    const y=Math.round(PF_Y0+(i%3)*15+rnd()*11);       // 縦も段ちがいに散らす（広場ぜんたいを使う）
+    // 動物の大きさはこれまでの2倍、歩き方は petYardStart が決める（メール指示 2026-09-03）
+    const say=me?`<div class="pt-say" id="pt-line"><em class="pt-sayn">${esc(petPlainName((PET_SP_BY_K[k]||{}).name||o.name))}</em><b>${esc(ln.ko)}</b><span>${esc(ln.ja)}</span></div>`:"";
+    // 下にいる子ほど手前に描く（重なったときに奥行きが出る）
+    return `<div class="pt-an${me?" me":""}" data-k="${k}" style="left:${x}%;top:${y}%;z-index:${3+Math.round(y)};--h:${(.8+rnd()*.6).toFixed(2)}s;--fs:${me?68:52}px">
+      <i onclick="event.stopPropagation();petShowMeter('${k}')">${petStepFace(sp,step)}</i>
       <em class="pt-nm">${esc(petPlainName((PET_SP_BY_K[k]||{}).name||""))}</em>${say}</div>`;
   }).join("");
-  const egs=eggs.map(()=>`<span class="pt-egg" style="left:${8+Math.round(rnd()*76)}%;top:${66+Math.round(rnd()*22)}%">🥚</span>`).join("");
-  return `<div class="pt-field e${en}${less?" less":""}" onclick="petTap()"${bgIt&&bgIt.bg?` style="background:${bgIt.bg}"`:""}>
+  const egs=eggs.map(()=>`<span class="pt-egg" style="left:${8+Math.round(rnd()*76)}%;top:${66+Math.round(rnd()*22)}%">${emoImg("🥚")}</span>`).join("");
+  return `<div class="pt-field e${en}${less?" less":""}" onclick="petFieldTap()"${bgIt&&bgIt.bg?` style="background:${bgIt.bg}"`:""}>
     <span class="pf-sun">${wx.ico}</span>
     ${tufts}${egs}${ans}
     <div class="pf-foot">${have.length}匹 おさんぽ中${eggs.length?"／たまご "+eggs.length+"つ":""}　元気 ${PET_ENERGY_LABEL[en]}</div>
   </div>`;
+}
+/* --- 広場のうごき（メール指示 2026-09-03） ---------------------------------
+ * 「数秒あるいて数秒止まる」をくり返す。ときどき他の子を追いかけ、近くで出会うと少し話す。
+ * 位置はJSが決めて left/top を書きかえ、なめらかに動くところはCSSのtransitionにまかせる。 */
+const PF_X0=10,PF_X1=90,PF_Y0=28,PF_Y1=80;   // 歩きまわれる範囲（％）。はみ出さないように内側で止める
+const PF_TALK=[{ko:"안녕!",ja:"やあ！"},{ko:"뭐 해?",ja:"なにしてるの？"},{ko:"같이 놀자!",ja:"いっしょにあそぼ！"},
+  {ko:"오늘 공부했어?",ja:"きょう べんきょうした？"},{ko:"반가워!",ja:"あえてうれしい！"},{ko:"배고파…",ja:"おなかすいた…"}];
+let _pfTimer=null;
+function petYardStop(){if(_pfTimer){clearInterval(_pfTimer);_pfTimer=null;}}
+/* 吹き出しの矢印が動物の真ん中に来るよう、広場からはみ出すぶんだけ吹き出しの箱だけを横へずらす。
+   矢印は同じぶん逆へ戻すので、矢印の先はいつも動物の中心に合う（メール指示 2026-09-03） */
+function petSayFit(el){
+  if(!el)return;
+  const f=el.closest?el.closest(".pt-field"):null;if(!f)return;
+  el.style.setProperty("--sx","0px");
+  const fr=f.getBoundingClientRect(),br=el.getBoundingClientRect();
+  if(!br.width)return;
+  let sx=0;
+  if(br.left<fr.left+4)sx=fr.left+4-br.left;
+  else if(br.right>fr.right-4)sx=fr.right-4-br.right;
+  el.style.setProperty("--sx",Math.round(sx)+"px");
+}
+function petSayFitAll(){document.querySelectorAll("#pet-modal .pt-field .pt-say").forEach(petSayFit);}
+function petYardStart(){
+  petYardStop();
+  const f=document.querySelector("#pet-modal .pt-field");if(!f)return;
+  requestAnimationFrame(petSayFitAll);
+  if(f.classList.contains("less"))return; // 動きひかえめの設定では歩かせない
+  const S=Array.prototype.slice.call(f.querySelectorAll(".pt-an")).map(el=>({
+    el:el,x:parseFloat(el.style.left)||50,y:parseFloat(el.style.top)||50,until:0,talk:0}));
+  if(!S.length)return;
+  const R=Math.random,cl=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+  const rest=(s,now)=>{ // 数秒その場で止まる
+    s.el.classList.remove("walk");s.el.style.setProperty("--mv","0s");
+    s.until=now+1400+R()*2600;
+  };
+  const walk=(s,now,tx,ty)=>{ // 数秒かけて行き先まで歩く
+    const nx=cl(tx,PF_X0,PF_X1),ny=cl(ty,PF_Y0,PF_Y1);
+    const dur=cl(Math.sqrt((nx-s.x)*(nx-s.x)+(ny-s.y)*(ny-s.y))/13,1.0,4.0);
+    if(Math.abs(nx-s.x)>0.6)s.el.classList.toggle("flip",nx<s.x); // 進む向きを向く
+    s.el.classList.add("walk");
+    s.el.style.setProperty("--mv",dur.toFixed(2)+"s");
+    s.el.style.left=nx.toFixed(1)+"%";s.el.style.top=ny.toFixed(1)+"%";
+    s.el.style.zIndex=String(3+Math.round(ny)); // 下にいる子ほど手前
+    s.x=nx;s.y=ny;s.until=now+dur*1000;
+  };
+  const say=(s,line,now)=>{ // すれちがった子が少し話す
+    const old=s.el.querySelector(".pt-talk");if(old)old.remove();
+    const d=document.createElement("div");d.className="pt-say pt-talk";
+    d.innerHTML=`<b>${esc(line.ko)}</b><span>${esc(line.ja)}</span>`;
+    s.el.appendChild(d);petSayFit(d);
+    setTimeout(()=>{if(d.parentNode)d.remove();},2600);
+    s.talk=now+9000; // しばらくは話しかけない
+  };
+  S.forEach(s=>rest(s,Date.now()-R()*2000));
+  _pfTimer=setInterval(()=>{
+    const m=document.getElementById("pet-modal");
+    if(!f.parentNode||!m||!m.classList.contains("on")){petYardStop();return;}
+    const now=Date.now();
+    S.forEach(s=>{
+      if(now<s.until)return;
+      if(s.el.classList.contains("walk")){rest(s,now);return;} // 歩きおわったら数秒休む
+      const r=R();
+      if(r<0.16&&S.length>1){ // ときどき他の子を追いかける
+        const t=S[Math.floor(R()*S.length)];
+        if(t!==s){walk(s,now,t.x+(R()*8-4),t.y+(R()*6-3));return;}
+      }
+      walk(s,now,s.x+(R()*44-22),s.y+(R()*26-13)); // ふだんはその辺をぶらぶら
+    });
+    // 近くになった子どうしは立ち止まって話す
+    for(let i=0;i<S.length;i++)for(let j=i+1;j<S.length;j++){
+      const a=S[i],b=S[j];
+      if(now<a.talk||now<b.talk)continue;
+      const dx=a.x-b.x,dy=(a.y-b.y)*0.7;
+      if(dx*dx+dy*dy>90)continue;
+      say(a,PF_TALK[Math.floor(R()*PF_TALK.length)],now);
+      say(b,PF_TALK[Math.floor(R()*PF_TALK.length)],now);
+      rest(a,now);rest(b,now);
+    }
+    petSayFitAll();
+  },500);
+}
+/* 広場の地面をタップ：メーターが開いていれば閉じる。開いていなければこれまでどおりなつく */
+function petFieldTap(){
+  const m=document.querySelector("#pet-modal .pt-mt");
+  if(m){m.remove();return;}
+  petTap();
+}
+function petHideMeter(){const m=document.querySelector("#pet-modal .pt-mt");if(m)m.remove();}
+/* 動物をタッチすると、その子のメーターを出す（メール指示 2026-09-03） */
+function petShowMeter(k){
+  const f=document.querySelector("#pet-modal .pt-field");if(!f)return;
+  const sp=PET_SP_BY_K[k];if(!sp)return;
+  petHideMeter();
+  const o=petState(),me=o.sp===k,z=me?{xp:o.xp,friend:o.friend}:(o.zoo[k]||{});
+  const xp=z.xp||0,lv=petLevel(xp),st=petStage(lv),step=petGrowStep(lv);
+  const grow=Math.round(((xp%40)/40)*100),fr=Math.max(0,Math.min(100,Math.round(z.friend||0)));
+  const pw=petPower(),pwp=Math.max(0,Math.min(100,Math.round(pw/500*100)));
+  const bar=(t,v,c,lab)=>`<div class="pt-mtr"><em>${esc(t)}</em><i><b style="width:${v}%;background:${c}"></b></i><span>${esc(lab)}</span></div>`;
+  const d=document.createElement("div");d.className="pt-mt";
+  d.innerHTML=`<button class="pt-mtx" onclick="event.stopPropagation();petHideMeter()" aria-label="閉じる">×</button>
+    <div class="pt-mth">${petStepFace(sp,step)}<b>${esc(petPlainName(sp.name))}</b><em>Lv.${lv}／${esc(st.name)}</em></div>
+    ${bar("そだち",grow,"#3BB273","あと "+(40-(xp%40))+" でLv.UP")}
+    ${bar("なかよし",fr,"#F2789F",String(z.friend||0))}
+    ${bar("韓国語力",pwp,"#2E7BE0",pw+" 語")}
+    ${me?`<div class="pt-mtnow">いま いっしょにいる子</div>`
+        :`<button class="pt-mtsw" onclick="event.stopPropagation();petSwitch('${k}')">この子と いっしょに いく</button>`}`;
+  d.onclick=e=>e.stopPropagation();
+  f.appendChild(d);
+  if(me)petTap(); // いっしょにいる子をさわったぶんは、これまでどおりなつく
 }
 function petAlbumHTML(){
   const o=petState(),a=o.album.slice(-30).reverse();
@@ -7155,6 +7318,7 @@ function openPet(){
     ${bond?`<div class="pt-bondnew">${esc(bond.t)}ありがとう！<em>「${esc((PET_ITEM_BY_K[bond.item]||{}).t||"")}」が とどきました</em></div>`:""}
   </div>`;
   d5AnchorBubble(null,m.querySelector(".pt-card"));
+  petYardStart(); // 広場の子たちが歩き出す（メール指示 2026-09-03）
   m.onclick=e=>{if(e.target===m)closePet();};
 }
 /* 7. 食べた単語＝この子の語彙。ここに並ぶほど「韓国語を食べて育った」ことが目に見える */
@@ -7164,7 +7328,7 @@ function petAteHTML(o){
   return `<div class="pt-ate"><div class="pt-albh">たべたことば（${(o.ate||[]).length}／最新12）</div>
     <div class="pt-atr">${a.map(w=>`<span>${esc(w)}</span>`).join("")}</div></div>`;
 }
-function closePet(){const m=document.getElementById("pet-modal");if(m)m.classList.remove("on");}
+function closePet(){petYardStop();const m=document.getElementById("pet-modal");if(m)m.classList.remove("on");}
 /* 学習後：エネルギーが飛ぶ → 食べる → 成長。結果画面に小さく出す（11. 学習後） */
 function petResultHTML(res){
   if(!res)return "";
@@ -10527,7 +10691,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v8.0 (2026-09-03)";
+const APP_VERSION="v8.1 (2026-09-04)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
