@@ -2475,8 +2475,10 @@ body.bigtext .set-d{font-size:13.5px}
 .pt-field .pt-say b{display:block;font-size:14px;font-weight:900;line-height:1.3}
 .pt-field .pt-say span{display:block;font-size:11px;font-weight:800;color:#666;margin-top:2px;line-height:1.35}
 .pt-field .pt-say::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-7px;border:7px solid transparent;border-top-color:#fff;border-bottom:0}
-/* 動物をタッチすると出るメーター（メール指示 2026-09-03） */
-.pt-mt{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9;width:82%;max-width:250px;
+/* 動物をタッチすると出るメーター（メール指示 2026-09-03）。
+   動物は下にいる子ほど手前になるよう z-index を 3+top(最大83) まで上げるので、
+   メーターはそれより確実に前面になる値にする（メール指示 2026-09-04） */
+.pt-mt{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:120;width:82%;max-width:250px;
   background:#fff;border-radius:16px;padding:11px 13px 12px;box-shadow:0 10px 26px rgba(0,0,0,.3);text-align:left;cursor:default;
   animation:ptmtin .28s cubic-bezier(.34,1.6,.5,1) both}
 @keyframes ptmtin{from{opacity:0;transform:translate(-50%,-50%) scale(.82)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
@@ -7182,8 +7184,9 @@ function petFieldHTML(){
 const PF_X0=10,PF_X1=90,PF_Y0=28,PF_Y1=80;   // 歩きまわれる範囲（％）。はみ出さないように内側で止める
 const PF_TALK=[{ko:"안녕!",ja:"やあ！"},{ko:"뭐 해?",ja:"なにしてるの？"},{ko:"같이 놀자!",ja:"いっしょにあそぼ！"},
   {ko:"오늘 공부했어?",ja:"きょう べんきょうした？"},{ko:"반가워!",ja:"あえてうれしい！"},{ko:"배고파…",ja:"おなかすいた…"}];
-let _pfTimer=null;
-function petYardStop(){if(_pfTimer){clearInterval(_pfTimer);_pfTimer=null;}}
+let _pfTimer=null,_pfSepTimer=null;
+function petYardStop(){if(_pfTimer){clearInterval(_pfTimer);_pfTimer=null;}
+  if(_pfSepTimer){clearInterval(_pfSepTimer);_pfSepTimer=null;}}
 /* 吹き出しの矢印が動物の真ん中に来るよう、広場からはみ出すぶんだけ吹き出しの箱だけを横へずらす。
    矢印は同じぶん逆へ戻すので、矢印の先はいつも動物の中心に合う（メール指示 2026-09-03） */
 function petSayFit(el){
@@ -7207,6 +7210,19 @@ function petYardStart(){
     el:el,x:parseFloat(el.style.left)||50,y:parseFloat(el.style.top)||50,until:0,talk:0}));
   if(!S.length)return;
   const R=Math.random,cl=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+  /* --- 動物どうしが重ならないようにする（メール指示 2026-09-04） -------------
+   * 行き先は「ほかの子と体のはばぶん離れている場所」だけを選ぶ。
+   * それでも近づいてしまったときは、その場で止めて左右にすっと離れる。 */
+  const W=()=>f.clientWidth||300,H=()=>f.clientHeight||390;   // 広場の大きさ（％→pxの換算に使う）
+  const rad=s=>{const i=s.el.querySelector("i"),r=(i||s.el).getBoundingClientRect();return (r.width||52)/2;};
+  const gap=(a,b)=>(rad(a)+rad(b))*0.95;                      // これより近いと体が重なる
+  const live=s=>{const i=s.el.querySelector("i");if(!i)return {x:s.x*W()/100,y:s.y*H()/100};
+    const fr=f.getBoundingClientRect(),r=i.getBoundingClientRect();
+    return {x:r.left+r.width/2-fr.left,y:r.top+r.height/2-fr.top};}; // いま実際に見えている位置
+  const free=(s,nx,ny)=>{const w=W()/100,h=H()/100;           // その行き先はほかの子と離れているか
+    return S.every(t=>{if(t===s)return true;
+      const dx=(nx-t.x)*w,dy=(ny-t.y)*h,g=gap(s,t);
+      return dx*dx+dy*dy>=g*g;});};
   const rest=(s,now)=>{ // 数秒その場で止まる
     s.el.classList.remove("walk");s.el.style.setProperty("--mv","0s");
     s.until=now+1400+R()*2600;
@@ -7221,6 +7237,45 @@ function petYardStart(){
     s.el.style.zIndex=String(3+Math.round(ny)); // 下にいる子ほど手前
     s.x=nx;s.y=ny;s.until=now+dur*1000;
   };
+  /* 行き先だけでなく、そこまでの道すじも他の子とぶつからないか見る
+     （すれちがいざまに体が重なるのを防ぐ。メール指示 2026-09-04） */
+  const clearPath=(s,nx,ny)=>{const w=W()/100,h=H()/100;
+    return S.every(t=>{if(t===s)return true;
+      const g=gap(s,t)*0.85,lt=live(t);
+      for(let i=1;i<=6;i++){
+        const px=(s.x+(nx-s.x)*i/6)*w,py=(s.y+(ny-s.y)*i/6)*h;
+        for(const q of [[lt.x,lt.y],[t.x*w,t.y*h]]){
+          const dx=px-q[0],dy=py-q[1];
+          if(dx*dx+dy*dy<g*g)return false;
+        }
+      }
+      return true;});};
+  /* 行き先が他の子と重なるときは、離れている場所を探しなおす。
+     見つからなければ今回は歩かずに休む（無理に動いて重ならないように。メール指示 2026-09-04） */
+  const tryWalk=(s,now,tx,ty)=>{
+    const nx=cl(tx,PF_X0,PF_X1),ny=cl(ty,PF_Y0,PF_Y1);
+    if(free(s,nx,ny)&&clearPath(s,nx,ny)){walk(s,now,nx,ny);return true;}
+    for(let i=0;i<14;i++){
+      const cx=cl(PF_X0+R()*(PF_X1-PF_X0),PF_X0,PF_X1),cy=cl(PF_Y0+R()*(PF_Y1-PF_Y0),PF_Y0,PF_Y1);
+      if(free(s,cx,cy)&&clearPath(s,cx,cy)){walk(s,now,cx,cy);return true;}
+    }
+    rest(s,now);return false;
+  };
+  /* 重なってしまった2匹は、その場で止めて反対方向へすっと離れる（メール指示 2026-09-04） */
+  const pushApart=(a,b,now)=>{
+    const la=live(a),lb=live(b),w=W()/100,h=H()/100,need=gap(a,b);
+    let dx=la.x-lb.x,dy=la.y-lb.y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<1){dx=R()<.5?-1:1;dy=R()*.6-.3;d=Math.sqrt(dx*dx+dy*dy);}
+    dx/=d;dy/=d;
+    const push=(need-d)/2+6;
+    [[a,la,1],[b,lb,-1]].forEach(([s,l,sg])=>{
+      s.x=cl(l.x/w,PF_X0,PF_X1);s.y=cl(l.y/h,PF_Y0,PF_Y1);   // いま見えている位置でいったん止める
+      s.el.classList.remove("walk");s.el.style.setProperty("--mv","0s");
+      s.el.style.left=s.x.toFixed(1)+"%";s.el.style.top=s.y.toFixed(1)+"%";
+      void s.el.offsetWidth;                                  // 止めた位置を確定させてから離れる
+      walk(s,now,s.x+sg*dx*push/w,s.y+sg*dy*push/h);
+    });
+  };
   const say=(s,line,now)=>{ // すれちがった子が少し話す
     const old=s.el.querySelector(".pt-talk");if(old)old.remove();
     const d=document.createElement("div");d.className="pt-say pt-talk";
@@ -7230,6 +7285,16 @@ function petYardStart(){
     s.talk=now+9000; // しばらくは話しかけない
   };
   S.forEach(s=>rest(s,Date.now()-R()*2000));
+  // 開いた直後から重なっていることがあるので、まず離してから歩かせる（メール指示 2026-09-04）
+  requestAnimationFrame(()=>{
+    const now=Date.now();
+    for(let pass=0;pass<3;pass++)
+      for(let i=0;i<S.length;i++)for(let j=i+1;j<S.length;j++){
+        const a=S[i],b=S[j],w=W()/100,h=H()/100,g=gap(a,b);
+        const dx=(a.x-b.x)*w,dy=(a.y-b.y)*h;
+        if(dx*dx+dy*dy<g*g)pushApart(a,b,now);
+      }
+  });
   _pfTimer=setInterval(()=>{
     const m=document.getElementById("pet-modal");
     if(!f.parentNode||!m||!m.classList.contains("on")){petYardStop();return;}
@@ -7240,22 +7305,42 @@ function petYardStart(){
       const r=R();
       if(r<0.16&&S.length>1){ // ときどき他の子を追いかける
         const t=S[Math.floor(R()*S.length)];
-        if(t!==s){walk(s,now,t.x+(R()*8-4),t.y+(R()*6-3));return;}
+        if(t!==s){ // 上に乗らないよう、その子の「となり」で止まる（メール指示 2026-09-04）
+          const w=W()/100,h=H()/100,g=gap(s,t)*1.12;
+          let dx=(s.x-t.x)*w,dy=(s.y-t.y)*h,d=Math.sqrt(dx*dx+dy*dy);
+          if(d<1){dx=R()<.5?-1:1;dy=0;d=1;}
+          dx/=d;dy/=d;
+          tryWalk(s,now,t.x+dx*g/w,t.y+dy*g/h);return;
+        }
       }
-      walk(s,now,s.x+(R()*44-22),s.y+(R()*26-13)); // ふだんはその辺をぶらぶら
+      tryWalk(s,now,s.x+(R()*44-22),s.y+(R()*26-13)); // ふだんはその辺をぶらぶら
     });
     // 近くになった子どうしは立ち止まって話す
     for(let i=0;i<S.length;i++)for(let j=i+1;j<S.length;j++){
       const a=S[i],b=S[j];
       if(now<a.talk||now<b.talk)continue;
-      const dx=a.x-b.x,dy=(a.y-b.y)*0.7;
-      if(dx*dx+dy*dy>90)continue;
+      // 重ならない距離を保つようになったので、すれちがい判定も体のはば基準にする（メール指示 2026-09-04）
+      const la=live(a),lb=live(b),near=gap(a,b)*1.6;
+      const dx=la.x-lb.x,dy=la.y-lb.y;
+      if(dx*dx+dy*dy>near*near)continue;
       say(a,PF_TALK[Math.floor(R()*PF_TALK.length)],now);
       say(b,PF_TALK[Math.floor(R()*PF_TALK.length)],now);
       rest(a,now);rest(b,now);
     }
     petSayFitAll();
   },500);
+  /* 歩いている途中で重なってしまった子は、見つけしだいすぐ離す（メール指示 2026-09-04）。
+     歩き方を決める500msより短い間隔で見張るので、重なったまま歩き続けることがない */
+  _pfSepTimer=setInterval(()=>{
+    const m=document.getElementById("pet-modal");
+    if(!f.parentNode||!m||!m.classList.contains("on")){petYardStop();return;}
+    const now=Date.now();
+    for(let i=0;i<S.length;i++)for(let j=i+1;j<S.length;j++){
+      const a=S[i],b=S[j],la=live(a),lb=live(b),g=gap(a,b);
+      const dx=la.x-lb.x,dy=la.y-lb.y;
+      if(dx*dx+dy*dy<g*g)pushApart(a,b,now);
+    }
+  },110);
 }
 /* 広場の地面をタップ：メーターが開いていれば閉じる。開いていなければこれまでどおりなつく */
 function petFieldTap(){
@@ -10691,7 +10776,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v8.1 (2026-09-04)";
+const APP_VERSION="v8.2 (2026-09-04)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
