@@ -7263,7 +7263,7 @@ function petYardStart(){
   };
   /* 重なってしまった2匹は、その場で止めて反対方向へすっと離れる（メール指示 2026-09-04） */
   const pushApart=(a,b,now)=>{
-    const la=live(a),lb=live(b),w=W()/100,h=H()/100,need=gap(a,b);
+    const la=live(a),lb=live(b),w=W()/100,h=H()/100,need=gap(a,b)*1.25; // 余裕をもって離す
     let dx=la.x-lb.x,dy=la.y-lb.y,d=Math.sqrt(dx*dx+dy*dy);
     if(d<1){dx=R()<.5?-1:1;dy=R()*.6-.3;d=Math.sqrt(dx*dx+dy*dy);}
     dx/=d;dy/=d;
@@ -7284,17 +7284,44 @@ function petYardStart(){
     setTimeout(()=>{if(d.parentNode)d.remove();},2600);
     s.talk=now+9000; // しばらくは話しかけない
   };
-  S.forEach(s=>rest(s,Date.now()-R()*2000));
-  // 開いた直後から重なっていることがあるので、まず離してから歩かせる（メール指示 2026-09-04）
-  requestAnimationFrame(()=>{
-    const now=Date.now();
-    for(let pass=0;pass<3;pass++)
+  /* 開いた直後は、動かす前にその場で位置を配りなおして重なりをほどく。
+     歩かせて離すとほどけるまでのあいだ重なって見えるので、アニメなしで置きなおす（メール指示 2026-09-04） */
+  const settle=()=>{
+    const w=W()/100,h=H()/100;
+    for(let pass=0;pass<80;pass++){
+      let hit=false;
       for(let i=0;i<S.length;i++)for(let j=i+1;j<S.length;j++){
-        const a=S[i],b=S[j],w=W()/100,h=H()/100,g=gap(a,b);
-        const dx=(a.x-b.x)*w,dy=(a.y-b.y)*h;
-        if(dx*dx+dy*dy<g*g)pushApart(a,b,now);
+        const a=S[i],b=S[j],need=gap(a,b)*1.12;
+        let dx=(a.x-b.x)*w,dy=(a.y-b.y)*h,d=Math.sqrt(dx*dx+dy*dy);
+        if(d>=need)continue;
+        hit=true;
+        if(d<1){dx=R()<.5?-1:1;dy=R()*.6-.3;d=Math.sqrt(dx*dx+dy*dy);}
+        const push=(need-d)/2+1;
+        a.x=cl(a.x+dx/d*push/w,PF_X0,PF_X1);a.y=cl(a.y+dy/d*push/h,PF_Y0,PF_Y1);
+        b.x=cl(b.x-dx/d*push/w,PF_X0,PF_X1);b.y=cl(b.y-dy/d*push/h,PF_Y0,PF_Y1);
       }
-  });
+      if(!hit)break;
+    }
+    S.forEach(s=>{
+      s.el.classList.remove("walk");s.el.style.setProperty("--mv","0s");
+      s.el.style.left=s.x.toFixed(1)+"%";s.el.style.top=s.y.toFixed(1)+"%";
+      s.el.style.zIndex=String(3+Math.round(s.y));
+    });
+  };
+  S.forEach(s=>rest(s,Date.now()-R()*2000));
+  requestAnimationFrame(settle);
+  /* 歩いているあいだも見はって、ぶつかりそうになったら重なる前に止めて離す（メール指示 2026-09-04）
+     ふれあう手前（体のはばの1.15倍）で反応させるので、実際に重なって見えることがない */
+  _pfSepTimer=setInterval(()=>{
+    const m=document.getElementById("pet-modal");
+    if(!f.parentNode||!m||!m.classList.contains("on")){petYardStop();return;}
+    const now=Date.now();
+    for(let i=0;i<S.length;i++)for(let j=i+1;j<S.length;j++){
+      const a=S[i],b=S[j],near=gap(a,b)*1.15;
+      const la=live(a),lb=live(b),dx=la.x-lb.x,dy=la.y-lb.y;
+      if(dx*dx+dy*dy<near*near)pushApart(a,b,now);
+    }
+  },80);
   _pfTimer=setInterval(()=>{
     const m=document.getElementById("pet-modal");
     if(!f.parentNode||!m||!m.classList.contains("on")){petYardStop();return;}
@@ -10776,7 +10803,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v8.2 (2026-09-04)";
+const APP_VERSION="v8.3 (2026-09-04)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
