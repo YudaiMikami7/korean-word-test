@@ -8396,7 +8396,8 @@ function sgTap(n,gidx){
   homeCountdown(()=>{_cdSkip=true;startTest();});
 }
 function sgRetry(){ // 結果画面の「もう一度挑戦する」：同じマスをやり直す
-  if(_lastBoardTile){_boardTile={..._lastBoardTile};startTest();return;}
+  // もう一度やったぶんもマスを1つ進める（2回やったのに1マスしか進まない、を防ぐ／メール指示 2026-09-13 16:52）
+  if(_lastBoardTile){const t=_lastBoardTile;_boardTile={...t,gidx:boardState(t.level,t.sec).cleared+1};startTest();return;}
   startTest();
 }
 
@@ -9249,6 +9250,9 @@ function runnerPlace(){
 }
 function runnerStep(ok,rarity){
   const bar=document.getElementById("pbar");if(!bar)return;
+  const d5=!!(state&&state.daily5);
+  // 今日の5問は正解・不正解で札とキャラの演出を変えない（どちらも標準の獲得＋歩き）＝上の帯で正解がバレないように（メール指示 2026-09-13 16:52）
+  if(d5)rarity=null;
   // 目の前のカードは、正解でも不正解でもキャラのほうへ飛んできて獲得する（メール指示 2026-08-01）
   const slot=document.querySelector('#rn-rail .rn-slot[data-i="'+_runIdx+'"]');
   if(slot){
@@ -9266,7 +9270,7 @@ function runnerStep(ok,rarity){
   runnerPlace(); // カードは動かない。キャラのほうが1コマぶん右へ進む（メール指示 2026-08-01）
   const ch=document.getElementById("rn-char");if(!ch)return;
   ch.classList.remove("step","trip");void ch.offsetWidth; // 連続再生できるようアニメを巻き戻す
-  ch.classList.add(ok?"step":"trip");
+  ch.classList.add(ok||d5?"step":"trip");
 }
 
 function curLimit(){const base=state.questions[state.idx].type==="w"?20:10;return Math.round(base*(loadSettings().slowTimer?1.5:1));} // じっくりモードは1.5倍
@@ -10803,7 +10807,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v8.3 (2026-09-04)";
+const APP_VERSION="v8.4 (2026-09-13)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
