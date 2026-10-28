@@ -1,6 +1,6 @@
 /* k-tango スモークテスト（メール指示 2026-08-29 22:45 ぶん）
  * 使い方: node smoke.mail0829c.test.js
- *  1) 結果画面にも「あと10秒でホーム画面にもどります」のカウントダウン（中止つき）
+ *  1) 結果画面の「あと10秒でホーム画面にもどります」は廃止（2026-10-28）→ 出ないこと・自動で戻らないこと
  *  2) ホームの10秒カウントダウンは WORLD ページャーのすぐ下に出る
  *  3) ホーム復帰の演出順：CLEAR（クリアエフェクト）→ プレゼントが届きました。吹き出しは画面内に収まる
  *  4) 戻ってきた時点で「さっきまでやっていたマス」がすでに中央にある
@@ -28,23 +28,12 @@ const URL = 'file:///' + path.resolve(__dirname, 'index.html').replace(/\\/g, '/
   await page.reload();
   await page.waitForTimeout(1200);
 
-  // ---- 1) 結果画面の10秒カウントダウン ----
+  // ---- 1) 結果画面の10秒カウントダウンは廃止（メール指示 2026-10-28 22:16）。自動でホームへは戻らない ----
   await page.evaluate(() => { document.getElementById('s-result').innerHTML = '<div class="res"></div>'; show('s-result'); });
-  await page.waitForTimeout(900);
-  check('結果画面にカウントダウンが出る', await page.evaluate(() => { const e = document.getElementById('rhcd'); return !!e && e.textContent.includes('ホーム画面'); }));
-  check('「あと◯秒」が10秒から', await page.evaluate(() => { const e = document.getElementById('rh-sec'); return !!e && +e.textContent >= RH_SEC - 2; }));
-  check('カウントダウンが画面内に収まる', await page.evaluate(() => { const r = document.getElementById('rhcd').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.bottom <= innerHeight; }));
-  check('中止ボタンがある', await page.evaluate(() => !!document.querySelector('#rhcd button')));
-  await page.evaluate(() => rhCancel());
-  await page.waitForTimeout(150);
-  check('中止で消える', await page.evaluate(() => !document.getElementById('rhcd')));
-  // 0秒でホームへ戻る
-  await page.evaluate(() => { show('s-result'); });
-  await page.waitForTimeout(900);
-  await page.evaluate(async () => { _rhLeft = 1; await new Promise(r => setTimeout(r, 1500)); });
-  await page.waitForTimeout(600);
-  check('0秒でホーム画面にもどる', await page.evaluate(() => document.getElementById('s-home').classList.contains('on')));
-  check('ホームに戻ると結果のカウントダウンは消えている', await page.evaluate(() => !document.getElementById('rhcd')));
+  await page.waitForTimeout(1500);
+  check('結果画面にカウントダウンは出ない', await page.evaluate(() => !document.getElementById('rhcd') && !document.body.textContent.includes('ホーム画面に もどります')));
+  await page.waitForTimeout(10500);
+  check('10秒たっても結果画面のまま', await page.evaluate(() => document.getElementById('s-result').classList.contains('on')));
 
   // ---- 2) ホームのカウントダウンはページャーのすぐ下 ----
   await page.evaluate(() => { show('s-home'); nqArm(); });

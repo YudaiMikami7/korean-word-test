@@ -3953,8 +3953,8 @@ let _nqLastAct=Date.now();
 function nqTouch(){_nqLastAct=Date.now();if(_nqArmed)nqDisarm();} // 操作したら一旦引っこめる
 ["pointerdown","keydown","wheel","touchstart"].forEach(ev=>document.addEventListener(ev,nqTouch,{passive:true,capture:true}));
 document.addEventListener("visibilitychange",()=>{
-  if(document.hidden){nqStopBar();rhDisarm();try{cancelHomeCountdown();}catch(e){}try{d5StopCountdown();}catch(e){}} // 他アプリ・閉じたら止める
-  else{_nqLastAct=Date.now();const r=document.getElementById("s-result");if(r&&r.classList.contains("on"))rhArm();} // 戻ってきたら数えなおし
+  if(document.hidden){nqStopBar();try{cancelHomeCountdown();}catch(e){}try{d5StopCountdown();}catch(e){}} // 他アプリ・閉じたら止める
+  else{_nqLastAct=Date.now();}
 });
 setInterval(()=>{
   if(_nqArmed||_nqIv)return;
@@ -3963,54 +3963,8 @@ setInterval(()=>{
   nqArm();
 },1000);
 
-/* ============================================================ 結果画面：あと10秒でホームに戻る（メール指示 2026-08-29 22:45）
- * 結果を見たまま止まってしまわないように、結果画面でも10秒の字幕を出して自動でホームへ戻す。
- * ・中止ボタンでいつでも止められる。
- * ・結果画面から離れたら消える（もう一度結果画面に来たら10秒から数えなおす）。 */
-const RH_SEC=10;
-let _rhIv=null,_rhLeft=0,_rhPoll=null;
-function rhBusy(){
-  try{
-    if(document.hidden)return true; // 他のアプリを見ている・閉じている間は進めない（メール指示 2026-08-31）
-    const r=document.getElementById("s-result");
-    if(!r||!r.classList.contains("on"))return true;
-    // カード獲得演出・XP/PWR/レベルアップなどのポップアップが出ている間は数えはじめない（メール指示 2026-08-31）
-    if(document.querySelector(".appconfirm,.lvup,.gainpop,.cardget,.lapdone,.streak-cel,.rest-ask,.d5auto,#coach,#a2hs"))return true;
-  }catch(e){return true;}
-  return false;
-}
-/* 結果画面に入ったら見張りをはじめ、ポップアップが全部閉じてから字幕を出す（メール指示 2026-08-31） */
-function rhArm(){
-  rhDisarm();
-  if(_rhPoll)clearInterval(_rhPoll);
-  _rhPoll=setInterval(()=>{
-    const r=document.getElementById("s-result");
-    if(!r||!r.classList.contains("on")){clearInterval(_rhPoll);_rhPoll=null;return;} // 結果画面を離れたらやめる
-    if(rhBusy())return;                                   // まだポップアップが出ている
-    clearInterval(_rhPoll);_rhPoll=null;rhStartBar();
-  },300);
-}
-function rhStartBar(){
-  if(rhBusy())return;
-  const el=document.createElement("div");el.className="nqcd";el.id="rhcd";
-  el.innerHTML=`<span>あと<b id="rh-sec">${RH_SEC}</b>秒で ホーム画面に もどります</span>
-    <button onclick="rhCancel()">中止</button>`;
-  document.body.appendChild(el);
-  requestAnimationFrame(()=>el.classList.add("on"));
-  _rhLeft=RH_SEC;
-  _rhIv=setInterval(()=>{
-    if(rhBusy()){rhDisarm();return;}
-    _rhLeft--;
-    const n=document.getElementById("rh-sec");if(n)n.textContent=Math.max(0,_rhLeft);
-    if(_rhLeft<=0){rhDisarm();try{resultGoHome();}catch(e){}}
-  },1000);
-}
-function rhDisarm(){
-  if(_rhPoll){clearInterval(_rhPoll);_rhPoll=null;}
-  if(_rhIv){clearInterval(_rhIv);_rhIv=null;}
-  const el=document.getElementById("rhcd");if(el)el.remove();
-}
-function rhCancel(){rhDisarm();}
+/* 結果画面：あと10秒でホームに戻る自動カウントダウンは廃止（メール指示 2026-10-28 22:16）。
+ * XPなどのポップアップと重なって動かず、そもそも自動で戻る必要もないため、結果画面は「ホーム」ボタンで戻るだけにする。 */
 
 /* WORLD番号の丸ページャー：左右にWORLDを並べ、選択中を中央に。切替中だけ表示し復習どき/カウントダウンは一時的にフェードで隠す */
 let _pagerT=null;
@@ -6106,7 +6060,6 @@ function show(id){
     else if(QR.balls.some(b=>b.layer==="home-rain")&&!QR.raf){QR.active="home-rain";QR.calm=0;QR.last=0;QR.raf=requestAnimationFrame(qrStep);} // 途中で離脱した玉を着地させる
   }
   if(id==="s-home"){renderHome();playHomeBtnFly();} // 今日の5問を終えた直後は、カプセルが入れかわる演出を出す
-  if(id==="s-result")setTimeout(rhArm,300); else rhDisarm(); // 結果画面は10秒でホームへ（メール指示 2026-08-29 22:45）
   if(id==="s-home"&&_nqAfterQuiz){_nqAfterQuiz=false;setTimeout(nqArm,1400);} // 今日の5問のあとも、つぎの問題まで10秒（メール指示 2026-08-29）
 }
 
@@ -10807,7 +10760,7 @@ function renderRoomCurve(){if(!CURVE_ON){show("s-home");return;}_curveIdx=curSec
 /* ============================================================ utils ============================================================ */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 /* バージョン表示（トップページ） */
-const APP_VERSION="v8.4 (2026-09-13)";
+const APP_VERSION="v8.5 (2026-10-28)";
 (function(){const el=document.getElementById("appver");if(el)el.textContent=APP_VERSION;})();
 getUserId();
 document.body.classList.toggle("bigtext",!!loadSettings().bigText); // 文字サイズ設定を反映
